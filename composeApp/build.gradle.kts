@@ -1,46 +1,35 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import com.eferraz.buildlogic.scopes.application
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.foundation.project.application)
+    alias(libs.plugins.foundation.library.compose)
+    alias(libs.plugins.foundation.library.koin)
+    alias(libs.plugins.foundation.library.navigation)
+}
+
+application {
+    namespace = "com.eferraz.investmentskmp"
+    versionCode = 1
+    versionName = "1.0.0"
 }
 
 kotlin {
 
-    jvm()
-    
-    sourceSets {
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-        }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-        }
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
-        }
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    dependencies {
+
+        implementation(libs.androidx.lifecycle.viewmodel)
+        implementation(libs.androidx.lifecycle.runtimeCompose)
+
+        implementation(libs.coil.compose)
+        implementation(libs.coil.network.ktor3)
+
+        implementation(libs.paging.common)
+        implementation(libs.paging.compose.common)
     }
 }
 
-
-compose.desktop {
-    application {
-        mainClass = "com.eferraz.investmentskmp.MainKt"
-
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.eferraz.investmentskmp"
-            packageVersion = "1.0.0"
-        }
-    }
+dependencies {
+    debugImplementation(compose.uiTooling)
 }
