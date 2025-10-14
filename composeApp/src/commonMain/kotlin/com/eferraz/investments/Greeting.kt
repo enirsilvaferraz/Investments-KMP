@@ -1,4 +1,4 @@
-package com.eferraz.investmentskmp
+package com.eferraz.investments
 
 internal class Greeting {
     private val platform = getPlatform()

@@ -1,9 +1,9 @@
-package com.eferraz.investmentskmp
+package com.eferraz.investments
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ComposeAppDesktopTest {
+class ComposeAppCommonTest {
 
     @Test
     fun example() {

@@ -1,12 +1,12 @@
-package com.eferraz.investmentskmp
+package com.eferraz.investments
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 
-public fun main(): Unit = application {
+public fun main():Unit = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "InvestmentsKMP",
+        title = "Investments",
     ) {
         App()
     }
