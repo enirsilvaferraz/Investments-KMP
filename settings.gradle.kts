@@ -2,6 +2,10 @@ rootProject.name = "Investments"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+
+    includeBuild("build-logic")
+
+    @Suppress("UnstableApiUsage")
     repositories {
         google {
             mavenContent {
@@ -16,6 +20,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+    @Suppress("UnstableApiUsage")
     repositories {
         google {
             mavenContent {
@@ -25,6 +30,12 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+    }
+
+    versionCatalogs {
+        create("libs") {
+            from(files("build-logic/gradle/libs.versions.toml"))
+        }
     }
 }
 

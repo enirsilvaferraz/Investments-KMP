@@ -1,7 +1,7 @@
 package com.eferraz.investments
 
-class JVMPlatform: Platform {
+internal class JVMPlatform: Platform {
     override val name: String = "Java ${System.getProperty("java.version")}"
 }
 
-actual fun getPlatform(): Platform = JVMPlatform()
+internal actual fun getPlatform(): Platform = JVMPlatform()

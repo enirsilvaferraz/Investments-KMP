@@ -21,7 +21,7 @@ import investments.app.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
-fun App() {
+internal fun App() {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(

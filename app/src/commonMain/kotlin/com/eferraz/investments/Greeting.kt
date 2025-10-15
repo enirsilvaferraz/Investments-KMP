@@ -1,6 +1,6 @@
 package com.eferraz.investments
 
-class Greeting {
+internal class Greeting {
     private val platform = getPlatform()
 
     fun greet(): String {
