@@ -2,8 +2,8 @@ package com.eferraz.investments
 
 import android.os.Build
 
-internal class AndroidPlatform : Platform {
+class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
 }
 
-internal actual fun getPlatform(): Platform = AndroidPlatform()
+actual fun getPlatform(): Platform = AndroidPlatform()

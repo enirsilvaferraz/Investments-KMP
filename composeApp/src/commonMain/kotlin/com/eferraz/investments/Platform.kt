@@ -1,7 +1,7 @@
 package com.eferraz.investments
 
-internal interface Platform {
+interface Platform {
     val name: String
 }
 
-internal expect fun getPlatform(): Platform
+expect fun getPlatform(): Platform

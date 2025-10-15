@@ -2,8 +2,8 @@ package com.eferraz.investments
 
 import platform.UIKit.UIDevice
 
-internal class IOSPlatform: Platform {
+class IOSPlatform: Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
 }
 
-internal actual fun getPlatform(): Platform = IOSPlatform()
+actual fun getPlatform(): Platform = IOSPlatform()

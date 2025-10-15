@@ -2,7 +2,6 @@ rootProject.name = "Investments"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
-    includeBuild("build-logic")
     repositories {
         google {
             mavenContent {
@@ -26,12 +25,6 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-    }
-
-    versionCatalogs {
-        create("libs") {
-            from(files("build-logic/gradle/libs.versions.toml"))
-        }
     }
 }
 
