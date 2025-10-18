@@ -1,0 +1,15 @@
+<resources>
+    <string name="fixed_income_screen_title">Fixed Income</string>
+    <string name="fixed_income_no_investments_message">No fixed income investments found.</string>
+    <string name="fixed_income_error_message">Error loading investments.</string>
+    <string name="fixed_income_header_id">ID</string>
+    <string name="fixed_income_header_owner">Owner</string>
+    <string name="fixed_income_header_custodian">Custodian</string>
+    <string name="fixed_income_header_description">Description</string>
+    <string name="fixed_income_header_invested_amount">Invested Amount</string>
+    <string name="fixed_income_header_current_amount">Current Amount</string>
+    <string name="fixed_income_header_due_date">Due Date</string>
+    <string name="fixed_income_header_profitability">Profitability</string>
+    <string name="fixed_income_header_liquidity">Liquidity</string>
+    <string name="fixed_income_header_issuer_bank">Issuer Bank</string>
+</resources>
