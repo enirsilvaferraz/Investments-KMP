@@ -1,4 +1,6 @@
-package com.eferraz.pokedex.ui
+package com.eferraz.pokedex.entities
+
+import kotlinx.datetime.LocalDate
 
 /**
  * Represents an investment data class.
@@ -18,19 +20,27 @@ package com.eferraz.pokedex.ui
  * @property issuerBank The bank that issued the investment. Ex: Banco do Brasil, Inter, NuBank, etc.
  * @property note Observations about the investment.
  */
-internal data class FixedIncomeInvestment(
-    val id: String,
-    val owner: String,
-    val brokerageFirm: String,
+internal data class FixedIncome(
+    val id: Long = 0,
+    val owner: Owner,
+    val brokerageFirm: BrokerageFirm,
     val description: String,
-    val investedAmount: String,
-    val currentAmount: String,
-    val purchaseDate: String,
-    val maturityDate: String,
-    val profitability: String,
-    val profitabilityIndex: String,
-    val type: String,
-    val liquidity: String,
-    val issuerBank: String,
-    val note: String,
+    val investedAmount: Double,
+    val currentAmount: Double,
+    val purchaseDate: LocalDate,
+    val maturityDate: LocalDate,
+    val profitability: Float,
+    val profitabilityIndex: ProfitabilityIndex,
+    val type: FixedIncomeType,
+    val liquidity: Liquidity,
+    val issuerBank: IssuerBank,
+    val note: String? = null,
 )
+
+internal data class Owner(val id: Long = 0, val name: String)
+internal data class BrokerageFirm(val id: Long = 0, val name: String)
+internal data class FixedIncomeType(val id: Long = 0, val name: String)
+internal enum class Liquidity { DAILY, AT_MATURITY }
+internal data class IssuerBank(val id: Long = 0, val name: String)
+internal enum class ProfitabilityIndex { POST_FIXED, INFLATION_LINKED, PRE_FIXED }
+

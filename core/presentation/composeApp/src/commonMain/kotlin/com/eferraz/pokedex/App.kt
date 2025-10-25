@@ -6,7 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eferraz.pokedex.di.AppDI
+import com.eferraz.pokedex.theme.AppTheme
 import com.eferraz.pokedex.ui.HomeRoute
+import com.eferraz.pokedex.ui.SupportingPane
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinMultiplatformApplication
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -15,7 +17,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 @Preview
 public fun InternalApp() {
 
-    MaterialTheme {
+    AppTheme {
 
         @OptIn(KoinExperimentalAPI::class)
         KoinMultiplatformApplication(config = AppDI()) {
@@ -25,7 +27,8 @@ public fun InternalApp() {
             NavHost(navController = navController, startDestination = HomeRouting) {
 
                 composable<HomeRouting> {
-                    HomeRoute()
+//                    HomeRoute()
+                    SupportingPane()
 //                    {
 //                        navController.navigate(PokemonDetailRouting(it.id))
 //                    }

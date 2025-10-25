@@ -37,14 +37,19 @@ kotlin {
         implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.1.2")
 
 //        implementation(this@kotlin.compose.material3AdaptiveNavigationSuite)
-        implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.9.0")
-        implementation("org.jetbrains.compose.material3:material3-window-size-class:1.9.0")
+//        implementation("org.jetbrains.compose.material3:material3:1.9.0")
+//        implementation("org.jetbrains.compose.material3:material3-adaptive-navigation-suite:1.9.0")
+//        implementation("org.jetbrains.compose.material3:material3-window-size-class:1.9.0")
+
+        implementation("org.jetbrains.compose.material3:material3:1.9.0")
 
         implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
 //        implementation("org.jetbrains.compose.material:material-navigation:1.9.1")
 
 
         implementation("com.seanproctor:data-table-material3:0.11.4")
+
+        implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
     }
 }
 
