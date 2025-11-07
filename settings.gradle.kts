@@ -47,19 +47,19 @@ include(":app")
 
 
 include(":composeApp")
-project(":composeApp").projectDir = File(settingsDir,"core/presentation/composeApp")
+project(":composeApp").projectDir = File(settingsDir, "core/presentation/composeApp")
 
-//include(":entity")
-//project(":entity").projectDir = File(settingsDir,"core/domain/entity")
-//
-//include(":usecases")
-//project(":usecases").projectDir = File(settingsDir,"core/domain/usecases")
-//
-//include(":repositories")
-//project(":repositories").projectDir = File(settingsDir,"core/data/repositories")
-//
-//include(":network")
-//project(":network").projectDir = File(settingsDir,"core/data/network")
-//
-//include(":database")
-//project(":database").projectDir = File(settingsDir,"core/data/database")
+include(":entity")
+project(":entity").projectDir = File(settingsDir, "core/domain/entity")
+
+include(":usecases")
+project(":usecases").projectDir = File(settingsDir, "core/domain/usecases")
+
+include(":repositories")
+project(":repositories").projectDir = File(settingsDir, "core/data/repositories")
+
+include(":network")
+project(":network").projectDir = File(settingsDir, "core/data/network")
+
+include(":database")
+project(":database").projectDir = File(settingsDir, "core/data/database")
