@@ -159,24 +159,32 @@ import java.time.YearMonth
 /**
  * Representa um registro de histórico mensal para uma `AssetHolding`.
  *
- * @property id O identificador único do registro de histórico.
- * @property holdingId A referência ao ID da `AssetHolding` a que este registro pertence.
- * @property referenceDate O mês e ano de referência para este snapshot (ex: 2023-10).
+ * @property id O identificador único do registro de histórico (chave primária).
+ * @property holding A referência direta para a `AssetHolding` a que este registro pertence.
+ * @property referenceDate O mês e ano de referência para este snapshot.
  * @property endOfMonthValue O valor de mercado total da posição no final do mês.
- * @property earnings Os rendimentos (juros, dividendos) recebidos durante o mês.
+ * @property earnings A lista de todos os rendimentos (dividendos, juros, etc.) recebidos durante o mês.
  * @property quantity A quantidade do ativo detida no final do mês.
  * @property totalInvested O valor total investido na posição até o final do mês.
  */
 data class HoldingHistoryEntry(
     val id: Long,
-    val holdingId: Long,
+    val holding: AssetHolding,
     val referenceDate: YearMonth,
     val endOfMonthValue: BigDecimal,
-    val earnings: MonthlyEarnings,
+    val earnings: List<Earning>,
     val quantity: Double,
     val totalInvested: BigDecimal
 )
 ```
+
+### Nota sobre a Chave Primária em `HoldingHistoryEntry`
+
+Embora a combinação de `(holding, referenceDate)` seja naturalmente única, a entidade utiliza um campo `id` simples como chave primária (uma **chave substituta** ou *surrogate key*). Esta é uma decisão de design pragmática que traz benefícios significativos:
+
+*   **Simplicidade:** Facilita a interação com frameworks de banco de dados (ORMs), que são altamente otimizados para chaves de coluna única em operações de busca, atualização e exclusão.
+*   **Relacionamentos:** Simplifica a criação de chaves estrangeiras se, no futuro, outra entidade precisar referenciar um registro de histórico específico.
+*   **Flexibilidade:** Permite maior liberdade para futuras alterações no modelo sem quebrar a identidade fundamental do registro.
 
 ---
 
@@ -204,15 +212,31 @@ data class Brokerage(val id: Long, val name: String)
  */
 data class Issuer(val id: Long, val name: String)
 
+// --- Rendimentos (Earnings) ---
+
 /**
- * Agrupa os diferentes tipos de rendimentos recebidos em um mês.
- * @property interest O total de juros ou rendimentos recebidos no mês.
- * @property dividends O total de dividendos ou JCP recebidos.
+ * Contrato para qualquer tipo de rendimento (provento) recebido em um mês.
+ * Esta abordagem polimórfica permite que o sistema seja facilmente estendido
+ * para novos tipos de rendimentos no futuro.
+ *
+ * @property value O valor monetário do rendimento recebido.
  */
-data class MonthlyEarnings(
-    val interest: BigDecimal,
-    val dividends: BigDecimal
-)
+sealed interface Earning {
+    val value: BigDecimal
+}
+
+/** Representa o recebimento de dividendos. */
+data class Dividend(override val value: BigDecimal) : Earning
+
+/** Representa o recebimento de Juros Sobre Capital Próprio (JCP). */
+data class Jcp(override val value: BigDecimal) : Earning
+
+/** Representa juros recebidos, tipicamente de ativos de Renda Fixa. */
+data class Interest(override val value: BigDecimal) : Earning
+
+/** Representa a amortização de um ativo, comum em FIIs e CRIs/CRAs. */
+data class Amortization(override val value: BigDecimal) : Earning
+
 
 // --- Liquidez e Enums ---
 
