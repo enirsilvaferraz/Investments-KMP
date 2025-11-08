@@ -188,7 +188,13 @@ Embora a combinação de `(holding, referenceDate)` seja naturalmente única, a 
 
 ---
 
-## Entidades e Tipos de Suporte
+## Entidades de Suporte
+
+Esta seção detalha as entidades que, embora não façam parte das camadas principais da arquitetura, são conceitos de primeira classe no domínio. Elas representam atores ou instituições do mundo real, possuem identidade própria e ciclo de vida independente. Sua separação em entidades próprias é crucial para a reutilização e consistência dos dados, permitindo, por exemplo, que a mesma corretora (`Brokerage`) seja associada a múltiplas posições (`AssetHolding`).
+
+### Owner (Proprietário)
+
+Representa o "quem" do investimento. É a pessoa física ou jurídica detentora da posição. Esta entidade é fundamental para a organização da carteira e para a funcionalidade de visualização de ativos por proprietário.
 
 ```kotlin
 /**
@@ -197,23 +203,45 @@ Embora a combinação de `(holding, referenceDate)` seja naturalmente única, a 
  * @property name O nome do proprietário.
  */
 data class Owner(val id: Long, val name: String)
+```
 
+### Brokerage (Corretora)
+
+Representa o "onde" do investimento. É a instituição financeira que serve como intermediária e onde a posição está custodiada. A corretora é responsável por executar as ordens de compra e venda e manter o registro dos ativos.
+
+```kotlin
 /**
  * Representa a instituição financeira onde o ativo está custodiado.
  * @property id O identificador único da corretora.
  * @property name O nome da corretora.
  */
 data class Brokerage(val id: Long, val name: String)
+```
 
+### Issuer (Emissor)
+
+Representa o "criador" do ativo. É a entidade que emitiu o ativo financeiro. O emissor varia conforme a natureza do ativo: para um CDB, é um banco; para uma ação, é a própria companhia; para um fundo, é a gestora (asset management). Esta entidade é vital para a análise de risco e origem do ativo.
+
+```kotlin
 /**
  * Representa a entidade que emitiu o ativo.
  * @property id O identificador único do emissor.
  * @property name O nome do emissor.
  */
 data class Issuer(val id: Long, val name: String)
+```
 
-// --- Rendimentos (Earnings) ---
+---
 
+## Tipos de Dados e Enumerações
+
+Esta seção agrupa os blocos de construção e classificações que descrevem ou restringem as propriedades das entidades principais. Diferente das entidades de suporte, estes tipos não possuem identidade ou ciclo de vida próprios; eles são **Value Objects** ou enumerações que adicionam significado e segurança ao modelo.
+
+### Rendimentos (Earning)
+
+Define um contrato polimórfico para os diferentes tipos de proventos que uma posição pode gerar. Esta abordagem permite que o sistema seja estendido para acomodar novos tipos de rendimentos no futuro (ex: bonificação em ações) sem alterar as entidades existentes, seguindo o Princípio Aberto/Fechado.
+
+```kotlin
 /**
  * Contrato para qualquer tipo de rendimento (provento) recebido em um mês.
  * Esta abordagem polimórfica permite que o sistema seja facilmente estendido
@@ -236,17 +264,26 @@ data class Interest(override val value: BigDecimal) : Earning
 
 /** Representa a amortização de um ativo, comum em FIIs e CRIs/CRAs. */
 data class Amortization(override val value: BigDecimal) : Earning
+```
 
+### Liquidez (Liquidity)
 
-// --- Liquidez e Enums ---
+Modela as diferentes regras de conversão do ativo em dinheiro. O uso de uma `sealed interface` garante que cada categoria de ativo só possa ser associada às regras de liquidez que lhe são permitidas, reforçando a consistência do modelo em tempo de compilação.
 
+```kotlin
 sealed interface Liquidity
 sealed interface FixedLiquidity : Liquidity {
     object Daily : FixedLiquidity
     object AtMaturity : FixedLiquidity
 }
 data class OnDaysAfterSale(val days: Int) : Liquidity
+```
 
+### Enumerações de Ativos
+
+Representam conjuntos fixos e pré-definidos de opções para classificar os ativos. O uso de `enum class` fornece um vocabulário controlado para o domínio, ideal para lógicas de negócio, filtros de UI e para garantir a integridade dos dados, evitando o uso de strings arbitrárias.
+
+```kotlin
 enum class FixedIncomeAssetType { POST_FIXED, PRE_FIXED, INFLATION_LINKED }
 enum class FixedIncomeSubType { CDB, LCI, LCA, CRA, CRI, DEBENTURE }
 enum class VariableIncomeAssetType { NATIONAL_STOCK, INTERNATIONAL_STOCK, REAL_ESTATE_FUND, ETF }
