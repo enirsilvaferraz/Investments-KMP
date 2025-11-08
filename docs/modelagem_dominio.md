@@ -7,7 +7,7 @@ Este documento descreve a modelagem do domínio para as entidades de ativos de i
 A modelagem é dividida em três camadas conceituais para garantir clareza, flexibilidade e escalabilidade:
 
 1.  **`Asset` (O Ativo):** Representa as características **intrínsecas** de um ativo negociável (ex: a ação PETR4, um CDB específico). Descreve "o quê" é o ativo.
-2.  **`AssetHolding` (A Posição):** Representa a **posse** de um `Asset` por um `Owner` em uma `Brokerage`. Descreve "quem" possui, "onde", "quanto" e os dados financeiros **atuais** da posição. É a entidade central da carteira.
+2.  **`AssetHolding` (A Posição):** Representa a **posse** de um `Asset` por um `Owner` em uma `Brokerage`. Esta é uma entidade rica que encapsula não apenas os dados da posição, mas também as **regras de negócio** associadas a ela.
 3.  **`HoldingHistoryEntry` (O Histórico):** Representa um **snapshot mensal** do desempenho de uma `AssetHolding`, permitindo a análise da evolução da posição ao longo do tempo.
 
 ---
@@ -93,10 +93,11 @@ data class InvestmentFundAsset(
 
 ## Camada 2: AssetHolding (A Posição)
 
-Esta entidade central conecta um `Asset` a um `Owner` e a uma `Brokerage`, representando uma posição real e única na carteira com seus dados financeiros atuais.
+Esta entidade central conecta um `Asset` a um `Owner` e a uma `Brokerage`. Evoluiu de uma simples estrutura de dados para uma **entidade rica**, que encapsula as regras de negócio relativas a uma posição, como o recálculo do custo médio após um novo aporte.
 
 ```kotlin
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 /**
  * Representa a posse de um ativo por um proprietário em uma corretora.
@@ -122,7 +123,28 @@ data class AssetHolding(
     val averageCost: BigDecimal,
     val investedValue: BigDecimal,
     val currentValue: BigDecimal
-)
+) {
+    /**
+     * Retorna uma nova instância de `AssetHolding` refletindo um novo aporte (compra).
+     * A lógica de recálculo do custo médio está encapsulada aqui, garantindo consistência.
+     *
+     * @param purchaseQuantity A quantidade de novas unidades compradas.
+     * @param costPerUnit O custo por unidade na nova compra.
+     * @return Uma nova instância de `AssetHolding` com os valores atualizados.
+     */
+    fun recordPurchase(purchaseQuantity: Double, costPerUnit: BigDecimal): AssetHolding {
+        val newQuantity = this.quantity + purchaseQuantity
+        val purchaseValue = costPerUnit.multiply(BigDecimal.valueOf(purchaseQuantity))
+        val newInvestedValue = this.investedValue.add(purchaseValue)
+        val newAverageCost = newInvestedValue.divide(BigDecimal.valueOf(newQuantity), 10, RoundingMode.HALF_UP)
+
+        return this.copy(
+            quantity = newQuantity,
+            averageCost = newAverageCost,
+            investedValue = newInvestedValue
+        )
+    }
+}
 ```
 
 ### Convenção de Unidades para `AssetHolding`
@@ -175,7 +197,14 @@ data class HoldingHistoryEntry(
     val earnings: List<Earning>,
     val quantity: Double,
     val totalInvested: BigDecimal
-)
+) {
+    /**
+     * Calcula e retorna a soma de todos os rendimentos recebidos no mês.
+     */
+    fun totalEarnings(): BigDecimal {
+        return earnings.sumOf { it.value }
+    }
+}
 ```
 
 ### Nota sobre a Chave Primária em `HoldingHistoryEntry`
@@ -188,7 +217,7 @@ Embora a combinação de `(holding, referenceDate)` seja naturalmente única, a 
 
 ---
 
-## Entidades de Suporte
+## Entidades Fundamentais
 
 Esta seção detalha as entidades que, embora não façam parte das camadas principais da arquitetura, são conceitos de primeira classe no domínio. Elas representam atores ou instituições do mundo real, possuem identidade própria e ciclo de vida independente. Sua separação em entidades próprias é crucial para a reutilização e consistência dos dados, permitindo, por exemplo, que a mesma corretora (`Brokerage`) seja associada a múltiplas posições (`AssetHolding`).
 
@@ -233,9 +262,9 @@ data class Issuer(val id: Long, val name: String)
 
 ---
 
-## Tipos de Dados e Enumerações
+## Tipos de Valor e Classificações
 
-Esta seção agrupa os blocos de construção e classificações que descrevem ou restringem as propriedades das entidades principais. Diferente das entidades de suporte, estes tipos não possuem identidade ou ciclo de vida próprios; eles são **Value Objects** ou enumerações que adicionam significado e segurança ao modelo.
+Esta seção agrupa os blocos de construção e classificações que descrevem ou restringem as propriedades das entidades principais. Diferente das entidades fundamentais, estes tipos não possuem identidade ou ciclo de vida próprios; eles são **Value Objects** ou enumerações que adicionam significado e segurança ao modelo.
 
 ### Rendimentos (Earning)
 
@@ -279,7 +308,7 @@ sealed interface FixedLiquidity : Liquidity {
 data class OnDaysAfterSale(val days: Int) : Liquidity
 ```
 
-### Enumerações de Ativos
+### Classificações de Ativos (Enums)
 
 Representam conjuntos fixos e pré-definidos de opções para classificar os ativos. O uso de `enum class` fornece um vocabulário controlado para o domínio, ideal para lógicas de negócio, filtros de UI e para garantir a integridade dos dados, evitando o uso de strings arbitrárias.
 
