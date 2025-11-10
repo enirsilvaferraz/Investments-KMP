@@ -24,7 +24,6 @@ erDiagram
         TEXT name "NN"
         TEXT category "NN"
         TEXT liquidity_rule "NN"
-        INTEGER liquidity_days
     }
     FIXED_INCOME_ASSETS {
         INTEGER asset_id PK, FK "NN"
@@ -38,10 +37,12 @@ erDiagram
         INTEGER asset_id PK, FK "NN"
         TEXT type "NN"
         TEXT ticker "NN, UNIQUE"
+        INTEGER liquidity_days
     }
     INVESTMENT_FUND_ASSETS {
         INTEGER asset_id PK, FK "NN"
         TEXT type "NN"
+        INTEGER liquidity_days "NN"
         TEXT expiration_date
     }
     ASSET_HOLDINGS {
@@ -123,9 +124,8 @@ CREATE TABLE assets (
     -- Coluna discriminadora: 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND'
     category TEXT NOT NULL, 
     
-    -- Campos de Liquidez (Comuns)
+    -- A regra de liquidez é comum, mas os dias específicos são movidos para as subclasses.
     liquidity_rule TEXT NOT NULL, -- Ex: 'DAILY', 'AT_MATURITY', 'D_PLUS_DAYS'
-    liquidity_days INTEGER,       -- Para regras como 'D_PLUS_DAYS'
 
     FOREIGN KEY (issuer_id) REFERENCES issuers(id) ON DELETE RESTRICT
 );
@@ -155,6 +155,7 @@ CREATE TABLE variable_income_assets (
     asset_id INTEGER PRIMARY KEY,
     type TEXT NOT NULL,
     ticker TEXT NOT NULL UNIQUE,
+    liquidity_days INTEGER, -- Apenas para regras como 'D_PLUS_DAYS'
 
     FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
 );
@@ -165,6 +166,7 @@ CREATE TABLE variable_income_assets (
 CREATE TABLE investment_fund_assets (
     asset_id INTEGER PRIMARY KEY,
     type TEXT NOT NULL,
+    liquidity_days INTEGER NOT NULL, -- Para regras como 'D_PLUS_DAYS'
     expiration_date TEXT, -- Formato 'YYYY-MM-DD' (Opcional)
 
     FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
