@@ -1,0 +1,33 @@
+package com.eferraz.entities
+
+import kotlinx.datetime.LocalDate
+
+/**
+ * Representa um registro de histórico mensal para uma `AssetHolding`.
+ *
+ * @property id O identificador único do registro de histórico (chave primária).
+ * @property holding A referência direta para a `AssetHolding` a que este registro pertence.
+ * @property referenceDate O mês e ano de referência para este snapshot.
+ * @property endOfMonthValue O valor de mercado total da posição no final do mês.
+ * @property endOfMonthQuantity A quantidade do ativo detida no final do mês.
+ * @property endOfMonthAverageCost O custo médio do ativo na posição no final do mês.
+ * @property earnings A lista de todos os rendimentos (dividendos, juros, etc.) recebidos durante o mês.
+ * @property totalInvested O valor total investido na posição até o final do mês.
+ */
+public data class HoldingHistoryEntry(
+    public val id: Long,
+    public val holding: AssetHolding,
+    public val referenceDate: LocalDate,
+    public val endOfMonthValue: Double,
+    public val endOfMonthQuantity: Double,
+    public val endOfMonthAverageCost: Double,
+    public val earnings: List<Earning>,
+    public val totalInvested: Double
+) {
+    /**
+     * Calcula e retorna a soma de todos os rendimentos recebidos no mês.
+     */
+    public fun totalEarnings(): Double {
+        return earnings.sumOf { it.value }
+    }
+}
