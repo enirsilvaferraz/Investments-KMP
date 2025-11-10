@@ -1,87 +1,135 @@
-# Requisitos Funcionais - Tela de consulta de ativos posicionados em uma determinada data (mês e ano)
+# Requisitos Funcionais - Tela de Consulta de Posição do Ativo por Período
 
-## Objetivo
+## 1. Objetivo
 
-Essa tela deve apresentar a lista com todos os ativos cadastrados que possuam posicionamento (holding) em um determinado período (mês/ano).
+Apresentar ao usuário uma visão consolidada de suas posições de ativos (`holdings`) em um determinado período (mês/ano), permitindo comparar com o
+período imediatamente anterior e analisar a valorização de cada ativo.
 
-Deverá apresentar um campo de entrada de dados (dropbox) com algumas opções de mês e ano para selecionar o período corrente da tela.
-Ex.: 2025/01, 2025/02, 2025/03 assim por diante.
+A tela deverá ter um seletor (ex: Dropdown) para que o usuário escolha o mês e o ano de referência (o "período atual").
 
-## Dados exibidos na tela
+## 2. Dados Exibidos na Tela
 
-A tabela que será apresentada na tela possuirá os seguintes campos:
+A tabela principal exibirá os seguintes dados para cada posição encontrada no **período atual** selecionado:
 
-- Corretora
-    - Nome da corretora onde o ativo está custodiado.
-    - Fonte: `Asset.brokerage.name`
+- **Corretora**:
+    - **Descrição**: Nome da corretora onde o ativo está custodiado.
+    - **Fonte**: `HoldingHistoryEntry.holding.brokerage.name`
 
-- Categoria
-    - Tipo de investimento: Renda Fixa, Renda Variável, Fundo de Investimento.
-    - Fonte: Calculada em runtime
-        - Se Asset for do tipo FixedIncomeAsset: "Renda Fixa"
-        - Se Asset for do tipo VariableIncomeAsset: "Renda Variável"
-        - Se Asset for do tipo InvestmentFundAsset: "Fundo de Investimento"
+- **Categoria**:
+    - **Descrição**: Tipo de investimento do ativo.
+    - **Fonte**: Calculado em tempo de execução, baseado no tipo do `Asset`:
+        - `FixedIncomeAsset` -> "Renda Fixa"
+        - `VariableIncomeAsset` -> "Renda Variável"
+        - `InvestmentFundAsset` -> "Fundo de Investimento"
 
-- Descrição
-    - Nome ou descrição principal do ativo.
-    - Fonte: `Asset.name`
+- **Descrição**:
+    - **Descrição**: Nome principal do ativo.
+    - **Fonte**: `HoldingHistoryEntry.holding.asset.name`
 
-- Vencimento
-    - Data de vencimento do ativo
-    - Fonte:
-        - Se Asset for do tipo FixedIncomeAsset ou InvestmentFundAsse: `Asset.expirationDate`
-        - Senao, apresentar `-` para indicar que o ativo não possui vencimento.
+- **Vencimento**:
+    - **Descrição**: Data de vencimento do ativo, se aplicável.
+    - **Fonte**:
+        - Se o `Asset` for `FixedIncomeAsset` ou `InvestmentFundAsset`: `asset.expirationDate`
+        - Caso contrário, ou se a data não existir, apresentar "—".
 
-- Liquidez
-    - Indica a liquidez do ativo (`Liquidity`)
-    - Fonte: `Asset.liquidity`
+- **Liquidez**:
+    - **Descrição**: Regra de liquidez do ativo.
+    - **Fonte**: `HoldingHistoryEntry.holding.asset.liquidity`. Deve ser formatado para o usuário:
+        - `FixedLiquidity.Daily` -> "Diária"
+        - `FixedLiquidity.AtMaturity` -> "No Vencimento"
+        - `OnDaysAfterSale(days)` -> "D+{days}" (ex: "D+2")
 
-- Quantidade
-    - Indica quantos ativos uma posição possui no mês da consulta (conforme seleção do dropbox de mês e ano)
-    - Fonte: `HoldingHistoryEntry.endOfMonthQuantity`
+---
 
-- Custo Médio
-    - Indica o custo médio do ativo na posição do mês da consulta (conforme seleção do dropbox de mês e ano)
-    - Fonte: `HoldingHistoryEntry.endOfMonthAverageCost`
+### 2.1. Dados do Período Atual
 
-- Custo Total
-    - Indica o valor total do ativo na posição do mês da consulta (conforme seleção do dropbox de mês e ano).
-    - Fonte: Calculado em runtime
-        - valor total = `HoldingHistoryEntry.endOfMonthQuantity` * `HoldingHistoryEntry.endOfMonthAverageCost`
+- **Quantidade**:
+    - **Descrição**: Quantidade de unidades do ativo no final do mês de referência.
+    - **Fonte**: `HoldingHistoryEntryAtual.endOfMonthQuantity`
 
-## Exemplo
+- **Custo Médio**:
+    - **Descrição**: Custo médio por unidade do ativo no final do mês de referência.
+    - **Fonte**: `HoldingHistoryEntryAtual.endOfMonthAverageCost`
 
-| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Quantidade (anterior) | Custo Médio (anterior) | Custo Total (anterior) | Quantidade | Custo Médio   | Custo Total   | Valorização |
-|-----------|----------------|--------------------------------|------------|----------|-----------------------|------------------------|------------------------|------------|---------------|---------------|-------------|
-| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | 1                     | R$ 1000,00             | R$ 1000,00             | 1          | R$ 1000,00    | R$ 1000,00    | 1%          |
-| BTG       | Renda Variável | ETF IVVB11                     | -          | D + 2    | 100                   | R$ 250,00              | R$ 2700,00             | 100        | R$ 250,00     | R$ 2700,00    | 0%          |
-| Inter     | Renda Variável | FII RBB11                      | -          | D + 2    | 5                     | R$ 4,11                | R$ 20,55               | 5          | R$ 4,11       | R$ 20,55      | 0%          |
-| Inter     | Renda Variável | Ação B3SA3                     | -          | D + 2    | 50                    | R$ 27,11               | R$ 135,55              | 50         | R$ 27,11      | R$ 135,55     | 0%          |
-| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc  | 1                     | R$ 100.000,00          | R$ 100.000,00          | 1          | R$ 100.000,00 | R$ 100.000,00 | 0%          |
+- **Custo Total**:
+    - **Descrição**: Valor total investido na posição no final do mês de referência.
+    - **Fonte**: Calculado em tempo de execução:
+        - `Custo Total = HoldingHistoryEntryAtual.endOfMonthQuantity * HoldingHistoryEntryAtual.endOfMonthAverageCost`
 
-## Casos de Uso
+- **Valor de Mercado**:
+    - **Descrição**: Valor de mercado total da posição no final do mês.
+    - **Fonte**: `HoldingHistoryEntryAtual.endOfMonthValue`
 
-### Nenhuma posição (holding) registrada no banco de dados
+---
 
-Dado que não registrei nenhum posicionamento sobre os investimentos
-Quando abro a tela
-Então não devo apresentar nenhuma posição
+### 2.2. Dados do Período Anterior
 
-### Posição registrada para um periodo anterior
+Para fins de comparação, a tela também deve exibir os dados do mês imediatamente anterior ao selecionado.
 
-Dado que registrei uma posição para um periodo anterior mas não para o periodo atual
-Quando abro a tela
-Então devo apresentar a posição para o periodo anterior
+- **Quantidade (Anterior)**:
+    - **Descrição**: Quantidade de unidades do ativo no final do mês anterior.
+    - **Fonte**: `HoldingHistoryEntryAnterior.endOfMonthQuantity`
 
-### Posição registrada para o periodo selecionado
+- **Custo Médio (Anterior)**:
+    - **Descrição**: Custo médio por unidade do ativo no final do mês anterior.
+    - **Fonte**: `HoldingHistoryEntryAnterior.endOfMonthAverageCost`
 
-Dado que registrei uma posição para o periodo selecionado mas não para um periodo anterior
-Quando abro a tela
-Então devo apresentar a posição atual mas não para o periodo anterior
+- **Custo Total (Anterior)**:
+    - **Descrição**: Valor total investido na posição no final do mês anterior.
+    - **Fonte**: Calculado em tempo de execução:
+        - `Custo Total (Anterior) = HoldingHistoryEntryAnterior.endOfMonthQuantity * HoldingHistoryEntryAnterior.endOfMonthAverageCost`
 
-### Posição registrada para o periodo selecionado e para o periodo anterior
+- **Valor de Mercado (Anterior)**:
+    - **Descrição**: Valor de mercado total da posição no final do mês anterior.
+    - **Fonte**: `HoldingHistoryEntryAnterior.endOfMonthValue`
 
-Dado que registrei uma posição para o periodo atual e anterior
-Quando abro a tela
-Então devo apresentar a posição atual e anterior, além dos dados de valorização do investimento no mês
+---
 
+### 2.3. Indicador de Performance
+
+- **Valorização do Mês**:
+    - **Descrição**: Variação percentual do valor de mercado da posição entre o mês anterior e o mês atual.
+    - **Fonte**: Veja a seção **"3. Cálculo de Valorização"**.
+
+## 3. Cálculo de Valorização
+
+A valorização representa o crescimento (ou decrescimento) do **valor de mercado** da posição no período.
+
+- **Fórmula**:
+    - `Valorização = (Valor de Mercado Atual / Valor de Mercado Anterior) - 1`
+    - O resultado deve ser exibido como uma porcentagem (ex: 1,5%).
+
+- **Regras**:
+    - O cálculo só deve ser feito se existir um `HoldingHistoryEntry` para o **mês anterior**.
+    - Se não houver posição no mês anterior (`Valor de Mercado Anterior` é zero ou nulo), a valorização deve ser exibida como "—" ou 0%.
+
+## 4. Exemplo de Tabela
+
+| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Qtde. Ant. | Custo Médio Ant. | Custo Total Ant. | Qtde. Atual | Custo Médio Atual | Custo Total Atual | Valorização | Situação   |
+|-----------|----------------|--------------------------------|------------|----------|------------|------------------|------------------|-------------|-------------------|-------------------|-------------|------------|
+| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | 1          | R$ 1.000,00      | R$ 1.000,00      | 1           | R$ 1.000,00       | R$ 1.000,00       | 1,0%        | Manutenção |
+| BTG       | Renda Variável | ETF IVVB11                     | —          | D+2      | —          | —                | —                | 100         | R$ 250,00         | R$ 25.000,00      | —           | Compra     |
+| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | 1          | R$ 100.000,00    | R$ 100.000,00    | 1           | R$ 100.000,00     | R$ 100.000,00     | 0,8%        | 0,8%       |
+| Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | 50         | R$ 27,11         | R$ 1.355,50      | 0           | —                 | —                 | —           | Venda      |
+
+## 5. Casos de Uso
+
+- **Nenhuma posição registrada:**
+    - **Dado que** não há nenhum `HoldingHistoryEntry` no banco de dados para nenhum período.
+    - **Quando** o usuário abrir a tela.
+    - **Então** a tela deve exibir uma mensagem indicando "Nenhuma posição encontrada".
+
+- **Posição apenas no período anterior:**
+    - **Dado que** existe um `HoldingHistoryEntry` para o mês anterior, mas não para o mês atual selecionado (ex: ativo foi vendido).
+    - **Quando** o usuário selecionar o período atual.
+    - **Então** a linha do ativo deve ser exibida, mostrando os dados do período anterior, "0" ou "—" nos campos do período atual.
+
+- **Posição apenas no período atual:**
+    - **Dado que** existe um `HoldingHistoryEntry` para o mês atual, mas não para o anterior (ex: primeira compra do ativo).
+    - **Quando** o usuário selecionar o período atual.
+    - **Então** a linha do ativo deve ser exibida, com "—" nos campos do período anterior e na valorização.
+
+- **Posição em ambos os períodos:**
+    - **Dado que** existem `HoldingHistoryEntry` para o mês atual e o anterior.
+    - **Quando** o usuário selecionar o período atual.
+    - **Então** a linha do ativo deve ser exibida com todos os dados preenchidos, incluindo a valorização calculada.
