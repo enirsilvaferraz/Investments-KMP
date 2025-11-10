@@ -42,19 +42,6 @@ A tabela principal exibirá os seguintes dados para cada posição encontrada no
 
 ### 2.1. Dados do Período Atual
 
-- **Quantidade**:
-  - **Descrição**: Quantidade de unidades do ativo no final do mês de referência.
-  - **Fonte**: `HoldingHistoryEntryAtual.endOfMonthQuantity`
-
-- **Custo Médio**:
-  - **Descrição**: Custo médio por unidade do ativo no final do mês de referência.
-  - **Fonte**: `HoldingHistoryEntryAtual.endOfMonthAverageCost`
-
-- **Custo Total**:
-  - **Descrição**: Valor total investido na posição no final do mês de referência.
-  - **Fonte**: Calculado em tempo de execução:
-    - `Custo Total = HoldingHistoryEntryAtual.endOfMonthQuantity * HoldingHistoryEntryAtual.endOfMonthAverageCost`
-
 - **Valor de Mercado**:
     - **Descrição**: Valor de mercado total da posição no final do mês.
     - **Fonte**: `HoldingHistoryEntryAtual.endOfMonthValue`
@@ -64,19 +51,6 @@ A tabela principal exibirá os seguintes dados para cada posição encontrada no
 ### 2.2. Dados do Período Anterior
 
 Para fins de comparação, a tela também deve exibir os dados do mês imediatamente anterior ao selecionado.
-
-- **Quantidade (Anterior)**:
-  - **Descrição**: Quantidade de unidades do ativo no final do mês anterior.
-  - **Fonte**: `HoldingHistoryEntryAnterior.endOfMonthQuantity`
-
-- **Custo Médio (Anterior)**:
-  - **Descrição**: Custo médio por unidade do ativo no final do mês anterior.
-  - **Fonte**: `HoldingHistoryEntryAnterior.endOfMonthAverageCost`
-
-- **Custo Total (Anterior)**:
-  - **Descrição**: Valor total investido na posição no final do mês anterior.
-  - **Fonte**: Calculado em tempo de execução:
-    - `Custo Total (Anterior) = HoldingHistoryEntryAnterior.endOfMonthQuantity * HoldingHistoryEntryAnterior.endOfMonthAverageCost`
     
 - **Valor de Mercado (Anterior)**:
     - **Descrição**: Valor de mercado total da posição no final do mês anterior.
@@ -122,14 +96,14 @@ A situação classifica a movimentação da posição no mês, comparando as qua
 
 ## 5. Exemplo de Tabela
 
-| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Qtde. Ant. | Custo Médio Ant. | Custo Total Ant. | Valor Mercado Ant. | Qtde. Atual | Custo Médio Atual | Custo Total Atual | Valor Mercado Atual | Valorização | Situação      |
-|-----------|----------------|--------------------------------|------------|----------|------------|------------------|------------------|--------------------|-------------|-------------------|-------------------|---------------------|-------------|---------------|
-| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | 1          | R$ 1.000,00      | R$ 1.000,00      | R$ 1.000,00        | 1           | R$ 1.000,00       | R$ 1.000,00       | R$ 1.010,00         | 1,0%        | Manutenção    |
-| BTG       | Renda Variável | ETF IVVB11                     | —          | D+2      | —          | —                | —                | —                  | 100         | R$ 250,00         | R$ 25.000,00      | R$ 26.000,00        | —           | Compra        |
-| XP        | Renda Variável | Ação AAPL                      | —          | D+2      | 20         | R$ 150,00        | R$ 3.000,00      | R$ 3.200,00        | 30          | R$ 160,00         | R$ 4.800,00       | R$ 3.456,00         | 8,0%        | Aporte        |
-| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | 1          | R$ 100.000,00    | R$ 100.000,00    | R$ 100.000,00      | 1           | R$ 100.000,00     | R$ 100.000,00     | R$ 100.800,00       | 0,8%        | Manutenção    |
-| Clear     | Renda Variável | Ação MGLU3                     | —          | D+2      | 1000       | R$ 5,00          | R$ 5.000,00      | R$ 5.500,00        | 500         | R$ 5,00           | R$ 2.500,00       | R$ 2.200,00         | -60,0%      | Venda Parcial |
-| Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | 50         | R$ 27,11         | R$ 1.355,50      | R$ 1.400,00        | 0           | —                 | —                 | —                   | —           | Venda Total   |
+| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Valor Mercado Ant. | Valor Mercado Atual | Valorização | Situação      |
+|-----------|----------------|--------------------------------|------------|----------|--------------------|---------------------|-------------|---------------|
+| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | R$ 1.000,00        | R$ 1.010,00         | 1,0%        | Manutenção    |
+| BTG       | Renda Variável | ETF IVVB11                     | —          | D+2      | —                  | R$ 26.000,00        | —           | Compra        |
+| XP        | Renda Variável | Ação AAPL                      | —          | D+2      | R$ 3.200,00        | R$ 3.456,00         | 8,0%        | Aporte        |
+| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | R$ 100.000,00      | R$ 100.800,00       | 0,8%        | Manutenção    |
+| Clear     | Renda Variável | Ação MGLU3                     | —          | D+2      | R$ 5.500,00        | R$ 2.200,00         | -60,0%      | Venda Parcial |
+| Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | R$ 1.400,00        | —                   | —           | Venda Total   |
 
 
 ## 6. Casos de Uso e Situações
