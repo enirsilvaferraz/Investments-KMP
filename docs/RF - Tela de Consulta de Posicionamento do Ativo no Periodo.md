@@ -2,103 +2,110 @@
 
 ## 1. Objetivo
 
-Apresentar ao usuário uma visão consolidada de suas posições de ativos (`holdings`) em um determinado período (mês/ano), permitindo comparar com o período imediatamente anterior e analisar a valorização e a movimentação de cada ativo. A tela servirá como um painel de controle para a performance mensal da carteira.
-
-A principal funcionalidade da tela será uma tabela que exibirá um resumo de cada posição, com um seletor para definir o período de análise.
+Apresentar ao usuário uma visão consolidada de suas posições de ativos (`holdings`) em um determinado período (mês/ano), permitindo comparar com o
+período imediatamente anterior, analisar a valorização e registrar movimentações.
 
 ## 2. Dados Exibidos na Tabela de Posições
 
 A tabela principal deverá exibir os seguintes dados para cada posição (`HoldingHistoryEntry`) encontrada no período de referência:
 
-| Coluna | Descrição | Fonte |
-|:---|:---|:---|
-| **Corretora** | Nome da corretora onde o ativo está custodiado. | `HoldingHistoryEntry.holding.brokerage.name` |
-| **Categoria** | Tipo de investimento do ativo. | Calculado em tempo de execução, baseado no tipo do `Asset`: `FixedIncomeAsset` -> "Renda Fixa", `VariableIncomeAsset` -> "Renda Variável", `InvestmentFundAsset` -> "Fundo de Investimento". |
-| **Descrição** | Nome principal do ativo. | `HoldingHistoryEntry.holding.asset.name` |
-| **Vencimento** | Data de vencimento do ativo, se aplicável. Apresentar "—" caso não se aplique. | `asset.expirationDate` (para `FixedIncomeAsset` ou `InvestmentFundAsset`). |
-| **Liquidez** | Regra de liquidez do ativo. | `asset.liquidity`, formatado para exibição (ex: "Diária", "No Vencimento", "D+2"). |
-| **Valor Mercado Ant.** | Valor de mercado total da posição no final do mês **anterior**. | `HoldingHistoryEntryAnterior.endOfMonthValue` |
-| **Valor Mercado Atual** | Valor de mercado total da posição no final do mês **atual**. | `HoldingHistoryEntryAtual.endOfMonthValue` |
-| **Valorização** | Variação percentual do valor de mercado no mês. | Ver seção **4.1. Cálculo de Valorização**. |
-| **Situação** | Classificação da movimentação da posição no mês. | Ver seção **4.2. Cálculo da Situação**. |
+| Coluna                  | Descrição                                                       | Fonte                                                       |
+|:------------------------|:----------------------------------------------------------------|:------------------------------------------------------------|
+| **Corretora**           | Nome da corretora onde o ativo está custodiado.                 | `HoldingHistoryEntry.holding.brokerage.name`                |
+| **Categoria**           | Tipo de investimento do ativo.                                  | Calculado em tempo de execução, baseado no tipo do `Asset`. |
+| **Descrição**           | Nome principal do ativo.                                        | `HoldingHistoryEntry.holding.asset.name`                    |
+| **Vencimento**          | Data de vencimento do ativo, se aplicável.                      | `asset.expirationDate`                                      |
+| **Liquidez**            | Regra de liquidez do ativo.                                     | `asset.liquidity`                                           |
+| **Valor Mercado Ant.**  | Valor de mercado total da posição no final do mês **anterior**. | `HoldingHistoryEntryAnterior.endOfMonthValue`               |
+| **Valor Mercado Atual** | Valor de mercado total da posição no final do mês **atual**.    | `HoldingHistoryEntryAtual.endOfMonthValue`                  |
+| **Valorização**         | Variação percentual do valor de mercado no mês.                 | Ver seção **4.1. Cálculo de Valorização**.                  |
+| **Situação**            | Classificação da movimentação da posição no mês.                | Ver seção **4.2. Cálculo da Situação**.                     |
 
 ## 3. Ações da Tela
 
 ### 3.1. Selecionar Período de Referência
 
-- **Componente**: Um seletor (Dropdown ou similar) para que o usuário escolha o mês e o ano de referência (o "período atual").
-- **Ação**: Ao selecionar um novo período, a tabela de posições é atualizada para refletir os dados do período escolhido e do seu anterior.
+- **Componente**: Um seletor para que o usuário escolha o mês e o ano de referência.
+- **Ação**: Ao selecionar um novo período, a tabela é atualizada para refletir os dados do período escolhido.
 
-### 3.2. Detalhar Posição do Ativo
+### 3.2. Editar Posição do Ativo
 
 - **Componente**: A própria linha da tabela.
-- **Ação**: Ao tocar (clicar) na linha, o usuário será redirecionado para a **Tela de Detalhes do Ativo**, permitindo uma análise completa da performance do ativo ao longo de todo o seu ciclo de vida.
+- **Ação**: Ao tocar na linha, o usuário será redirecionado para a **Tela de Edição de Posição do Ativo** (ver seção 7), com os campos pré-preenchidos
+  e comportamento adaptado ao tipo de ativo.
+
+### 3.3. Registrar Posição Inicial
+
+- **Componente**: Um Botão de Ação Flutuante (FAB) com um ícone de "+".
+- **Ação**: Ao ser clicado, abre a **Tela de Edição de Posição do Ativo** em modo "criação", para registrar um ativo que ainda não consta na carteira.
 
 ## 4. Regras de Negócio e Cálculos
 
 ### 4.1. Cálculo de Valorização
 
-A valorização representa o crescimento (ou decrescimento) do **valor de mercado** da posição no período.
-
-- **Fórmula**:
-  - `Valorização = (Valor de Mercado Atual / Valor de Mercado Anterior) - 1`
-  - O resultado deve ser exibido como uma porcentagem (ex: 1,5%).
-
+- **Fórmula**: `Valorização = (Valor de Mercado Atual / Valor de Mercado Anterior) - 1`
 - **Regras**:
-  - O cálculo só deve ser feito se existir um `HoldingHistoryEntry` para o **mês anterior** com valor de mercado maior que zero.
-  - Se não houver posição no mês anterior (`Valor de Mercado Anterior` é zero ou nulo), a valorização deve ser exibida como "—".
-  - Se a posição foi totalmente vendida (`Valor de Mercado Atual` é zero), a valorização deve ser exibida como "—".
+    - O cálculo só deve ser feito se houver posição no mês anterior com valor de mercado maior que zero.
+    - Se o `Valor de Mercado Atual` for zero (Venda Total), a valorização deve ser exibida como "—".
 
 ### 4.2. Cálculo da Situação
 
-A situação classifica a movimentação da posição no mês, comparando as quantidades do ativo entre o período atual e o anterior.
+A situação é calculada comparando as quantidades do ativo entre o período atual (`Qtde. Atual`) e o anterior (`Qtde. Ant.`). A existência de um
+registro (`HoldingHistoryEntry`) para o mês atual é o principal fator.
 
-- Se `Qtde. Ant. > 0` e `Qtde. Atual == 0`: "Venda Total"
-- Se `Qtde. Ant. > 0` e `Qtde. Atual < Qtde. Ant.`: "Venda Parcial"
-- Se `Qtde. Ant. == 0` (ou nulo) e `Qtde. Atual > 0`: "Compra"
-- Se `Qtde. Ant. > 0` e `Qtde. Atual > Qtde. Ant.`: "Aporte"
-- Se `Qtde. Ant. > 0` e `Qtde. Atual == Qtde. Ant.`: "Manutenção"
-- Se não houver histórico anterior, a situação é "Compra".
+- Se existe posição no mês anterior mas não há registro para o mês atual: **"Não Registrado"**
+- Se não há registro no mês anterior e um novo registro é criado no mês atual: **"Compra"**
+- `Qtde. Ant. > 0` e `Qtde. Atual == 0`: **"Venda Total"**
+- `Qtde. Ant. > 0` e `Qtde. Atual < Qtde. Ant.`: **"Venda Parcial"**
+- `Qtde. Ant. > 0` e `Qtde. Atual > Qtde. Ant.`: **"Aporte"**
+- `Qtde. Ant. > 0` e `Qtde. Atual == Qtde. Ant.`: **"Manutenção"**
 
 ## 5. Exemplo de Tabela de Consulta
 
-| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Valor Mercado Ant. | Valor Mercado Atual | Valorização | Situação      |
-|-----------|----------------|--------------------------------|------------|----------|--------------------|---------------------|-------------|---------------|
-| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | R$ 1.000,00        | R$ 1.010,00         | 1,0%        | Manutenção    |
-| BTG       | Renda Variável | ETF IVVB11                     | —          | D+2      | —                  | R$ 26.000,00        | —           | Compra        |
-| XP        | Renda Variável | Ação AAPL                      | —          | D+2      | R$ 3.200,00        | R$ 3.456,00         | 8,0%        | Aporte        |
-| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | R$ 100.000,00      | R$ 100.800,00       | 0,8%        | Manutenção    |
-| Clear     | Renda Variável | Ação MGLU3                     | —          | D+2      | R$ 5.500,00        | R$ 2.200,00         | -60,0%      | Venda Parcial |
-| Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | R$ 1.400,00        | —                   | —           | Venda Total   |
+| Corretora | Categoria      | Descrição          | Vencimento | Liquidez | Valor Mercado Ant. | Valor Mercado Atual | Valorização | Situação       |
+|-----------|----------------|--------------------|------------|----------|--------------------|---------------------|-------------|----------------|
+| NuBank    | Renda Fixa     | CDB de 100% do CDI | 2028-01-01 | Diária   | R$ 1.000,00        | R$ 1.010,00         | 1,0%        | Manutenção     |
+| BTG       | Renda Variável | ETF IVVB11         | —          | D+2      | —                  | R$ 26.000,00        | —           | Compra         |
+| XP        | Renda Variável | Ação AAPL          | —          | D+2      | R$ 3.200,00        | R$ 3.456,00         | 8,0%        | Aporte         |
+| Clear     | Renda Variável | Ação MGLU3         | —          | D+2      | R$ 5.500,00        | R$ 2.200,00         | -60,0%      | Venda Parcial  |
+| Rico      | Renda Variável | Ação B3SA3         | —          | D+2      | R$ 1.400,00        | R$ 0,00             | —           | Venda Total    |
+| Rico      | Renda Variável | Ação B3SA3         | —          | D+2      | R$ 1.400,00        | —                   | —           | Não Registrado |
 
-## 6. Casos de Uso e Situações
+## 6. Casos de Uso
 
-- **Nenhuma Posição Registrada:**
-  - **Dado que** não há nenhum `HoldingHistoryEntry` no banco de dados para nenhum período.
-  - **Quando** o usuário abrir a tela.
-  - **Então** a tela deve exibir uma mensagem indicando "Nenhuma posição encontrada".
+A lógica dos casos de uso para "Compra", "Venda", "Aporte", etc., continua válida e será o resultado das operações realizadas na tela de edição.
 
-- **Situação: Compra**
-  - **Dado que** existe um `HoldingHistoryEntry` para o mês atual, mas não para o anterior.
-  - **Quando** o usuário selecionar o período atual.
-  - **Então** a linha do ativo deve ser exibida com a situação "Compra", e os campos do período anterior e a valorização devem exibir "—".
+## 7. Tela de Edição de Posição do Ativo
 
-- **Situação: Venda Total**
-  - **Dado que** existe um `HoldingHistoryEntry` para o mês anterior, mas não para o mês atual.
-  - **Quando** o usuário selecionar o período atual.
-  - **Então** a linha do ativo deve ser exibida com a situação "Venda Total", mostrando os dados do período anterior e "0" ou "—" nos campos do período atual, valorização.
+Esta tela é o centro das operações de atualização, compra e venda para uma posição existente. O seu layout se adapta à categoria do ativo selecionado.
 
-- **Situação: Manutenção**
-  - **Dado que** existem `HoldingHistoryEntry` para o mês atual e o anterior, e a quantidade não mudou (`Qtde. Atual == Qtde. Ant.`).
-  - **Quando** o usuário selecionar o período atual.
-  - **Então** a linha do ativo deve ser exibida com a situação "Manutenção" e todos os dados preenchidos.
+### 7.1. Campos do Formulário
 
-- **Situação: Aporte**
-  - **Dado que** existem `HoldingHistoryEntry` para o mês atual e o anterior, e a quantidade aumentou (`Qtde. Atual > Qtde. Ant.`).
-  - **Quando** o usuário selecionar o período atual.
-  - **Então** a linha do ativo deve ser exibida com a situação "Aporte" e todos os dados preenchidos.
+A estrutura da tela de edição varia conforme a categoria do ativo.
 
-- **Situação: Venda Parcial**
-  - **Dado que** existem `HoldingHistoryEntry` para o mês atual e o anterior, e a quantidade diminuiu, mas não zerou (`0 < Qtde. Atual < Qtde. Ant.`).
-  - **Quando** o usuário selecionar o período atual.
-  - **Então** a linha do ativo deve ser exibida com a situação "Venda Parcial" e todos os dados preenchidos.
+| Campo                      | Descrição                                | Comportamento/Regras                                                                                                                            |
+|:---------------------------|:-----------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Ativo**                  | Nome do ativo sendo editado.             | Exibido no cabeçalho, não editável.                                                                                                             |
+| **Corretora**              | Nome da corretora da posição.            | Exibido no cabeçalho, não editável.                                                                                                             |
+| **Período**                | Mês/Ano de referência da edição.         | Informativo, não editável.                                                                                                                      |
+| **Valor de Mercado Atual** | Valor total da posição.                  | **Renda Fixa/Fundos:** Campo editável.<br>**Renda Variável:** Campo informativo, não editável, calculado (`quantidade total * valor unitário`). |
+| **Quantidade (Mov.)**      | Quantidade de cotas a comprar ou vender. | **Apenas Renda Variável:** Visível na seção "Movimentação".                                                                                     |
+| **Valor Unitário (Mov.)**  | Cotação atual do ativo para a operação.  | **Apenas Renda Variável:** Informativo, obtido via API.                                                                                         |
+
+### 7.2. Fluxo para Renda Fixa e Fundos de Investimento
+
+- **Objetivo**: Permitir a atualização do valor de mercado ou a liquidação total do ativo.
+- **Ações**:
+    - **Botão "Salvar"**: Atualiza o `HoldingHistoryEntry` do período com o novo **Valor de Mercado Atual**. A quantidade não é alterada, resultando
+      na situação "Manutenção".
+    - **Botão "Vender Ativo"**: Zera a quantidade e o valor de mercado da posição no período, resultando na situação "Venda Total".
+
+### 7.3. Fluxo para Renda Variável
+
+- **Objetivo**: Permitir o registro de compras e vendas de cotas/ações.
+- **Seção "Movimentação"**:
+    - Esta seção contém os campos `Quantidade` e `Valor Unitário Atual` para registrar uma nova transação.
+- **Ações da Seção "Movimentação"**:
+    - **Botão "Comprar"**: Adiciona a `Quantidade` informada à posição, atualiza o custo médio e o valor de mercado. Resulta em "Compra" ou "Aporte".
+    - **Botão "Vender"**: Subtrai a `Quantidade` informada da posição, atualiza o valor de mercado e, opcionalmente, calcula o resultado da operação.
+      Resulta em "Venda Parcial" ou "Venda Total".
