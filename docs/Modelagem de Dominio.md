@@ -25,11 +25,13 @@ import java.time.LocalDate
  * @property id O identificador único do ativo.
  * @property name O nome ou descrição principal do ativo.
  * @property issuer A entidade que emitiu o ativo.
+ * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
 sealed interface Asset {
     val id: Long
     val name: String
     val issuer: Issuer
+    val observations: String?
 }
 ```
 
@@ -45,6 +47,7 @@ sealed interface Asset {
  * @property contractedYield Rentabilidade contratada no momento da aplicação.
  * @property cdiRelativeYield Rentabilidade relativa ao CDI (opcional).
  * @property liquidity A regra de liquidez que se aplica ao ativo.
+ * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
 data class FixedIncomeAsset(
     override val id: Long,
@@ -55,7 +58,8 @@ data class FixedIncomeAsset(
     val expirationDate: LocalDate,
     val contractedYield: Double,
     val cdiRelativeYield: Double?,
-    val liquidity: FixedLiquidity
+    val liquidity: FixedLiquidity,
+    override val observations: String? = null
 ) : Asset
 
 /**
@@ -64,6 +68,7 @@ data class FixedIncomeAsset(
  * @property type O tipo de ativo de renda variável (ação, FII, etc.).
  * @property ticker O código de negociação único do ativo (ex: "PETR4").
  * @property liquidity A regra de liquidez que se aplica ao ativo.
+ * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
 data class VariableIncomeAsset(
     override val id: Long,
@@ -71,7 +76,8 @@ data class VariableIncomeAsset(
     override val issuer: Issuer,
     val type: VariableIncomeAssetType,
     val ticker: String,
-    val liquidity: OnDaysAfterSale
+    val liquidity: OnDaysAfterSale,
+    override val observations: String? = null
 ) : Asset
 
 /**
@@ -80,6 +86,7 @@ data class VariableIncomeAsset(
  * @property type A categoria do fundo de investimento (ações, multimercado, etc.).
  * @property liquidity A regra de liquidez que se aplica ao ativo.
  * @property expirationDate Data de vencimento do título (opcional para fundos).
+ * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
 data class InvestmentFundAsset(
     override val id: Long,
@@ -87,7 +94,8 @@ data class InvestmentFundAsset(
     override val issuer: Issuer,
     val type: InvestmentFundAssetType,
     val liquidity: OnDaysAfterSale,
-    val expirationDate: LocalDate?
+    val expirationDate: LocalDate?,
+    override val observations: String? = null
 ) : Asset
 ```
 

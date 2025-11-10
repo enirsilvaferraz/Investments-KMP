@@ -12,15 +12,26 @@ import kotlinx.datetime.LocalDate
  * @property contractedYield Rentabilidade contratada no momento da aplicação.
  * @property cdiRelativeYield Rentabilidade relativa ao CDI (opcional).
  * @property liquidity A regra de liquidez que se aplica ao ativo.
+ * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
 public data class FixedIncomeAsset(
     override val id: Long,
-    override val name: String,
     override val issuer: Issuer,
     public val type: FixedIncomeAssetType,
     public val subType: FixedIncomeSubType,
     public val expirationDate: LocalDate,
     public val contractedYield: Double,
-    public val cdiRelativeYield: Double?,
-    public val liquidity: FixedLiquidity
-) : Asset
+    public val cdiRelativeYield: Double? = null,
+    public val liquidity: FixedLiquidity,
+    override val observations: String? = null,
+) : Asset {
+
+    override val name: String
+        get() {
+            return when (type) {
+                FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI (venc: $expirationDate)"
+                FixedIncomeAssetType.PRE_FIXED -> "${subType.name} de $contractedYield% a.a. (venc: $expirationDate)"
+                FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield% (venc: $expirationDate)"
+            }
+        }
+}

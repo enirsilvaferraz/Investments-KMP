@@ -8,6 +8,7 @@ import com.eferraz.entities.liquidity.OnDaysAfterSale
  * @property type O tipo de ativo de renda variável (ação, FII, etc.).
  * @property ticker O código de negociação único do ativo (ex: "PETR4").
  * @property liquidity A regra de liquidez que se aplica ao ativo.
+ * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
 public data class VariableIncomeAsset(
     override val id: Long,
@@ -15,5 +16,6 @@ public data class VariableIncomeAsset(
     override val issuer: Issuer,
     public val type: VariableIncomeAssetType,
     public val ticker: String,
-    public val liquidity: OnDaysAfterSale
+    public val liquidity: OnDaysAfterSale,
+    override val observations: String? = null
 ) : Asset

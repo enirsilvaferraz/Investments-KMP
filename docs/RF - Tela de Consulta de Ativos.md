@@ -17,7 +17,9 @@ A tabela principal deverá exibir os seguintes dados para cada `Asset` cadastrad
 | **Categoria**      | O tipo principal do ativo.                                                               | Calculado em tempo de execução, baseado na classe do `Asset`: `FixedIncomeAsset` -> "Renda Fixa", `VariableIncomeAsset` -> "Renda Variável", `InvestmentFundAsset` -> "Fundo de Investimento". |
 | **Subcategoria**   | O tipo específico do ativo.                                                              | `asset.subType` para `FixedIncomeAsset`, `asset.type` para os demais.                                                                                                                          |
 | **Nome/Descrição** | O nome principal do ativo. Para ativos de renda variável, este campo já inclui o ticker. | `asset.name`                                                                                                                                                                                   |
+| **Vencimento**      | A data de vencimento do ativo.                                                           | `asset.expirationDate` para `FixedIncomeAsset` (obrigatório) e `InvestmentFundAsset` (opcional). Para `VariableIncomeAsset`, este campo não se aplica e será exibido como "-".              |
 | **Emissor**        | A entidade que emitiu o ativo.                                                           | `asset.issuer.name`                                                                                                                                                                            |
+| **Observações**    | Notas e observações adicionais sobre o ativo.                                            | `asset.observations` (opcional, `String?`). Se vazio, será exibido como vazio na tabela.                                                                                                        |
 
 ## 3. Ações da Tela
 
@@ -49,6 +51,7 @@ dinamicamente com base no tipo de ativo selecionado.
 
 - **Nome/Descrição**: `name` (Obrigatório, `String`). Para Renda Variável, este campo deve incluir o ticker (ex: "Magazine Luiza (MGLU3)").
 - **Emissor**: `issuer` (Obrigatório, seleção de um `Issuer` previamente cadastrado)
+- **Observações**: `observations` (Opcional, `String`). Campo de texto livre para notas e observações adicionais sobre o ativo.
 
 #### Campos Específicos por Categoria
 
@@ -86,8 +89,8 @@ dinamicamente com base no tipo de ativo selecionado.
 
 ## 5. Exemplo de Tabela de Consulta
 
-| Categoria      | Subcategoria  | Nome/Descrição            | Emissor             |
-|:---------------|:--------------|:--------------------------|:--------------------|
-| Renda Fixa     | CDB           | CDB Banco Master 110% CDI | Banco Master        |
-| Renda Variável | Ação Nacional | Magazine Luiza (MGLU3)    | Magazine Luiza S.A. |
-| Fundo          | Multimercado  | Verde AM                  | Verde Asset         |
+| Categoria      | Subcategoria  | Nome/Descrição            | Vencimento | Emissor             | Observações |
+|:---------------|:--------------|:--------------------------|:-----------|:--------------------|:------------|
+| Renda Fixa     | CDB           | CDB Banco Master 110% CDI | 2028-01-01 | Banco Master        |             |
+| Renda Variável | Ação Nacional | Magazine Luiza (MGLU3)    | -          | Magazine Luiza S.A. |             |
+| Fundo          | Multimercado  | Verde AM                  | -          | Verde Asset         |             |

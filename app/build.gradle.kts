@@ -29,11 +29,11 @@ kotlin {
         implementation(libs.paging.compose.common)
 
         implementation(projects.composeApp)
-//        implementation(projects.entity)
-//        implementation(projects.usecases)
-//        implementation(projects.repositories)
-//        implementation(projects.network)
-//        implementation(projects.database)
+        implementation(projects.entity)
+        implementation(projects.usecases)
+        implementation(projects.repositories)
+        implementation(projects.network)
+        implementation(projects.database)
     }
 }
 

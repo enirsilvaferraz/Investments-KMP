@@ -24,6 +24,7 @@ erDiagram
         TEXT name "NN"
         TEXT category "NN"
         TEXT liquidity_rule "NN"
+        TEXT observations
     }
     FIXED_INCOME_ASSETS {
         INTEGER asset_id PK, FK "NN"
@@ -126,6 +127,9 @@ CREATE TABLE assets (
     
     -- A regra de liquidez é comum, mas os dias específicos são movidos para as subclasses.
     liquidity_rule TEXT NOT NULL, -- Ex: 'DAILY', 'AT_MATURITY', 'D_PLUS_DAYS'
+    
+    -- Notas e observações adicionais sobre o ativo (opcional)
+    observations TEXT,
 
     FOREIGN KEY (issuer_id) REFERENCES issuers(id) ON DELETE RESTRICT
 );
