@@ -2,75 +2,41 @@
 
 ## 1. Objetivo
 
-Apresentar ao usuário uma visão consolidada de suas posições de ativos (`holdings`) em um determinado período (mês/ano), permitindo comparar com o período imediatamente anterior e analisar a valorização e a movimentação de cada ativo.
+Apresentar ao usuário uma visão consolidada de suas posições de ativos (`holdings`) em um determinado período (mês/ano), permitindo comparar com o período imediatamente anterior e analisar a valorização e a movimentação de cada ativo. A tela servirá como um painel de controle para a performance mensal da carteira.
 
-A tela deverá ter um seletor (ex: Dropdown) para que o usuário escolha o mês e o ano de referência (o "período atual").
+A principal funcionalidade da tela será uma tabela que exibirá um resumo de cada posição, com um seletor para definir o período de análise.
 
-## 2. Dados Exibidos na Tela
+## 2. Dados Exibidos na Tabela de Posições
 
-A tabela principal exibirá os seguintes dados para cada posição encontrada no período:
+A tabela principal deverá exibir os seguintes dados para cada posição (`HoldingHistoryEntry`) encontrada no período de referência:
 
-- **Corretora**:
-  - **Descrição**: Nome da corretora onde o ativo está custodiado.
-  - **Fonte**: `HoldingHistoryEntry.holding.brokerage.name`
+| Coluna | Descrição | Fonte |
+|:---|:---|:---|
+| **Corretora** | Nome da corretora onde o ativo está custodiado. | `HoldingHistoryEntry.holding.brokerage.name` |
+| **Categoria** | Tipo de investimento do ativo. | Calculado em tempo de execução, baseado no tipo do `Asset`: `FixedIncomeAsset` -> "Renda Fixa", `VariableIncomeAsset` -> "Renda Variável", `InvestmentFundAsset` -> "Fundo de Investimento". |
+| **Descrição** | Nome principal do ativo. | `HoldingHistoryEntry.holding.asset.name` |
+| **Vencimento** | Data de vencimento do ativo, se aplicável. Apresentar "—" caso não se aplique. | `asset.expirationDate` (para `FixedIncomeAsset` ou `InvestmentFundAsset`). |
+| **Liquidez** | Regra de liquidez do ativo. | `asset.liquidity`, formatado para exibição (ex: "Diária", "No Vencimento", "D+2"). |
+| **Valor Mercado Ant.** | Valor de mercado total da posição no final do mês **anterior**. | `HoldingHistoryEntryAnterior.endOfMonthValue` |
+| **Valor Mercado Atual** | Valor de mercado total da posição no final do mês **atual**. | `HoldingHistoryEntryAtual.endOfMonthValue` |
+| **Valorização** | Variação percentual do valor de mercado no mês. | Ver seção **4.1. Cálculo de Valorização**. |
+| **Situação** | Classificação da movimentação da posição no mês. | Ver seção **4.2. Cálculo da Situação**. |
 
-- **Categoria**:
-  - **Descrição**: Tipo de investimento do ativo.
-  - **Fonte**: Calculado em tempo de execução, baseado no tipo do `Asset`:
-    - `FixedIncomeAsset` -> "Renda Fixa"
-    - `VariableIncomeAsset` -> "Renda Variável"
-    - `InvestmentFundAsset` -> "Fundo de Investimento"
+## 3. Ações da Tela
 
-- **Descrição**:
-  - **Descrição**: Nome principal do ativo.
-  - **Fonte**: `HoldingHistoryEntry.holding.asset.name`
+### 3.1. Selecionar Período de Referência
 
-- **Vencimento**:
-  - **Descrição**: Data de vencimento do ativo, se aplicável.
-  - **Fonte**:
-    - Se o `Asset` for `FixedIncomeAsset` ou `InvestmentFundAsset`: `asset.expirationDate`
-    - Caso contrário, ou se a data não existir, apresentar "—".
+- **Componente**: Um seletor (Dropdown ou similar) para que o usuário escolha o mês e o ano de referência (o "período atual").
+- **Ação**: Ao selecionar um novo período, a tabela de posições é atualizada para refletir os dados do período escolhido e do seu anterior.
 
-- **Liquidez**:
-  - **Descrição**: Regra de liquidez do ativo.
-  - **Fonte**: `HoldingHistoryEntry.holding.asset.liquidity`. Deve ser formatado para o usuário:
-    - `FixedLiquidity.Daily` -> "Diária"
-    - `FixedLiquidity.AtMaturity` -> "No Vencimento"
-    - `OnDaysAfterSale(days)` -> "D+{days}" (ex: "D+2")
+### 3.2. Detalhar Posição do Ativo
 
----
+- **Componente**: A própria linha da tabela.
+- **Ação**: Ao tocar (clicar) na linha, o usuário será redirecionado para a **Tela de Detalhes do Ativo**, permitindo uma análise completa da performance do ativo ao longo de todo o seu ciclo de vida.
 
-### 2.1. Dados do Período Atual
+## 4. Regras de Negócio e Cálculos
 
-- **Valor de Mercado**:
-    - **Descrição**: Valor de mercado total da posição no final do mês.
-    - **Fonte**: `HoldingHistoryEntryAtual.endOfMonthValue`
-
----
-
-### 2.2. Dados do Período Anterior
-
-Para fins de comparação, a tela também deve exibir os dados do mês imediatamente anterior ao selecionado.
-    
-- **Valor de Mercado (Anterior)**:
-    - **Descrição**: Valor de mercado total da posição no final do mês anterior.
-    - **Fonte**: `HoldingHistoryEntryAnterior.endOfMonthValue`
-
----
-
-### 2.3. Indicador de Performance Mensal
-
-- **Valorização do Mês**:
-  - **Descrição**: Variação percentual do valor de mercado da posição entre o mês anterior e o mês atual.
-  - **Fonte**: Veja a seção **"3. Cálculo de Valorização"**.
-
-### 2.4. Indicador de Movimentação
-
-- **Situação**:
-  - **Descrição**: Classifica a movimentação da posição no mês.
-  - **Fonte**: Veja a seção **"4. Cálculo da Situação"**.
-
-## 3. Cálculo de Valorização
+### 4.1. Cálculo de Valorização
 
 A valorização representa o crescimento (ou decrescimento) do **valor de mercado** da posição no período.
 
@@ -83,9 +49,9 @@ A valorização representa o crescimento (ou decrescimento) do **valor de mercad
   - Se não houver posição no mês anterior (`Valor de Mercado Anterior` é zero ou nulo), a valorização deve ser exibida como "—".
   - Se a posição foi totalmente vendida (`Valor de Mercado Atual` é zero), a valorização deve ser exibida como "—".
 
-## 4. Cálculo da Situação
+### 4.2. Cálculo da Situação
 
-A situação classifica a movimentação da posição no mês, comparando as quantidades:
+A situação classifica a movimentação da posição no mês, comparando as quantidades do ativo entre o período atual e o anterior.
 
 - Se `Qtde. Ant. > 0` e `Qtde. Atual == 0`: "Venda Total"
 - Se `Qtde. Ant. > 0` e `Qtde. Atual < Qtde. Ant.`: "Venda Parcial"
@@ -94,7 +60,7 @@ A situação classifica a movimentação da posição no mês, comparando as qua
 - Se `Qtde. Ant. > 0` e `Qtde. Atual == Qtde. Ant.`: "Manutenção"
 - Se não houver histórico anterior, a situação é "Compra".
 
-## 5. Exemplo de Tabela
+## 5. Exemplo de Tabela de Consulta
 
 | Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Valor Mercado Ant. | Valor Mercado Atual | Valorização | Situação      |
 |-----------|----------------|--------------------------------|------------|----------|--------------------|---------------------|-------------|---------------|
@@ -104,7 +70,6 @@ A situação classifica a movimentação da posição no mês, comparando as qua
 | Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | R$ 100.000,00      | R$ 100.800,00       | 0,8%        | Manutenção    |
 | Clear     | Renda Variável | Ação MGLU3                     | —          | D+2      | R$ 5.500,00        | R$ 2.200,00         | -60,0%      | Venda Parcial |
 | Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | R$ 1.400,00        | —                   | —           | Venda Total   |
-
 
 ## 6. Casos de Uso e Situações
 
@@ -116,7 +81,7 @@ A situação classifica a movimentação da posição no mês, comparando as qua
 - **Situação: Compra**
   - **Dado que** existe um `HoldingHistoryEntry` para o mês atual, mas não para o anterior.
   - **Quando** o usuário selecionar o período atual.
-  - **Então** a linha do ativo deve ser exibida com a situação "Compra", e os campos do período anterior e a valorização devem exibir "—". 
+  - **Então** a linha do ativo deve ser exibida com a situação "Compra", e os campos do período anterior e a valorização devem exibir "—".
 
 - **Situação: Venda Total**
   - **Dado que** existe um `HoldingHistoryEntry` para o mês anterior, mas não para o mês atual.
@@ -137,23 +102,3 @@ A situação classifica a movimentação da posição no mês, comparando as qua
   - **Dado que** existem `HoldingHistoryEntry` para o mês atual e o anterior, e a quantidade diminuiu, mas não zerou (`0 < Qtde. Atual < Qtde. Ant.`).
   - **Quando** o usuário selecionar o período atual.
   - **Então** a linha do ativo deve ser exibida com a situação "Venda Parcial" e todos os dados preenchidos.
-
-## 7. Proposta de Melhoria: Tela de Detalhes do Ativo
-
-Para permitir uma análise completa da performance de um ativo ao longo de todo o seu ciclo de vida (como no exemplo de um CDB mantido por vários anos), propõe-se a criação de uma **tela de detalhes do ativo**.
-
-- **Acesso**: O usuário tocaria em uma linha da tabela principal para navegar para esta nova tela.
-
-- **Conteúdo da Tela de Detalhes**:
-  - **Cabeçalho**: Informações fixas do ativo (Descrição, Corretora, Categoria, Vencimento, etc.).
-  - **Indicadores Chave**:
-    - **Resultado Geral**: O ganho ou perda total (R$ e %) desde a primeira compra. Se o ativo foi vendido, este seria o **resultado final realizado**.
-    - **Período de Posse**: Data da primeira compra até a data atual (ou data da venda).
-    - **Total Aportado**: Soma de todo o dinheiro investido na posição.
-  - **Gráfico de Evolução**: Um gráfico de linha mostrando a evolução do **Valor de Mercado** (linha azul) versus o **Custo Total** (linha cinza) ao longo dos meses.
-  - **Tabela de Histórico Mensal**: Uma lista com todos os `HoldingHistoryEntry` do ativo, exibindo para cada mês:
-    - `Mês/Ano`
-    - `Valor de Mercado`
-    - `Valorização do Mês`
-    - `Resultado Acumulado (G/L)` até aquele ponto
-    - `Proventos Recebidos` (dividendos, juros, etc.)
