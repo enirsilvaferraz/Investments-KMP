@@ -79,13 +79,15 @@ data class VariableIncomeAsset(
  *
  * @property type A categoria do fundo de investimento (ações, multimercado, etc.).
  * @property liquidity A regra de liquidez que se aplica ao ativo.
+ * @property expirationDate Data de vencimento do título (opcional para fundos).
  */
 data class InvestmentFundAsset(
     override val id: Long,
     override val name: String,
     override val issuer: Issuer,
     val type: InvestmentFundAssetType,
-    val liquidity: OnDaysAfterSale
+    val liquidity: OnDaysAfterSale,
+    val expirationDate: LocalDate?
 ) : Asset
 ```
 
@@ -185,8 +187,9 @@ import java.time.YearMonth
  * @property holding A referência direta para a `AssetHolding` a que este registro pertence.
  * @property referenceDate O mês e ano de referência para este snapshot.
  * @property endOfMonthValue O valor de mercado total da posição no final do mês.
+ * @property endOfMonthQuantity A quantidade do ativo detida no final do mês.
+ * @property endOfMonthAverageCost O custo médio do ativo na posição no final do mês.
  * @property earnings A lista de todos os rendimentos (dividendos, juros, etc.) recebidos durante o mês.
- * @property quantity A quantidade do ativo detida no final do mês.
  * @property totalInvested O valor total investido na posição até o final do mês.
  */
 data class HoldingHistoryEntry(
@@ -194,8 +197,9 @@ data class HoldingHistoryEntry(
     val holding: AssetHolding,
     val referenceDate: YearMonth,
     val endOfMonthValue: BigDecimal,
+    val endOfMonthQuantity: Double,
+    val endOfMonthAverageCost: BigDecimal,
     val earnings: List<Earning>,
-    val quantity: Double,
     val totalInvested: BigDecimal
 ) {
     /**

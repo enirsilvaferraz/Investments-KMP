@@ -84,7 +84,7 @@ Para fins de comparação, a tela também deve exibir os dados do mês imediatam
 
 ---
 
-### 2.3. Indicador de Performance
+### 2.3. Indicador de Performance Mensal
 
 - **Valorização do Mês**:
   - **Descrição**: Variação percentual do valor de mercado da posição entre o mês anterior e o mês atual.
@@ -94,13 +94,7 @@ Para fins de comparação, a tela também deve exibir os dados do mês imediatam
 
 - **Situação**:
   - **Descrição**: Classifica a movimentação da posição no mês.
-  - **Fonte**: Calculado em tempo de execução, comparando as quantidades:
-    - Se `Qtde. Ant. > 0` e `Qtde. Atual == 0`: "Venda Total"
-    - Se `Qtde. Ant. > 0` e `Qtde. Atual < Qtde. Ant.`: "Venda Parcial"
-    - Se `Qtde. Ant. == 0` (ou nulo) e `Qtde. Atual > 0`: "Compra"
-    - Se `Qtde. Ant. > 0` e `Qtde. Atual > Qtde. Ant.`: "Aporte"
-    - Se `Qtde. Ant. > 0` e `Qtde. Atual == Qtde. Ant.`: "Manutenção"
-    - Se não houver histórico anterior, a situação é "Compra".
+  - **Fonte**: Veja a seção **"4. Cálculo da Situação"**.
 
 ## 3. Cálculo de Valorização
 
@@ -115,19 +109,30 @@ A valorização representa o crescimento (ou decrescimento) do **valor de mercad
   - Se não houver posição no mês anterior (`Valor de Mercado Anterior` é zero ou nulo), a valorização deve ser exibida como "—".
   - Se a posição foi totalmente vendida (`Valor de Mercado Atual` é zero), a valorização deve ser exibida como "—".
 
-## 4. Exemplo de Tabela
+## 4. Cálculo da Situação
 
-| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Qtde. Ant. | Custo Médio Ant. | Custo Total Ant. | Valor Mercado Ant. | Qtde. Atual | Custo Médio Atual | Custo Total Atual | Valor Mercado Atual | Valorização | Situação       |
-|-----------|----------------|--------------------------------|------------|----------|------------|------------------|------------------|--------------------|-------------|-------------------|-------------------|---------------------|-------------|----------------|
-| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | 1          | R$ 1.000,00      | R$ 1.000,00      | R$ 1.000,00        | 1           | R$ 1.000,00       | R$ 1.000,00       | R$ 1.010,00         | 1,0%        | Manutenção     |
-| BTG       | Renda Variável | ETF IVVB11                     | —          | D+2      | —          | —                | —                | —                  | 100         | R$ 250,00         | R$ 25.000,00      | R$ 26.000,00        | —           | Compra         |
-| XP        | Renda Variável | Ação AAPL                      | —          | D+2      | 20         | R$ 150,00        | R$ 3.000,00      | R$ 3.200,00        | 30          | R$ 160,00         | R$ 4.800,00       | R$ 3.456,00         | 8,0%        | Aporte         |
-| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | 1          | R$ 100.000,00    | R$ 100.000,00    | R$ 100.000,00      | 1           | R$ 100.000,00     | R$ 100.000,00     | R$ 100.800,00       | 0,8%        | Manutenção     |
-| Clear     | Renda Variável | Ação MGLU3                     | —          | D+2      | 1000       | R$ 5,00          | R$ 5.000,00      | R$ 5.500,00        | 500         | R$ 5,00           | R$ 2.500,00       | R$ 2.200,00         | -60,0%      | Venda Parcial  |
-| Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | 50         | R$ 27,11         | R$ 1.355,50      | R$ 1.400,00        | 0           | —                 | —                 | R$ 0,00             | —           | Venda Total    |
+A situação classifica a movimentação da posição no mês, comparando as quantidades:
+
+- Se `Qtde. Ant. > 0` e `Qtde. Atual == 0`: "Venda Total"
+- Se `Qtde. Ant. > 0` e `Qtde. Atual < Qtde. Ant.`: "Venda Parcial"
+- Se `Qtde. Ant. == 0` (ou nulo) e `Qtde. Atual > 0`: "Compra"
+- Se `Qtde. Ant. > 0` e `Qtde. Atual > Qtde. Ant.`: "Aporte"
+- Se `Qtde. Ant. > 0` e `Qtde. Atual == Qtde. Ant.`: "Manutenção"
+- Se não houver histórico anterior, a situação é "Compra".
+
+## 5. Exemplo de Tabela
+
+| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Qtde. Ant. | Custo Médio Ant. | Custo Total Ant. | Valor Mercado Ant. | Qtde. Atual | Custo Médio Atual | Custo Total Atual | Valor Mercado Atual | Valorização | Situação      |
+|-----------|----------------|--------------------------------|------------|----------|------------|------------------|------------------|--------------------|-------------|-------------------|-------------------|---------------------|-------------|---------------|
+| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | 1          | R$ 1.000,00      | R$ 1.000,00      | R$ 1.000,00        | 1           | R$ 1.000,00       | R$ 1.000,00       | R$ 1.010,00         | 1,0%        | Manutenção    |
+| BTG       | Renda Variável | ETF IVVB11                     | —          | D+2      | —          | —                | —                | —                  | 100         | R$ 250,00         | R$ 25.000,00      | R$ 26.000,00        | —           | Compra        |
+| XP        | Renda Variável | Ação AAPL                      | —          | D+2      | 20         | R$ 150,00        | R$ 3.000,00      | R$ 3.200,00        | 30          | R$ 160,00         | R$ 4.800,00       | R$ 3.456,00         | 8,0%        | Aporte        |
+| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | 1          | R$ 100.000,00    | R$ 100.000,00    | R$ 100.000,00      | 1           | R$ 100.000,00     | R$ 100.000,00     | R$ 100.800,00       | 0,8%        | Manutenção    |
+| Clear     | Renda Variável | Ação MGLU3                     | —          | D+2      | 1000       | R$ 5,00          | R$ 5.000,00      | R$ 5.500,00        | 500         | R$ 5,00           | R$ 2.500,00       | R$ 2.200,00         | -60,0%      | Venda Parcial |
+| Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | 50         | R$ 27,11         | R$ 1.355,50      | R$ 1.400,00        | 0           | —                 | —                 | —                   | —           | Venda Total   |
 
 
-## 5. Casos de Uso e Situações
+## 6. Casos de Uso e Situações
 
 - **Nenhuma Posição Registrada:**
   - **Dado que** não há nenhum `HoldingHistoryEntry` no banco de dados para nenhum período.
@@ -137,12 +142,12 @@ A valorização representa o crescimento (ou decrescimento) do **valor de mercad
 - **Situação: Compra**
   - **Dado que** existe um `HoldingHistoryEntry` para o mês atual, mas não para o anterior.
   - **Quando** o usuário selecionar o período atual.
-  - **Então** a linha do ativo deve ser exibida com a situação "Compra", e os campos do período anterior e a valorização devem exibir "—".
+  - **Então** a linha do ativo deve ser exibida com a situação "Compra", e os campos do período anterior e a valorização devem exibir "—". 
 
 - **Situação: Venda Total**
   - **Dado que** existe um `HoldingHistoryEntry` para o mês anterior, mas não para o mês atual.
   - **Quando** o usuário selecionar o período atual.
-  - **Então** a linha do ativo deve ser exibida com a situação "Venda Total", mostrando os dados do período anterior e "0" ou "—" nos campos do período atual.
+  - **Então** a linha do ativo deve ser exibida com a situação "Venda Total", mostrando os dados do período anterior e "0" ou "—" nos campos do período atual, valorização.
 
 - **Situação: Manutenção**
   - **Dado que** existem `HoldingHistoryEntry` para o mês atual e o anterior, e a quantidade não mudou (`Qtde. Atual == Qtde. Ant.`).
@@ -158,3 +163,23 @@ A valorização representa o crescimento (ou decrescimento) do **valor de mercad
   - **Dado que** existem `HoldingHistoryEntry` para o mês atual e o anterior, e a quantidade diminuiu, mas não zerou (`0 < Qtde. Atual < Qtde. Ant.`).
   - **Quando** o usuário selecionar o período atual.
   - **Então** a linha do ativo deve ser exibida com a situação "Venda Parcial" e todos os dados preenchidos.
+
+## 7. Proposta de Melhoria: Tela de Detalhes do Ativo
+
+Para permitir uma análise completa da performance de um ativo ao longo de todo o seu ciclo de vida (como no exemplo de um CDB mantido por vários anos), propõe-se a criação de uma **tela de detalhes do ativo**.
+
+- **Acesso**: O usuário tocaria em uma linha da tabela principal para navegar para esta nova tela.
+
+- **Conteúdo da Tela de Detalhes**:
+  - **Cabeçalho**: Informações fixas do ativo (Descrição, Corretora, Categoria, Vencimento, etc.).
+  - **Indicadores Chave**:
+    - **Resultado Geral**: O ganho ou perda total (R$ e %) desde a primeira compra. Se o ativo foi vendido, este seria o **resultado final realizado**.
+    - **Período de Posse**: Data da primeira compra até a data atual (ou data da venda).
+    - **Total Aportado**: Soma de todo o dinheiro investido na posição.
+  - **Gráfico de Evolução**: Um gráfico de linha mostrando a evolução do **Valor de Mercado** (linha azul) versus o **Custo Total** (linha cinza) ao longo dos meses.
+  - **Tabela de Histórico Mensal**: Uma lista com todos os `HoldingHistoryEntry` do ativo, exibindo para cada mês:
+    - `Mês/Ano`
+    - `Valor de Mercado`
+    - `Valorização do Mês`
+    - `Resultado Acumulado (G/L)` até aquele ponto
+    - `Proventos Recebidos` (dividendos, juros, etc.)
