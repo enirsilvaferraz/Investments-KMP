@@ -113,17 +113,18 @@ A valorização representa o crescimento (ou decrescimento) do **valor de mercad
 - **Regras**:
   - O cálculo só deve ser feito se existir um `HoldingHistoryEntry` para o **mês anterior** com valor de mercado maior que zero.
   - Se não houver posição no mês anterior (`Valor de Mercado Anterior` é zero ou nulo), a valorização deve ser exibida como "—".
+  - Se a posição foi totalmente vendida (`Valor de Mercado Atual` é zero), a valorização deve ser exibida como "—".
 
 ## 4. Exemplo de Tabela
 
-| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Qtde. Ant. | Custo Médio Ant. | Custo Total Ant. | Qtde. Atual | Custo Médio Atual | Custo Total Atual | Valorização | Situação       |
-|-----------|----------------|--------------------------------|------------|----------|------------|------------------|------------------|-------------|-------------------|-------------------|-------------|----------------|
-| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | 1          | R$ 1.000,00      | R$ 1.000,00      | 1           | R$ 1.000,00       | R$ 1.000,00       | 1,0%        | Manutenção     |
-| BTG       | Renda Variável | ETF IVVB11                     | —          | D+2      | —          | —                | —                | 100         | R$ 250,00         | R$ 25.000,00      | —           | Compra         |
-| XP        | Renda Variável | Ação AAPL                      | —          | D+2      | 20         | R$ 150,00        | R$ 3.000,00      | 30          | R$ 160,00         | R$ 4.800,00       | 8,0%        | Aporte         |
-| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | 1          | R$ 100.000,00    | R$ 100.000,00    | 1           | R$ 100.000,00     | R$ 100.000,00     | 0,8%        | Manutenção     |
-| Clear     | Renda Variável | Ação MGLU3                     | —          | D+2      | 1000       | R$ 5,00          | R$ 5.000,00      | 500         | R$ 5,00           | R$ 2.500,00       | -10%        | Venda Parcial  |
-| Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | 50         | R$ 27,11         | R$ 1.355,50      | 0           | —                 | —                 | —           | Venda Total    |
+| Corretora | Categoria      | Descrição                      | Vencimento | Liquidez | Qtde. Ant. | Custo Médio Ant. | Custo Total Ant. | Valor Mercado Ant. | Qtde. Atual | Custo Médio Atual | Custo Total Atual | Valor Mercado Atual | Valorização | Situação       |
+|-----------|----------------|--------------------------------|------------|----------|------------|------------------|------------------|--------------------|-------------|-------------------|-------------------|---------------------|-------------|----------------|
+| NuBank    | Renda Fixa     | CDB de 100% do CDI             | 2028-01-01 | Diária   | 1          | R$ 1.000,00      | R$ 1.000,00      | R$ 1.000,00        | 1           | R$ 1.000,00       | R$ 1.000,00       | R$ 1.010,00         | 1,0%        | Manutenção     |
+| BTG       | Renda Variável | ETF IVVB11                     | —          | D+2      | —          | —                | —                | —                  | 100         | R$ 250,00         | R$ 25.000,00      | R$ 26.000,00        | —           | Compra         |
+| XP        | Renda Variável | Ação AAPL                      | —          | D+2      | 20         | R$ 150,00        | R$ 3.000,00      | R$ 3.200,00        | 30          | R$ 160,00         | R$ 4.800,00       | R$ 3.456,00         | 8,0%        | Aporte         |
+| Inter     | Fundo          | Fundo de Previdência Arca Grão | 2050-01-01 | No Venc. | 1          | R$ 100.000,00    | R$ 100.000,00    | R$ 100.000,00      | 1           | R$ 100.000,00     | R$ 100.000,00     | R$ 100.800,00       | 0,8%        | Manutenção     |
+| Clear     | Renda Variável | Ação MGLU3                     | —          | D+2      | 1000       | R$ 5,00          | R$ 5.000,00      | R$ 5.500,00        | 500         | R$ 5,00           | R$ 2.500,00       | R$ 2.200,00         | -60,0%      | Venda Parcial  |
+| Rico      | Renda Variável | Ação B3SA3                     | —          | D+2      | 50         | R$ 27,11         | R$ 1.355,50      | R$ 1.400,00        | 0           | —                 | —                 | R$ 0,00             | —           | Venda Total    |
 
 
 ## 5. Casos de Uso e Situações
