@@ -48,19 +48,24 @@ internal data class TableColumn<T>(
     val alignment: Alignment.Horizontal = Alignment.Start,
     val extractValue: (T) -> String,
     val sortComparator: ((T) -> Comparable<*>?) = { extractValue(it) },
-    val cellContent: @Composable RowScope.(T) -> Unit = { Text(text = extractValue(it)) },
+    val cellContent: @Composable RowScope.(T) -> Unit = {
+        Text(
+            text = extractValue(it),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.87f)
+        )
+    },
 )
 
 /**
- * Componente de tabela de dados nativo seguindo especificações do Material Design 3
+ * Componente de tabela de dados nativo seguindo especificações do Material Design 2
+ * Conforme: https://m2.material.io/components/data-tables#theming
  *
  * @param T Tipo do objeto de dados
  * @param modifier Modifier para customização
  * @param columns Lista de configurações de colunas
  * @param data Lista de dados a exibir
- * @param sortColumnIndex Índice da coluna atualmente ordenada (null se nenhuma)
-// * @param sortAscending true para ordenação ascendente, false para descendente
-// * @param onSort Callback chamado quando uma coluna é clicada para ordenação
+ * @param sortColumnIndex Índice da coluna inicialmente ordenada (padrão: 0)
  * @param onRowClick Callback opcional chamado quando uma linha é clicada
  */
 @Composable
@@ -87,11 +92,11 @@ internal fun <T> DataTable(
     }
 
     val colors = MaterialTheme.colorScheme
-    val headerBackgroundColor = colors.surfaceVariant
-    val headerTextColor = colors.onSurfaceVariant
+    val headerBackgroundColor = colors.surfaceContainerHigh
+    val headerTextColor = colors.onSurface.copy(alpha = 0.87f)
     val evenRowColor = colors.surface
-    val oddRowColor = colors.surfaceVariant.copy(alpha = 0.3f)
-    val dividerColor = colors.outlineVariant
+    val oddRowColor = colors.surfaceContainerLow
+    val dividerColor = colors.outline.copy(alpha = 0.12f)
     val sortIconColor = colors.primary
 
     LazyColumn(
@@ -174,15 +179,15 @@ private fun <T> TableHeader(
 
                     Text(
                         text = column.title,
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                         color = textColor
                     )
 
-                    if (isSorted)  Icon(
+                    if (isSorted) Icon(
                         imageVector = if (sortAscending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = textColor
+                        tint = sortIconColor
                     )
                 }
             }
