@@ -15,7 +15,7 @@ internal object Formatters {
 
     internal fun Asset.formated(): String = when (this) {
         is FixedIncomeAsset -> "Renda Fixa"
-        is InvestmentFundAsset -> "Renda Variável"
+        is InvestmentFundAsset -> "Fundo de Investimento"
         is VariableIncomeAsset -> "Renda Variável"
     }
 

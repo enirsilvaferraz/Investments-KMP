@@ -24,15 +24,15 @@ internal class AssetView(
         fun create(asset: Asset) = AssetView(
             category = asset.formated(),
             subCategory = when (asset) {
-                is FixedIncomeAsset -> asset.type.formated()
+                is FixedIncomeAsset -> asset.subType.name
                 is InvestmentFundAsset -> asset.type.formated()
                 is VariableIncomeAsset -> asset.type.formated()
             },
             name = when (asset) {
                 is FixedIncomeAsset -> when (asset.type) {
                     FixedIncomeAssetType.POST_FIXED -> "${asset.subType.name} de ${asset.contractedYield}% do CDI"
-                    FixedIncomeAssetType.PRE_FIXED -> "${asset.subType.name} de $${asset.contractedYield}% a.a."
-                    FixedIncomeAssetType.INFLATION_LINKED -> "${asset.subType.name} + ${asset.contractedYield}%"
+                    FixedIncomeAssetType.PRE_FIXED -> "${asset.subType.name} de ${asset.contractedYield}% a.a."
+                    FixedIncomeAssetType.INFLATION_LINKED -> "${asset.subType.name} de IPCA + ${asset.contractedYield}%"
                 }
                 is InvestmentFundAsset -> asset.name
                 is VariableIncomeAsset -> asset.name
