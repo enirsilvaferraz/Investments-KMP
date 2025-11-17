@@ -9,3 +9,10 @@ public actual fun Double.currencyFormat(): String {
     formatter.numberStyle = NSNumberFormatterCurrencyStyle
     return formatter.stringFromNumber(NSNumber(this)) ?: ""
 }
+
+public actual fun String.currencyToDouble(): Double? {
+    val formatter = NSNumberFormatter()
+    formatter.numberStyle = NSNumberFormatterCurrencyStyle
+    return formatter.numberFromString(this)?.doubleValue()
+}
+
