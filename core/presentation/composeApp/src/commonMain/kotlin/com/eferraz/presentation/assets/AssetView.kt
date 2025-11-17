@@ -22,11 +22,7 @@ internal class AssetView(
 
         @Composable
         fun create(asset: Asset) = AssetView(
-            category = when (asset) {
-                is FixedIncomeAsset -> "Renda Fixa"
-                is InvestmentFundAsset -> "Renda Variável"
-                is VariableIncomeAsset -> "Renda Variável"
-            },
+            category = asset.formated(),
             subCategory = when (asset) {
                 is FixedIncomeAsset -> asset.type.formated()
                 is InvestmentFundAsset -> asset.type.formated()
@@ -38,7 +34,6 @@ internal class AssetView(
                     FixedIncomeAssetType.PRE_FIXED -> "${asset.subType.name} de $${asset.contractedYield}% a.a."
                     FixedIncomeAssetType.INFLATION_LINKED -> "${asset.subType.name} + ${asset.contractedYield}%"
                 }
-
                 is InvestmentFundAsset -> asset.name
                 is VariableIncomeAsset -> asset.name
             },

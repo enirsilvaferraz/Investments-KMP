@@ -1,13 +1,23 @@
 package com.eferraz.presentation.assets
 
+import com.eferraz.entities.Asset
+import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.FixedIncomeAssetType
+import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.InvestmentFundAssetType
+import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.entities.VariableIncomeAssetType
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 
 internal object Formatters {
+
+    internal fun Asset.formated(): String = when (this) {
+        is FixedIncomeAsset -> "Renda Fixa"
+        is InvestmentFundAsset -> "Renda Variável"
+        is VariableIncomeAsset -> "Renda Variável"
+    }
 
     internal fun FixedIncomeAssetType.formated() = when (this) {
         FixedIncomeAssetType.POST_FIXED -> "Pós Fixado"
