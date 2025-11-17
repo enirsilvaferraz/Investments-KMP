@@ -1,4 +1,4 @@
-package com.eferraz.pokedex
+package com.eferraz.presentation
 
 import kotlinx.serialization.Serializable
 
