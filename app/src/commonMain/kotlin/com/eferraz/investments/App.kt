@@ -1,7 +1,7 @@
 package com.eferraz.investments
 
 import androidx.compose.runtime.Composable
-import com.eferraz.pokedex.InternalApp
+import com.eferraz.presentation.InternalApp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable

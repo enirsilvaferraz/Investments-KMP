@@ -1,4 +1,4 @@
-package com.eferraz.pokedex.ui
+package com.eferraz.pokedex.ui.components
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
