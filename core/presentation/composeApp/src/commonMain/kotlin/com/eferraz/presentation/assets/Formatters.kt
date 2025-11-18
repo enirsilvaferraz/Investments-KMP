@@ -15,7 +15,7 @@ internal object Formatters {
 
     internal fun Asset.formated(): String = when (this) {
         is FixedIncomeAsset -> "Renda Fixa"
-        is InvestmentFundAsset -> "Fundo de Investimento"
+        is InvestmentFundAsset -> "Fundos"//"Fundo de Investimento"
         is VariableIncomeAsset -> "Renda Variável"
     }
 
@@ -32,9 +32,9 @@ internal object Formatters {
     }
 
     internal fun VariableIncomeAssetType.formated() = when (this) {
-        VariableIncomeAssetType.NATIONAL_STOCK -> "Ações Nacionais"
+        VariableIncomeAssetType.NATIONAL_STOCK -> "Ação"//"Ações Nacionais"
         VariableIncomeAssetType.INTERNATIONAL_STOCK -> "Ações Internacionais"
-        VariableIncomeAssetType.REAL_ESTATE_FUND -> "Fundos de Imobiliários"
+        VariableIncomeAssetType.REAL_ESTATE_FUND -> "FII"//"Fundos de Imobiliários"
         VariableIncomeAssetType.ETF -> "ETF"
     }
 
