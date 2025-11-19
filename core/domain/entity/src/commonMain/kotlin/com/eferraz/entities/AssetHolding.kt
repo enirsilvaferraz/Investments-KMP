@@ -10,7 +10,6 @@ import kotlinx.datetime.LocalDate
  * @property asset A referência para o ativo intrínseco (o "quê").
  * @property owner O proprietário desta posição (o "quem").
  * @property brokerage A corretora onde esta posição está custodiada (o "onde").
- * @property firstPurchaseDate A data da primeira compra que originou esta posição.
  * @property quantity O número de unidades detidas (ações, cotas, ou 1 para um título de Renda Fixa).
  * @property averageCost O custo médio pago por cada unidade.
  * @property investedValue O valor total investido na posição (calculado como quantity * averageCost).
@@ -21,7 +20,6 @@ public data class AssetHolding(
     public val asset: Asset,
     public val owner: Owner,
     public val brokerage: Brokerage,
-    public val firstPurchaseDate: LocalDate,
     public val quantity: Double,
     public val averageCost: Double,
     public val investedValue: Double,
