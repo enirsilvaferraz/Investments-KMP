@@ -51,9 +51,9 @@ internal fun AssetsRoute() {
                 }
             },
             supportingPane = {
-                Pane {
-                    Section(Modifier.fillMaxSize()) {}
-                }
+//                Pane {
+//                    Section(Modifier.fillMaxSize()) {}
+//                }
             },
             extraPane = {
                 Pane {
@@ -94,6 +94,7 @@ internal fun AssetsScreen(
             TableColumn(title = "Descrição", weight = 2f, extractValue = { it.name }),
             TableColumn(title = "Vencimento", extractValue = { it.maturity?.formated() ?: "-" }, sortComparator = { it.maturity }),
             TableColumn(title = "Emissor", extractValue = { it.issuer }),
+            TableColumn(title = "Liquidez", extractValue = { it.liquidity }),
             TableColumn(title = "Observação", weight = 2f, extractValue = { it.notes })
         ),
         data = list,
