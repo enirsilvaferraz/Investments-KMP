@@ -1,4 +1,4 @@
-package com.eferraz.database.initialization
+package com.eferraz.database.core.initialization
 
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset

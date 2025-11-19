@@ -4,7 +4,7 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.eferraz.database.converters.Converters
+import com.eferraz.database.core.converters.Converters
 import com.eferraz.database.daos.AssetDao
 import com.eferraz.database.daos.IssuerDao
 import com.eferraz.database.entities.AssetEntity

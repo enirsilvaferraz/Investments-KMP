@@ -1,9 +1,9 @@
 package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.AssetDao
-import com.eferraz.database.relationship.FixedIncomeAssetWithDetails
-import com.eferraz.database.relationship.InvestmentFundAssetWithDetails
-import com.eferraz.database.relationship.VariableIncomeAssetWithDetails
+import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
+import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
+import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentFundAsset

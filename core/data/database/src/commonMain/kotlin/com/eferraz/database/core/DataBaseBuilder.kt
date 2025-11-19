@@ -4,7 +4,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
-import com.eferraz.database.initialization.DatabaseSeedData
+import com.eferraz.database.core.initialization.DatabaseSeedData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.koin.core.component.KoinComponent

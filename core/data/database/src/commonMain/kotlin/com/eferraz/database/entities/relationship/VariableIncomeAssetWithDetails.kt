@@ -1,4 +1,4 @@
-package com.eferraz.database.relationship
+package com.eferraz.database.entities.relationship
 
 import androidx.room.Embedded
 import com.eferraz.database.entities.AssetEntity

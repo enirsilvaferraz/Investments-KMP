@@ -1,4 +1,4 @@
-package com.eferraz.database.converters
+package com.eferraz.database.core.converters
 
 import androidx.room.TypeConverter
 import com.eferraz.entities.FixedIncomeAssetType

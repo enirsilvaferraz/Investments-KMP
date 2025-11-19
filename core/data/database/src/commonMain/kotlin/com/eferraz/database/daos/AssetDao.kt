@@ -5,11 +5,11 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.eferraz.database.entities.AssetEntity
 import com.eferraz.database.entities.FixedIncomeAssetEntity
-import com.eferraz.database.relationship.FixedIncomeAssetWithDetails
+import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
 import com.eferraz.database.entities.InvestmentFundAssetEntity
-import com.eferraz.database.relationship.InvestmentFundAssetWithDetails
+import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
 import com.eferraz.database.entities.VariableIncomeAssetEntity
-import com.eferraz.database.relationship.VariableIncomeAssetWithDetails
+import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
 import kotlinx.coroutines.flow.Flow
 
 /**
