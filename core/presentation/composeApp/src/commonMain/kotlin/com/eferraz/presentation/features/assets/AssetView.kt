@@ -46,8 +46,8 @@ internal class AssetView(
             issuer = asset.issuer.name,
             liquidity = when (asset) {
                 is FixedIncomeAsset -> asset.liquidity.formated()
-                is InvestmentFundAsset -> asset.liquidity.formated()
-                is VariableIncomeAsset -> asset.liquidity.formated()
+                is InvestmentFundAsset -> asset.liquidity.formated(asset.liquidityDays)
+                is VariableIncomeAsset -> asset.liquidity.formated(asset.liquidityDays)
             },
             notes = asset.observations.orEmpty(),
         )

@@ -1,6 +1,6 @@
 package com.eferraz.entities
 
-import com.eferraz.entities.liquidity.FixedLiquidity
+import com.eferraz.entities.liquidity.Liquidity
 import kotlinx.datetime.LocalDate
 
 /**
@@ -22,7 +22,7 @@ public data class FixedIncomeAsset(
     public val expirationDate: LocalDate,
     public val contractedYield: Double,
     public val cdiRelativeYield: Double? = null,
-    public val liquidity: FixedLiquidity,
+    public val liquidity: Liquidity,
     override val observations: String? = null,
 ) : Asset {
 

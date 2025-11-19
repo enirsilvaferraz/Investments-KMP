@@ -70,13 +70,13 @@ O nome é formatado dinamicamente com base no tipo de rendimento:
 
 A liquidez é formatada conforme o tipo de regra aplicada ao ativo:
 
-- **Diária** (`Daily`): Exibido como `"Diária"` - resgate pode ser solicitado a qualquer momento
-- **No vencimento** (`AtMaturity`): Exibido como `"No vencimento"` - liquidez apenas na data de vencimento do título
-- **Dias após venda** (`OnDaysAfterSale`): Exibido como `"D+{days}"` onde `{days}` é o número de dias para o resgate ser efetivado
+- **Diária** (`Liquidity.DAILY`): Exibido como `"Diária"` - resgate pode ser solicitado a qualquer momento
+- **No vencimento** (`Liquidity.AT_MATURITY`): Exibido como `"No vencimento"` - liquidez apenas na data de vencimento do título
+- **Dias após venda** (`Liquidity.D_PLUS_DAYS`): Exibido como `"D+{days}"` onde `{days}` é o número de dias para o resgate ser efetivado (armazenado na propriedade `liquidityDays`)
   - Exemplo: `"D+2"` (resgate em 2 dias após solicitação)
   - Exemplo: `"D+60"` (resgate em 60 dias após solicitação)
 
-**Nota**: `Daily` e `AtMaturity` são aplicáveis apenas a ativos de Renda Fixa (`FixedIncomeAsset`). `OnDaysAfterSale` é aplicável a ativos de Renda Variável (`VariableIncomeAsset`) e Fundos de Investimento (`InvestmentFundAsset`).
+**Nota**: `Liquidity.DAILY` e `Liquidity.AT_MATURITY` são aplicáveis apenas a ativos de Renda Fixa (`FixedIncomeAsset`). `Liquidity.D_PLUS_DAYS` é aplicável a ativos de Renda Variável (`VariableIncomeAsset`) e Fundos de Investimento (`InvestmentFundAsset`), que possuem a propriedade `liquidityDays` para armazenar o número de dias.
 
 ---
 

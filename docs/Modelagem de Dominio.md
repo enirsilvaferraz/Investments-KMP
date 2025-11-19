@@ -58,7 +58,7 @@ data class FixedIncomeAsset(
     val expirationDate: LocalDate,
     val contractedYield: Double,
     val cdiRelativeYield: Double?,
-    val liquidity: FixedLiquidity,
+    val liquidity: Liquidity,
     override val observations: String? = null
 ) : Asset
 
@@ -68,6 +68,7 @@ data class FixedIncomeAsset(
  * @property type O tipo de ativo de renda variável (ação, FII, etc.).
  * @property ticker O código de negociação único do ativo (ex: "PETR4").
  * @property liquidity A regra de liquidez que se aplica ao ativo.
+ * @property liquidityDays O número de dias para resgate quando liquidity é D_PLUS_DAYS.
  * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
 data class VariableIncomeAsset(
@@ -76,7 +77,8 @@ data class VariableIncomeAsset(
     override val issuer: Issuer,
     val type: VariableIncomeAssetType,
     val ticker: String,
-    val liquidity: OnDaysAfterSale,
+    val liquidity: Liquidity,
+    val liquidityDays: Int,
     override val observations: String? = null
 ) : Asset
 
@@ -85,6 +87,7 @@ data class VariableIncomeAsset(
  *
  * @property type A categoria do fundo de investimento (ações, multimercado, etc.).
  * @property liquidity A regra de liquidez que se aplica ao ativo.
+ * @property liquidityDays O número de dias para resgate quando liquidity é D_PLUS_DAYS.
  * @property expirationDate Data de vencimento do título (opcional para fundos).
  * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
@@ -93,7 +96,8 @@ data class InvestmentFundAsset(
     override val name: String,
     override val issuer: Issuer,
     val type: InvestmentFundAssetType,
-    val liquidity: OnDaysAfterSale,
+    val liquidity: Liquidity,
+    val liquidityDays: Int,
     val expirationDate: LocalDate?,
     override val observations: String? = null
 ) : Asset
@@ -309,16 +313,29 @@ data class Amortization(override val value: BigDecimal) : Earning
 
 ### Liquidez (Liquidity)
 
-Modela as diferentes regras de conversão do ativo em dinheiro. O uso de uma `sealed interface` garante que cada categoria de ativo só possa ser associada às regras de liquidez que lhe são permitidas, reforçando a consistência do modelo em tempo de compilação.
+Modela as diferentes regras de conversão do ativo em dinheiro. O uso de um `enum class` fornece um vocabulário controlado para o domínio, ideal para lógicas de negócio, filtros de UI e para garantir a integridade dos dados, evitando o uso de strings arbitrárias.
 
 ```kotlin
-sealed interface Liquidity
-sealed interface FixedLiquidity : Liquidity {
-    object Daily : FixedLiquidity
-    object AtMaturity : FixedLiquidity
+enum class Liquidity {
+    /**
+     * Representa a liquidez diária, onde o resgate pode ser solicitado a qualquer momento.
+     */
+    DAILY,
+    
+    /**
+     * Representa a liquidez apenas no vencimento do título.
+     */
+    AT_MATURITY,
+    
+    /**
+     * Representa a liquidez onde o resgate ocorre um número específico de dias após a solicitação.
+     * O número de dias deve ser armazenado separadamente na entidade que utiliza este tipo.
+     */
+    D_PLUS_DAYS
 }
-data class OnDaysAfterSale(val days: Int) : Liquidity
 ```
+
+**Nota sobre `D_PLUS_DAYS`:** Para liquidez do tipo `D_PLUS_DAYS`, o número de dias deve ser armazenado separadamente nas entidades que utilizam este tipo de liquidez. Por exemplo, `VariableIncomeAsset` e `InvestmentFundAsset` possuem uma propriedade `liquidityDays: Int` que armazena o número de dias para resgate.
 
 ### Classificações de Ativos (Enums)
 

@@ -20,10 +20,7 @@ import com.eferraz.entities.VariableIncomeAssetType
 import com.eferraz.entities.VariableIncomeAssetType.ETF
 import com.eferraz.entities.VariableIncomeAssetType.NATIONAL_STOCK
 import com.eferraz.entities.VariableIncomeAssetType.REAL_ESTATE_FUND
-import com.eferraz.entities.liquidity.AtMaturity
-import com.eferraz.entities.liquidity.Daily
-import com.eferraz.entities.liquidity.FixedLiquidity
-import com.eferraz.entities.liquidity.OnDaysAfterSale
+import com.eferraz.entities.liquidity.Liquidity
 import kotlinx.datetime.LocalDate
 import org.koin.core.annotation.Single
 
@@ -57,34 +54,34 @@ internal class AssetInMemoryDataSourceImpl : AssetInMemoryDataSource {
      */
     override fun getAll(): List<Asset> = buildList {
 
-        FI("SUPER POUP BMG", "BMG", POST_FIXED, CDB, LocalDate(2026, 5, 11), 110.0, Daily)
-        FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2027, 8, 29), 110.0, Daily)
-        FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2030, 4, 1), 112.0, Daily)
-        FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2030, 4, 2), 112.0, Daily)
-        FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2030, 9, 15), 106.0, Daily)
-        FI("CDB PRE", "BMG", PRE_FIXED, CDB, LocalDate(2025, 10, 18), 12.96, AtMaturity)
-        FI("Caixinha Turbo Ultravioleta", "Nubank", POST_FIXED, CDB, LocalDate(2030, 10, 18), 120.0, Daily)
-        FI("Saldo Separado", "Nubank", POST_FIXED, CDB, LocalDate(2050, 1, 1), 100.0, Daily)
-        FI("LCA BANCO ABC BRASIL", "ABC Brasil", POST_FIXED, LCA, LocalDate(2026, 7, 1), 90.5, AtMaturity)
-        FI("CDB BANCO DIGIMAIS", "Banco Digimais", PRE_FIXED, CDB, LocalDate(2026, 7, 9), 11.29, AtMaturity)
-        FI("CDB DM FINANCEIRA", "DM Financeira", POST_FIXED, CDB, LocalDate(2027, 5, 3), 113.0, AtMaturity)
-        FI("CDB BANCO SEMEAR SA", "Banco Semear", POST_FIXED, CDB, LocalDate(2027, 6, 3), 122.0, AtMaturity)
-        FI("CDB BANCO MASTER", "Banco Master", PRE_FIXED, CDB, LocalDate(2028, 12, 26), 15.5, AtMaturity)
-        FI("CDB BANCO MASTER", "Banco Master", POST_FIXED, CDB, LocalDate(2029, 1, 2), 121.0, AtMaturity)
-        FI("CDB BANCO MASTER", "Banco Master", POST_FIXED, CDB, LocalDate(2029, 4, 9), 125.0, AtMaturity)
-        FI("LCA ORIGINAL", "Original", POST_FIXED, LCA, LocalDate(2026, 5, 4), 93.0, AtMaturity)
-        FI("LCI ORIGINAL", "Original", POST_FIXED, LCI, LocalDate(2026, 4, 27), 93.0, AtMaturity)
-        FI("LCI BRB", "BRB", POST_FIXED, LCI, LocalDate(2026, 10, 16), 91.5, AtMaturity)
-        FI("LCI IPCA 252 TB BANCO BARI", "Banco Bari", INFLATION_LINKED, LCI, LocalDate(2025, 12, 22), 5.1, AtMaturity)
-        FI("LCI IPCA FINAL 3 ANOS", "Inter", INFLATION_LINKED, LCI, LocalDate(2026, 5, 29), 5.28, AtMaturity)
-        FI("CDB ARBI", "ARBI", POST_FIXED, CDB, LocalDate(2029, 1, 12), 115.0, AtMaturity)
-        FI("CDB IPCA 252 TB BANCO MASTER", "Banco Master", INFLATION_LINKED, CDB, LocalDate(2026, 11, 17), 6.5, AtMaturity)
-        FI("CDB IPCA 252 TB BANCO MASTER", "Banco Master", INFLATION_LINKED, CDB, LocalDate(2027, 4, 12), 7.28, AtMaturity)
-        FI("CDB IPCA 252 TB BANCO MASTER", "Banco Master", PRE_FIXED, CDB, LocalDate(2027, 6, 28), 15.9, AtMaturity)
-        FI("CDB DI FLUT TB BANCO MASTER", "Banco Master", POST_FIXED, CDB, LocalDate(2027, 3, 10), 115.0, AtMaturity)
-        FI("LIG LIQUIDEZ", "Inter", POST_FIXED, CDB, LocalDate(2027, 9, 3), 87.0, AtMaturity)
-        FI("FGTS", "FGTS", PRE_FIXED, CDB, LocalDate(2026, 12, 31), 0.0, AtMaturity)
-        FI("CDB LIQUIDEZ DIARIA", "Sofisa", PRE_FIXED, CDB, LocalDate(2026, 9, 8), 110.0, Daily)
+        FI("SUPER POUP BMG", "BMG", POST_FIXED, CDB, LocalDate(2026, 5, 11), 110.0, Liquidity.DAILY)
+        FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2027, 8, 29), 110.0, Liquidity.DAILY)
+        FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2030, 4, 1), 112.0, Liquidity.DAILY)
+        FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2030, 4, 2), 112.0, Liquidity.DAILY)
+        FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2030, 9, 15), 106.0, Liquidity.DAILY)
+        FI("CDB PRE", "BMG", PRE_FIXED, CDB, LocalDate(2025, 10, 18), 12.96, Liquidity.AT_MATURITY)
+        FI("Caixinha Turbo Ultravioleta", "Nubank", POST_FIXED, CDB, LocalDate(2030, 10, 18), 120.0, Liquidity.DAILY)
+        FI("Saldo Separado", "Nubank", POST_FIXED, CDB, LocalDate(2050, 1, 1), 100.0, Liquidity.DAILY)
+        FI("LCA BANCO ABC BRASIL", "ABC Brasil", POST_FIXED, LCA, LocalDate(2026, 7, 1), 90.5, Liquidity.AT_MATURITY)
+        FI("CDB BANCO DIGIMAIS", "Banco Digimais", PRE_FIXED, CDB, LocalDate(2026, 7, 9), 11.29, Liquidity.AT_MATURITY)
+        FI("CDB DM FINANCEIRA", "DM Financeira", POST_FIXED, CDB, LocalDate(2027, 5, 3), 113.0, Liquidity.AT_MATURITY)
+        FI("CDB BANCO SEMEAR SA", "Banco Semear", POST_FIXED, CDB, LocalDate(2027, 6, 3), 122.0, Liquidity.AT_MATURITY)
+        FI("CDB BANCO MASTER", "Banco Master", PRE_FIXED, CDB, LocalDate(2028, 12, 26), 15.5, Liquidity.AT_MATURITY)
+        FI("CDB BANCO MASTER", "Banco Master", POST_FIXED, CDB, LocalDate(2029, 1, 2), 121.0, Liquidity.AT_MATURITY)
+        FI("CDB BANCO MASTER", "Banco Master", POST_FIXED, CDB, LocalDate(2029, 4, 9), 125.0, Liquidity.AT_MATURITY)
+        FI("LCA ORIGINAL", "Original", POST_FIXED, LCA, LocalDate(2026, 5, 4), 93.0, Liquidity.AT_MATURITY)
+        FI("LCI ORIGINAL", "Original", POST_FIXED, LCI, LocalDate(2026, 4, 27), 93.0, Liquidity.AT_MATURITY)
+        FI("LCI BRB", "BRB", POST_FIXED, LCI, LocalDate(2026, 10, 16), 91.5, Liquidity.AT_MATURITY)
+        FI("LCI IPCA 252 TB BANCO BARI", "Banco Bari", INFLATION_LINKED, LCI, LocalDate(2025, 12, 22), 5.1, Liquidity.AT_MATURITY)
+        FI("LCI IPCA FINAL 3 ANOS", "Inter", INFLATION_LINKED, LCI, LocalDate(2026, 5, 29), 5.28, Liquidity.AT_MATURITY)
+        FI("CDB ARBI", "ARBI", POST_FIXED, CDB, LocalDate(2029, 1, 12), 115.0, Liquidity.AT_MATURITY)
+        FI("CDB IPCA 252 TB BANCO MASTER", "Banco Master", INFLATION_LINKED, CDB, LocalDate(2026, 11, 17), 6.5, Liquidity.AT_MATURITY)
+        FI("CDB IPCA 252 TB BANCO MASTER", "Banco Master", INFLATION_LINKED, CDB, LocalDate(2027, 4, 12), 7.28, Liquidity.AT_MATURITY)
+        FI("CDB IPCA 252 TB BANCO MASTER", "Banco Master", PRE_FIXED, CDB, LocalDate(2027, 6, 28), 15.9, Liquidity.AT_MATURITY)
+        FI("CDB DI FLUT TB BANCO MASTER", "Banco Master", POST_FIXED, CDB, LocalDate(2027, 3, 10), 115.0, Liquidity.AT_MATURITY)
+        FI("LIG LIQUIDEZ", "Inter", POST_FIXED, CDB, LocalDate(2027, 9, 3), 87.0, Liquidity.AT_MATURITY)
+        FI("FGTS", "FGTS", PRE_FIXED, CDB, LocalDate(2026, 12, 31), 0.0, Liquidity.AT_MATURITY)
+        FI("CDB LIQUIDEZ DIARIA", "Sofisa", PRE_FIXED, CDB, LocalDate(2026, 9, 8), 110.0, Liquidity.DAILY)
 
         // Investment Fund Assets
         IF("ARCA GRÃO", "ICATU", PENSION, null)
@@ -147,7 +144,7 @@ internal class AssetInMemoryDataSourceImpl : AssetInMemoryDataSource {
         subType: FixedIncomeSubType,
         expirationDate: LocalDate,
         yield: Double,
-        liquidity: FixedLiquidity,
+        liquidity: Liquidity,
     ) {
         add(
             FixedIncomeAsset(
@@ -176,7 +173,8 @@ internal class AssetInMemoryDataSourceImpl : AssetInMemoryDataSource {
                 name = name,
                 issuer = getIssuer(issuerName),
                 type = type,
-                liquidity = OnDaysAfterSale(60),
+                liquidity = Liquidity.D_PLUS_DAYS,
+                liquidityDays = 60,
                 expirationDate = expirationDate
             )
         )
@@ -196,7 +194,8 @@ internal class AssetInMemoryDataSourceImpl : AssetInMemoryDataSource {
                 issuer = getIssuer(issuerName),
                 type = type,
                 ticker = ticker,
-                liquidity = OnDaysAfterSale(2),
+                liquidity = Liquidity.D_PLUS_DAYS,
+                liquidityDays = 2,
                 observations = observations
             )
         )
