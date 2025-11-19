@@ -82,26 +82,26 @@ internal object AssetInMemoryDataSource {
         IF("BTG Eletrobrás", "BTG", PENSION, null)
 
         // Variable Income Assets
-        VI("AZZA3", "AZZA3", NATIONAL_STOCK, "AZZA3")
-        VI("B3SA3", "B3SA3", NATIONAL_STOCK, "B3SA3")
-        VI("BPAC11", "BPAC11", NATIONAL_STOCK, "BPAC11")
-        VI("BRAV3", "BRAV3", NATIONAL_STOCK, "BRAV3")
-        VI("BRBI11", "BRBI11", NATIONAL_STOCK, "BRBI11")
-        VI("CASH3", "CASH3", NATIONAL_STOCK, "CASH3")
-        VI("COCE5", "COCE5", NATIONAL_STOCK, "COCE5")
-        VI("CSAN3", "CSAN3", NATIONAL_STOCK, "CSAN3")
-        VI("DIRR3", "DIRR3", NATIONAL_STOCK, "DIRR3")
-        VI("ELET6", "ELET6", NATIONAL_STOCK, "ELET6")
-        VI("ENEV3", "ENEV3", NATIONAL_STOCK, "ENEV3")
-        VI("EQTL3", "EQTL3", NATIONAL_STOCK, "EQTL3")
-        VI("GOAU4", "GOAU4", NATIONAL_STOCK, "GOAU4")
-        VI("IGTI11", "IGTI11", NATIONAL_STOCK, "IGTI11")
-        VI("INTB3", "INTB3", NATIONAL_STOCK, "INTB3")
-        VI("RENT3", "RENT3", NATIONAL_STOCK, "RENT3")
-        VI("SBFG3", "SBFG3", NATIONAL_STOCK, "SBFG3")
+        VI("AZZA3", "AZZA3", NATIONAL_STOCK, "AZZA3", "Carteira: Oportunidades de uma vida")
+        VI("B3SA3", "B3SA3", NATIONAL_STOCK, "B3SA3", "Carteira: Oportunidades de uma vida")
+        VI("BPAC11", "BPAC11", NATIONAL_STOCK, "BPAC11", "Carteira: Oportunidades de uma vida")
+        VI("BRAV3", "BRAV3", NATIONAL_STOCK, "BRAV3", "Carteira: Oportunidades de uma vida")
+        VI("BRBI11", "BRBI11", NATIONAL_STOCK, "BRBI11", "Carteira: Oportunidades de uma vida")
+        VI("CASH3", "CASH3", NATIONAL_STOCK, "CASH3", "Carteira: Oportunidades de uma vida")
+        VI("COCE5", "COCE5", NATIONAL_STOCK, "COCE5", "Carteira: Oportunidades de uma vida")
+        VI("CSAN3", "CSAN3", NATIONAL_STOCK, "CSAN3", "Carteira: Oportunidades de uma vida")
+        VI("DIRR3", "DIRR3", NATIONAL_STOCK, "DIRR3", "Carteira: Oportunidades de uma vida")
+        VI("ELET6", "ELET6", NATIONAL_STOCK, "ELET6", "Carteira: Oportunidades de uma vida")
+        VI("ENEV3", "ENEV3", NATIONAL_STOCK, "ENEV3", "Carteira: Oportunidades de uma vida")
+        VI("EQTL3", "EQTL3", NATIONAL_STOCK, "EQTL3", "Carteira: Oportunidades de uma vida")
+        VI("GOAU4", "GOAU4", NATIONAL_STOCK, "GOAU4", "Carteira: Oportunidades de uma vida")
+        VI("IGTI11", "IGTI11", NATIONAL_STOCK, "IGTI11", "Carteira: Oportunidades de uma vida")
+        VI("INTB3", "INTB3", NATIONAL_STOCK, "INTB3", "Carteira: Oportunidades de uma vida")
+        VI("RENT3", "RENT3", NATIONAL_STOCK, "RENT3", "Carteira: Oportunidades de uma vida")
+        VI("SBFG3", "SBFG3", NATIONAL_STOCK, "SBFG3", "Carteira: Oportunidades de uma vida")
 
-        VI("HASH11", "HASH11", ETF, "HASH11")
-        VI("IVVB11", "IVVB11", ETF, "IVVB11")
+        VI("HASH11", "HASH11", ETF, "HASH11", "Carteira: Cripto")
+        VI("IVVB11", "IVVB11", ETF, "IVVB11", "Carteira: Ações Internacionais")
 
         VI("TRXF11", "TRXF11", REAL_ESTATE_FUND, "TRXF11")
         VI("KNSC11", "KNSC11", REAL_ESTATE_FUND, "KNSC11")
@@ -178,6 +178,7 @@ internal object AssetInMemoryDataSource {
         issuerName: String,
         type: VariableIncomeAssetType,
         ticker: String,
+        observations: String? = null
     ) {
         add(
             VariableIncomeAsset(
@@ -186,7 +187,8 @@ internal object AssetInMemoryDataSource {
                 issuer = getIssuer(issuerName),
                 type = type,
                 ticker = ticker,
-                liquidity = OnDaysAfterSale(2)
+                liquidity = OnDaysAfterSale(2),
+                observations = observations
             )
         )
     }
