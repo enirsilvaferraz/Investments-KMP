@@ -13,6 +13,7 @@ import com.eferraz.entities.FixedIncomeSubType.LCI
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.InvestmentFundAssetType.PENSION
+import com.eferraz.entities.InvestmentFundAssetType.STOCK_FUND
 import com.eferraz.entities.Issuer
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.entities.VariableIncomeAssetType
@@ -87,7 +88,7 @@ internal class AssetInMemoryDataSourceImpl : AssetInMemoryDataSource {
 
         // Investment Fund Assets
         IF("ARCA GRÃO", "ICATU", PENSION, null)
-        IF("BTG Eletrobrás", "BTG", PENSION, null)
+        IF("BTG Eletrobrás", "BTG", STOCK_FUND, null)
 
         // Variable Income Assets
         VI("AZZA3", "AZZA3", NATIONAL_STOCK, "AZZA3", "Carteira: Oportunidades de uma vida")

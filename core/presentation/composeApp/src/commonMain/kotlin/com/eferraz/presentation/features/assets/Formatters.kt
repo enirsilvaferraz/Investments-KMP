@@ -7,6 +7,10 @@ import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.entities.VariableIncomeAssetType
+import com.eferraz.entities.liquidity.AtMaturity
+import com.eferraz.entities.liquidity.Daily
+import com.eferraz.entities.liquidity.Liquidity
+import com.eferraz.entities.liquidity.OnDaysAfterSale
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
@@ -40,4 +44,10 @@ internal object Formatters {
 
     internal fun LocalDate?.formated() =
         this?.format(LocalDate.Companion.Format { year(); char('-'); monthNumber(); char('-'); day() }) ?: "-"
+
+    internal fun Liquidity.formated(): String = when (this) {
+        is Daily -> "Diária"
+        is AtMaturity -> "No vencimento"
+        is OnDaysAfterSale -> "D+${this.days}"
+    }
 }

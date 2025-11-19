@@ -15,6 +15,7 @@ internal class AssetView(
     val name: String,
     val maturity: LocalDate?,
     val issuer: String,
+    val liquidity: String,
     val notes: String,
 ) {
 
@@ -43,6 +44,11 @@ internal class AssetView(
                 is VariableIncomeAsset -> null
             },
             issuer = asset.issuer.name,
+            liquidity = when (asset) {
+                is FixedIncomeAsset -> asset.liquidity.formated()
+                is InvestmentFundAsset -> asset.liquidity.formated()
+                is VariableIncomeAsset -> asset.liquidity.formated()
+            },
             notes = asset.observations.orEmpty(),
         )
     }
