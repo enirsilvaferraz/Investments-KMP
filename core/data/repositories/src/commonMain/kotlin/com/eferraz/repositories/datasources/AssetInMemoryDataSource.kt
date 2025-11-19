@@ -12,16 +12,23 @@ import com.eferraz.entities.FixedIncomeSubType.LCA
 import com.eferraz.entities.FixedIncomeSubType.LCI
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.InvestmentFundAssetType
-import com.eferraz.entities.InvestmentFundAssetType.*
+import com.eferraz.entities.InvestmentFundAssetType.PENSION
 import com.eferraz.entities.Issuer
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.entities.VariableIncomeAssetType
-import com.eferraz.entities.VariableIncomeAssetType.*
+import com.eferraz.entities.VariableIncomeAssetType.ETF
+import com.eferraz.entities.VariableIncomeAssetType.NATIONAL_STOCK
+import com.eferraz.entities.VariableIncomeAssetType.REAL_ESTATE_FUND
 import com.eferraz.entities.liquidity.AtMaturity
 import com.eferraz.entities.liquidity.Daily
 import com.eferraz.entities.liquidity.FixedLiquidity
 import com.eferraz.entities.liquidity.OnDaysAfterSale
 import kotlinx.datetime.LocalDate
+import org.koin.core.annotation.Single
+
+internal interface AssetInMemoryDataSource {
+    fun getAll(): List<Asset>
+}
 
 /**
  * Fonte de dados em memória que retorna todos os Assets cadastrados no sistema.
@@ -31,7 +38,8 @@ import kotlinx.datetime.LocalDate
  * Cada asset é único, mesmo que compartilhe o mesmo nome com outro asset,
  * pois podem ter características diferentes (ex: datas de vencimento diferentes).
  */
-internal object AssetInMemoryDataSource {
+@Single(binds = [AssetInMemoryDataSource::class])
+internal class AssetInMemoryDataSourceImpl : AssetInMemoryDataSource {
 
     private val issuers = mutableMapOf<String, Issuer>()
     private var issuerIdCounter = 1L
@@ -46,7 +54,7 @@ internal object AssetInMemoryDataSource {
      * Cada asset é incluído na lista, mesmo que compartilhe o mesmo nome com outro asset,
      * pois podem ter características diferentes (ex: datas de vencimento diferentes).
      */
-    val assets: List<Asset> = buildList {
+    override fun getAll(): List<Asset> = buildList {
 
         FI("SUPER POUP BMG", "BMG", POST_FIXED, CDB, LocalDate(2026, 5, 11), 110.0, Daily)
         FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2027, 8, 29), 110.0, Daily)
@@ -178,7 +186,7 @@ internal object AssetInMemoryDataSource {
         issuerName: String,
         type: VariableIncomeAssetType,
         ticker: String,
-        observations: String? = null
+        observations: String? = null,
     ) {
         add(
             VariableIncomeAsset(
