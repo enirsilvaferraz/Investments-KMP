@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.eferraz.pokedex.theme.AppTheme
-import com.eferraz.presentation.assets.AssetsRoute
+import com.eferraz.presentation.design_system.theme.AppTheme
+import com.eferraz.presentation.features.assets.AssetsRoute
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinMultiplatformApplication
 import org.koin.core.annotation.KoinExperimentalAPI

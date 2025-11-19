@@ -9,7 +9,7 @@ plugins {
 }
 
 library {
-    namespace = "com.eferraz.pokedex"
+    namespace = "com.eferraz.presentation"
 }
 
 kotlin {
