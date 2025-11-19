@@ -16,5 +16,6 @@ kotlin {
     dependencies {
         implementation(projects.entity)
         implementation(projects.usecases)
+        implementation(projects.database)
     }
 }

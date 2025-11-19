@@ -18,6 +18,6 @@ public data class VariableIncomeAsset(
     public val type: VariableIncomeAssetType,
     public val ticker: String,
     public val liquidity: Liquidity,
-    public val liquidityDays: Int,
+    public val liquidityDays: Int = 2,
     override val observations: String? = null
 ) : Asset

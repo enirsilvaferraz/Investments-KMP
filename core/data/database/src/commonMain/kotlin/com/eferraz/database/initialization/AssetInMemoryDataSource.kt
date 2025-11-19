@@ -1,4 +1,4 @@
-package com.eferraz.repositories.datasources
+package com.eferraz.database.initialization
 
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
@@ -22,11 +22,6 @@ import com.eferraz.entities.VariableIncomeAssetType.NATIONAL_STOCK
 import com.eferraz.entities.VariableIncomeAssetType.REAL_ESTATE_FUND
 import com.eferraz.entities.liquidity.Liquidity
 import kotlinx.datetime.LocalDate
-import org.koin.core.annotation.Single
-
-internal interface AssetInMemoryDataSource {
-    fun getAll(): List<Asset>
-}
 
 /**
  * Fonte de dados em memória que retorna todos os Assets cadastrados no sistema.
@@ -36,8 +31,8 @@ internal interface AssetInMemoryDataSource {
  * Cada asset é único, mesmo que compartilhe o mesmo nome com outro asset,
  * pois podem ter características diferentes (ex: datas de vencimento diferentes).
  */
-@Single(binds = [AssetInMemoryDataSource::class])
-internal class AssetInMemoryDataSourceImpl : AssetInMemoryDataSource {
+
+internal object AssetInMemoryDataSourceImpl {
 
     private val issuers = mutableMapOf<String, Issuer>()
     private var issuerIdCounter = 1L
@@ -52,7 +47,7 @@ internal class AssetInMemoryDataSourceImpl : AssetInMemoryDataSource {
      * Cada asset é incluído na lista, mesmo que compartilhe o mesmo nome com outro asset,
      * pois podem ter características diferentes (ex: datas de vencimento diferentes).
      */
-    override fun getAll(): List<Asset> = buildList {
+    fun getAll(): List<Asset> = buildList {
 
         FI("SUPER POUP BMG", "BMG", POST_FIXED, CDB, LocalDate(2026, 5, 11), 110.0, Liquidity.DAILY)
         FI("CDB ESCALONADO", "BMG", POST_FIXED, CDB, LocalDate(2027, 8, 29), 110.0, Liquidity.DAILY)

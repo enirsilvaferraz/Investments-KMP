@@ -121,7 +121,6 @@ import java.math.RoundingMode
  * @property asset A referência para o ativo intrínseco (o "quê").
  * @property owner O proprietário desta posição (o "quem").
  * @property brokerage A corretora onde esta posição está custodiada (o "onde").
- * @property firstPurchaseDate A data da primeira compra que originou esta posição.
  * @property quantity O número de unidades detidas (ações, cotas, ou 1 para um título de Renda Fixa).
  * @property averageCost O custo médio pago por cada unidade.
  * @property investedValue O valor total investido na posição (calculado como quantity * averageCost).
@@ -132,7 +131,6 @@ data class AssetHolding(
     val asset: Asset,
     val owner: Owner,
     val brokerage: Brokerage,
-    val firstPurchaseDate: LocalDate,
     val quantity: Double,
     val averageCost: BigDecimal,
     val investedValue: BigDecimal,
