@@ -197,7 +197,6 @@ CREATE TABLE asset_holdings (
     asset_id INTEGER NOT NULL,
     owner_id INTEGER NOT NULL,
     brokerage_id INTEGER NOT NULL,
-    first_purchase_date TEXT NOT NULL, -- Formato 'YYYY-MM-DD'
     quantity REAL NOT NULL,
     average_cost TEXT NOT NULL,
     invested_value TEXT NOT NULL,

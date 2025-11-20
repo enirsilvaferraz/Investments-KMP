@@ -37,6 +37,11 @@ sealed interface Asset {
 
 ### Subclasses de Asset
 
+**Nota sobre `expirationDate`:** A disponibilidade do campo `expirationDate` varia conforme o tipo de ativo:
+- **`FixedIncomeAsset`**: Sempre possui `expirationDate` (obrigatório), pois títulos de renda fixa têm data de vencimento definida.
+- **`VariableIncomeAsset`**: Nunca possui `expirationDate`, pois ações e outros ativos de renda variável não têm data de vencimento.
+- **`InvestmentFundAsset`**: Pode possuir `expirationDate` (opcional), pois alguns fundos podem ter prazo de duração definido.
+
 ```kotlin
 /**
  * Representa um ativo de renda fixa. As suas propriedades definem o "contrato" do título.
@@ -199,7 +204,6 @@ import java.time.YearMonth
  * @property endOfMonthValue O valor de mercado total da posição no final do mês.
  * @property endOfMonthQuantity A quantidade do ativo detida no final do mês.
  * @property endOfMonthAverageCost O custo médio do ativo na posição no final do mês.
- * @property earnings A lista de todos os rendimentos (dividendos, juros, etc.) recebidos durante o mês.
  * @property totalInvested O valor total investido na posição até o final do mês.
  */
 data class HoldingHistoryEntry(
@@ -209,16 +213,8 @@ data class HoldingHistoryEntry(
     val endOfMonthValue: BigDecimal,
     val endOfMonthQuantity: Double,
     val endOfMonthAverageCost: BigDecimal,
-    val earnings: List<Earning>,
     val totalInvested: BigDecimal
-) {
-    /**
-     * Calcula e retorna a soma de todos os rendimentos recebidos no mês.
-     */
-    fun totalEarnings(): BigDecimal {
-        return earnings.sumOf { it.value }
-    }
-}
+)
 ```
 
 ### Nota sobre a Chave Primária em `HoldingHistoryEntry`
@@ -279,35 +275,6 @@ data class Issuer(val id: Long, val name: String)
 ## Tipos de Valor e Classificações
 
 Esta seção agrupa os blocos de construção e classificações que descrevem ou restringem as propriedades das entidades principais. Diferente das entidades fundamentais, estes tipos não possuem identidade ou ciclo de vida próprios; eles são **Value Objects** ou enumerações que adicionam significado e segurança ao modelo.
-
-### Rendimentos (Earning)
-
-Define um contrato polimórfico para os diferentes tipos de proventos que uma posição pode gerar. Esta abordagem permite que o sistema seja estendido para acomodar novos tipos de rendimentos no futuro (ex: bonificação em ações) sem alterar as entidades existentes, seguindo o Princípio Aberto/Fechado.
-
-```kotlin
-/**
- * Contrato para qualquer tipo de rendimento (provento) recebido em um mês.
- * Esta abordagem polimórfica permite que o sistema seja facilmente estendido
- * para novos tipos de rendimentos no futuro.
- *
- * @property value O valor monetário do rendimento recebido.
- */
-sealed interface Earning {
-    val value: BigDecimal
-}
-
-/** Representa o recebimento de dividendos. */
-data class Dividend(override val value: BigDecimal) : Earning
-
-/** Representa o recebimento de Juros Sobre Capital Próprio (JCP). */
-data class Jcp(override val value: BigDecimal) : Earning
-
-/** Representa juros recebidos, tipicamente de ativos de Renda Fixa. */
-data class Interest(override val value: BigDecimal) : Earning
-
-/** Representa a amortização de um ativo, comum em FIIs e CRIs/CRAs. */
-data class Amortization(override val value: BigDecimal) : Earning
-```
 
 ### Liquidez (Liquidity)
 
