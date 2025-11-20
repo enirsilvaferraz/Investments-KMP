@@ -40,7 +40,7 @@ internal object Formatters {
     }
 
     internal fun LocalDate?.formated() =
-        this?.format(LocalDate.Companion.Format { year(); char('-'); monthNumber(); char('-'); day() }) ?: "-"
+        this?.format(LocalDate.Format { year(); char('-'); monthNumber(); char('-'); day() }) ?: "-"
 
     internal fun Liquidity.formated(liquidityDays: Int? = null): String = when (this) {
         Liquidity.DAILY -> "Diária"

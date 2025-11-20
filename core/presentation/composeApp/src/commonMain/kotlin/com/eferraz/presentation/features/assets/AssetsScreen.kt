@@ -1,28 +1,23 @@
 package com.eferraz.presentation.features.assets
 
-import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold
-import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.TableColumn
+import com.eferraz.presentation.design_system.components.panels.Pane
+import com.eferraz.presentation.design_system.components.panels.Section
 import com.eferraz.presentation.features.assets.Formatters.formated
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -62,22 +57,6 @@ internal fun AssetsRoute() {
             },
         )
     }
-}
-
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@Composable
-private fun ThreePaneScaffoldPaneScope.Pane(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    AnimatedPane(modifier = Modifier.safeContentPadding()) {
-        Column(verticalArrangement = spacedBy(8.dp)) {
-            content()
-        }
-    }
-}
-
-@Composable
-private fun Section(modifier: Modifier = Modifier, content: @Composable (() -> Unit)) {
-    Surface(modifier = modifier.clip(RoundedCornerShape(12.dp)), content = content)
 }
 
 @Composable
