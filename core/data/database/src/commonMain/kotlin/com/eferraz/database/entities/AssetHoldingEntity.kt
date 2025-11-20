@@ -1,5 +1,6 @@
 package com.eferraz.database.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -39,13 +40,21 @@ import androidx.room.PrimaryKey
 )
 internal data class AssetHoldingEntity(
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
     val id: Long = 0,
+    @ColumnInfo(name = "assetId")
     val assetId: Long,
+    @ColumnInfo(name = "ownerId")
     val ownerId: Long,
+    @ColumnInfo(name = "brokerageId")
     val brokerageId: Long,
+    @ColumnInfo(name = "quantity")
     val quantity: Double,
+    @ColumnInfo(name = "averageCost")
     val averageCost: Double,
+    @ColumnInfo(name = "investedValue")
     val investedValue: Double,
+    @ColumnInfo(name = "currentValue")
     val currentValue: Double
 )
 

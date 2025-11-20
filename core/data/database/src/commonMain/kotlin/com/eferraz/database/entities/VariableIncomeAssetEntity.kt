@@ -1,5 +1,6 @@
 package com.eferraz.database.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -25,8 +26,11 @@ import com.eferraz.entities.VariableIncomeAssetType
 )
 internal data class VariableIncomeAssetEntity(
     @PrimaryKey
+    @ColumnInfo(name = "assetId")
     val assetId: Long,
+    @ColumnInfo(name = "type")
     val type: VariableIncomeAssetType,
+    @ColumnInfo(name = "ticker")
     val ticker: String // UNIQUE
 )
 
