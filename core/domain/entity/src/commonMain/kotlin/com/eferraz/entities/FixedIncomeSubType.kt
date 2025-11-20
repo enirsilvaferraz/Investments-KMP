@@ -3,5 +3,8 @@ package com.eferraz.entities
 public enum class FixedIncomeSubType {
     CDB,
     LCI,
-    LCA
+    LCA,
+    CRA,
+    CRI,
+    DEBENTURE
 }

@@ -53,10 +53,11 @@ sealed interface Asset {
  * @property cdiRelativeYield Rentabilidade relativa ao CDI (opcional).
  * @property liquidity A regra de liquidez que se aplica ao ativo.
  * @property observations Notas e observações adicionais sobre o ativo (opcional).
+ * 
+ * Nota: O campo `name` é calculado através de um getter, não é uma propriedade do construtor.
  */
 data class FixedIncomeAsset(
     override val id: Long,
-    override val name: String,
     override val issuer: Issuer,
     val type: FixedIncomeAssetType,
     val subType: FixedIncomeSubType,
@@ -65,16 +66,28 @@ data class FixedIncomeAsset(
     val cdiRelativeYield: Double?,
     val liquidity: Liquidity,
     override val observations: String? = null
-) : Asset
+) : Asset {
+    override val name: String
+        get() {
+            return when (type) {
+                FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI (venc: $expirationDate)"
+                FixedIncomeAssetType.PRE_FIXED -> "${subType.name} de $contractedYield% a.a. (venc: $expirationDate)"
+                FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield% (venc: $expirationDate)"
+            }
+        }
+}
 
 /**
  * Representa um ativo de renda variável.
  *
  * @property type O tipo de ativo de renda variável (ação, FII, etc.).
  * @property ticker O código de negociação único do ativo (ex: "PETR4").
- * @property liquidity A regra de liquidez que se aplica ao ativo.
- * @property liquidityDays O número de dias para resgate quando liquidity é D_PLUS_DAYS.
  * @property observations Notas e observações adicionais sobre o ativo (opcional).
+ * 
+ * Nota: Para ativos de renda variável, `liquidity` e `liquidityDays` são valores fixos:
+ * - `liquidity` sempre será `Liquidity.D_PLUS_DAYS`
+ * - `liquidityDays` sempre será `2`
+ * Estes valores são hardcoded e não são propriedades do construtor.
  */
 data class VariableIncomeAsset(
     override val id: Long,
@@ -82,10 +95,11 @@ data class VariableIncomeAsset(
     override val issuer: Issuer,
     val type: VariableIncomeAssetType,
     val ticker: String,
-    val liquidity: Liquidity,
-    val liquidityDays: Int,
     override val observations: String? = null
-) : Asset
+) : Asset {
+    val liquidity: Liquidity = Liquidity.D_PLUS_DAYS
+    val liquidityDays: Int = 2
+}
 
 /**
  * Representa um fundo de investimento.
@@ -115,9 +129,6 @@ data class InvestmentFundAsset(
 Esta entidade central conecta um `Asset` a um `Owner` e a uma `Brokerage`. Evoluiu de uma simples estrutura de dados para uma **entidade rica**, que encapsula as regras de negócio relativas a uma posição, como o recálculo do custo médio após um novo aporte.
 
 ```kotlin
-import java.math.BigDecimal
-import java.math.RoundingMode
-
 /**
  * Representa a posse de um ativo por um proprietário em uma corretora.
  * A modelagem utiliza um sistema de "unidades" para ser universalmente compatível.
@@ -130,6 +141,8 @@ import java.math.RoundingMode
  * @property averageCost O custo médio pago por cada unidade.
  * @property investedValue O valor total investido na posição (calculado como quantity * averageCost).
  * @property currentValue O valor de mercado atual da posição.
+ * 
+ * Nota: Valores monetários são armazenados como `Double` (Kotlin KMP não possui BigDecimal nativo).
  */
 data class AssetHolding(
     val id: Long,
@@ -137,9 +150,9 @@ data class AssetHolding(
     val owner: Owner,
     val brokerage: Brokerage,
     val quantity: Double,
-    val averageCost: BigDecimal,
-    val investedValue: BigDecimal,
-    val currentValue: BigDecimal
+    val averageCost: Double,
+    val investedValue: Double,
+    val currentValue: Double
 ) {
     /**
      * Retorna uma nova instância de `AssetHolding` refletindo um novo aporte (compra).
@@ -149,11 +162,11 @@ data class AssetHolding(
      * @param costPerUnit O custo por unidade na nova compra.
      * @return Uma nova instância de `AssetHolding` com os valores atualizados.
      */
-    fun recordPurchase(purchaseQuantity: Double, costPerUnit: BigDecimal): AssetHolding {
+    fun recordPurchase(purchaseQuantity: Double, costPerUnit: Double): AssetHolding {
         val newQuantity = this.quantity + purchaseQuantity
-        val purchaseValue = costPerUnit.multiply(BigDecimal.valueOf(purchaseQuantity))
-        val newInvestedValue = this.investedValue.add(purchaseValue)
-        val newAverageCost = newInvestedValue.divide(BigDecimal.valueOf(newQuantity), 10, RoundingMode.HALF_UP)
+        val purchaseValue = costPerUnit * purchaseQuantity
+        val newInvestedValue = this.investedValue + purchaseValue
+        val newAverageCost = newInvestedValue / newQuantity
 
         return this.copy(
             quantity = newQuantity,
@@ -192,28 +205,30 @@ Para que a entidade `AssetHolding` seja universal, suas propriedades (`quantity`
 Esta entidade é um snapshot mensal de uma `AssetHolding`, armazenando dados de desempenho para permitir análises de evolução ao longo do tempo.
 
 ```kotlin
-import java.math.BigDecimal
-import java.time.YearMonth
-
 /**
  * Representa um registro de histórico mensal para uma `AssetHolding`.
  *
  * @property id O identificador único do registro de histórico (chave primária).
  * @property holding A referência direta para a `AssetHolding` a que este registro pertence.
- * @property referenceDate O mês e ano de referência para este snapshot.
+ * @property referenceDate O mês e ano de referência para este snapshot (formato YYYY-MM).
  * @property endOfMonthValue O valor de mercado total da posição no final do mês.
  * @property endOfMonthQuantity A quantidade do ativo detida no final do mês.
  * @property endOfMonthAverageCost O custo médio do ativo na posição no final do mês.
  * @property totalInvested O valor total investido na posição até o final do mês.
+ * 
+ * Nota: 
+ * - Valores monetários são armazenados como `Double` (Kotlin KMP não possui BigDecimal nativo).
+ * - `referenceDate` utiliza uma classe customizada `YearMonth` (formato YYYY-MM).
+ * - Esta entidade não possui propriedade `earnings`; rendimentos não são rastreados no histórico mensal.
  */
 data class HoldingHistoryEntry(
     val id: Long,
     val holding: AssetHolding,
     val referenceDate: YearMonth,
-    val endOfMonthValue: BigDecimal,
+    val endOfMonthValue: Double,
     val endOfMonthQuantity: Double,
-    val endOfMonthAverageCost: BigDecimal,
-    val totalInvested: BigDecimal
+    val endOfMonthAverageCost: Double,
+    val totalInvested: Double
 )
 ```
 
@@ -300,7 +315,7 @@ enum class Liquidity {
 }
 ```
 
-**Nota sobre `D_PLUS_DAYS`:** Para liquidez do tipo `D_PLUS_DAYS`, o número de dias deve ser armazenado separadamente nas entidades que utilizam este tipo de liquidez. Por exemplo, `VariableIncomeAsset` e `InvestmentFundAsset` possuem uma propriedade `liquidityDays: Int` que armazena o número de dias para resgate.
+**Nota sobre `D_PLUS_DAYS`:** Para liquidez do tipo `D_PLUS_DAYS`, o número de dias deve ser armazenado separadamente nas entidades que utilizam este tipo de liquidez. Por exemplo, `InvestmentFundAsset` possui uma propriedade `liquidityDays: Int` que armazena o número de dias para resgate. Para `VariableIncomeAsset`, o valor de `liquidityDays` é sempre fixo (2 dias) e não é uma propriedade do construtor.
 
 ### Classificações de Ativos (Enums)
 

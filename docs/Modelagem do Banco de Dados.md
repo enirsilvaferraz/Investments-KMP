@@ -23,7 +23,7 @@ erDiagram
         INTEGER issuer_id FK "NN"
         TEXT name "NN"
         TEXT category "NN"
-        TEXT liquidity_rule "NN"
+        TEXT liquidity "NN"
         TEXT observations
     }
     FIXED_INCOME_ASSETS {
@@ -38,7 +38,6 @@ erDiagram
         INTEGER asset_id PK, FK "NN"
         TEXT type "NN"
         TEXT ticker "NN, UNIQUE"
-        INTEGER liquidity_days
     }
     INVESTMENT_FUND_ASSETS {
         INTEGER asset_id PK, FK "NN"
@@ -52,18 +51,18 @@ erDiagram
         INTEGER owner_id FK "NN"
         INTEGER brokerage_id FK "NN"
         REAL quantity "NN"
-        TEXT average_cost "NN"
-        TEXT invested_value "NN"
-        TEXT current_value "NN"
+        REAL average_cost "NN"
+        REAL invested_value "NN"
+        REAL current_value "NN"
     }
     HOLDING_HISTORY {
         INTEGER id PK "NN"
         INTEGER holding_id FK "NN"
         TEXT reference_date "NN, UNIQUE(holding_id, reference_date)"
-        TEXT end_of_month_value "NN"
+        REAL end_of_month_value "NN"
         REAL end_of_month_quantity "NN"
-        TEXT end_of_month_average_cost "NN"
-        TEXT total_invested "NN"
+        REAL end_of_month_average_cost "NN"
+        REAL total_invested "NN"
     }
 
     ASSETS ||--|{ FIXED_INCOME_ASSETS : "is a (1-to-1)"
@@ -88,12 +87,13 @@ Utilizado para:
 - **Datas**: Armazenadas no formato ISO 8601:
   - `YYYY-MM-DD` para datas completas (ex: `expiration_date`)
   - `YYYY-MM` para referências mensais (ex: `reference_date` em `holding_history`)
-- **Valores Monetários**: Armazenados como string para preservar a precisão decimal do tipo `BigDecimal` do domínio. Esta escolha evita perda de precisão que ocorreria com tipos numéricos de ponto flutuante, garantindo cálculos financeiros exatos.
+- **Enums**: Valores de enum são armazenados como texto. O Room Database converte automaticamente enums Kotlin para strings no SQLite (ex: `liquidity`).
 
 ### `REAL`
-Utilizado para números de ponto flutuante onde a precisão decimal limitada é aceitável:
+Utilizado para números de ponto flutuante:
 - **Quantidades**: Número de unidades (ações, cotas) em `quantity` e `end_of_month_quantity`
 - **Taxas**: Valores percentuais como `contracted_yield` e `cdi_relative_yield` em ativos de renda fixa
+- **Valores Monetários**: Valores monetários são armazenados como `REAL` (Double). Embora Kotlin KMP não possua BigDecimal nativo, o uso de Double é aceitável para a maioria dos casos de uso financeiros neste sistema.
 
 ## 2. Tabelas Fundamentais
 
@@ -136,8 +136,8 @@ CREATE TABLE assets (
     -- Coluna discriminadora: 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND'
     category TEXT NOT NULL, 
     
-    -- A regra de liquidez é comum, mas os dias específicos são movidos para as subclasses.
-    liquidity_rule TEXT NOT NULL, -- Ex: 'DAILY', 'AT_MATURITY', 'D_PLUS_DAYS'
+    -- A regra de liquidez é comum. Armazenado como enum (Room converte para TEXT automaticamente).
+    liquidity TEXT NOT NULL, -- Ex: 'DAILY', 'AT_MATURITY', 'D_PLUS_DAYS'
     
     -- Notas e observações adicionais sobre o ativo (opcional)
     observations TEXT,
@@ -170,11 +170,14 @@ CREATE TABLE variable_income_assets (
     asset_id INTEGER PRIMARY KEY,
     type TEXT NOT NULL,
     ticker TEXT NOT NULL UNIQUE,
-    liquidity_days INTEGER, -- Apenas para regras como 'D_PLUS_DAYS'
 
     FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
 );
 ```
+
+**Nota**: Para ativos de renda variável, `liquidity` e `liquidityDays` são valores fixos:
+- `liquidity` sempre será `D_PLUS_DAYS` (definido na tabela `assets`)
+- `liquidityDays` sempre será `2` (hardcoded no domínio, não armazenado no banco)
 
 #### `investment_fund_assets`
 ```sql
@@ -198,9 +201,9 @@ CREATE TABLE asset_holdings (
     owner_id INTEGER NOT NULL,
     brokerage_id INTEGER NOT NULL,
     quantity REAL NOT NULL,
-    average_cost TEXT NOT NULL,
-    invested_value TEXT NOT NULL,
-    current_value TEXT NOT NULL,
+    average_cost REAL NOT NULL,
+    invested_value REAL NOT NULL,
+    current_value REAL NOT NULL,
 
     FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
     FOREIGN KEY (owner_id) REFERENCES owners(id) ON DELETE RESTRICT,
@@ -214,10 +217,10 @@ CREATE TABLE holding_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     holding_id INTEGER NOT NULL,
     reference_date TEXT NOT NULL, -- Formato 'YYYY-MM'
-    end_of_month_value TEXT NOT NULL,
-    end_of_month_average_cost TEXT NOT NULL,
-    total_invested TEXT NOT NULL,
+    end_of_month_value REAL NOT NULL,
     end_of_month_quantity REAL NOT NULL,
+    end_of_month_average_cost REAL NOT NULL,
+    total_invested REAL NOT NULL,
 
     FOREIGN KEY (holding_id) REFERENCES asset_holdings(id) ON DELETE CASCADE,
     UNIQUE (holding_id, reference_date)
