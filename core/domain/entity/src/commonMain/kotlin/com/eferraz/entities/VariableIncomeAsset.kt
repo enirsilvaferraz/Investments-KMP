@@ -1,7 +1,5 @@
 package com.eferraz.entities
 
-import com.eferraz.entities.liquidity.Liquidity
-
 /**
  * Representa um ativo de renda variável.
  *
@@ -17,7 +15,9 @@ public data class VariableIncomeAsset(
     override val issuer: Issuer,
     public val type: VariableIncomeAssetType,
     public val ticker: String,
-    public val liquidity: Liquidity,
-    public val liquidityDays: Int = 2,
     override val observations: String? = null
-) : Asset
+) : Asset {
+
+    public val liquidity: Liquidity = Liquidity.D_PLUS_DAYS
+    public val liquidityDays: Int = 2
+}

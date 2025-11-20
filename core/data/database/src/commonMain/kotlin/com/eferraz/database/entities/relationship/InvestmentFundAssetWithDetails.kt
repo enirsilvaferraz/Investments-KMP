@@ -1,24 +1,30 @@
 package com.eferraz.database.entities.relationship
 
 import androidx.room.Embedded
+import androidx.room.Relation
 import com.eferraz.database.entities.AssetEntity
 import com.eferraz.database.entities.InvestmentFundAssetEntity
 import com.eferraz.database.entities.IssuerEntity
 
 /**
  * Data class intermediária que representa um fundo de investimento completo.
- * Inclui AssetEntity, IssuerEntity e InvestmentFundAssetEntity.
- * Usado para queries com JOIN entre assets, issuers e investment_fund_assets.
+ * Usa @Relation para definir os relacionamentos automaticamente.
  */
 internal data class InvestmentFundAssetWithDetails(
 
     @Embedded
     val asset: AssetEntity,
-
-    @Embedded(prefix = "issuer_")
+    
+    @Relation(
+        parentColumn = "issuerId",
+        entityColumn = "id"
+    )
     val issuer: IssuerEntity,
-
-    @Embedded(prefix = "investment_fund_")
+    
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "assetId"
+    )
     val investmentFund: InvestmentFundAssetEntity
 )
 

@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.eferraz.entities.liquidity.Liquidity
+import com.eferraz.entities.Liquidity
 
 /**
  * Entidade Room para a tabela base assets.

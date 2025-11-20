@@ -15,5 +15,5 @@ public class DatabaseModule {
     internal fun provideDatabase(): AppDatabase = PlatformDataBaseBuilder.build()
 
     @Single
-    internal fun assetDao(database: AppDatabase): AssetDao = database.assetDao()
+    internal fun provideAssetDao(database: AppDatabase): AssetDao = database.assetDao()
 }

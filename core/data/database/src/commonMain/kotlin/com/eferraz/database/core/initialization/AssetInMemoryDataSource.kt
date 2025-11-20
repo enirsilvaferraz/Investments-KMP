@@ -20,7 +20,7 @@ import com.eferraz.entities.VariableIncomeAssetType
 import com.eferraz.entities.VariableIncomeAssetType.ETF
 import com.eferraz.entities.VariableIncomeAssetType.NATIONAL_STOCK
 import com.eferraz.entities.VariableIncomeAssetType.REAL_ESTATE_FUND
-import com.eferraz.entities.liquidity.Liquidity
+import com.eferraz.entities.Liquidity
 import kotlinx.datetime.LocalDate
 
 /**
@@ -189,8 +189,6 @@ internal object AssetInMemoryDataSourceImpl {
                 issuer = getIssuer(issuerName),
                 type = type,
                 ticker = ticker,
-                liquidity = Liquidity.D_PLUS_DAYS,
-                liquidityDays = 2,
                 observations = observations
             )
         )
