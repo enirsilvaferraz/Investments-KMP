@@ -53,7 +53,6 @@ internal class AssetDataSourceImpl(
             issuer = Issuer(id = issuer.id, name = issuer.name),
             type = variableIncome.type,
             ticker = variableIncome.ticker,
-            liquidity = asset.liquidity,
             observations = asset.observations
         )
     }
