@@ -151,7 +151,8 @@ private fun <T> TableHeader(
             .background(backgroundColor)
             .heightIn(min = 52.dp)
             .padding(horizontal = 16.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
 
         columns.forEachIndexed { index, column ->
@@ -217,7 +218,8 @@ private fun <T> TableRow(
                 .heightIn(min = 52.dp)
                 .then(if (onRowClick != null) Modifier.clickable { onRowClick(item) } else Modifier)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             columns.forEach { column ->
                 TableCell(

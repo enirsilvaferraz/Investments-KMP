@@ -8,6 +8,7 @@ internal actual object PlatformDataBaseBuilder : DataBaseBuilder {
 
     actual override fun buildPlatform(): RoomDatabase.Builder<AppDatabase> {
         val dbFile = File(System.getProperty("java.io.tmpdir"), databaseName())
+        println("Enir: java.io.tmpdir: [$dbFile]")
         return Room.databaseBuilder<AppDatabase>(name = dbFile.absolutePath)
     }
 }

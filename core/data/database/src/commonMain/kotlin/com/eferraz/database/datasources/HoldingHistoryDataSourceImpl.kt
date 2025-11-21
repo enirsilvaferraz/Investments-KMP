@@ -1,7 +1,9 @@
 package com.eferraz.database.datasources
 
+import com.eferraz.database.daos.AssetHoldingDao
 import com.eferraz.database.daos.HoldingHistoryDao
 import com.eferraz.database.entities.HoldingHistoryEntryEntity
+import com.eferraz.database.entities.relationship.AssetHoldingWithDetails
 import com.eferraz.database.entities.relationship.HoldingHistoryWithDetails
 import com.eferraz.entities.Asset
 import com.eferraz.entities.AssetHolding
@@ -17,6 +19,7 @@ import org.koin.core.annotation.Factory
 
 @Factory(binds = [HoldingHistoryDataSource::class])
 internal class HoldingHistoryDataSourceImpl(
+    private val assetHoldingDao: AssetHoldingDao,
     private val holdingHistoryDao: HoldingHistoryDao,
     private val assetDataSource: AssetDataSource,
 ) : HoldingHistoryDataSource {
@@ -25,34 +28,22 @@ internal class HoldingHistoryDataSourceImpl(
 
         return combine(
             assetDataSource.getAll().map { it.associateBy { asset -> asset.id } },
+            assetHoldingDao.getAllWithAsset(),
             holdingHistoryDao.getByReferenceDate(referenceDate),
             holdingHistoryDao.getByReferenceDate(referenceDate.minusMonth())
-        ) { assets: Map<Long, Asset>, current: List<HoldingHistoryWithDetails>, previous: List<HoldingHistoryWithDetails> ->
+        ) { assets: Map<Long, Asset>, holding: List<AssetHoldingWithDetails>, current: List<HoldingHistoryWithDetails>, previous: List<HoldingHistoryWithDetails> ->
 
-            val triples = hashMapOf<AssetHolding, Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>>()
+            val triples: HashMap<Long, Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>> =
+                HashMap(holding.map { Triple(it.toHoldingModel(assets[it.asset.id]!!), null, null) }.associateBy { it.first.id })
 
             current.forEach {
-                val asset = assets[it.asset.id]!!
-                val holding = it.toHoldingModel(asset)
-                val entry = it.history.toModel(holding)
-
-                if (triples.containsKey(holding)) {
-                    triples[holding] = triples[holding]!!.copy(second = entry)
-                } else {
-                    triples[holding] = Triple(holding, entry, null)
-                }
+                val entry = it.history.toModel(triples[it.holding.id]!!.first)
+                triples[it.holding.id] = triples[it.holding.id]!!.copy(second = entry)
             }
 
             previous.forEach {
-                val asset = assets[it.asset.id]!!
-                val holding = it.toHoldingModel(asset)
-                val entry = it.history.toModel(holding)
-
-                if (triples.containsKey(holding)) {
-                    triples[holding] = triples[holding]!!.copy(third = entry)
-                } else {
-                    triples[holding] = Triple(holding, null, entry)
-                }
+                val entry = it.history.toModel(triples[it.holding.id]!!.first)
+                triples[it.holding.id] = triples[it.holding.id]!!.copy(third = entry)
             }
 
             triples.map { it.value }
@@ -85,7 +76,7 @@ internal class HoldingHistoryDataSourceImpl(
         return holdingHistoryDao.insert(entity)
     }
 
-    private fun HoldingHistoryWithDetails.toHoldingModel(asset: Asset) = AssetHolding(
+    private fun AssetHoldingWithDetails.toHoldingModel(asset: Asset) = AssetHolding(
         id = holding.id,
         asset = asset,
         owner = Owner(id = owner.id, name = owner.name),

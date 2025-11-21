@@ -30,10 +30,10 @@ internal interface AssetHoldingDao {
     @Query("SELECT * FROM asset_holdings WHERE id = :id")
     suspend fun getById(id: Long): AssetHoldingEntity?
 
-//    @Transaction
-//    @Query("SELECT * FROM asset_holdings")
-//    fun getAllWithAsset(): Flow<List<AssetHoldingWithDetails>>
-//
+    @Transaction
+    @Query("SELECT * FROM asset_holdings")
+    fun getAllWithAsset(): Flow<List<AssetHoldingWithDetails>>
+
 //    @Transaction
 //    @Query("SELECT * FROM asset_holdings WHERE id = :id")
 //    suspend fun getByIdWithAsset(id: Long): AssetHoldingWithDetails?

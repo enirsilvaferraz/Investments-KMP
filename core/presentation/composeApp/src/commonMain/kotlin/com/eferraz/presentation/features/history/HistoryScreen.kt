@@ -1,10 +1,14 @@
 package com.eferraz.presentation.features.history
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -149,29 +153,40 @@ internal fun HistoryScreen(
             TableColumn(title = "Observações", weight = 2f, extractValue = { it.observations }),
             TableColumn(title = "Vencimento", extractValue = { it.maturity.formatDate() }, sortComparator = { it.maturity }),
             TableColumn(title = "Emissor", extractValue = { it.issuer }),
-            TableColumn(title = "Liquidez", extractValue = { it.liquidity }),
-            TableColumn(title = "Qtde. Ant.", extractValue = { it.previousQuantity?.toString() ?: "—" }),
-            TableColumn(title = "Qtde. Atual", extractValue = { it.currentQuantity?.toString() ?: "" },
-                cellContent = { item ->
-                    EditableValueCell(
-                        value = item.currentQuantity,
-                        onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, item.currentValue ?: 0.0,  it.toDoubleOrNull() ?: 0.0) }
-                    )
-                }
-            ),
-            TableColumn(title = "Valor Mercado Ant.", extractValue = { it.previousValue?.currencyFormat() ?: "—" }, sortComparator = { it.previousValue }),
-            TableColumn(title = "Valor Mercado Atual", extractValue = { it.currentValue?.currencyFormat() ?: "" }, sortComparator = {it.currentValue},
+//            TableColumn(title = "Liquidez", extractValue = { it.liquidity }),
+//            TableColumn(title = "Qtde. Ant.", extractValue = { it.previousQuantity?.toString() ?: "—" }),
+//            TableColumn(title = "Qtde. Atual", extractValue = { it.currentQuantity?.toString() ?: "" },
+//                cellContent = { item ->
+//                    EditableValueCell(
+//                        value = item.currentQuantity,
+//                        onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, item.currentValue ?: 0.0,  it.toDoubleOrNull() ?: 0.0) }
+//                    )
+//                }
+//            ),
+            TableColumn(
+                title = "Valor Anterior",
+                extractValue = { it.previousValue?.currencyFormat() ?: "—" },
+                sortComparator = { it.previousValue }),
+            TableColumn(
+                title = "Valor Atual", extractValue = { it.currentValue?.currencyFormat() ?: "" }, sortComparator = { it.currentValue },
                 cellContent = { item ->
                     EditableValueCell(
                         value = item.currentValue,
-                        onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, it.toDoubleOrNull() ?: 0.0, item.currentQuantity ?: 0.0) }
+                        onValueChange = {
+                            onUpdateValue(
+                                item.currentEntryId,
+                                item.holdingId,
+                                it.toDoubleOrNull() ?: 0.0,
+                                item.currentQuantity ?: 0.0
+                            )
+                        }
                     )
                 }
             ),
             TableColumn(title = "Valorização", extractValue = { it.appreciation }),
             TableColumn(title = "Situação", extractValue = { it.situation })
         ),
-        data = entries.map {(holding, current, preview)-> HoldingHistoryView.create(holding, current, preview) },
+        data = entries.map { (holding, current, preview) -> HoldingHistoryView.create(holding, current, preview) },
     )
 }
 
@@ -182,14 +197,20 @@ private fun EditableValueCell(
 ) {
     var textValue by remember(value) { mutableStateOf(value?.toString() ?: "") }
 
-    TextField(
-        value = textValue,
-        onValueChange = {
-            textValue = it
-            onValueChange(it)
-        },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-    )
+    Box(
+        modifier = Modifier.padding(end = 8.dp).background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f), MaterialTheme.shapes.medium)
+            .fillMaxWidth().height(30.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        BasicTextField(
+            value = textValue,
+            onValueChange = {
+                textValue = it
+                onValueChange(it)
+            },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),//.background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)),
+            singleLine = true,
+        )
+    }
 }
 
