@@ -6,7 +6,7 @@ import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.FixedIncomeAssetType
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.presentation.features.assets.Formatters.formated
+import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.datetime.LocalDate
 
 internal class AssetView(

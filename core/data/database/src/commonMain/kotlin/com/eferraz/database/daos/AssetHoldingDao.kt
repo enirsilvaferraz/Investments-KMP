@@ -3,8 +3,10 @@ package com.eferraz.database.daos
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.eferraz.database.entities.AssetHoldingEntity
+import com.eferraz.database.entities.relationship.AssetHoldingWithDetails
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -28,13 +30,12 @@ internal interface AssetHoldingDao {
     @Query("SELECT * FROM asset_holdings WHERE id = :id")
     suspend fun getById(id: Long): AssetHoldingEntity?
 
-    @Query("SELECT * FROM asset_holdings WHERE ownerId = :ownerId")
-    fun getByOwnerId(ownerId: Long): Flow<List<AssetHoldingEntity>>
-
-    @Query("SELECT * FROM asset_holdings WHERE brokerageId = :brokerageId")
-    fun getByBrokerageId(brokerageId: Long): Flow<List<AssetHoldingEntity>>
-
-    @Query("SELECT * FROM asset_holdings WHERE assetId = :assetId")
-    fun getByAssetId(assetId: Long): Flow<List<AssetHoldingEntity>>
+//    @Transaction
+//    @Query("SELECT * FROM asset_holdings")
+//    fun getAllWithAsset(): Flow<List<AssetHoldingWithDetails>>
+//
+//    @Transaction
+//    @Query("SELECT * FROM asset_holdings WHERE id = :id")
+//    suspend fun getByIdWithAsset(id: Long): AssetHoldingWithDetails?
 }
 

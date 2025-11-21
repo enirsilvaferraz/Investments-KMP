@@ -20,10 +20,10 @@ public data class AssetHolding(
     public val asset: Asset,
     public val owner: Owner,
     public val brokerage: Brokerage,
-    public val quantity: Double,
-    public val averageCost: Double,
-    public val investedValue: Double,
-    public val currentValue: Double,
+//    public val quantity: Double,
+//    public val averageCost: Double,
+//    public val investedValue: Double,
+//    public val currentValue: Double,
 ) {
     /**
      * Retorna uma nova instância de `AssetHolding` refletindo um novo aporte (compra).
@@ -33,16 +33,16 @@ public data class AssetHolding(
      * @param costPerUnit O custo por unidade na nova compra.
      * @return Uma nova instância de `AssetHolding` com os valores atualizados.
      */
-    public fun recordPurchase(purchaseQuantity: Double, costPerUnit: Double): AssetHolding {
-        val newQuantity = this.quantity + purchaseQuantity
-        val purchaseValue = costPerUnit * purchaseQuantity
-        val newInvestedValue = this.investedValue + purchaseValue
-        val newAverageCost = newInvestedValue / newQuantity
-
-        return this.copy(
-            quantity = newQuantity,
-            averageCost = newAverageCost,
-            investedValue = newInvestedValue
-        )
-    }
+//    public fun recordPurchase(purchaseQuantity: Double, costPerUnit: Double): AssetHolding {
+//        val newQuantity = this.quantity + purchaseQuantity
+//        val purchaseValue = costPerUnit * purchaseQuantity
+//        val newInvestedValue = this.investedValue + purchaseValue
+//        val newAverageCost = newInvestedValue / newQuantity
+//
+//        return this.copy(
+//            quantity = newQuantity,
+//            averageCost = newAverageCost,
+//            investedValue = newInvestedValue
+//        )
+//    }
 }

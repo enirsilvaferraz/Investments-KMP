@@ -33,7 +33,7 @@ internal interface AssetDao {
     suspend fun insertInvestmentFund(investmentFund: InvestmentFundAssetEntity)
 
     @Query("SELECT * FROM assets WHERE id = :id")
-    suspend fun getAssetById(id: Long): AssetEntity?
+    fun getAssetById(id: Long): Flow<AssetEntity>
 
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'FIXED_INCOME'")
@@ -46,5 +46,17 @@ internal interface AssetDao {
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'INVESTMENT_FUND'")
     fun getAllInvestmentFundAssets(): Flow<List<InvestmentFundAssetWithDetails>>
+
+    @Transaction
+    @Query("SELECT * FROM assets WHERE category = 'FIXED_INCOME' AND id = :id")
+    fun getFixedIncomeAssetById(id: Long): Flow<FixedIncomeAssetWithDetails>
+
+    @Transaction
+    @Query("SELECT * FROM assets WHERE category = 'VARIABLE_INCOME' AND id = :id")
+    fun getVariableIncomeAssetById(id: Long): Flow<VariableIncomeAssetWithDetails>
+
+    @Transaction
+    @Query("SELECT * FROM assets WHERE category = 'INVESTMENT_FUND' AND id = :id")
+    fun getInvestmentFundAssetById(id: Long): Flow<InvestmentFundAssetWithDetails>
 }
 

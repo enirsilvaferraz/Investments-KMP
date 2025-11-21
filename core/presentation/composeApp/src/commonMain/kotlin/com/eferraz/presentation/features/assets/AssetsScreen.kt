@@ -18,7 +18,7 @@ import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.TableColumn
 import com.eferraz.presentation.design_system.components.panels.Pane
 import com.eferraz.presentation.design_system.components.panels.Section
-import com.eferraz.presentation.features.assets.Formatters.formated
+import com.eferraz.presentation.helpers.Formatters.formated
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)

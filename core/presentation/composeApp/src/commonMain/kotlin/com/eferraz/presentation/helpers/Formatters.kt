@@ -1,14 +1,15 @@
-package com.eferraz.presentation.features.assets
+package com.eferraz.presentation.helpers
 
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.FixedIncomeAssetType
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.InvestmentFundAssetType
+import com.eferraz.entities.Liquidity
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.entities.VariableIncomeAssetType
-import com.eferraz.entities.Liquidity
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 
@@ -41,6 +42,10 @@ internal object Formatters {
 
     internal fun LocalDate?.formated() =
         this?.format(LocalDate.Format { year(); char('-'); monthNumber(); char('-'); day() }) ?: "-"
+
+
+    internal fun YearMonth.formated(): String =
+        format(YearMonth.Format { monthNumber(); char('/'); year() })
 
     internal fun Liquidity.formated(liquidityDays: Int? = null): String = when (this) {
         Liquidity.DAILY -> "Diária"

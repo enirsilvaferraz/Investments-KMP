@@ -3,6 +3,7 @@ package com.eferraz.database.di
 import com.eferraz.database.core.AppDatabase
 import com.eferraz.database.core.PlatformDataBaseBuilder
 import com.eferraz.database.daos.AssetDao
+import com.eferraz.database.daos.HoldingHistoryDao
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
@@ -16,4 +17,7 @@ public class DatabaseModule {
 
     @Single
     internal fun provideAssetDao(database: AppDatabase): AssetDao = database.assetDao()
+
+    @Single
+    internal fun provideHoldingHistoryDao(database: AppDatabase): HoldingHistoryDao = database.holdingHistoryDao()
 }

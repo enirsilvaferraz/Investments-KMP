@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
+import com.eferraz.presentation.features.history.HistoryRoute
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinMultiplatformApplication
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -22,10 +23,14 @@ public fun InternalApp(config: KoinConfiguration) {
 
             val navController = rememberNavController()
 
-            NavHost(navController = navController, startDestination = HomeRouting) {
+            NavHost(navController = navController, startDestination = HistoryRouting) {
 
                 composable<HomeRouting> {
                     AssetsRoute()
+                }
+
+                composable<HistoryRouting> {
+                    HistoryRoute()
                 }
             }
         }

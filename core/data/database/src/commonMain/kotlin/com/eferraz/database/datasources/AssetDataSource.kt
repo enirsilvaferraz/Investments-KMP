@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 public interface AssetDataSource {
     public fun getAll(): Flow<List<Asset>>
+    public fun getByID(id: Long): Flow<Asset>
 }
