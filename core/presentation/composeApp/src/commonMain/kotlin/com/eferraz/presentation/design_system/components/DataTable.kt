@@ -46,7 +46,7 @@ internal data class TableColumn<T>(
     val title: String,
     val weight: Float = 1f,
     val alignment: Alignment.Horizontal = Alignment.Start,
-    val extractValue: (T) -> String,
+    val extractValue: (T) -> String = { "" },
     val sortComparator: ((T) -> Comparable<*>?) = { extractValue(it) },
     val cellContent: @Composable RowScope.(T) -> Unit = {
         Text(

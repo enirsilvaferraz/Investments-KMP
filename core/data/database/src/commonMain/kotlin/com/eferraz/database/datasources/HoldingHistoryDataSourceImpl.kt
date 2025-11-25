@@ -65,7 +65,6 @@ internal class HoldingHistoryDataSourceImpl(
 
     override suspend fun insert(entry: HoldingHistoryEntry): Long {
         val entity = HoldingHistoryEntryEntity(
-            id = 0,
             holdingId = entry.holding.id,
             referenceDate = entry.referenceDate,
             endOfMonthValue = entry.endOfMonthValue,
@@ -84,7 +83,7 @@ internal class HoldingHistoryDataSourceImpl(
     )
 
     private fun HoldingHistoryEntryEntity.toModel(holding: AssetHolding) = HoldingHistoryEntry(
-        id = id,
+        id = id ?: 0,
         holding = holding,
         referenceDate = referenceDate,
         endOfMonthValue = endOfMonthValue,

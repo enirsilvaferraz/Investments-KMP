@@ -33,41 +33,19 @@ internal class HistoryViewModel(
         loadPeriodData(period)
     }
 
-//    fun updateEntryValue(entryId: Long?, holdingId: Long, value: Double, quantity: Double) {
-//        viewModelScope.launch {
-//            val currentPeriod = _state.value.selectedPeriod
-//            val currentEntries = _state.value.currentPeriodEntries
-//            val entry = if (entryId != null) {
-//                currentEntries.firstOrNull { it.id == entryId }?.copy(
-//                    endOfMonthValue = value,
-//                    endOfMonthQuantity = quantity
-//                )
-//            } else {
-//                // Criar novo entry
-//                val state = _state.value
-//                val holding = state.currentPeriodEntries.firstOrNull()?.holding
-//                    ?: state.previousPeriodEntries.firstOrNull()?.holding
-//                    ?: return@launch
-//                HoldingHistoryEntry(
-//                    id = 0,
-//                    holding = holding,
-//                    referenceDate = currentPeriod,
-//                    endOfMonthValue = value,
-//                    endOfMonthQuantity = quantity,
-//                    endOfMonthAverageCost = 0.0,
-//                    totalInvested = 0.0
-//                )
-//            } ?: return@launch
-//
-//            if (entryId != null) {
-//                repository.update(entry)
-//            } else {
-//                repository.insert(entry)
-//            }
-//            // Recarregar dados
-//            loadPeriodData(currentPeriod)
-//        }
-//    }
+    fun updateEntryValue(entryId: Long?, holdingId: Long, value: Double) {
+        viewModelScope.launch {
+            val entry = HoldingHistoryEntry(
+                id = entryId,
+                holding = _state.value.entries.first { it.first.id == holdingId }.first,
+                referenceDate = _state.value.selectedPeriod,
+                endOfMonthValue = value,
+                endOfMonthQuantity = 1.0,
+                endOfMonthAverageCost = value
+            )
+            if (entryId == null) repository.insert(entry) else repository.update(entry)
+        }
+    }
 
     private fun loadPeriodData(period: YearMonth) {
         viewModelScope.launch {

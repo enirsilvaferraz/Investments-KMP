@@ -2,35 +2,47 @@ package com.eferraz.presentation.features.history
 
 import androidx.compose.runtime.Composable
 import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.FixedIncomeAssetType
 import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.presentation.features.assets.AssetView
 import com.eferraz.presentation.helpers.Formatters.formated
+import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format
 
 internal class HoldingHistoryView(
-    val brokerage: String,
-    val category: String,
-    val subCategory: String,
-    val description: String,
-    val observations: String,
-    val maturity: LocalDate?,
-    val issuer: String,
-    val liquidity: String,
-    val previousQuantity: Double?,
-    val currentQuantity: Double?,
-    val previousValue: Double?,
-    val currentValue: Double?,
-    val appreciation: String,
-    val situation: String,
+    val formatted: Formatted,
+    val sort: Sort,
     val currentEntryId: Long?,
     val holdingId: Long,
 ) {
+
+    data class Formatted(
+        val brokerage: String,
+        val category: String,
+        val subCategory: String,
+        val description: String,
+        val observations: String,
+        val maturity: String,
+        val issuer: String,
+        val previousValue: String,
+        val currentValue: String,
+        val appreciation: String,
+        val situation: String,
+    )
+
+    data class Sort(
+        val brokerage: String,
+        val category: String,
+        val subCategory: String,
+        val description: String,
+        val observations: String,
+        val maturity: LocalDate?,
+        val issuer: String,
+        val previousValue: Double,
+        val currentValue: Double,
+        val appreciation: String,
+        val situation: String,
+    )
 
     companion object {
 
@@ -50,23 +62,39 @@ internal class HoldingHistoryView(
             val currentValue = currentEntry?.endOfMonthValue
 
             return HoldingHistoryView(
-                brokerage = holding.brokerage.name,
-                category = assetView.category,
-                subCategory =assetView.subCategory,
-                description = assetView.name,
-                observations = assetView.notes,
-                maturity = assetView.maturity,
-                issuer = assetView.issuer,
-                liquidity = assetView.liquidity,
-                previousQuantity = previousQuantity,
-                currentQuantity = currentQuantity,
-                previousValue = previousValue,
-                currentValue = currentValue,
-                appreciation = formatAppreciation(currentValue, previousValue),
-                situation = formatSituation(
-                    previousQuantity = previousQuantity,
-                    currentQuantity = currentQuantity,
-                    hasCurrentEntry = currentEntry != null
+                formatted = Formatted(
+                    brokerage = holding.brokerage.name,
+                    category = assetView.category,
+                    subCategory = assetView.subCategory,
+                    description = assetView.name,
+                    observations = assetView.notes,
+                    maturity = assetView.maturity.formated(),
+                    issuer = assetView.issuer,
+                    previousValue = (previousValue ?: 0.0).currencyFormat(),
+                    currentValue = (currentValue ?: 0.0).currencyFormat(),
+                    appreciation = formatAppreciation(currentValue, previousValue),
+                    situation = formatSituation(
+                        previousQuantity = previousQuantity,
+                        currentQuantity = currentQuantity,
+                        hasCurrentEntry = currentEntry != null
+                    )
+                ),
+                sort = Sort(
+                    brokerage = holding.brokerage.name,
+                    category = assetView.category,
+                    subCategory = assetView.subCategory,
+                    description = assetView.name,
+                    observations = assetView.notes,
+                    maturity = assetView.maturity,
+                    issuer = assetView.issuer,
+                    previousValue = previousValue ?: 0.0,
+                    currentValue = currentValue ?: 0.0,
+                    appreciation = formatAppreciation(currentValue, previousValue),
+                    situation = formatSituation(
+                        previousQuantity = previousQuantity,
+                        currentQuantity = currentQuantity,
+                        hasCurrentEntry = currentEntry != null
+                    )
                 ),
                 currentEntryId = currentEntry?.id,
                 holdingId = holding.id,

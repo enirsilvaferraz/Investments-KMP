@@ -1,14 +1,10 @@
 package com.eferraz.presentation.features.history
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -32,15 +28,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.presentation.design_system.components.DataTable
+import com.eferraz.presentation.design_system.components.InputTextMoney
 import com.eferraz.presentation.design_system.components.TableColumn
 import com.eferraz.presentation.design_system.components.panels.Pane
 import com.eferraz.presentation.design_system.components.panels.Section
 import com.eferraz.presentation.helpers.Formatters.formated
-import com.eferraz.presentation.helpers.currencyFormat
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
 import org.koin.compose.viewmodel.koinViewModel
-import com.eferraz.presentation.helpers.Formatters.formated as formatDate
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -75,7 +70,7 @@ internal fun HistoryRoute() {
             mainPane = {
                 Pane {
                     Section(Modifier.fillMaxSize()) {
-                        HistoryScreen(entries = state.entries)
+                        HistoryScreen(entries = state.entries, onUpdateValue = vm::updateEntryValue)
                     }
                 }
             },
@@ -140,77 +135,27 @@ private fun PeriodSelector(
 internal fun HistoryScreen(
     modifier: Modifier = Modifier,
     entries: List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>>,
-    onUpdateValue: (Long?, Long, Double, Double) -> Unit = { _, _, _, _ -> },
+    onUpdateValue: (Long?, Long, Double) -> Unit,
 ) {
 
     DataTable(
         modifier = modifier,
         columns = listOf(
-            TableColumn(title = "Corretora", extractValue = { it.brokerage }),
-            TableColumn(title = "Categoria", extractValue = { it.category }),
-            TableColumn(title = "SubCategoria", extractValue = { it.subCategory }),
-            TableColumn(title = "Descrição", weight = 2f, extractValue = { it.description }),
-            TableColumn(title = "Observações", weight = 2f, extractValue = { it.observations }),
-            TableColumn(title = "Vencimento", extractValue = { it.maturity.formatDate() }, sortComparator = { it.maturity }),
-            TableColumn(title = "Emissor", extractValue = { it.issuer }),
-//            TableColumn(title = "Liquidez", extractValue = { it.liquidity }),
-//            TableColumn(title = "Qtde. Ant.", extractValue = { it.previousQuantity?.toString() ?: "—" }),
-//            TableColumn(title = "Qtde. Atual", extractValue = { it.currentQuantity?.toString() ?: "" },
-//                cellContent = { item ->
-//                    EditableValueCell(
-//                        value = item.currentQuantity,
-//                        onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, item.currentValue ?: 0.0,  it.toDoubleOrNull() ?: 0.0) }
-//                    )
-//                }
-//            ),
-            TableColumn(
-                title = "Valor Anterior",
-                extractValue = { it.previousValue?.currencyFormat() ?: "—" },
-                sortComparator = { it.previousValue }),
-            TableColumn(
-                title = "Valor Atual", extractValue = { it.currentValue?.currencyFormat() ?: "" }, sortComparator = { it.currentValue },
-                cellContent = { item ->
-                    EditableValueCell(
-                        value = item.currentValue,
-                        onValueChange = {
-                            onUpdateValue(
-                                item.currentEntryId,
-                                item.holdingId,
-                                it.toDoubleOrNull() ?: 0.0,
-                                item.currentQuantity ?: 0.0
-                            )
-                        }
-                    )
-                }
-            ),
-            TableColumn(title = "Valorização", extractValue = { it.appreciation }),
-            TableColumn(title = "Situação", extractValue = { it.situation })
+            TableColumn(title = "Corretora", extractValue = { it.formatted.brokerage }),
+            TableColumn(title = "Categoria", extractValue = { it.formatted.category }),
+            TableColumn(title = "SubCategoria", extractValue = { it.formatted.subCategory }),
+            TableColumn(title = "Descrição", weight = 2f, extractValue = { it.formatted.description }),
+            TableColumn(title = "Observações", weight = 2f, extractValue = { it.formatted.observations }),
+            TableColumn(title = "Vencimento", extractValue = { it.formatted.maturity }, sortComparator = { it.sort.maturity }),
+            TableColumn(title = "Emissor", extractValue = { it.formatted.issuer }),
+            TableColumn(title = "Valor Anterior", extractValue = { it.formatted.previousValue }, sortComparator = { it.sort.previousValue }),
+            TableColumn(title = "Valor Atual", sortComparator = { it.sort.currentValue }, cellContent = { item ->
+                InputTextMoney(value = item.sort.currentValue, onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, it ?: 0.0) })
+            }),
+            TableColumn(title = "Valorização", extractValue = { it.formatted.appreciation }),
+            TableColumn(title = "Situação", extractValue = { it.formatted.situation })
         ),
         data = entries.map { (holding, current, preview) -> HoldingHistoryView.create(holding, current, preview) },
     )
-}
-
-@Composable
-private fun EditableValueCell(
-    value: Double?,
-    onValueChange: (String) -> Unit,
-) {
-    var textValue by remember(value) { mutableStateOf(value?.toString() ?: "") }
-
-    Box(
-        modifier = Modifier.padding(end = 8.dp).background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f), MaterialTheme.shapes.medium)
-            .fillMaxWidth().height(30.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        BasicTextField(
-            value = textValue,
-            onValueChange = {
-                textValue = it
-                onValueChange(it)
-            },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),//.background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)),
-            singleLine = true,
-        )
-    }
 }
 
