@@ -27,7 +27,7 @@ internal interface DataBaseBuilder : KoinComponent {
 
         override fun onCreate(connection: SQLiteConnection) {
             super.onCreate(connection)
-            DatabaseSeedData.generateSQLFromAssetHoldings().forEach { sql -> connection.execSQL(sql) }
+            DatabaseSeedData.inserts.forEach { sql -> connection.execSQL(sql) }
         }
     }
 }

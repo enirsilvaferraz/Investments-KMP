@@ -1,277 +1,156 @@
 package com.eferraz.database.core.initialization
 
-import com.eferraz.database.entities.AssetHoldingEntity
-import com.eferraz.entities.Asset
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
-
 /**
  * Gera comandos SQL para popular o banco de dados com dados iniciais.
  * Os dados são extraídos de AssetInMemoryDataSource e convertidos em comandos INSERT.
  */
-internal object DatabaseSeedData {
+public object DatabaseSeedData {
 
-    private const val DEFAULT_QUANTITY = 0.0
-    private const val DEFAULT_COST = 0.0
-    private const val DEFAULT_VALUE = 0.0
-    private const val INITIAL_ID = 1L
+    internal val inserts = listOf(
+        "INSERT INTO issuers (name) VALUES ('BMG');",
+        "INSERT INTO issuers (name) VALUES ('Nubank');",
+        "INSERT INTO issuers (name) VALUES ('ABC Brasil');",
+        "INSERT INTO issuers (name) VALUES ('Banco Digimais');",
+        "INSERT INTO issuers (name) VALUES ('DM Financeira');",
+        "INSERT INTO issuers (name) VALUES ('Banco Semear');",
+        "INSERT INTO issuers (name) VALUES ('Banco Master');",
+        "INSERT INTO issuers (name) VALUES ('Original');",
+        "INSERT INTO issuers (name) VALUES ('BRB');",
+        "INSERT INTO issuers (name) VALUES ('Banco Bari');",
+        "INSERT INTO issuers (name) VALUES ('Inter');",
+        "INSERT INTO issuers (name) VALUES ('ARBI');",
+        "INSERT INTO issuers (name) VALUES ('FGTS');",
+        "INSERT INTO issuers (name) VALUES ('Sofisa');",
+        "INSERT INTO issuers (name) VALUES ('ICATU');",
+        "INSERT INTO issuers (name) VALUES ('BTG');",
 
-    /**
-     * Gera todos os comandos SQL necessários para popular o banco de dados a partir de uma lista de AssetHolding.
-     * Retorna uma lista de comandos SQL ordenados:
-     * 1. INSERTs para issuers
-     * 2. INSERTs para owners
-     * 3. INSERTs para brokerages
-     * 4. INSERTs para assets (tabela base)
-     * 5. INSERTs para subclasses (fixed_income_assets, variable_income_assets, investment_fund_assets)
-     * 6. INSERTs para asset_holdings
-     */
-    fun generateSQLFromAssetHoldings(holdings: List<AssetHolding> = AssetInMemoryDataSourceImpl.getAllAssets()): List<String> {
+        "INSERT INTO owners (name) VALUES ('Enir');",
 
-        val sqlStatements = mutableListOf<String>()
+        "INSERT INTO brokerages (name) VALUES ('Banco BMG');",
+        "INSERT INTO brokerages (name) VALUES ('Nubank');",
+        "INSERT INTO brokerages (name) VALUES ('Banco Inter');",
+        "INSERT INTO brokerages (name) VALUES ('Caixa Econômica Federal');",
+        "INSERT INTO brokerages (name) VALUES ('Sofisa');",
+        "INSERT INTO brokerages (name) VALUES ('BTG Pactual');",
 
-        // Extrair e mapear entidades únicas
-        val uniqueEntities = extractUniqueEntities(holdings)
-        val idMappings = createIdMappings(uniqueEntities)
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 110.0% do CDI (venc: 2026-05-11)', 1, 'FIXED_INCOME', 'DAILY', 'SUPER POUP BMG');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (1, 'POST_FIXED', 'CDB', '2026-05-11', 110.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 110.0% do CDI (venc: 2027-08-29)', 1, 'FIXED_INCOME', 'DAILY', 'CDB ESCALONADO');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (2, 'POST_FIXED', 'CDB', '2027-08-29', 110.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 112.0% do CDI (venc: 2030-04-01)', 1, 'FIXED_INCOME', 'DAILY', 'CDB ESCALONADO');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (3, 'POST_FIXED', 'CDB', '2030-04-01', 112.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 112.0% do CDI (venc: 2030-04-02)', 1, 'FIXED_INCOME', 'DAILY', 'CDB ESCALONADO');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (4, 'POST_FIXED', 'CDB', '2030-04-02', 112.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 106.0% do CDI (venc: 2030-09-15)', 1, 'FIXED_INCOME', 'DAILY', 'CDB ESCALONADO');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (5, 'POST_FIXED', 'CDB', '2030-09-15', 106.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 100.0% do CDI (venc: 2050-01-01)', 2, 'FIXED_INCOME', 'DAILY', 'Saldo Separado');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (6, 'POST_FIXED', 'CDB', '2050-01-01', 100.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('LCA de 90.5% do CDI (venc: 2026-07-01)', 3, 'FIXED_INCOME', 'AT_MATURITY', 'LCA BANCO ABC BRASIL');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (7, 'POST_FIXED', 'LCA', '2026-07-01', 90.5, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 11.29% a.a. (venc: 2026-07-09)', 4, 'FIXED_INCOME', 'AT_MATURITY', 'CDB BANCO DIGIMAIS');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (8, 'PRE_FIXED', 'CDB', '2026-07-09', 11.29, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 113.0% do CDI (venc: 2027-05-03)', 5, 'FIXED_INCOME', 'AT_MATURITY', 'CDB DM FINANCEIRA');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (9, 'POST_FIXED', 'CDB', '2027-05-03', 113.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 122.0% do CDI (venc: 2027-06-03)', 6, 'FIXED_INCOME', 'AT_MATURITY', 'CDB BANCO SEMEAR SA');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (10, 'POST_FIXED', 'CDB', '2027-06-03', 122.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 15.5% a.a. (venc: 2028-12-26)', 7, 'FIXED_INCOME', 'AT_MATURITY', 'CDB BANCO MASTER');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (11, 'PRE_FIXED', 'CDB', '2028-12-26', 15.5, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 121.0% do CDI (venc: 2029-01-02)', 7, 'FIXED_INCOME', 'AT_MATURITY', 'CDB BANCO MASTER');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (12, 'POST_FIXED', 'CDB', '2029-01-02', 121.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 125.0% do CDI (venc: 2029-04-09)', 7, 'FIXED_INCOME', 'AT_MATURITY', 'CDB BANCO MASTER');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (13, 'POST_FIXED', 'CDB', '2029-04-09', 125.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('LCA de 93.0% do CDI (venc: 2026-05-04)', 8, 'FIXED_INCOME', 'AT_MATURITY', 'LCA ORIGINAL');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (14, 'POST_FIXED', 'LCA', '2026-05-04', 93.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('LCI de 93.0% do CDI (venc: 2026-04-27)', 8, 'FIXED_INCOME', 'AT_MATURITY', 'LCI ORIGINAL');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (15, 'POST_FIXED', 'LCI', '2026-04-27', 93.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('LCI de 91.5% do CDI (venc: 2026-10-16)', 9, 'FIXED_INCOME', 'AT_MATURITY', 'LCI BRB');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (16, 'POST_FIXED', 'LCI', '2026-10-16', 91.5, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('LCI + 5.1% (venc: 2025-12-22)', 10, 'FIXED_INCOME', 'AT_MATURITY', 'LCI IPCA 252 TB BANCO BARI');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (17, 'INFLATION_LINKED', 'LCI', '2025-12-22', 5.1, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('LCI + 5.28% (venc: 2026-05-29)', 11, 'FIXED_INCOME', 'AT_MATURITY', 'LCI IPCA FINAL 3 ANOS');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (18, 'INFLATION_LINKED', 'LCI', '2026-05-29', 5.28, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('LCI de 96.0% do CDI (venc: 2026-06-12)', 3, 'FIXED_INCOME', 'AT_MATURITY', 'LCI ABC MENSAL');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (19, 'POST_FIXED', 'LCI', '2026-06-12', 96.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 115.0% do CDI (venc: 2029-01-12)', 12, 'FIXED_INCOME', 'AT_MATURITY', 'CDB ARBI');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (20, 'POST_FIXED', 'CDB', '2029-01-12', 115.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB + 6.5% (venc: 2026-11-17)', 7, 'FIXED_INCOME', 'AT_MATURITY', 'CDB IPCA 252 TB BANCO MASTER');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (21, 'INFLATION_LINKED', 'CDB', '2026-11-17', 6.5, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB + 7.28% (venc: 2027-04-12)', 7, 'FIXED_INCOME', 'AT_MATURITY', 'CDB IPCA 252 TB BANCO MASTER');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (22, 'INFLATION_LINKED', 'CDB', '2027-04-12', 7.28, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 15.9% a.a. (venc: 2027-06-28)', 7, 'FIXED_INCOME', 'AT_MATURITY', 'CDB IPCA 252 TB BANCO MASTER');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (23, 'PRE_FIXED', 'CDB', '2027-06-28', 15.9, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 115.0% do CDI (venc: 2027-03-10)', 7, 'FIXED_INCOME', 'AT_MATURITY', 'CDB DI FLUT TB BANCO MASTER');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (24, 'POST_FIXED', 'CDB', '2027-03-10', 115.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 87.0% do CDI (venc: 2027-09-03)', 11, 'FIXED_INCOME', 'AT_MATURITY', 'LIG LIQUIDEZ');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (25, 'POST_FIXED', 'CDB', '2027-09-03', 87.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 0.0% a.a. (venc: 2026-12-31)', 13, 'FIXED_INCOME', 'AT_MATURITY', 'FGTS');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (26, 'PRE_FIXED', 'CDB', '2026-12-31', 0.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('CDB de 110.0% a.a. (venc: 2026-09-08)', 14, 'FIXED_INCOME', 'DAILY', 'CDB LIQUIDEZ DIARIA');",
+        "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) VALUES (27, 'PRE_FIXED', 'CDB', '2026-09-08', 110.0, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('ARCA GRÃO', 15, 'INVESTMENT_FUND', 'D_PLUS_DAYS', NULL);",
+        "INSERT INTO investment_fund_assets (assetId, type, liquidityDays, expirationDate) VALUES (28, 'PENSION', 60, NULL);",
+        "INSERT INTO assets (name, issuerId, category, liquidity, observations) VALUES ('BTG Eletrobrás', 16, 'INVESTMENT_FUND', 'D_PLUS_DAYS', NULL);",
+        "INSERT INTO investment_fund_assets (assetId, type, liquidityDays, expirationDate) VALUES (29, 'STOCK_FUND', 60, NULL);",
 
-        // Gerar INSERTs na ordem correta (respeitando foreign keys)
-        sqlStatements.addAll(generateIssuerInserts(uniqueEntities.issuers))
-        sqlStatements.addAll(generateOwnerInserts(uniqueEntities.owners))
-        sqlStatements.addAll(generateBrokerageInserts(uniqueEntities.brokerages))
-        sqlStatements.addAll(generateAssetInserts(holdings = holdings, issuerIdMap = idMappings.issuerIdMap, assetIdMap = idMappings.assetIdMap))
-        sqlStatements.addAll(generateAssetHoldingInserts(holdings = holdings, assetIdMap = idMappings.assetIdMap, ownerIdMap = idMappings.ownerIdMap, brokerageIdMap = idMappings.brokerageIdMap))
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (1, 1, 1, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (2, 1, 1, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (3, 1, 1, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (4, 1, 1, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (5, 1, 1, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (6, 1, 2, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (7, 1, 2, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (8, 1, 2, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (9, 1, 2, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (10, 1, 2, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (11, 1, 2, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (12, 1, 2, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (13, 1, 2, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (14, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (15, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (16, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (17, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (18, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (19, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (20, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (21, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (22, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (23, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (24, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (25, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (26, 1, 4, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (27, 1, 5, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (28, 1, 3, 0.0, 0.0, 0.0, 0.0);",
+        "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) VALUES (29, 1, 6, 0.0, 0.0, 0.0, 0.0);",
 
-        return sqlStatements
-    }
-
-    /**
-     * Extrai entidades únicas dos holdings.
-     */
-    private fun extractUniqueEntities(holdings: List<AssetHolding>): UniqueEntities {
-        return UniqueEntities(
-            issuers = holdings.map { it.asset.issuer }.distinctBy { it.name },
-            owners = holdings.map { it.owner }.distinctBy { it.name },
-            brokerages = holdings.map { it.brokerage }.distinctBy { it.name }
-        )
-    }
-
-    /**
-     * Cria mapeamentos de nomes para IDs sequenciais.
-     */
-    private fun createIdMappings(entities: UniqueEntities): IdMappings {
-        return IdMappings(
-            issuerIdMap = entities.issuers.mapIndexed { index, issuer -> issuer.name to (index + INITIAL_ID) }.toMap(),
-            ownerIdMap = entities.owners.mapIndexed { index, owner -> owner.name to (index + INITIAL_ID) }.toMap(),
-            brokerageIdMap = entities.brokerages.mapIndexed { index, brokerage -> brokerage.name to (index + INITIAL_ID) }.toMap(),
-            assetIdMap = mutableMapOf()
-        )
-    }
-
-    /**
-     * Gera INSERTs para a tabela issuers.
-     */
-    private fun generateIssuerInserts(issuers: List<com.eferraz.entities.Issuer>): List<String> {
-        return issuers.map { issuer ->
-            "INSERT INTO issuers (name) VALUES (${escapeString(issuer.name)});"
-        }
-    }
-
-    /**
-     * Gera INSERTs para a tabela owners.
-     */
-    private fun generateOwnerInserts(owners: List<com.eferraz.entities.Owner>): List<String> {
-        return owners.map { owner ->
-            "INSERT INTO owners (name) VALUES (${escapeString(owner.name)});"
-        }
-    }
-
-    /**
-     * Gera INSERTs para a tabela brokerages.
-     */
-    private fun generateBrokerageInserts(brokerages: List<com.eferraz.entities.Brokerage>): List<String> {
-        return brokerages.map { brokerage ->
-            "INSERT INTO brokerages (name) VALUES (${escapeString(brokerage.name)});"
-        }
-    }
-
-    /**
-     * Gera INSERTs para assets (tabela base e subclasses).
-     */
-    private fun generateAssetInserts(
-        holdings: List<AssetHolding>,
-        issuerIdMap: Map<String, Long>,
-        assetIdMap: MutableMap<Asset, Long>
-    ): List<String> {
-
-        val sqlStatements = mutableListOf<String>()
-        var currentAssetId = INITIAL_ID
-
-        holdings.forEach { holding ->
-
-            val asset = holding.asset
-
-            // Evitar duplicar assets (mesmo asset pode aparecer em múltiplos holdings)
-            if (assetIdMap.containsKey(asset)) { return@forEach }
-
-            val issuerId = issuerIdMap[asset.issuer.name] ?: error("Issuer não encontrado: ${asset.issuer.name}")
-
-            // Inserir asset base
-            sqlStatements.add(buildAssetBaseInsert(asset, issuerId))
-
-            // Inserir subclasse específica
-            sqlStatements.add(buildAssetSubclassInsert(asset, currentAssetId))
-
-            assetIdMap[asset] = currentAssetId
-
-            currentAssetId++
-        }
-
-        return sqlStatements
-    }
-
-    /**
-     * Gera INSERT para a tabela base assets.
-     */
-    private fun buildAssetBaseInsert(asset: Asset, issuerId: Long): String {
-        val assetName = asset.name
-        val observations = asset.observations?.let { escapeString(it) } ?: "NULL"
-        val liquidity = extractLiquidity(asset)
-        val category = extractCategory(asset)
-
-        return "INSERT INTO assets (name, issuerId, category, liquidity, observations) " +
-                "VALUES (${escapeString(assetName)}, $issuerId, '$category', '${liquidity}', $observations);"
-    }
-
-    /**
-     * Gera INSERT para a subclasse específica do asset.
-     */
-    private fun buildAssetSubclassInsert(asset: Asset, assetId: Long): String {
-        return when (asset) {
-            is FixedIncomeAsset -> buildFixedIncomeAssetInsert(asset, assetId)
-            is VariableIncomeAsset -> buildVariableIncomeAssetInsert(asset, assetId)
-            is InvestmentFundAsset -> buildInvestmentFundAssetInsert(asset, assetId)
-        }
-    }
-
-    /**
-     * Gera INSERT para fixed_income_assets.
-     */
-    private fun buildFixedIncomeAssetInsert(asset: FixedIncomeAsset, assetId: Long): String {
-        val cdiRelativeYield = asset.cdiRelativeYield?.toString() ?: "NULL"
-        return "INSERT INTO fixed_income_assets (assetId, type, subType, expirationDate, contractedYield, cdiRelativeYield) " +
-                "VALUES ($assetId, '${asset.type.name}', '${asset.subType.name}', '${asset.expirationDate}', ${asset.contractedYield}, $cdiRelativeYield);"
-    }
-
-    /**
-     * Gera INSERT para variable_income_assets.
-     */
-    private fun buildVariableIncomeAssetInsert(asset: VariableIncomeAsset, assetId: Long): String {
-        return "INSERT INTO variable_income_assets (assetId, type, ticker) " +
-                "VALUES ($assetId, '${asset.type.name}', ${escapeString(asset.ticker)});"
-    }
-
-    /**
-     * Gera INSERT para investment_fund_assets.
-     */
-    private fun buildInvestmentFundAssetInsert(asset: InvestmentFundAsset, assetId: Long): String {
-        val expirationDate = asset.expirationDate?.toString()?.let { "'$it'" } ?: "NULL"
-        return "INSERT INTO investment_fund_assets (assetId, type, liquidityDays, expirationDate) " +
-                "VALUES ($assetId, '${asset.type.name}', ${asset.liquidityDays}, $expirationDate);"
-    }
-
-    /**
-     * Gera INSERTs para asset_holdings.
-     */
-    private fun generateAssetHoldingInserts(
-        holdings: List<AssetHolding>,
-        assetIdMap: Map<Asset, Long>,
-        ownerIdMap: Map<String, Long>,
-        brokerageIdMap: Map<String, Long>
-    ): List<String> {
-
-        return holdings.map { holding ->
-
-            val assetId = assetIdMap[holding.asset] ?: error("Asset não encontrado no mapeamento")
-            val ownerId = ownerIdMap[holding.owner.name] ?: error("Owner não encontrado: ${holding.owner.name}")
-            val brokerageId = brokerageIdMap[holding.brokerage.name] ?: error("Brokerage não encontrado: ${holding.brokerage.name}")
-
-            // Como AssetHolding não tem quantity, averageCost, etc., usamos valores padrão
-            buildAssetHoldingInsert(
-                assetId = assetId,
-                ownerId = ownerId,
-                brokerageId = brokerageId,
-                quantity = DEFAULT_QUANTITY,
-                averageCost = DEFAULT_COST,
-                investedValue = DEFAULT_VALUE,
-                currentValue = DEFAULT_VALUE
-            )
-        }
-    }
-
-    /**
-     * Constrói um INSERT para asset_holdings.
-     */
-    private fun buildAssetHoldingInsert(
-        assetId: Long,
-        ownerId: Long,
-        brokerageId: Long,
-        quantity: Double,
-        averageCost: Double,
-        investedValue: Double,
-        currentValue: Double
-    ): String {
-        return "INSERT INTO asset_holdings (assetId, ownerId, brokerageId, quantity, averageCost, investedValue, currentValue) " +
-                "VALUES ($assetId, $ownerId, $brokerageId, $quantity, $averageCost, $investedValue, $currentValue);"
-    }
-
-    /**
-     * Extrai a liquidez do asset.
-     */
-    private fun extractLiquidity(asset: Asset): String {
-        return when (asset) {
-            is FixedIncomeAsset -> asset.liquidity.name
-            is VariableIncomeAsset -> asset.liquidity.name
-            is InvestmentFundAsset -> asset.liquidity.name
-        }
-    }
-
-    /**
-     * Extrai a categoria do asset.
-     */
-    private fun extractCategory(asset: Asset): String {
-        return when (asset) {
-            is FixedIncomeAsset -> "FIXED_INCOME"
-            is VariableIncomeAsset -> "VARIABLE_INCOME"
-            is InvestmentFundAsset -> "INVESTMENT_FUND"
-        }
-    }
-
-    /**
-     * Escapa strings para uso em SQL, substituindo aspas simples por duas aspas simples.
-     */
-    private fun escapeString(value: String): String {
-        return "'${value.replace("'", "''")}'"
-    }
-
-    /**
-     * Agrupa entidades únicas extraídas dos holdings.
-     */
-    private data class UniqueEntities(
-        val issuers: List<com.eferraz.entities.Issuer>,
-        val owners: List<com.eferraz.entities.Owner>,
-        val brokerages: List<com.eferraz.entities.Brokerage>
-    )
-
-    /**
-     * Agrupa mapeamentos de IDs para as entidades.
-     */
-    private data class IdMappings(
-        val issuerIdMap: Map<String, Long>,
-        val ownerIdMap: Map<String, Long>,
-        val brokerageIdMap: Map<String, Long>,
-        val assetIdMap: MutableMap<Asset, Long>
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (1, '2025-11', 8011.32, 1.0, 8011.32, 8011.32);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (2, '2025-11', 20593.7, 1.0, 20593.7, 20593.7);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (3, '2025-11', 34627.6, 1.0, 34627.6, 34627.6);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (4, '2025-11', 32428.48, 1.0, 32428.48, 32428.48);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (5, '2025-11', 20464.28, 1.0, 20464.28, 20464.28);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (6, '2025-11', 7392.49, 1.0, 7392.49, 7392.49);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (7, '2025-11', 5095.68, 1.0, 5095.68, 5095.68);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (8, '2025-11', 4752.88, 1.0, 4752.88, 4752.88);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (9, '2025-11', 3286.17, 1.0, 3286.17, 3286.17);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (10, '2025-11', 3306.15, 1.0, 3306.15, 3306.15);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (11, '2025-11', 4522.27, 1.0, 4522.27, 4522.27);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (12, '2025-11', 4497.29, 1.0, 4497.29, 4497.29);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (13, '2025-11', 7280.21, 1.0, 7280.21, 7280.21);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (14, '2025-11', 54917.77, 1.0, 54917.77, 54917.77);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (15, '2025-11', 21578.49, 1.0, 21578.49, 21578.49);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (16, '2025-11', 17241.75, 1.0, 17241.75, 17241.75);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (17, '2025-11', 13237.7, 1.0, 13237.7, 13237.7);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (18, '2025-11', 3156.48, 1.0, 3156.48, 3156.48);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (19, '2025-11', 1981.37, 1.0, 1981.37, 1981.37);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (20, '2025-11', 11432.91, 1.0, 11432.91, 11432.91);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (21, '2025-11', 4721.92, 1.0, 4721.92, 4721.92);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (22, '2025-11', 4573.84, 1.0, 4573.84, 4573.84);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (23, '2025-11', 3295.69, 1.0, 3295.69, 3295.69);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (24, '2025-11', 1649.16, 1.0, 1649.16, 1649.16);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (25, '2025-11', 15268.47, 1.0, 15268.47, 15268.47);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (26, '2025-11', 109237.04, 1.0, 109237.04, 109237.04);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (27, '2025-11', 12801.8, 1.0, 12801.8, 12801.8);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (28, '2025-11', 151326.03, 1.0, 151326.03, 151326.03);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (29, '2025-11', 10634.59, 1.0, 10634.59, 10634.59);",
     )
 }
 
