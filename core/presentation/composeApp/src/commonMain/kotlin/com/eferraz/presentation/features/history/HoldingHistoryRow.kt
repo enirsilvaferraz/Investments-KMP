@@ -9,28 +9,20 @@ import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
 import kotlinx.datetime.LocalDate
 
-internal class HoldingHistoryView(
+internal class HoldingHistoryRow(
+    val viewData: ViewData,
     val formatted: Formatted,
-    val sort: Sort,
     val currentEntryId: Long?,
     val holdingId: Long,
 ) {
 
     data class Formatted(
-        val brokerage: String,
-        val category: String,
-        val subCategory: String,
-        val description: String,
-        val observations: String,
         val maturity: String,
-        val issuer: String,
         val previousValue: String,
         val currentValue: String,
-        val appreciation: String,
-        val situation: String,
     )
 
-    data class Sort(
+    data class ViewData(
         val brokerage: String,
         val category: String,
         val subCategory: String,
@@ -44,14 +36,14 @@ internal class HoldingHistoryView(
         val situation: String,
     )
 
-    companion object {
+    companion object Companion {
 
         @Composable
         fun create(
             holding: AssetHolding,
             currentEntry: HoldingHistoryEntry?,
             previousEntry: HoldingHistoryEntry?,
-        ): HoldingHistoryView {
+        ): HoldingHistoryRow {
 
             val assetView = AssetView.create(holding.asset)
 
@@ -61,41 +53,33 @@ internal class HoldingHistoryView(
             val currentQuantity = currentEntry?.endOfMonthQuantity
             val currentValue = currentEntry?.endOfMonthValue
 
-            return HoldingHistoryView(
-                formatted = Formatted(
-                    brokerage = holding.brokerage.name,
-                    category = assetView.category,
-                    subCategory = assetView.subCategory,
-                    description = assetView.name,
-                    observations = assetView.notes,
-                    maturity = assetView.maturity.formated(),
-                    issuer = assetView.issuer,
-                    previousValue = (previousValue ?: 0.0).currencyFormat(),
-                    currentValue = (currentValue ?: 0.0).currencyFormat(),
-                    appreciation = formatAppreciation(currentValue, previousValue),
-                    situation = formatSituation(
-                        previousQuantity = previousQuantity,
-                        currentQuantity = currentQuantity,
-                        hasCurrentEntry = currentEntry != null
-                    )
-                ),
-                sort = Sort(
-                    brokerage = holding.brokerage.name,
-                    category = assetView.category,
-                    subCategory = assetView.subCategory,
-                    description = assetView.name,
-                    observations = assetView.notes,
-                    maturity = assetView.maturity,
-                    issuer = assetView.issuer,
-                    previousValue = previousValue ?: 0.0,
-                    currentValue = currentValue ?: 0.0,
-                    appreciation = formatAppreciation(currentValue, previousValue),
-                    situation = formatSituation(
-                        previousQuantity = previousQuantity,
-                        currentQuantity = currentQuantity,
-                        hasCurrentEntry = currentEntry != null
-                    )
-                ),
+            val viewData = ViewData(
+                brokerage = holding.brokerage.name,
+                category = assetView.category,
+                subCategory = assetView.subCategory,
+                description = assetView.name,
+                observations = assetView.notes,
+                maturity = assetView.maturity,
+                issuer = assetView.issuer,
+                previousValue = previousValue ?: 0.0,
+                currentValue = currentValue ?: 0.0,
+                appreciation = formatAppreciation(currentValue, previousValue),
+                situation = formatSituation(
+                    previousQuantity = previousQuantity,
+                    currentQuantity = currentQuantity,
+                    hasCurrentEntry = currentEntry != null
+                )
+            )
+
+            val formatted = Formatted(
+                maturity = assetView.maturity.formated(),
+                previousValue = (previousValue ?: 0.0).currencyFormat(),
+                currentValue = (currentValue ?: 0.0).currencyFormat(),
+            )
+
+            return HoldingHistoryRow(
+                formatted = formatted,
+                viewData = viewData,
                 currentEntryId = currentEntry?.id,
                 holdingId = holding.id,
             )

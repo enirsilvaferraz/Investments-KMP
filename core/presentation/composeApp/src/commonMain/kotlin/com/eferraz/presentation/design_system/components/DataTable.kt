@@ -38,19 +38,19 @@ import androidx.compose.ui.unit.dp
  * @param title Título da coluna exibido no cabeçalho
  * @param weight Peso da coluna para distribuição de largura (padrão 1f)
  * @param alignment Alinhamento horizontal do conteúdo da coluna
- * @param extractValue Função para extrair valor como String (para ordenação e exibição padrão)
- * @param sortComparator Função opcional para comparar itens durante ordenação. Se null, a coluna não é ordenável
+ * @param formated Função para extrair valor como String (para ordenação e exibição padrão)
+ * @param data Função opcional para comparar itens durante ordenação. Se null, a coluna não é ordenável
  * @param cellContent Composable customizado para renderizar o conteúdo da célula
  */
 internal data class TableColumn<T>(
     val title: String,
     val weight: Float = 1f,
     val alignment: Alignment.Horizontal = Alignment.Start,
-    val extractValue: (T) -> String = { "" },
-    val sortComparator: ((T) -> Comparable<*>?) = { extractValue(it) },
+    val data: (T.() -> Comparable<*>?),
+    val formated: T.() -> String = { data().toString() },
     val cellContent: @Composable RowScope.(T) -> Unit = {
         Text(
-            text = extractValue(it),
+            text = formated(it),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.87f)
         )
@@ -86,7 +86,7 @@ internal fun <T> DataTable(
     }
 
     val sortedData = remember(data, sortColumnIndex, sortAscending, columns) {
-        val comparator = columns[sortColumnIndex].sortComparator
+        val comparator = columns[sortColumnIndex].data
         if (sortAscending) data.sortedWith(compareBy { item -> comparator(item) })
         else data.sortedWith(compareByDescending { item -> comparator(item) })
     }

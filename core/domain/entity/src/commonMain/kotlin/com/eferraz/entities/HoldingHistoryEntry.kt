@@ -14,11 +14,11 @@ import kotlinx.datetime.YearMonth
  * @property totalInvested O valor total investido na posição até o final do mês.
  */
 public data class HoldingHistoryEntry(
-    public val id: Long,
+    public val id: Long? = null,
     public val holding: AssetHolding,
     public val referenceDate: YearMonth,
     public val endOfMonthValue: Double,
     public val endOfMonthQuantity: Double,
     public val endOfMonthAverageCost: Double,
-    public val totalInvested: Double
+    public val totalInvested: Double = endOfMonthAverageCost // TODO ENIR
 )

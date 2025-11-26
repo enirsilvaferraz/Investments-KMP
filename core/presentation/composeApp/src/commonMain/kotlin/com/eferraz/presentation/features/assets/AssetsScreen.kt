@@ -68,13 +68,13 @@ internal fun AssetsScreen(
     DataTable(
         modifier = modifier,
         columns = listOf(
-            TableColumn(title = "Categoria", extractValue = { it.category }),
-            TableColumn(title = "Subcategoria", extractValue = { it.subCategory }),
-            TableColumn(title = "Descrição", weight = 2f, extractValue = { it.name }),
-            TableColumn(title = "Vencimento", extractValue = { it.maturity?.formated() ?: "-" }, sortComparator = { it.maturity }),
-            TableColumn(title = "Emissor", extractValue = { it.issuer }),
-            TableColumn(title = "Liquidez", extractValue = { it.liquidity }),
-            TableColumn(title = "Observação", weight = 2f, extractValue = { it.notes })
+            TableColumn(title = "Categoria", data = { category }),
+            TableColumn(title = "Subcategoria", data = { subCategory }),
+            TableColumn(title = "Descrição", data = { name }, weight = 2f),
+            TableColumn(title = "Vencimento", data = { maturity }, formated = { maturity?.formated() ?: "-" }),
+            TableColumn(title = "Emissor", data = { issuer }),
+            TableColumn(title = "Liquidez", data = { liquidity }),
+            TableColumn(title = "Observação", data = { notes }, weight = 2f)
         ),
         data = list,
     )

@@ -141,21 +141,21 @@ internal fun HistoryScreen(
     DataTable(
         modifier = modifier,
         columns = listOf(
-            TableColumn(title = "Corretora", extractValue = { it.formatted.brokerage }),
-            TableColumn(title = "Categoria", extractValue = { it.formatted.category }),
-            TableColumn(title = "SubCategoria", extractValue = { it.formatted.subCategory }),
-            TableColumn(title = "Descrição", weight = 2f, extractValue = { it.formatted.description }),
-            TableColumn(title = "Observações", weight = 2f, extractValue = { it.formatted.observations }),
-            TableColumn(title = "Vencimento", extractValue = { it.formatted.maturity }, sortComparator = { it.sort.maturity }),
-            TableColumn(title = "Emissor", extractValue = { it.formatted.issuer }),
-            TableColumn(title = "Valor Anterior", extractValue = { it.formatted.previousValue }, sortComparator = { it.sort.previousValue }),
-            TableColumn(title = "Valor Atual", sortComparator = { it.sort.currentValue }, cellContent = { item ->
-                InputTextMoney(value = item.sort.currentValue, onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, it ?: 0.0) })
+            TableColumn(title = "Corretora", data = { viewData.brokerage }),
+            TableColumn(title = "Categoria", data = { viewData.category }),
+            TableColumn(title = "SubCategoria", data = { viewData.subCategory }),
+            TableColumn(title = "Descrição", data = { viewData.description }, weight = 2f),
+            TableColumn(title = "Observações", data = { viewData.observations }, weight = 2f),
+            TableColumn(title = "Vencimento", data = { viewData.maturity }, formated = { formatted.maturity }),
+            TableColumn(title = "Emissor", data = { viewData.issuer }),
+            TableColumn(title = "Valor Anterior", data = { viewData.previousValue }, formated = { formatted.previousValue }),
+            TableColumn(title = "Valor Atual", data = { viewData.currentValue }, cellContent = { item ->
+                InputTextMoney(value = item.viewData.currentValue, onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, it ?: 0.0) })
             }),
-            TableColumn(title = "Valorização", extractValue = { it.formatted.appreciation }),
-            TableColumn(title = "Situação", extractValue = { it.formatted.situation })
+            TableColumn(title = "Valorização", data = { viewData.appreciation }),
+            TableColumn(title = "Situação", data = { viewData.situation })
         ),
-        data = entries.map { (holding, current, preview) -> HoldingHistoryView.create(holding, current, preview) },
+        data = entries.map { (holding, current, preview) -> HoldingHistoryRow.create(holding, current, preview) },
     )
 }
 
