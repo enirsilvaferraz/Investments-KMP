@@ -1,6 +1,5 @@
 package com.eferraz.database.core.initialization
 
-import com.eferraz.database.entities.AssetHoldingEntity
 import com.eferraz.entities.Asset
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.Brokerage
@@ -188,14 +187,10 @@ internal object AssetInMemoryDataSourceImpl {
         observations = observations
     )
 
-    fun getAllHoldings(): List<AssetHoldingEntity> = buildList {
-        AssetHolding(0, FI("SUPER POUP BMG", "BMG", POST_FIXED, CDB, LocalDate(2026, 5, 11), 110.0, Liquidity.DAILY), enir, Brokerage(0, "Banco do Brasil"))
-    }
-
     private val enir = Owner(0, "Enir")
 
     private val nubank = Brokerage(0, "Nubank")
-    private val bmg = Brokerage(0, "Banco do Brasil")
+    private val bmg = Brokerage(0, "Banco BMG")
     private val inter = Brokerage(0, "Banco Inter")
     private val caixa = Brokerage(0, "Caixa Econômica Federal")
     private val sofisa = Brokerage(0, "Sofisa")

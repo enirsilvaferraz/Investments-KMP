@@ -3,6 +3,7 @@ package com.eferraz.presentation.features.history
 import androidx.compose.runtime.Composable
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.presentation.features.assets.AssetView
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
@@ -30,10 +31,11 @@ internal class HoldingHistoryRow(
         val observations: String,
         val maturity: LocalDate?,
         val issuer: String,
-        val previousValue: Double,
+        val previousValue: Double?,
         val currentValue: Double,
         val appreciation: String,
         val situation: String,
+        val editable: Boolean
     )
 
     companion object Companion {
@@ -61,19 +63,20 @@ internal class HoldingHistoryRow(
                 observations = assetView.notes,
                 maturity = assetView.maturity,
                 issuer = assetView.issuer,
-                previousValue = previousValue ?: 0.0,
+                previousValue = previousValue,
                 currentValue = currentValue ?: 0.0,
                 appreciation = formatAppreciation(currentValue, previousValue),
                 situation = formatSituation(
                     previousQuantity = previousQuantity,
                     currentQuantity = currentQuantity,
                     hasCurrentEntry = currentEntry != null
-                )
+                ),
+                editable = holding.asset !is VariableIncomeAsset
             )
 
             val formatted = Formatted(
                 maturity = assetView.maturity.formated(),
-                previousValue = (previousValue ?: 0.0).currencyFormat(),
+                previousValue = previousValue?.currencyFormat() ?: "",
                 currentValue = (currentValue ?: 0.0).currencyFormat(),
             )
 
@@ -89,8 +92,8 @@ internal class HoldingHistoryRow(
             currentValue: Double?,
             previousValue: Double?,
         ): String {
-            if (previousValue == null || previousValue <= 0.0) return "—"
-            if (currentValue == null || currentValue == 0.0) return "—"
+            if (previousValue == null || previousValue <= 0.0) return ""
+            if (currentValue == null || currentValue == 0.0) return ""
             val appreciation = ((currentValue / previousValue) - 1.0) * 100.0
             return appreciation.toPercentage()
         }
@@ -104,7 +107,7 @@ internal class HoldingHistoryRow(
                 return "Não Registrado"
             }
             if (previousQuantity == null || previousQuantity == 0.0) {
-                return if (currentQuantity != null && currentQuantity > 0) "Compra" else "—"
+                return if (currentQuantity != null && currentQuantity > 0) "Compra" else "-"
             }
             if (currentQuantity == null) {
                 return "Não Registrado"

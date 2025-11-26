@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +24,7 @@ import com.eferraz.presentation.helpers.CurrencyVisualTransformation
 internal fun InputTextMoney(
     value: Double,
     onValueChange: (Double?) -> Unit,
+    enabled: Boolean,
 ) {
 
     var textFieldValueState: TextFieldValue by remember {
@@ -40,13 +40,17 @@ internal fun InputTextMoney(
     Box(
         modifier = Modifier
             .padding(end = 8.dp)
-            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f), MaterialTheme.shapes.medium)
+            .then(
+                if (enabled) Modifier.background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f), MaterialTheme.shapes.medium)
+                else Modifier
+            )
             .fillMaxWidth()
             .height(35.dp),
         contentAlignment = Alignment.CenterStart
     ) {
         BasicTextField(
             value = textFieldValueState,
+            enabled = enabled,
             onValueChange = {
 
                 // Filtra apenas dígitos (0-9)
@@ -77,7 +81,7 @@ internal fun InputTextMoney(
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             singleLine = true,
-            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.End),
             visualTransformation = CurrencyVisualTransformation
         )
     }

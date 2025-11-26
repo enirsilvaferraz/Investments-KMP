@@ -141,19 +141,77 @@ internal fun HistoryScreen(
     DataTable(
         modifier = modifier,
         columns = listOf(
-            TableColumn(title = "Corretora", data = { viewData.brokerage }),
-            TableColumn(title = "Categoria", data = { viewData.category }),
-            TableColumn(title = "SubCategoria", data = { viewData.subCategory }),
-            TableColumn(title = "Descrição", data = { viewData.description }, weight = 2f),
-            TableColumn(title = "Observações", data = { viewData.observations }, weight = 2f),
-            TableColumn(title = "Vencimento", data = { viewData.maturity }, formated = { formatted.maturity }),
-            TableColumn(title = "Emissor", data = { viewData.issuer }),
-            TableColumn(title = "Valor Anterior", data = { viewData.previousValue }, formated = { formatted.previousValue }),
-            TableColumn(title = "Valor Atual", data = { viewData.currentValue }, cellContent = { item ->
-                InputTextMoney(value = item.viewData.currentValue, onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, it ?: 0.0) })
-            }),
-            TableColumn(title = "Valorização", data = { viewData.appreciation }),
-            TableColumn(title = "Situação", data = { viewData.situation })
+
+            TableColumn(
+                title = "Corretora",
+                data = { viewData.brokerage }
+            ),
+
+            TableColumn(
+                title = "Categoria",
+                data = { viewData.category }
+            ),
+
+            TableColumn(
+                title = "SubCategoria",
+                data = { viewData.subCategory }
+            ),
+
+            TableColumn(
+                title = "Descrição",
+                data = { viewData.description },
+                weight = 2f
+            ),
+
+            TableColumn(
+                title = "Vencimento",
+                data = { viewData.maturity },
+                formated = { formatted.maturity },
+                alignment = Alignment.CenterHorizontally
+            ),
+
+            TableColumn(
+                title = "Emissor",
+                data = { viewData.issuer }
+            ),
+
+            TableColumn(
+                title = "Observações",
+                data = { viewData.observations },
+                weight = 2f
+            ),
+
+            TableColumn(
+                title = "Valor Anterior",
+                data = { viewData.previousValue },
+                formated = { formatted.previousValue },
+                alignment = Alignment.End
+            ),
+
+            TableColumn(
+                title = "Valor Atual",
+                data = { viewData.currentValue },
+                alignment = Alignment.CenterHorizontally,
+                cellContent = { item ->
+                    InputTextMoney(
+                        value = item.viewData.currentValue,
+                        enabled = item.viewData.editable,
+                        onValueChange = { onUpdateValue(item.currentEntryId, item.holdingId, it ?: 0.0) }
+                    )
+                }
+            ),
+
+            TableColumn(
+                title = "Valorização",
+                data = { viewData.appreciation },
+                alignment = Alignment.CenterHorizontally
+            ),
+
+            TableColumn(
+                title = "Situação",
+                data = { viewData.situation },
+                alignment = Alignment.CenterHorizontally
+            )
         ),
         data = entries.map { (holding, current, preview) -> HoldingHistoryRow.create(holding, current, preview) },
     )
