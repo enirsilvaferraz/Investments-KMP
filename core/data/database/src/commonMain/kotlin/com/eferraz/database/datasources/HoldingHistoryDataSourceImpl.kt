@@ -51,44 +51,39 @@ internal class HoldingHistoryDataSourceImpl(
     }
 
     override suspend fun update(entry: HoldingHistoryEntry) {
-        val entity = HoldingHistoryEntryEntity(
-            id = entry.id,
-            holdingId = entry.holding.id,
-            referenceDate = entry.referenceDate,
-            endOfMonthValue = entry.endOfMonthValue,
-            endOfMonthQuantity = entry.endOfMonthQuantity,
-            endOfMonthAverageCost = entry.endOfMonthAverageCost,
-            totalInvested = entry.totalInvested
-        )
-        holdingHistoryDao.update(entity)
+        holdingHistoryDao.update(entry.toEntity())
     }
 
-    override suspend fun insert(entry: HoldingHistoryEntry): Long {
-        val entity = HoldingHistoryEntryEntity(
-            holdingId = entry.holding.id,
-            referenceDate = entry.referenceDate,
-            endOfMonthValue = entry.endOfMonthValue,
-            endOfMonthQuantity = entry.endOfMonthQuantity,
-            endOfMonthAverageCost = entry.endOfMonthAverageCost,
-            totalInvested = entry.totalInvested
+    override suspend fun insert(entry: HoldingHistoryEntry): Long =
+        holdingHistoryDao.insert(entry.toEntity())
+
+    private fun HoldingHistoryEntry.toEntity() =
+        HoldingHistoryEntryEntity(
+            id = id,
+            holdingId = holding.id,
+            referenceDate = referenceDate,
+            endOfMonthValue = endOfMonthValue,
+            endOfMonthQuantity = endOfMonthQuantity,
+            endOfMonthAverageCost = endOfMonthAverageCost,
+            totalInvested = totalInvested
         )
-        return holdingHistoryDao.insert(entity)
-    }
 
-    private fun AssetHoldingWithDetails.toHoldingModel(asset: Asset) = AssetHolding(
-        id = holding.id,
-        asset = asset,
-        owner = Owner(id = owner.id, name = owner.name),
-        brokerage = Brokerage(id = brokerage.id, name = brokerage.name)
-    )
+    private fun AssetHoldingWithDetails.toHoldingModel(asset: Asset) =
+        AssetHolding(
+            id = holding.id,
+            asset = asset,
+            owner = Owner(id = owner.id, name = owner.name),
+            brokerage = Brokerage(id = brokerage.id, name = brokerage.name)
+        )
 
-    private fun HoldingHistoryEntryEntity.toModel(holding: AssetHolding) = HoldingHistoryEntry(
-        id = id ?: 0,
-        holding = holding,
-        referenceDate = referenceDate,
-        endOfMonthValue = endOfMonthValue,
-        endOfMonthQuantity = endOfMonthQuantity,
-        endOfMonthAverageCost = endOfMonthAverageCost,
-        totalInvested = totalInvested
-    )
+    private fun HoldingHistoryEntryEntity.toModel(holding: AssetHolding) =
+        HoldingHistoryEntry(
+            id = id ?: 0,
+            holding = holding,
+            referenceDate = referenceDate,
+            endOfMonthValue = endOfMonthValue,
+            endOfMonthQuantity = endOfMonthQuantity,
+            endOfMonthAverageCost = endOfMonthAverageCost,
+            totalInvested = totalInvested
+        )
 }

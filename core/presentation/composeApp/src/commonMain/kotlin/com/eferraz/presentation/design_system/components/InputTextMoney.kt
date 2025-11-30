@@ -39,7 +39,7 @@ internal fun InputTextMoney(
 
     Box(
         modifier = Modifier
-            .padding(end = 8.dp)
+            .padding(horizontal = 8.dp)
             .then(
                 if (enabled) Modifier.background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f), MaterialTheme.shapes.medium)
                 else Modifier
@@ -79,7 +79,7 @@ internal fun InputTextMoney(
                 else onValueChange(string.toDouble() / 100)
 
             },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.End),
             visualTransformation = CurrencyVisualTransformation
