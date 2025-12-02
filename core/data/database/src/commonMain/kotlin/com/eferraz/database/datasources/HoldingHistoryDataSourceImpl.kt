@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.minusMonth
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [HoldingHistoryDataSource::class])
@@ -24,29 +23,24 @@ internal class HoldingHistoryDataSourceImpl(
     private val assetDataSource: AssetDataSource,
 ) : HoldingHistoryDataSource {
 
-    override fun getByReferenceDateAndPrevious(referenceDate: YearMonth): Flow<List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>>> {
-
+    override fun getAllHoldings(): Flow<List<AssetHolding>> {
         return combine(
             assetDataSource.getAll().map { it.associateBy { asset -> asset.id } },
-            assetHoldingDao.getAllWithAsset(),
-            holdingHistoryDao.getByReferenceDate(referenceDate),
-            holdingHistoryDao.getByReferenceDate(referenceDate.minusMonth())
-        ) { assets: Map<Long, Asset>, holding: List<AssetHoldingWithDetails>, current: List<HoldingHistoryWithDetails>, previous: List<HoldingHistoryWithDetails> ->
+            assetHoldingDao.getAllWithAsset()
+        ) { assetsMap, holdingsWithDetails ->
+            holdingsWithDetails.map { it.toHoldingModel(assetsMap[it.asset.id]!!) }
+        }
+    }
 
-            val triples: HashMap<Long, Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>> =
-                HashMap(holding.map { Triple(it.toHoldingModel(assets[it.asset.id]!!), null, null) }.associateBy { it.first.id })
-
-            current.forEach {
-                val entry = it.history.toModel(triples[it.holding.id]!!.first)
-                triples[it.holding.id] = triples[it.holding.id]!!.copy(second = entry)
+    override fun getByReferenceDate(referenceDate: YearMonth): Flow<List<HoldingHistoryEntry>> {
+        return combine(
+            getAllHoldings().map { it.associateBy { holding -> holding.id } },
+            holdingHistoryDao.getByReferenceDate(referenceDate)
+        ) { holdingsMap, historyWithDetails ->
+            historyWithDetails.map {
+                val holding = holdingsMap[it.holding.id]!!
+                it.history.toModel(holding)
             }
-
-            previous.forEach {
-                val entry = it.history.toModel(triples[it.holding.id]!!.first)
-                triples[it.holding.id] = triples[it.holding.id]!!.copy(third = entry)
-            }
-
-            triples.map { it.value }
         }
     }
 

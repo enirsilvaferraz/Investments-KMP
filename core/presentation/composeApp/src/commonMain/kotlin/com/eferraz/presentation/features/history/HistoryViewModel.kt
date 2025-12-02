@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.usecases.GetHoldingHistoryUseCase
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.plusMonth
 import kotlinx.datetime.toLocalDateTime
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Clock
@@ -18,6 +20,7 @@ import kotlin.time.ExperimentalTime
 
 @KoinViewModel
 internal class HistoryViewModel(
+    private val getHoldingHistoryUseCase: GetHoldingHistoryUseCase,
     private val repository: HoldingHistoryRepository,
 ) : ViewModel() {
 
@@ -49,7 +52,7 @@ internal class HistoryViewModel(
 
     private fun loadPeriodData(period: YearMonth) {
         viewModelScope.launch {
-            repository.getByReferenceDateAndPrevious(period).collect { entries ->
+            getHoldingHistoryUseCase(period).collect { entries ->
                 _state.update { it.copy(entries = entries) }
             }
         }
@@ -58,7 +61,7 @@ internal class HistoryViewModel(
     @OptIn(ExperimentalTime::class)
     private fun getCurrentYearMonth(): YearMonth =
         Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).let { now ->
-            YearMonth(now.year, now.month)
+            YearMonth(now.year, now.month).plusMonth()
         }
 
     data class HistoryState(

@@ -8,6 +8,7 @@ import kotlinx.datetime.YearMonth
 public interface HoldingHistoryDataSource {
     public suspend fun insert(entry: HoldingHistoryEntry): Long
     public suspend fun update(entry: HoldingHistoryEntry)
-    public fun getByReferenceDateAndPrevious(referenceDate: YearMonth): Flow<List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>>>
+    public fun getAllHoldings(): Flow<List<AssetHolding>>
+    public fun getByReferenceDate(referenceDate: YearMonth): Flow<List<HoldingHistoryEntry>>
 }
 
