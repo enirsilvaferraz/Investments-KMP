@@ -7,8 +7,6 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.eferraz.database.entities.AssetHoldingEntity
 import com.eferraz.database.entities.relationship.AssetHoldingWithDetails
-import kotlinx.coroutines.flow.Flow
-
 /**
  * DAO para operações CRUD na tabela asset_holdings.
  */
@@ -25,14 +23,14 @@ internal interface AssetHoldingDao {
     suspend fun update(holding: AssetHoldingEntity)
 
     @Query("SELECT * FROM asset_holdings")
-    fun getAll(): Flow<List<AssetHoldingEntity>>
+    suspend fun getAll(): List<AssetHoldingEntity>
 
     @Query("SELECT * FROM asset_holdings WHERE id = :id")
     suspend fun getById(id: Long): AssetHoldingEntity?
 
     @Transaction
     @Query("SELECT * FROM asset_holdings")
-    fun getAllWithAsset(): Flow<List<AssetHoldingWithDetails>>
+    suspend fun getAllWithAsset(): List<AssetHoldingWithDetails>
 
 //    @Transaction
 //    @Query("SELECT * FROM asset_holdings WHERE id = :id")

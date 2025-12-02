@@ -10,9 +10,6 @@ import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.Brokerage
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.Owner
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.Factory
 
@@ -23,24 +20,20 @@ internal class HoldingHistoryDataSourceImpl(
     private val assetDataSource: AssetDataSource,
 ) : HoldingHistoryDataSource {
 
-    override fun getAllHoldings(): Flow<List<AssetHolding>> {
-        return combine(
-            assetDataSource.getAll().map { it.associateBy { asset -> asset.id } },
-            assetHoldingDao.getAllWithAsset()
-        ) { assetsMap, holdingsWithDetails ->
-            holdingsWithDetails.map { it.toHoldingModel(assetsMap[it.asset.id]!!) }
-        }
+    override suspend fun getAllHoldings(): List<AssetHolding> {
+        val assetsMap = assetDataSource.getAll().associateBy { asset -> asset.id }
+        val holdingsWithDetails = assetHoldingDao.getAllWithAsset()
+        
+        return holdingsWithDetails.map { it.toHoldingModel(assetsMap[it.asset.id]!!) }
     }
 
-    override fun getByReferenceDate(referenceDate: YearMonth): Flow<List<HoldingHistoryEntry>> {
-        return combine(
-            getAllHoldings().map { it.associateBy { holding -> holding.id } },
-            holdingHistoryDao.getByReferenceDate(referenceDate)
-        ) { holdingsMap, historyWithDetails ->
-            historyWithDetails.map {
-                val holding = holdingsMap[it.holding.id]!!
-                it.history.toModel(holding)
-            }
+    override suspend fun getByReferenceDate(referenceDate: YearMonth): List<HoldingHistoryEntry> {
+        val holdingsMap = getAllHoldings().associateBy { holding -> holding.id }
+        val historyWithDetails = holdingHistoryDao.getByReferenceDate(referenceDate)
+        
+        return historyWithDetails.map {
+            val holding = holdingsMap[it.holding.id]!!
+            it.history.toModel(holding)
         }
     }
 

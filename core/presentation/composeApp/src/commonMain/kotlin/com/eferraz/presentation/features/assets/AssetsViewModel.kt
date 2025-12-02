@@ -6,7 +6,6 @@ import com.eferraz.entities.Asset
 import com.eferraz.usecases.repositories.AssetRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -20,10 +19,13 @@ internal class AssetsViewModel(
     val state = _state.asStateFlow()
 
     init {
+        loadAssets()
+    }
+
+    private fun loadAssets() {
         viewModelScope.launch {
-            repository.getAll().collect { assets ->
-                _state.update { AssetsState(assets) }
-            }
+            val assets = repository.getAll()
+            _state.update { AssetsState(assets) }
         }
     }
 

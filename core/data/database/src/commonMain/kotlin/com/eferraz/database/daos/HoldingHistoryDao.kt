@@ -7,7 +7,6 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.eferraz.database.entities.HoldingHistoryEntryEntity
 import com.eferraz.database.entities.relationship.HoldingHistoryWithDetails
-import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.YearMonth
 
 /**
@@ -26,13 +25,13 @@ internal interface HoldingHistoryDao {
     suspend fun update(historyEntry: HoldingHistoryEntryEntity)
 
     @Query("SELECT * FROM holding_history")
-    fun getAll(): Flow<List<HoldingHistoryEntryEntity>>
+    suspend fun getAll(): List<HoldingHistoryEntryEntity>
 
     @Query("SELECT * FROM holding_history WHERE id = :id")
     suspend fun getById(id: Long): HoldingHistoryEntryEntity?
 
     @Query("SELECT * FROM holding_history WHERE holdingId = :holdingId")
-    fun getByHoldingId(holdingId: Long): Flow<List<HoldingHistoryEntryEntity>>
+    suspend fun getByHoldingId(holdingId: Long): List<HoldingHistoryEntryEntity>
 
     @Query("SELECT * FROM holding_history WHERE holdingId = :holdingId AND referenceDate = :referenceDate")
     suspend fun getByHoldingIdAndDate(holdingId: Long, referenceDate: YearMonth): HoldingHistoryEntryEntity?
@@ -55,5 +54,5 @@ internal interface HoldingHistoryDao {
         WHERE holding_history.referenceDate = :referenceDate
     """
     )
-    fun getByReferenceDate(referenceDate: YearMonth): Flow<List<HoldingHistoryWithDetails>>
+    suspend fun getByReferenceDate(referenceDate: YearMonth): List<HoldingHistoryWithDetails>
 }

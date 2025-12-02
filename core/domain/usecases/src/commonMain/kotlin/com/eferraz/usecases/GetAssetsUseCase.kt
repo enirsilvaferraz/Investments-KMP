@@ -8,6 +8,6 @@ internal class GetAssetsUseCase(
     private val assetRepository: AssetRepository,
 ) {
 
-    operator fun invoke() =
+    suspend operator fun invoke() =
         assetRepository.getAll()
 }

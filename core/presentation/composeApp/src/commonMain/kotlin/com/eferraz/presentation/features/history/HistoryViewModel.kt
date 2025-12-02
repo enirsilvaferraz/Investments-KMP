@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.plusMonth
 import kotlinx.datetime.toLocalDateTime
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Clock
@@ -47,21 +46,21 @@ internal class HistoryViewModel(
                 endOfMonthAverageCost = value
             )
             if (entryId == null) repository.insert(entry) else repository.update(entry)
+            loadPeriodData(_state.value.selectedPeriod)
         }
     }
 
     private fun loadPeriodData(period: YearMonth) {
         viewModelScope.launch {
-            getHoldingHistoryUseCase(period).collect { entries ->
-                _state.update { it.copy(entries = entries) }
-            }
+            val entries = getHoldingHistoryUseCase(period)
+            _state.update { it.copy(entries = entries) }
         }
     }
 
     @OptIn(ExperimentalTime::class)
     private fun getCurrentYearMonth(): YearMonth =
         Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).let { now ->
-            YearMonth(now.year, now.month).plusMonth()
+            YearMonth(now.year, now.month)
         }
 
     data class HistoryState(

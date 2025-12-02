@@ -9,5 +9,5 @@ internal class AssetRepositoryImpl(
     private val dataSource: AssetDataSource,
 ) : AssetRepository {
 
-    override fun getAll() = dataSource.getAll()
+    override suspend fun getAll() = dataSource.getAll()
 }

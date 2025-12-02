@@ -9,11 +9,6 @@ import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.Issuer
 import com.eferraz.entities.VariableIncomeAsset
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [AssetDataSource::class])
@@ -21,28 +16,29 @@ internal class AssetDataSourceImpl(
     private val assetDao: AssetDao,
 ) : AssetDataSource {
 
-    override fun getAll() = combine(
-        assetDao.getAllFixedIncomeAssets(),
-        assetDao.getAllVariableIncomeAssets(),
-        assetDao.getAllInvestmentFundAssets()
-    ) { fixedIncome, variableIncome, investmentFund ->
-        buildList {
+    override suspend fun getAll(): List<Asset> {
+        val fixedIncome = assetDao.getAllFixedIncomeAssets()
+        val variableIncome = assetDao.getAllVariableIncomeAssets()
+        val investmentFund = assetDao.getAllInvestmentFundAssets()
+        
+        return buildList {
             addAll(fixedIncome.map { it.toModel() })
             addAll(variableIncome.map { it.toModel() })
             addAll(investmentFund.map { it.toModel() })
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getByID(id: Long): Flow<Asset> =
-        assetDao.getAssetById(id).flatMapLatest { assetEntity ->
-            when (assetEntity.category) {
-                "FIXED_INCOME" -> assetDao.getFixedIncomeAssetById(id).map { it.toModel() }
-                "VARIABLE_INCOME" -> assetDao.getVariableIncomeAssetById(id).map { it.toModel() }
-                "INVESTMENT_FUND" -> assetDao.getInvestmentFundAssetById(id).map { it.toModel() }
-                else -> throw IllegalArgumentException("Invalid asset category: ${assetEntity.category}")
-            }
+    override suspend fun getByID(id: Long): Asset {
+        val assetEntity = assetDao.getAssetById(id)
+            ?: throw IllegalArgumentException("Asset with id $id not found")
+        
+        return when (assetEntity.category) {
+            "FIXED_INCOME" -> assetDao.getFixedIncomeAssetById(id)?.toModel() ?: throw IllegalArgumentException("Fixed income asset with id $id not found")
+            "VARIABLE_INCOME" -> assetDao.getVariableIncomeAssetById(id)?.toModel() ?: throw IllegalArgumentException("Variable income asset with id $id not found")
+            "INVESTMENT_FUND" -> assetDao.getInvestmentFundAssetById(id)?.toModel() ?: throw IllegalArgumentException("Investment fund asset with id $id not found")
+            else -> throw IllegalArgumentException("Invalid asset category: ${assetEntity.category}")
         }
+    }
 
     private fun FixedIncomeAssetWithDetails.toModel() =
         FixedIncomeAsset(

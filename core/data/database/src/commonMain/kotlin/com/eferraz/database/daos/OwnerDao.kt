@@ -4,8 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.eferraz.database.entities.OwnerEntity
-import kotlinx.coroutines.flow.Flow
-
 /**
  * DAO para operações CRUD na tabela owners.
  */
@@ -19,7 +17,7 @@ internal interface OwnerDao {
     suspend fun insertAll(owners: List<OwnerEntity>): List<Long>
 
     @Query("SELECT * FROM owners")
-    fun getAll(): Flow<List<OwnerEntity>>
+    suspend fun getAll(): List<OwnerEntity>
 
     @Query("SELECT * FROM owners WHERE id = :id")
     suspend fun getById(id: Long): OwnerEntity?

@@ -4,8 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.eferraz.database.entities.BrokerageEntity
-import kotlinx.coroutines.flow.Flow
-
 /**
  * DAO para operações CRUD na tabela brokerages.
  */
@@ -19,7 +17,7 @@ internal interface BrokerageDao {
     suspend fun insertAll(brokerages: List<BrokerageEntity>): List<Long>
 
     @Query("SELECT * FROM brokerages")
-    fun getAll(): Flow<List<BrokerageEntity>>
+    suspend fun getAll(): List<BrokerageEntity>
 
     @Query("SELECT * FROM brokerages WHERE id = :id")
     suspend fun getById(id: Long): BrokerageEntity?

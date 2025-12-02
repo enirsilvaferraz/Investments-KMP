@@ -11,8 +11,6 @@ import com.eferraz.database.entities.InvestmentFundAssetEntity
 import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
 import com.eferraz.database.entities.VariableIncomeAssetEntity
 import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
-import kotlinx.coroutines.flow.Flow
-
 /**
  * DAO para operações CRUD na tabela assets e suas subclasses.
  * Suporta a estrutura polimórfica "Table per Subclass".
@@ -33,30 +31,30 @@ internal interface AssetDao {
     suspend fun insertInvestmentFund(investmentFund: InvestmentFundAssetEntity)
 
     @Query("SELECT * FROM assets WHERE id = :id")
-    fun getAssetById(id: Long): Flow<AssetEntity>
+    suspend fun getAssetById(id: Long): AssetEntity?
 
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'FIXED_INCOME'")
-    fun getAllFixedIncomeAssets(): Flow<List<FixedIncomeAssetWithDetails>>
+    suspend fun getAllFixedIncomeAssets(): List<FixedIncomeAssetWithDetails>
 
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'VARIABLE_INCOME'")
-    fun getAllVariableIncomeAssets(): Flow<List<VariableIncomeAssetWithDetails>>
+    suspend fun getAllVariableIncomeAssets(): List<VariableIncomeAssetWithDetails>
 
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'INVESTMENT_FUND'")
-    fun getAllInvestmentFundAssets(): Flow<List<InvestmentFundAssetWithDetails>>
+    suspend fun getAllInvestmentFundAssets(): List<InvestmentFundAssetWithDetails>
 
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'FIXED_INCOME' AND id = :id")
-    fun getFixedIncomeAssetById(id: Long): Flow<FixedIncomeAssetWithDetails>
+    suspend fun getFixedIncomeAssetById(id: Long): FixedIncomeAssetWithDetails?
 
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'VARIABLE_INCOME' AND id = :id")
-    fun getVariableIncomeAssetById(id: Long): Flow<VariableIncomeAssetWithDetails>
+    suspend fun getVariableIncomeAssetById(id: Long): VariableIncomeAssetWithDetails?
 
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'INVESTMENT_FUND' AND id = :id")
-    fun getInvestmentFundAssetById(id: Long): Flow<InvestmentFundAssetWithDetails>
+    suspend fun getInvestmentFundAssetById(id: Long): InvestmentFundAssetWithDetails?
 }
 
