@@ -11,7 +11,7 @@ public fun main(): Unit = application {
     Window(
         state = rememberWindowState(width = 1900.dp, height = 900.dp, position = WindowPosition.Aligned(Alignment.Center)),
         onCloseRequest = ::exitApplication,
-        title = "Investments",
+        title = " ",
     ) {
         App()
     }

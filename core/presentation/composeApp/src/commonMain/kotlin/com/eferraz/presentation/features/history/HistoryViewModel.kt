@@ -23,7 +23,12 @@ internal class HistoryViewModel(
     private val repository: HoldingHistoryRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HistoryState(selectedPeriod = getCurrentYearMonth(), entries = emptyList()))
+    private val _state = MutableStateFlow(
+        HistoryState(
+            selectedPeriod = getCurrentYearMonth(),
+            periods = listOf(YearMonth(2025, 10), YearMonth(2025, 11), YearMonth(2025, 12), YearMonth(2026, 1), YearMonth(2026, 2))
+        )
+    )
     val state = _state.asStateFlow()
 
     init {
@@ -65,7 +70,8 @@ internal class HistoryViewModel(
 
     data class HistoryState(
         val selectedPeriod: YearMonth,
-        val entries: List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>>,
+        val entries: List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>> = emptyList(),
+        val periods: List<YearMonth> = emptyList(),
     )
 }
 

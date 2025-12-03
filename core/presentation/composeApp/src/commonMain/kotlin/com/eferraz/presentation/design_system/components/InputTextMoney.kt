@@ -27,7 +27,7 @@ internal fun InputTextMoney(
     enabled: Boolean,
 ) {
 
-    var textFieldValueState: TextFieldValue by remember {
+    var textFieldValueState: TextFieldValue by remember(value) {
         val textValue = (value * 100).toInt().toString()
         mutableStateOf(
             TextFieldValue(
