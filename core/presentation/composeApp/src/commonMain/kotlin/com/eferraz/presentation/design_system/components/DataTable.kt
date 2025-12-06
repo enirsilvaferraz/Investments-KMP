@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -71,6 +72,7 @@ internal data class TableColumn<T>(
 @Composable
 internal fun <T> DataTable(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     columns: List<TableColumn<T>>,
     data: List<T>,
     sortColumnIndex: Int = 0,
@@ -104,7 +106,8 @@ internal fun <T> DataTable(
 
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        verticalArrangement = Arrangement.spacedBy(0.dp),
+        contentPadding = contentPadding
     ) {
 
         // Cabeçalho da tabela

@@ -1,4 +1,4 @@
-package com.eferraz.presentation.features.history
+package com.eferraz.presentation.design_system.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize

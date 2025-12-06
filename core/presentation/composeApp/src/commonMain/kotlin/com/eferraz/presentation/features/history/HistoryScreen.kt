@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -14,13 +13,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold
-import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,14 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.InputTextMoney
 import com.eferraz.presentation.design_system.components.TableColumn
-import com.eferraz.presentation.design_system.components.panels.Pane
-import com.eferraz.presentation.design_system.components.panels.Section
 import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -48,47 +42,24 @@ internal fun HistoryRoute() {
     val vm = koinViewModel<HistoryViewModel>()
     val state by vm.state.collectAsStateWithLifecycle()
 
-    Surface {
-
-        Scaffold(
-            modifier = Modifier.padding(end = 32.dp),
-            topBar = {
-                TopAppBar(
-                    title = { Text("Posicionamento no Período") },
-                    actions = {
-                        Selector(selected = state.selectedPeriod, periods = state.periods, onSelect = { vm.selectPeriod(it) })
-                    }
-                )
-            }) {
-
-            val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
-
-            SupportingPaneScaffold(
-                modifier = Modifier.padding(it),
-                directive = navigator.scaffoldDirective.copy(horizontalPartitionSpacerSize = 24.dp),
-                value = navigator.scaffoldValue,
-                mainPane = {
-                    Pane {
-                        Section(Modifier.fillMaxSize()) {
-                            HistoryScreen(entries = state.entries, onUpdateValue = vm::updateEntryValue)
-                        }
-                    }
-                },
-                supportingPane = {
-                    // Empty
-                },
-                extraPane = {
-                    Pane {
-                        Section(Modifier.fillMaxSize()) {}
-                    }
-                },
+    AppScaffold(
+        title = "Posicionamento no Período",
+        actions = {
+            HistoryActions(
+                selected = state.selectedPeriod,
+                periods = state.periods,
+                onSelect = { vm.selectPeriod(it) },
+                modifier = Modifier.padding(end = 20.dp)
             )
+        },
+        mainPane = {
+            HistoryScreen(entries = state.entries, onUpdateValue = vm::updateEntryValue)
         }
-    }
+    )
 }
 
 @Composable
-private fun Selector(
+private fun HistoryActions(
     modifier: Modifier = Modifier,
     selected: YearMonth,
     periods: List<YearMonth>,
