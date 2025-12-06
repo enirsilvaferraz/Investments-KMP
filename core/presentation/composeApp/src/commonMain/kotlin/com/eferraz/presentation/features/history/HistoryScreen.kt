@@ -1,5 +1,10 @@
 package com.eferraz.presentation.features.history
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -36,7 +41,7 @@ import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun HistoryRoute() {
 
@@ -100,24 +105,32 @@ private fun Selector(
 
         items(periods) { current ->
 
-            if (selected == current || expanded) FilterChip(
-                modifier = Modifier.padding(horizontal = 4.dp),
-                onClick = {
-                    expanded = !expanded
-                    if (selected != current) {
-                        onSelect(current)
-                    }
-                },
-                label = { Text(current.formated()) },
-                selected = current == selected,
-                colors = FilterChipDefaults.filterChipColors(containerColor = if (current == selected) colors.primaryContainer else colors.surface)
-            )
+            AnimatedVisibility(
+                visible = selected == current || expanded,
+                enter = fadeIn() + expandHorizontally(),
+                exit = fadeOut() + shrinkHorizontally()
+            ) {
+                FilterChip(
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    onClick = {
+                        expanded = !expanded
+                        if (selected != current) onSelect(current)
+                    },
+                    label = { Text(current.formated()) },
+                    selected = current == selected,
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = if (current == selected) colors.primaryContainer else colors.surface,
+                        selectedContainerColor = colors.primaryContainer
+                    )
+                )
+            }
         }
     }
 }
 
+
 @Composable
-internal fun HistoryScreen(
+private fun HistoryScreen(
     modifier: Modifier = Modifier,
     entries: List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>>,
     onUpdateValue: (Long?, Long, Double) -> Unit,

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
@@ -25,5 +26,5 @@ internal fun ThreePaneScaffoldPaneScope.Pane(modifier: Modifier = Modifier, cont
 
 @Composable
 internal fun Section(modifier: Modifier = Modifier, content: @Composable (() -> Unit)) {
-    Surface(modifier = modifier.clip(RoundedCornerShape(12.dp)), content = content)
+    Surface(modifier = modifier.clip(RoundedCornerShape(12.dp)), content = content, color = MaterialTheme.colorScheme.surfaceContainerHigh)
 }
