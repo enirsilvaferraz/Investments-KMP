@@ -34,6 +34,7 @@ internal class HoldingHistoryRow(
         val previousValue: Double?,
         val currentValue: Double,
         val appreciation: String,
+        val appreciationValue: Double?, // Valor numérico para cálculo de cores
         val situation: String,
         val editable: Boolean
     )
@@ -55,6 +56,8 @@ internal class HoldingHistoryRow(
             val currentQuantity = currentEntry?.endOfMonthQuantity
             val currentValue = currentEntry?.endOfMonthValue
 
+            val appreciationValue = calculateAppreciationValue(currentValue, previousValue)
+            
             val viewData = ViewData(
                 brokerage = holding.brokerage.name,
                 category = assetView.category,
@@ -66,6 +69,7 @@ internal class HoldingHistoryRow(
                 previousValue = previousValue,
                 currentValue = currentValue ?: 0.0,
                 appreciation = formatAppreciation(currentValue, previousValue),
+                appreciationValue = appreciationValue,
                 situation = formatSituation(
                     previousQuantity = previousQuantity,
                     currentQuantity = currentQuantity,
@@ -96,6 +100,15 @@ internal class HoldingHistoryRow(
             if (currentValue == null || currentValue == 0.0) return ""
             val appreciation = ((currentValue / previousValue) - 1.0) * 100.0
             return appreciation.toPercentage()
+        }
+
+        internal fun calculateAppreciationValue(
+            currentValue: Double?,
+            previousValue: Double?,
+        ): Double? {
+            if (previousValue == null || previousValue <= 0.0) return null
+            if (currentValue == null || currentValue == 0.0) return null
+            return ((currentValue / previousValue) - 1.0) * 100.0
         }
 
         internal fun formatSituation(

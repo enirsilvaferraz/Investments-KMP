@@ -52,7 +52,7 @@ internal data class TableColumn<T>(
         Text(
             text = formated(it),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.87f)
+            color = MaterialTheme.colorScheme.onSurface
         )
     },
 )
@@ -92,11 +92,14 @@ internal fun <T> DataTable(
     }
 
     val colors = MaterialTheme.colorScheme
-    val headerBackgroundColor = colors.surfaceContainerHigh
-    val headerTextColor = colors.onSurface.copy(alpha = 0.87f)
+    // Cabeçalho da tabela
+    val headerBackgroundColor = colors.surfaceContainerHighest
+    val headerTextColor = colors.onSurface
+    // Diferenciação entre linhas
     val evenRowColor = colors.surface
     val oddRowColor = colors.surfaceContainerLow
-    val dividerColor = colors.outline.copy(alpha = 0.12f)
+    // Divisores sutis usando outlineVariant conforme Material Design 3
+    val dividerColor = colors.outlineVariant
     val sortIconColor = colors.primary
 
     LazyColumn(

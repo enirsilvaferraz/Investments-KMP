@@ -272,3 +272,107 @@ internal fun AppTheme(
     )
 }
 
+/**
+ * Extensões do ColorScheme para acessar cores semânticas
+ * Nota: Por enquanto, a aplicação usa apenas light theme, mas as funções estão preparadas para dark theme
+ */
+internal fun getSuccessColor(isDark: Boolean = false): Color {
+    return if (isDark) successDark else successLight
+}
+
+internal fun getOnSuccessColor(isDark: Boolean = false): Color {
+    return if (isDark) onSuccessDark else onSuccessLight
+}
+
+internal fun getSuccessContainerColor(isDark: Boolean = false): Color {
+    return if (isDark) successContainerDark else successContainerLight
+}
+
+internal fun getOnSuccessContainerColor(isDark: Boolean = false): Color {
+    return if (isDark) onSuccessContainerDark else onSuccessContainerLight
+}
+
+internal fun getWarningColor(isDark: Boolean = false): Color {
+    return if (isDark) warningDark else warningLight
+}
+
+internal fun getOnWarningColor(isDark: Boolean = false): Color {
+    return if (isDark) onWarningDark else onWarningLight
+}
+
+internal fun getWarningContainerColor(isDark: Boolean = false): Color {
+    return if (isDark) warningContainerDark else warningContainerLight
+}
+
+internal fun getOnWarningContainerColor(isDark: Boolean = false): Color {
+    return if (isDark) onWarningContainerDark else onWarningContainerLight
+}
+
+internal fun getInfoColor(isDark: Boolean = false): Color {
+    return if (isDark) infoDark else infoLight
+}
+
+internal fun getOnInfoColor(isDark: Boolean = false): Color {
+    return if (isDark) onInfoDark else onInfoLight
+}
+
+internal fun getInfoContainerColor(isDark: Boolean = false): Color {
+    return if (isDark) infoContainerDark else infoContainerLight
+}
+
+internal fun getOnInfoContainerColor(isDark: Boolean = false): Color {
+    return if (isDark) onInfoContainerDark else onInfoContainerLight
+}
+
+/**
+ * Funções helper para cores de valorização financeira
+ */
+@Composable
+internal fun getAppreciationColor(value: Double?): Color {
+    val colors = MaterialTheme.colorScheme
+    val isDark = colors.background.red < 0.5f // Heurística simples para detectar dark theme
+    return when {
+        value == null || value == 0.0 -> colors.onSurfaceVariant
+        value > 0 -> getSuccessColor(isDark)
+        else -> colors.error
+    }
+}
+
+@Composable
+internal fun getAppreciationTextColor(value: Double?): Color {
+    val colors = MaterialTheme.colorScheme
+    val isDark = colors.background.red < 0.5f
+    return when {
+        value == null || value == 0.0 -> colors.onSurfaceVariant
+        value > 0 -> getOnSuccessColor(isDark)
+        else -> colors.onError
+    }
+}
+
+/**
+ * Funções helper para cores de situação
+ */
+@Composable
+internal fun getSituationColor(situation: String?): Color {
+    val colors = MaterialTheme.colorScheme
+    val isDark = colors.background.red < 0.5f
+    return when {
+        situation == null -> colors.onSurfaceVariant
+        situation.contains("Registrado", ignoreCase = true) -> getSuccessColor(isDark)
+        situation.contains("Não Registrado", ignoreCase = true) -> getWarningColor(isDark)
+        else -> colors.onSurface
+    }
+}
+
+@Composable
+internal fun getSituationTextColor(situation: String?): Color {
+    val colors = MaterialTheme.colorScheme
+    val isDark = colors.background.red < 0.5f
+    return when {
+        situation == null -> colors.onSurfaceVariant
+        situation.contains("Registrado", ignoreCase = true) -> getOnSuccessColor(isDark)
+        situation.contains("Não Registrado", ignoreCase = true) -> getOnWarningColor(isDark)
+        else -> colors.onSurface
+    }
+}
+

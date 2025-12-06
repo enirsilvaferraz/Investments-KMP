@@ -36,6 +36,8 @@ import com.eferraz.presentation.design_system.components.InputTextMoney
 import com.eferraz.presentation.design_system.components.TableColumn
 import com.eferraz.presentation.design_system.components.panels.Pane
 import com.eferraz.presentation.design_system.components.panels.Section
+import com.eferraz.presentation.design_system.theme.getAppreciationTextColor
+import com.eferraz.presentation.design_system.theme.getSituationTextColor
 import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
@@ -246,13 +248,27 @@ internal fun HistoryScreen(
             TableColumn(
                 title = "Valorização",
                 data = { viewData.appreciation },
-                alignment = Alignment.CenterHorizontally
+                alignment = Alignment.CenterHorizontally,
+//                cellContent = { item ->
+//                    Text(
+//                        text = item.viewData.appreciation,
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = getAppreciationTextColor(item.viewData.appreciationValue)
+//                    )
+//                }
             ),
 
             TableColumn(
                 title = "Situação",
                 data = { viewData.situation },
-                alignment = Alignment.CenterHorizontally
+                alignment = Alignment.CenterHorizontally,
+//                cellContent = { item ->
+//                    Text(
+//                        text = item.viewData.situation,
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = getSituationTextColor(item.viewData.situation)
+//                    )
+//                }
             )
         ),
         data = entries.map { (holding, current, preview) -> HoldingHistoryRow.create(holding, current, preview) },

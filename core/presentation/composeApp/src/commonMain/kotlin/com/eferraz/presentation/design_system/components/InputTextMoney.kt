@@ -1,6 +1,7 @@
 package com.eferraz.presentation.design_system.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -37,12 +39,34 @@ internal fun InputTextMoney(
         )
     }
 
+    val colors = MaterialTheme.colorScheme
+    val backgroundColor = if (enabled) {
+        colors.surfaceContainerHighest
+    } else {
+        colors.surface
+    }
+    val borderColor = if (enabled) {
+        colors.outline
+    } else {
+        Color.Transparent
+    }
+    val textColor = if (enabled) {
+        colors.onSurface
+    } else {
+        colors.onSurfaceVariant
+    }
+
     Box(
         modifier = Modifier
             .padding(horizontal = 8.dp)
             .then(
-                if (enabled) Modifier.background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f), MaterialTheme.shapes.medium)
-                else Modifier
+                if (enabled) {
+                    Modifier
+                        .background(backgroundColor, MaterialTheme.shapes.medium)
+                        .border(1.dp, borderColor, MaterialTheme.shapes.medium)
+                } else {
+                    Modifier
+                }
             )
             .fillMaxWidth()
             .height(35.dp),
@@ -81,7 +105,10 @@ internal fun InputTextMoney(
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             singleLine = true,
-            textStyle = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.End),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                textAlign = TextAlign.End,
+                color = textColor
+            ),
             visualTransformation = CurrencyVisualTransformation
         )
     }
