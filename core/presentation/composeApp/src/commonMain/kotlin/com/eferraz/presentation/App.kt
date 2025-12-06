@@ -42,51 +42,57 @@ public fun InternalApp(config: KoinConfiguration) {
         @OptIn(KoinExperimentalAPI::class)
         KoinMultiplatformApplication(config = config) {
 
-            val navController = rememberNavController()
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
-            val useNavRail = shouldUseNavRail()
+            AppNavigationHost()
+        }
+    }
+}
 
-            Row(modifier = Modifier.fillMaxSize()) {
+@Composable
+private fun AppNavigationHost() {
 
-                if (useNavRail) NavigationRail {
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val useNavRail = shouldUseNavRail()
 
-                    Column(
-                        modifier = Modifier.fillMaxHeight().width(96.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
-                    ) {
+    Row(modifier = Modifier.fillMaxSize()) {
 
-                        NavigationRailItem(
-                            selected = currentRoute?.contains("HomeRouting", ignoreCase = true) == true,
-                            onClick = { navigateTo(navController, HomeRouting) },
-                            icon = { Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "Ativos") },
-                            label = { Text("Ativos") }
-                        )
+        if (useNavRail) NavigationRail {
 
-                        NavigationRailItem(
-                            selected = currentRoute?.contains("HistoryRouting", ignoreCase = true) == true,
-                            onClick = { navigateTo(navController, HistoryRouting) },
-                            icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Histórico") },
-                            label = { Text("Histórico") }
-                        )
-                    }
-                }
+            Column(
+                modifier = Modifier.fillMaxHeight().width(96.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
+            ) {
 
-                NavHost(
-                    navController = navController,
-                    startDestination = HistoryRouting,
-                    modifier = Modifier.fillMaxSize()
-                ) {
+                NavigationRailItem(
+                    selected = currentRoute?.contains("HomeRouting", ignoreCase = true) == true,
+                    onClick = { navigateTo(navController, HomeRouting) },
+                    icon = { Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "Ativos") },
+                    label = { Text("Ativos") }
+                )
 
-                    composable<HomeRouting> {
-                        AssetsRoute()
-                    }
+                NavigationRailItem(
+                    selected = currentRoute?.contains("HistoryRouting", ignoreCase = true) == true,
+                    onClick = { navigateTo(navController, HistoryRouting) },
+                    icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Histórico") },
+                    label = { Text("Histórico") }
+                )
+            }
+        }
 
-                    composable<HistoryRouting> {
-                        HistoryRoute()
-                    }
-                }
+        NavHost(
+            navController = navController,
+            startDestination = HistoryRouting,
+            modifier = Modifier.fillMaxSize()
+        ) {
+
+            composable<HomeRouting> {
+                AssetsRoute()
+            }
+
+            composable<HistoryRouting> {
+                HistoryRoute()
             }
         }
     }
