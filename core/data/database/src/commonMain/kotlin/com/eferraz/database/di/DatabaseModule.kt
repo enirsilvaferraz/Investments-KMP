@@ -4,7 +4,10 @@ import com.eferraz.database.core.AppDatabase
 import com.eferraz.database.core.PlatformDataBaseBuilder
 import com.eferraz.database.daos.AssetDao
 import com.eferraz.database.daos.AssetHoldingDao
+import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.HoldingHistoryDao
+import com.eferraz.database.daos.IssuerDao
+import com.eferraz.database.daos.OwnerDao
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
@@ -24,4 +27,13 @@ public class DatabaseModule {
 
     @Single
     internal fun provideHoldingHistoryDao(database: AppDatabase): HoldingHistoryDao = database.holdingHistoryDao()
+
+    @Single
+    internal fun provideIssuerDao(database: AppDatabase): IssuerDao = database.issuerDao()
+
+    @Single
+    internal fun provideOwnerDao(database: AppDatabase): OwnerDao = database.ownerDao()
+
+    @Single
+    internal fun provideBrokerageDao(database: AppDatabase): BrokerageDao = database.brokerageDao()
 }
