@@ -10,4 +10,12 @@ internal class AssetRepositoryImpl(
 ) : AssetRepository {
 
     override suspend fun getAll() = dataSource.getAll()
+
+    override suspend fun getById(id: Long) = dataSource.getByID(id)
+
+    override suspend fun save(asset: com.eferraz.entities.FixedIncomeAsset) = dataSource.save(asset)
+
+    override suspend fun update(asset: com.eferraz.entities.FixedIncomeAsset) = dataSource.update(asset)
+
+    override suspend fun delete(id: Long) = dataSource.delete(id)
 }

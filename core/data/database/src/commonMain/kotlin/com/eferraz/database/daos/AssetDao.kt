@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
+import androidx.room.Delete
 import com.eferraz.database.entities.AssetEntity
 import com.eferraz.database.entities.FixedIncomeAssetEntity
 import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
@@ -56,5 +58,17 @@ internal interface AssetDao {
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'INVESTMENT_FUND' AND id = :id")
     suspend fun getInvestmentFundAssetById(id: Long): InvestmentFundAssetWithDetails?
+
+    @Update
+    suspend fun updateAsset(asset: AssetEntity)
+
+    @Update
+    suspend fun updateFixedIncome(fixedIncome: FixedIncomeAssetEntity)
+
+    @Query("DELETE FROM assets WHERE id = :id")
+    suspend fun deleteAsset(id: Long)
+
+    @Query("DELETE FROM fixed_income_assets WHERE assetId = :id")
+    suspend fun deleteFixedIncome(id: Long)
 }
 

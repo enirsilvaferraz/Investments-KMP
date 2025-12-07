@@ -127,7 +127,7 @@ public object DatabaseSeedData {
         "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (3, '2025-11', 34627.6, 1.0, 34627.6, 34627.6);",
         "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (4, '2025-11', 32428.48, 1.0, 32428.48, 32428.48);",
         "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (5, '2025-11', 20464.28, 1.0, 20464.28, 20464.28);",
-        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (6, '2025-11', 7392.49, 1.0, 7392.49, 7392.49);",
+        "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (6, '2025-11', 95431.13, 1.0, 95431.13, 95431.13);",
         "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (7, '2025-11', 5095.68, 1.0, 5095.68, 5095.68);",
         "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (8, '2025-11', 4752.88, 1.0, 4752.88, 4752.88);",
         "INSERT INTO holding_history (holdingId, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested) VALUES (9, '2025-11', 3286.17, 1.0, 3286.17, 3286.17);",

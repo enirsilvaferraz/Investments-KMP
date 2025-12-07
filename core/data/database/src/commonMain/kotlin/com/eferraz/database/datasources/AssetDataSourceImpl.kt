@@ -1,6 +1,8 @@
 package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.AssetDao
+import com.eferraz.database.entities.AssetEntity
+import com.eferraz.database.entities.FixedIncomeAssetEntity
 import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
 import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
 import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
@@ -28,16 +30,33 @@ internal class AssetDataSourceImpl(
         }
     }
 
-    override suspend fun getByID(id: Long): Asset {
-        val assetEntity = assetDao.getAssetById(id)
-            ?: throw IllegalArgumentException("Asset with id $id not found")
+    override suspend fun getByID(id: Long): Asset? {
+        val assetEntity = assetDao.getAssetById(id) ?: return null
         
         return when (assetEntity.category) {
-            "FIXED_INCOME" -> assetDao.getFixedIncomeAssetById(id)?.toModel() ?: throw IllegalArgumentException("Fixed income asset with id $id not found")
-            "VARIABLE_INCOME" -> assetDao.getVariableIncomeAssetById(id)?.toModel() ?: throw IllegalArgumentException("Variable income asset with id $id not found")
-            "INVESTMENT_FUND" -> assetDao.getInvestmentFundAssetById(id)?.toModel() ?: throw IllegalArgumentException("Investment fund asset with id $id not found")
-            else -> throw IllegalArgumentException("Invalid asset category: ${assetEntity.category}")
+            "FIXED_INCOME" -> assetDao.getFixedIncomeAssetById(id)?.toModel()
+            "VARIABLE_INCOME" -> assetDao.getVariableIncomeAssetById(id)?.toModel()
+            "INVESTMENT_FUND" -> assetDao.getInvestmentFundAssetById(id)?.toModel()
+            else -> null
         }
+    }
+
+    override suspend fun save(asset: FixedIncomeAsset): Long {
+        val (assetEntity, fixedIncomeEntity) = asset.toEntity()
+        val assetId = assetDao.insertAsset(assetEntity)
+        assetDao.insertFixedIncome(fixedIncomeEntity.copy(assetId = assetId))
+        return assetId
+    }
+
+    override suspend fun update(asset: FixedIncomeAsset) {
+        val (assetEntity, fixedIncomeEntity) = asset.toEntity()
+        assetDao.updateAsset(assetEntity)
+        assetDao.updateFixedIncome(fixedIncomeEntity)
+    }
+
+    override suspend fun delete(id: Long) {
+        assetDao.deleteFixedIncome(id)
+        assetDao.deleteAsset(id)
     }
 
     private fun FixedIncomeAssetWithDetails.toModel() =
@@ -74,4 +93,24 @@ internal class AssetDataSourceImpl(
             expirationDate = investmentFund.expirationDate,
             observations = asset.observations
         )
+
+    private fun FixedIncomeAsset.toEntity(): Pair<AssetEntity, FixedIncomeAssetEntity> {
+        val assetEntity = AssetEntity(
+            id = id,
+            name = name,
+            issuerId = issuer.id,
+            category = "FIXED_INCOME",
+            liquidity = liquidity,
+            observations = observations
+        )
+        val fixedIncomeEntity = FixedIncomeAssetEntity(
+            assetId = id,
+            type = type,
+            subType = subType,
+            expirationDate = expirationDate,
+            contractedYield = contractedYield,
+            cdiRelativeYield = cdiRelativeYield
+        )
+        return Pair(assetEntity, fixedIncomeEntity)
+    }
 }
