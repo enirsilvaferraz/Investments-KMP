@@ -5,10 +5,11 @@ import com.eferraz.usecases.repositories.AssetRepository
 import org.koin.core.annotation.Factory
 
 @Factory
-public class GetAssetsUseCase(
+public class GetAssetByIdUseCase(
     private val assetRepository: AssetRepository,
 ) {
 
-    public suspend operator fun invoke(): List<Asset> =
-        assetRepository.getAll()
+    public suspend operator fun invoke(id: Long): Asset? =
+        assetRepository.getById(id)
 }
+
