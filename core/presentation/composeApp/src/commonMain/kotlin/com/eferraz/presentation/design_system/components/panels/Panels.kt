@@ -2,6 +2,7 @@ package com.eferraz.presentation.design_system.components.panels
 
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -16,7 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-internal fun ThreePaneScaffoldPaneScope.Pane(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+internal fun ThreePaneScaffoldPaneScope.Pane(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     AnimatedPane(modifier = Modifier.safeContentPadding()) {
         Column(verticalArrangement = spacedBy(8.dp)) {
             content()

@@ -48,8 +48,7 @@ internal fun HistoryRoute() {
             HistoryActions(
                 selected = state.selectedPeriod,
                 periods = state.periods,
-                onSelect = { vm.selectPeriod(it) },
-                modifier = Modifier.padding(end = 20.dp)
+                onSelect = { vm.selectPeriod(it) }
             )
         },
         mainPane = {

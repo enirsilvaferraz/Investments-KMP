@@ -81,30 +81,29 @@ private fun AppNavigationHost() {
             )
         },
         navigationItemVerticalArrangement = Arrangement.Center,
-        primaryActionContent = {
-
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(96.dp).padding(top = 25.dp)) {
-
-                AnimatedVisibility(
-                    visible = isHomeSelected,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-
-                    FloatingActionButton(
-//                        modifier = Modifier.padding(top = 30.dp, start=20.dp),
-                        onClick = { /* TODO: Implementar ação futura */ },
-                        elevation = FloatingActionButtonDefaults.loweredElevation()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Adicionar"
-                        )
-                    }
-                }
-            }
-        },
-//        primaryActionContentHorizontalAlignment = Alignment.CenterHorizontally,
+//        primaryActionContent = {
+//
+//            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(96.dp).padding(top = 25.dp)) {
+//
+//                AnimatedVisibility(
+//                    visible = isHomeSelected,
+//                    enter = fadeIn() + scaleIn(),
+//                    exit = fadeOut() + scaleOut()
+//                ) {
+//
+//                    FloatingActionButton(
+////                        modifier = Modifier.padding(top = 30.dp, start=20.dp),
+//                        onClick = { /* TODO: Implementar ação futura */ },
+//                        elevation = FloatingActionButtonDefaults.loweredElevation()
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Default.Add,
+//                            contentDescription = "Adicionar"
+//                        )
+//                    }
+//                }
+//            }
+//        },
         content = {
             NavHost(
                 navController = navController,
