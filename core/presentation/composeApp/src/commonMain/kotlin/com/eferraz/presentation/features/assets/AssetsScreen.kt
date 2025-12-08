@@ -19,7 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.TableColumn
-import com.eferraz.presentation.features.assetForm.AssetFormContent
+import com.eferraz.presentation.features.assetForm.AssetFormScreen
 import com.eferraz.presentation.features.assetForm.AssetFormIntent
 import com.eferraz.presentation.features.assetForm.AssetFormViewModel
 import com.eferraz.presentation.helpers.Formatters.formated
@@ -73,7 +73,7 @@ internal fun AssetsRoute() {
         },
         extraPane = {
             if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
-                AssetFormContent(
+                AssetFormScreen(
                     state = formState,
                     onIntent = { formVm.processIntent(it) },
                 )
