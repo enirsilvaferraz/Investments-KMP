@@ -119,3 +119,48 @@ A liquidez é formatada conforme o tipo de regra aplicada ao ativo:
 **Pós-condições**:
 
 - Tela exibindo lista de ativos
+
+### UC-02: Editar Ativo da Lista
+
+**Ator**: Usuário do sistema
+
+**Pré-condições**:
+
+- Sistema inicializado
+- Acesso ao repositório de ativos
+- Tela de Consulta de Ativos exibindo lista de ativos
+
+**Fluxo Principal**:
+
+1. Usuário visualiza a tabela com lista de ativos cadastrados
+2. Usuário clica em um item da tabela (linha de um ativo)
+3. Sistema abre o painel de formulário de cadastro/edição
+4. Sistema carrega os dados do ativo selecionado no formulário
+5. Sistema preenche todos os campos do formulário com os dados do ativo
+6. Sistema bloqueia o campo "Categoria" para edição
+7. Sistema exibe o título "Editar Ativo" no cabeçalho do formulário
+8. Usuário visualiza e pode editar os dados do ativo (exceto a categoria)
+9. Usuário pode modificar os campos editáveis do formulário
+10. Usuário clica no botão "Salvar"
+11. Sistema valida os dados informados
+12. Sistema atualiza o ativo no banco de dados
+13. Sistema limpa o formulário e retorna ao estado inicial
+14. Sistema exibe mensagem de sucesso
+15. Sistema atualiza a lista de ativos na tabela
+
+**Fluxos Alternativos**:
+
+**FA-02.1: Validação de Campos Inválidos**
+
+1. No passo 11 do fluxo principal, sistema identifica campos inválidos
+2. Sistema exibe mensagens de erro abaixo dos campos inválidos
+3. Sistema mantém o botão "Salvar" desabilitado
+4. Usuário corrige os campos inválidos
+5. Sistema revalida os campos
+6. Retorna ao passo 10 do fluxo principal
+
+**Pós-condições**:
+
+- Ativo atualizado no banco de dados
+- Formulário limpo e retornado ao estado inicial
+- Lista de ativos atualizada na tela de consulta

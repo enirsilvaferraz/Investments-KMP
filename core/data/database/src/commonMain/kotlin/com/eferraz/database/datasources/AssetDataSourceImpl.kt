@@ -45,21 +45,24 @@ internal class AssetDataSourceImpl(
 
     override suspend fun save(asset: FixedIncomeAsset): Long {
         val (assetEntity, fixedIncomeEntity) = asset.toEntity()
-        val assetId = assetDao.insertAsset(assetEntity)
+        val insertResult = assetDao.insertAsset(assetEntity)
+        val assetId = if (insertResult == -1L) assetEntity.id else insertResult
         assetDao.insertFixedIncome(fixedIncomeEntity.copy(assetId = assetId))
         return assetId
     }
 
     override suspend fun save(asset: InvestmentFundAsset): Long {
         val (assetEntity, investmentFundEntity) = asset.toEntity()
-        val assetId = assetDao.insertAsset(assetEntity)
+        val insertResult = assetDao.insertAsset(assetEntity)
+        val assetId = if (insertResult == -1L) assetEntity.id else insertResult
         assetDao.insertInvestmentFund(investmentFundEntity.copy(assetId = assetId))
         return assetId
     }
 
     override suspend fun save(asset: VariableIncomeAsset): Long {
         val (assetEntity, variableIncomeEntity) = asset.toEntity()
-        val assetId = assetDao.insertAsset(assetEntity)
+        val insertResult = assetDao.insertAsset(assetEntity)
+        val assetId = if (insertResult == -1L) assetEntity.id else insertResult
         assetDao.insertVariableIncome(variableIncomeEntity.copy(assetId = assetId))
         return assetId
     }

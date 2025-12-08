@@ -46,7 +46,7 @@ internal fun AssetFormContent(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Novo Ativo") },
+                title = { Text(if (state.isEditMode) "Editar Ativo" else "Novo Ativo") },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
             )
         },
@@ -69,6 +69,7 @@ internal fun AssetFormContent(
                     options = InvestmentCategory.entries,
                     optionLabel = { it.formated() },
                     onValueChange = { onIntent(AssetFormIntent.UpdateCategory(it)) },
+                    enabled = !state.isEditMode,
                     errorMessage = state.validationErrors["category"],
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -78,8 +79,6 @@ internal fun AssetFormContent(
                     is InvestmentFundFormData -> InvestmentFundForm(state, onIntent)
                     is VariableIncomeFormData -> VariableIncomeForm(state, onIntent)
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 CommonFields(state, onIntent)
             }
@@ -103,6 +102,9 @@ private fun CommonFields(
     state: AssetFormViewModel.AssetFormState,
     onIntent: (AssetFormIntent) -> Unit,
 ) {
+
+    Spacer(modifier = Modifier.height(16.dp))
+
     EnumDropdown(
         label = "Emissor",
         value = state.formData.issuerName,
@@ -257,7 +259,7 @@ private fun InvestmentFundForm(
         )
 
         OutlinedTextField(
-            label = { Text("Vencimento (opcional)", style = MaterialTheme.typography.bodyMedium) },
+            label = { Text("Vencimento", style = MaterialTheme.typography.bodyMedium) },
             value = formData.expirationDate ?: "",
             onValueChange = { onIntent(AssetFormIntent.UpdateFundExpirationDate(it)) },
             placeholder = { Text("YYYY-MM-DD", style = MaterialTheme.typography.bodyMedium) },

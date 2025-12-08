@@ -12,8 +12,12 @@
 
 ## 1. Objetivo
 
-Esta tela tem como objetivo permitir ao usuário cadastrar novos ativos (`Asset`) no sistema. O formulário é dinâmico,
+Esta tela tem como objetivo permitir ao usuário cadastrar novos ativos (`Asset`) no sistema e editar ativos existentes. O formulário é dinâmico,
 adaptando-se ao tipo de ativo selecionado e exibindo apenas os campos relevantes para cada categoria.
+
+O formulário pode operar em dois modos:
+- **Modo de Cadastro**: Para cadastrar novos ativos (estado inicial)
+- **Modo de Edição**: Para editar ativos existentes (quando um ativo é selecionado da lista)
 
 ---
 
@@ -149,9 +153,32 @@ Quando o tipo selecionado for "Fundos", o formulário deve exibir os seguintes c
 ### 4.3. Ações do Formulário
 
 - **Botão "Salvar"**:
-    - Valida e salva um novo ativo no banco de dados
+    - Valida e salva um novo ativo ou atualiza um ativo existente no banco de dados
     - Após salvar com sucesso, o formulário deve ser limpo e retornar ao estado inicial (campos vazios, tipo de ativo sem seleção)
     - Sistema exibe mensagem de sucesso
+
+### 4.4. Modo de Edição
+
+Quando o formulário é aberto para editar um ativo existente (selecionado da lista de consulta), o comportamento é o seguinte:
+
+#### 4.4.1. Carregamento dos Dados
+
+- O formulário é preenchido automaticamente com todos os dados do ativo selecionado
+- Todos os campos são populados com os valores atuais do ativo
+- O campo "Categoria" (Tipo de Ativo) é **bloqueado para edição** e exibido visualmente como desabilitado
+- O título do cabeçalho muda de "Novo Ativo" para "Editar Ativo"
+
+#### 4.4.2. Restrições no Modo de Edição
+
+- **Categoria bloqueada**: O campo "Categoria" não pode ser alterado durante a edição
+- **Demais campos editáveis**: Todos os outros campos podem ser modificados normalmente
+- **Validação**: As mesmas regras de validação se aplicam ao modo de edição
+
+#### 4.4.3. Salvamento no Modo de Edição
+
+- Ao salvar, o sistema atualiza o ativo existente no banco de dados (mantendo o mesmo ID)
+- Após salvar com sucesso, o formulário retorna ao modo de cadastro (estado inicial)
+- A lista de ativos é atualizada automaticamente para refletir as alterações
 
 ---
 
@@ -207,6 +234,53 @@ Quando o tipo selecionado for "Fundos", o formulário deve exibir os seguintes c
 
 - Novo ativo cadastrado no banco de dados
 - Formulário limpo e retornado ao estado inicial
+
+### UC-02: Editar Ativo Existente
+
+**Ator**: Usuário do sistema
+
+**Pré-condições**:
+
+- Sistema inicializado
+- Acesso ao repositório de ativos
+- Acesso ao repositório de emissores (para seleção de emissor)
+- Usuário na Tela de Consulta de Ativos
+- Pelo menos um ativo cadastrado no sistema
+
+**Fluxo Principal**:
+
+1. Usuário visualiza a lista de ativos na Tela de Consulta de Ativos
+2. Usuário clica em um item da tabela (linha de um ativo)
+3. Sistema abre o painel de formulário de cadastro/edição
+4. Sistema carrega os dados do ativo selecionado
+5. Sistema preenche todos os campos do formulário com os dados do ativo
+6. Sistema bloqueia o campo "Categoria" para edição
+7. Sistema exibe o título "Editar Ativo" no cabeçalho do formulário
+8. Usuário visualiza os dados do ativo preenchidos
+9. Usuário modifica os campos desejados (exceto a categoria)
+10. Sistema valida os dados informados
+11. Usuário clica no botão "Salvar"
+12. Sistema atualiza o ativo no banco de dados
+13. Sistema limpa o formulário e retorna ao estado inicial (modo de cadastro)
+14. Sistema exibe mensagem de sucesso
+15. Sistema atualiza a lista de ativos na tela de consulta
+
+**Fluxos Alternativos**:
+
+**FA-02.1: Validação de Campos Inválidos**
+
+1. No passo 10 do fluxo principal, sistema identifica campos inválidos
+2. Sistema exibe mensagens de erro abaixo dos campos inválidos
+3. Sistema mantém o botão "Salvar" desabilitado
+4. Usuário corrige os campos inválidos
+5. Sistema revalida os campos
+6. Retorna ao passo 11 do fluxo principal
+
+**Pós-condições**:
+
+- Ativo atualizado no banco de dados
+- Formulário limpo e retornado ao estado inicial (modo de cadastro)
+- Lista de ativos atualizada na tela de consulta
 
 ---
 

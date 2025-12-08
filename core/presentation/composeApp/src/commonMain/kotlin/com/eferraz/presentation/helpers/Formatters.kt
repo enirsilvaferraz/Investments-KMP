@@ -45,9 +45,9 @@ internal object Formatters {
     }
 
     internal fun VariableIncomeAssetType.formated() = when (this) {
-        VariableIncomeAssetType.NATIONAL_STOCK -> "Ação"//"Ações Nacionais"
-        VariableIncomeAssetType.INTERNATIONAL_STOCK -> "Ações Internacionais"
-        VariableIncomeAssetType.REAL_ESTATE_FUND -> "FII"//"Fundos de Imobiliários"
+        VariableIncomeAssetType.NATIONAL_STOCK -> "Ação"
+        VariableIncomeAssetType.INTERNATIONAL_STOCK -> "BDR"
+        VariableIncomeAssetType.REAL_ESTATE_FUND -> "FII"
         VariableIncomeAssetType.ETF -> "ETF"
     }
 

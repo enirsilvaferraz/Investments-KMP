@@ -20,6 +20,7 @@ import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.TableColumn
 import com.eferraz.presentation.features.assetForm.AssetFormContent
+import com.eferraz.presentation.features.assetForm.AssetFormIntent
 import com.eferraz.presentation.features.assetForm.AssetFormViewModel
 import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.coroutines.CoroutineScope
@@ -30,8 +31,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun AssetsRoute() {
 
-    val vm = koinViewModel<AssetsViewModel>()
-    val state by vm.state.collectAsStateWithLifecycle()
+    val tableVm = koinViewModel<AssetsViewModel>()
+    val tableState by tableVm.state.collectAsStateWithLifecycle()
 
     val formVm = koinViewModel<AssetFormViewModel>()
     val formState by formVm.state.collectAsStateWithLifecycle()
@@ -39,10 +40,17 @@ internal fun AssetsRoute() {
     val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
     val scope = rememberCoroutineScope()
 
-    // Recarrega assets quando o formulário salva
-    LaunchedEffect(formState.message) {
+    // Recarrega assets quando o formulário salva e fecha o painel se necessário
+    LaunchedEffect(formState.message, formState.shouldCloseForm) {
         if (formState.message != null) {
-            vm.loadAssets()
+            tableVm.loadAssets()
+            
+            // Fechar o painel se foi salvo com sucesso
+            if (formState.shouldCloseForm && navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
+                navigator.navigateBack()
+                // Resetar o flag após usar
+                formVm.processIntent(AssetFormIntent.ResetCloseFlag)
+            }
         }
     }
 
@@ -50,10 +58,18 @@ internal fun AssetsRoute() {
         title = "Ativos",
         navigator = navigator,
         mainPane = {
-            AssetsScreen(list = state.list.map { AssetView.create(it) })
+            AssetsScreen(
+                list = tableState.list.map { AssetView.create(it) },
+                onRowClick = { assetId ->
+                    scope.launch {
+                        formVm.processIntent(AssetFormIntent.LoadAssetForEdit(assetId))
+                        navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+                    }
+                }
+            )
         },
         actions = {
-            AssetsActions(scope, navigator)
+            AssetsActions(scope, navigator, formVm)
         },
         extraPane = {
             if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
@@ -71,13 +87,19 @@ internal fun AssetsRoute() {
 private fun AssetsActions(
     scope: CoroutineScope,
     navigator: ThreePaneScaffoldNavigator<Nothing>,
+    formVm: AssetFormViewModel,
 ) {
 
     FilledIconButton(
         onClick = {
             scope.launch {
-                if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) navigator.navigateBack()
-                else navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+                if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
+                    navigator.navigateBack()
+                } else {
+                    // Limpar formulário para modo de cadastro
+                    formVm.processIntent(AssetFormIntent.ClearForm)
+                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+                }
             }
         },
         colors = if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) IconButtonDefaults.filledTonalIconButtonColors() else IconButtonDefaults.filledIconButtonColors()
@@ -93,8 +115,8 @@ private fun AssetsActions(
 private fun AssetsScreen(
     modifier: Modifier = Modifier,
     list: List<AssetView>,
+    onRowClick: (Long) -> Unit,
 ) {
-
     DataTable(
         modifier = modifier,
         columns = listOf(
@@ -107,5 +129,6 @@ private fun AssetsScreen(
             TableColumn(title = "Observação", data = { notes }, weight = 2f)
         ),
         data = list,
+        onRowClick = { view -> onRowClick(view.id) }
     )
 }
