@@ -41,6 +41,7 @@ O formulário deve exibir:
 3. **Campos Comuns** (sempre exibidos)
     - Emissor
     - Observações (opcional)
+    - Corretora (opcional)
 
 ### 2.2. Campo "Emissor" (Dropdown)
 
@@ -52,6 +53,29 @@ O campo "Emissor" utiliza um dropdown simples que permite:
 
 - O componente exibe uma lista de emissores cadastrados no sistema
 - O usuário seleciona o emissor desejado da lista
+
+### 2.3. Campo "Corretora" (Dropdown)
+
+O campo "Corretora" é um dropdown opcional que permite:
+
+- **Seleção de Corretora Existente**: O usuário pode selecionar uma corretora da lista de corretoras cadastradas
+- **Campo Opcional**: O campo não é obrigatório e pode ficar sem seleção
+
+**Comportamento:**
+
+- O componente exibe uma lista de corretoras cadastradas no sistema
+- O usuário pode selecionar uma corretora ou deixar o campo vazio
+- Se uma corretora for selecionada, ao salvar o ativo, será criado automaticamente um `AssetHolding` associando o ativo à corretora selecionada e ao proprietário padrão do sistema
+- Se o campo estiver vazio, apenas o `Asset` será salvo, sem criar um `AssetHolding`
+
+**Lógica de Salvamento:**
+
+- **Corretora não preenchida**: Apenas o `Asset` é salvo no banco de dados
+- **Corretora preenchida**: Além do `Asset`, é criado um `AssetHolding` com:
+  - O ativo recém-cadastrado
+  - A corretora selecionada
+  - O proprietário padrão do sistema (primeiro proprietário cadastrado)
+  - Valores iniciais zerados para quantidade, custo médio, valor investido e valor atual
 
 ---
 
@@ -71,6 +95,7 @@ Quando o tipo selecionado for "Renda Fixa", o formulário deve exibir os seguint
 | **Liquidez**                      | Enum      | DropDown     | Sim         | Regra de liquidez aplicável ao ativo                                        | `DAILY` (Diária), `AT_MATURITY` (No vencimento)                                                            |
 | **Emissor**                       | Issuer    | DropDown     | Sim         | Entidade que emitiu o ativo                                                 | Lista de emissores cadastrados no sistema                                                                    |
 | **Observações**                   | String?   | InputText    | Não         | Notas e observações adicionais sobre o ativo                                | Texto livre                                                                                                |
+| **Corretora**                     | Brokerage | DropDown     | Não         | Instituição financeira onde o ativo está custodiado                        | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding                |
 
 **Validações Específicas para Renda Fixa:**
 
@@ -88,6 +113,7 @@ Quando o tipo selecionado for "Renda Variável", o formulário deve exibir os se
 | **Nome/Ticker** | String  | InputText    | Sim         | O nome ou código de negociação do ativo (ex: "PETR4", "B3SA3") | Texto alfanumérico (geralmente 4-6 caracteres)                                                             |
 | **Emissor**     | Issuer  | DropDown     | Sim         | Entidade que emitiu o ativo                                    | Lista de emissores cadastrados no sistema                                                                    |
 | **Observações** | String? | InputText    | Não         | Notas e observações adicionais sobre o ativo                   | Texto livre                                                                                                |
+| **Corretora**   | Brokerage | DropDown   | Não         | Instituição financeira onde o ativo está custodiado            | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding                |
 
 **Validações Específicas para Renda Variável:**
 
@@ -107,6 +133,7 @@ Quando o tipo selecionado for "Fundos", o formulário deve exibir os seguintes c
 | **Data de Vencimento** | LocalDate? | InputText    | Não         | Data de vencimento do fundo (opcional, apenas para fundos com prazo definido)             | Data futura válida ou vazio                                                                                |
 | **Emissor**            | Issuer     | DropDown     | Sim         | Entidade que emitiu o fundo                                                               | Lista de emissores cadastrados no sistema                                                                    |
 | **Observações**        | String?    | InputText    | Não         | Notas e observações adicionais sobre o fundo                                              | Texto livre                                                                                                |
+| **Corretora**          | Brokerage  | DropDown     | Não         | Instituição financeira onde o fundo está custodiado                                       | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding                |
 
 **Validações Específicas para Fundos:**
 
@@ -126,13 +153,13 @@ Quando o tipo selecionado for "Fundos", o formulário deve exibir os seguintes c
 - Ao abrir a tela, o formulário inicia vazio, pronto para cadastro de novo ativo
 - O campo "Tipo de Ativo" (Categoria) está sem seleção
 - Os campos específicos por tipo estão **ocultos** até que um tipo seja selecionado
-- Os campos comuns (Emissor e Observações) estão visíveis, mas vazios
+- Os campos comuns (Emissor, Observações e Corretora) estão visíveis, mas vazios
 
 #### 4.1.2. Seleção do Tipo de Ativo
 
 - Ao selecionar um tipo de ativo (ex: "Renda Fixa"), o sistema deve:
     1. Exibir os campos específicos para o tipo selecionado
-    2. Manter os campos comuns (Emissor e Observações) visíveis
+    2. Manter os campos comuns (Emissor, Observações e Corretora) visíveis
 
 #### 4.1.3. Alteração do Tipo de Ativo
 
@@ -140,7 +167,7 @@ Quando o tipo selecionado for "Fundos", o formulário deve exibir os seguintes c
     1. Ocultar os campos do tipo anterior
     2. Exibir os campos do novo tipo selecionado
     3. Limpar os valores dos campos do tipo anterior (exceto campos comuns)
-    4. Manter os campos comuns (Emissor e Observações) visíveis
+    4. Manter os campos comuns (Emissor, Observações e Corretora) visíveis
 
 ### 4.2. Validação
 
@@ -154,6 +181,8 @@ Quando o tipo selecionado for "Fundos", o formulário deve exibir os seguintes c
 
 - **Botão "Salvar"**:
     - Valida e salva um novo ativo ou atualiza um ativo existente no banco de dados
+    - Se o campo "Corretora" estiver preenchido, além de salvar o `Asset`, cria automaticamente um `AssetHolding` associando o ativo à corretora selecionada e ao proprietário padrão do sistema
+    - Se o campo "Corretora" estiver vazio, apenas o `Asset` é salvo
     - Após salvar com sucesso, o formulário deve ser limpo e retornar ao estado inicial (campos vazios, tipo de ativo sem seleção)
     - Sistema exibe mensagem de sucesso
 
@@ -199,7 +228,7 @@ Quando o formulário é aberto para editar um ativo existente (selecionado da li
 
 1. Usuário acessa a Tela de Cadastro de Assets
 2. Sistema exibe o formulário vazio, pronto para cadastro de novo ativo
-3. Sistema exibe o campo "Tipo de Ativo" (Categoria) e os campos comuns (Emissor e Observações) vazios
+3. Sistema exibe o campo "Tipo de Ativo" (Categoria) e os campos comuns (Emissor, Observações e Corretora) vazios
 4. Os campos específicos por tipo estão ocultos até que um tipo seja selecionado
 5. Usuário seleciona um tipo de ativo (ex: "Renda Fixa")
 6. Sistema exibe os campos específicos para o tipo selecionado
@@ -208,8 +237,9 @@ Quando o formulário é aberto para editar um ativo existente (selecionado da li
 9. Sistema valida os dados informados
 10. Usuário clica no botão "Salvar"
 11. Sistema persiste o novo ativo no banco de dados
-12. Sistema limpa o formulário e retorna ao estado inicial (campos vazios, tipo de ativo sem seleção)
-13. Sistema exibe mensagem de sucesso
+12. Se o campo "Corretora" estiver preenchido, sistema cria automaticamente um `AssetHolding` associando o ativo à corretora e ao proprietário padrão
+13. Sistema limpa o formulário e retorna ao estado inicial (campos vazios, tipo de ativo sem seleção)
+14. Sistema exibe mensagem de sucesso
 
 **Fluxos Alternativos**:
 
