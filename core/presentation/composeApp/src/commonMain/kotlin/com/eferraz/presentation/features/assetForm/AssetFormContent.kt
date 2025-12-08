@@ -25,10 +25,14 @@ import androidx.compose.ui.unit.dp
 import com.eferraz.entities.FixedIncomeAssetType
 import com.eferraz.entities.FixedIncomeSubType
 import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.Liquidity
+import com.eferraz.entities.VariableIncomeAssetType
 import com.eferraz.presentation.design_system.components.EnumDropdown
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.usecases.FixedIncomeFormData
+import com.eferraz.usecases.InvestmentFundFormData
+import com.eferraz.usecases.VariableIncomeFormData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,38 +70,18 @@ internal fun AssetFormContent(
                     optionLabel = { it.formated() },
                     onValueChange = { onIntent(AssetFormIntent.UpdateCategory(it)) },
                     errorMessage = state.validationErrors["category"],
-                    enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
                 when (state.formData) {
                     is FixedIncomeFormData -> FixedIncomeForm(state, onIntent)
+                    is InvestmentFundFormData -> InvestmentFundForm(state, onIntent)
+                    is VariableIncomeFormData -> VariableIncomeForm(state, onIntent)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                EnumDropdown(
-                    label = "Emissor",
-                    value = state.formData.issuerName,
-                    options = state.issuers,
-                    optionLabel = { it ?: "" },
-                    onValueChange = { onIntent(AssetFormIntent.UpdateIssuerName(it)) },
-                    errorMessage = state.validationErrors["issuer"],
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Campo Observações
-                OutlinedTextField(
-                    label = { Text("Observações", style = MaterialTheme.typography.bodyMedium) },
-                    value = state.formData.observations.orEmpty(),
-                    onValueChange = { onIntent(AssetFormIntent.UpdateObservations(it)) },
-                    maxLines = 3,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
+                CommonFields(state, onIntent)
             }
 
             // Botões de ação
@@ -115,10 +99,38 @@ internal fun AssetFormContent(
 }
 
 @Composable
+private fun CommonFields(
+    state: AssetFormViewModel.AssetFormState,
+    onIntent: (AssetFormIntent) -> Unit,
+) {
+    EnumDropdown(
+        label = "Emissor",
+        value = state.formData.issuerName,
+        options = state.issuers,
+        optionLabel = { it ?: "" },
+        onValueChange = { onIntent(AssetFormIntent.UpdateIssuerName(it)) },
+        errorMessage = state.validationErrors["issuer"],
+        modifier = Modifier.fillMaxWidth(),
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    // Campo Observações
+    OutlinedTextField(
+        label = { Text("Observações", style = MaterialTheme.typography.bodyMedium) },
+        value = state.formData.observations.orEmpty(),
+        onValueChange = { onIntent(AssetFormIntent.UpdateObservations(it)) },
+        maxLines = 3,
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
 private fun FixedIncomeForm(
     state: AssetFormViewModel.AssetFormState,
     onIntent: (AssetFormIntent) -> Unit,
 ) {
+    val formData = state.formData as? FixedIncomeFormData ?: return
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -126,7 +138,7 @@ private fun FixedIncomeForm(
 
         EnumDropdown(
             label = "Tipo",
-            value = state.formData.type,
+            value = formData.type,
             options = FixedIncomeAssetType.entries,
             optionLabel = { it?.formated() ?: "" },
             onValueChange = { onIntent(AssetFormIntent.UpdateType(it)) },
@@ -136,7 +148,7 @@ private fun FixedIncomeForm(
 
         EnumDropdown(
             label = "Subtipo",
-            value = state.formData.subType,
+            value = formData.subType,
             options = FixedIncomeSubType.entries,
             optionLabel = { it?.formated() ?: "" },
             onValueChange = { onIntent(AssetFormIntent.UpdateSubType(it)) },
@@ -151,7 +163,7 @@ private fun FixedIncomeForm(
 
         EnumDropdown(
             label = "Liquidez",
-            value = state.formData.liquidity,
+            value = formData.liquidity,
             options = listOf(Liquidity.DAILY, Liquidity.AT_MATURITY).map { it as Liquidity? },
             optionLabel = { it?.formated() ?: "" },
             onValueChange = { onIntent(AssetFormIntent.UpdateLiquidity(it)) },
@@ -161,7 +173,7 @@ private fun FixedIncomeForm(
 
         OutlinedTextField(
             label = { Text("Vencimento", style = MaterialTheme.typography.bodyMedium) },
-            value = state.formData.expirationDate ?: "",
+            value = formData.expirationDate ?: "",
             onValueChange = { onIntent(AssetFormIntent.UpdateExpirationDate(it)) },
             placeholder = { Text("YYYY-MM-DD", style = MaterialTheme.typography.bodyMedium) },
             isError = state.validationErrors.containsKey("expirationDate"),
@@ -177,7 +189,7 @@ private fun FixedIncomeForm(
 
         OutlinedTextField(
             label = { Text("Rentabilidade", style = MaterialTheme.typography.bodyMedium) },
-            value = state.formData.contractedYield.orEmpty(),
+            value = formData.contractedYield.orEmpty(),
             onValueChange = { onIntent(AssetFormIntent.UpdateContractedYield(it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             isError = state.validationErrors.containsKey("contractedYield"),
@@ -188,12 +200,104 @@ private fun FixedIncomeForm(
 
         OutlinedTextField(
             label = { Text("Relativa ao CDI", style = MaterialTheme.typography.bodyMedium) },
-            value = state.formData.cdiRelativeYield.orEmpty(),
+            value = formData.cdiRelativeYield.orEmpty(),
             onValueChange = { onIntent(AssetFormIntent.UpdateCdiRelativeYield(it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             isError = state.validationErrors.containsKey("cdiRelativeYield"),
             supportingText = state.validationErrors["cdiRelativeYield"]?.let { { Text(it) } },
             modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun InvestmentFundForm(
+    state: AssetFormViewModel.AssetFormState,
+    onIntent: (AssetFormIntent) -> Unit,
+) {
+    val formData = state.formData as? InvestmentFundFormData ?: return
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    EnumDropdown(
+        label = "Tipo de Fundo",
+        value = formData.type,
+        options = InvestmentFundAssetType.entries,
+        optionLabel = { it?.formated() ?: "" },
+        onValueChange = { onIntent(AssetFormIntent.UpdateFundType(it)) },
+        errorMessage = state.validationErrors["type"],
+        modifier = Modifier.fillMaxWidth(),
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    OutlinedTextField(
+        label = { Text("Nome", style = MaterialTheme.typography.bodyMedium) },
+        value = formData.name.orEmpty(),
+        onValueChange = { onIntent(AssetFormIntent.UpdateFundName(it)) },
+        isError = state.validationErrors.containsKey("name"),
+        supportingText = state.validationErrors["name"]?.let { { Text(it) } },
+        textStyle = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+
+        OutlinedTextField(
+            label = { Text("Dias para Resgate", style = MaterialTheme.typography.bodyMedium) },
+            value = formData.liquidityDays.orEmpty(),
+            onValueChange = { onIntent(AssetFormIntent.UpdateLiquidityDays(it)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            isError = state.validationErrors.containsKey("liquidityDays"),
+            supportingText = state.validationErrors["liquidityDays"]?.let { { Text(it) } },
+            textStyle = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+
+        OutlinedTextField(
+            label = { Text("Vencimento (opcional)", style = MaterialTheme.typography.bodyMedium) },
+            value = formData.expirationDate ?: "",
+            onValueChange = { onIntent(AssetFormIntent.UpdateFundExpirationDate(it)) },
+            placeholder = { Text("YYYY-MM-DD", style = MaterialTheme.typography.bodyMedium) },
+            isError = state.validationErrors.containsKey("expirationDate"),
+            supportingText = state.validationErrors["expirationDate"]?.let { { Text(it) } },
+            textStyle = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun VariableIncomeForm(
+    state: AssetFormViewModel.AssetFormState,
+    onIntent: (AssetFormIntent) -> Unit,
+) {
+    val formData = state.formData as? VariableIncomeFormData ?: return
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+
+        EnumDropdown(
+            label = "Tipo",
+            value = formData.type,
+            options = VariableIncomeAssetType.entries,
+            optionLabel = { it?.formated() ?: "" },
+            onValueChange = { onIntent(AssetFormIntent.UpdateVariableType(it)) },
+            errorMessage = state.validationErrors["type"],
+            modifier = Modifier.weight(1f),
+        )
+
+        OutlinedTextField(
+            label = { Text("Ticker", style = MaterialTheme.typography.bodyMedium) },
+            value = formData.ticker.orEmpty(),
+            onValueChange = { onIntent(AssetFormIntent.UpdateTicker(it)) },
+            isError = state.validationErrors.containsKey("ticker"),
+            supportingText = state.validationErrors["ticker"]?.let { { Text(it) } },
+            textStyle = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
         )
     }
 }

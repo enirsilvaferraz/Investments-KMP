@@ -3,6 +3,8 @@ package com.eferraz.database.datasources
 import com.eferraz.database.daos.AssetDao
 import com.eferraz.database.entities.AssetEntity
 import com.eferraz.database.entities.FixedIncomeAssetEntity
+import com.eferraz.database.entities.InvestmentFundAssetEntity
+import com.eferraz.database.entities.VariableIncomeAssetEntity
 import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
 import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
 import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
@@ -45,6 +47,20 @@ internal class AssetDataSourceImpl(
         val (assetEntity, fixedIncomeEntity) = asset.toEntity()
         val assetId = assetDao.insertAsset(assetEntity)
         assetDao.insertFixedIncome(fixedIncomeEntity.copy(assetId = assetId))
+        return assetId
+    }
+
+    override suspend fun save(asset: InvestmentFundAsset): Long {
+        val (assetEntity, investmentFundEntity) = asset.toEntity()
+        val assetId = assetDao.insertAsset(assetEntity)
+        assetDao.insertInvestmentFund(investmentFundEntity.copy(assetId = assetId))
+        return assetId
+    }
+
+    override suspend fun save(asset: VariableIncomeAsset): Long {
+        val (assetEntity, variableIncomeEntity) = asset.toEntity()
+        val assetId = assetDao.insertAsset(assetEntity)
+        assetDao.insertVariableIncome(variableIncomeEntity.copy(assetId = assetId))
         return assetId
     }
 
@@ -101,5 +117,40 @@ internal class AssetDataSourceImpl(
             cdiRelativeYield = cdiRelativeYield
         )
         return Pair(assetEntity, fixedIncomeEntity)
+    }
+
+    private fun InvestmentFundAsset.toEntity(): Pair<AssetEntity, InvestmentFundAssetEntity> {
+        val assetEntity = AssetEntity(
+            id = id,
+            name = name,
+            issuerId = issuer.id,
+            category = "INVESTMENT_FUND",
+            liquidity = liquidity,
+            observations = observations
+        )
+        val investmentFundEntity = InvestmentFundAssetEntity(
+            assetId = id,
+            type = type,
+            liquidityDays = liquidityDays,
+            expirationDate = expirationDate
+        )
+        return Pair(assetEntity, investmentFundEntity)
+    }
+
+    private fun VariableIncomeAsset.toEntity(): Pair<AssetEntity, VariableIncomeAssetEntity> {
+        val assetEntity = AssetEntity(
+            id = id,
+            name = name,
+            issuerId = issuer.id,
+            category = "VARIABLE_INCOME",
+            liquidity = liquidity,
+            observations = observations
+        )
+        val variableIncomeEntity = VariableIncomeAssetEntity(
+            assetId = id,
+            type = type,
+            ticker = ticker
+        )
+        return Pair(assetEntity, variableIncomeEntity)
     }
 }
