@@ -27,6 +27,7 @@ internal fun <T> EnumDropdown(
     modifier: Modifier = Modifier,
     errorMessage: String? = null,
     onNullSelected: (() -> Unit)? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val displayValue = optionLabel(value)
@@ -47,7 +48,8 @@ internal fun <T> EnumDropdown(
 //            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             isError = errorMessage != null,
             supportingText = errorMessage?.let { { Text(it) } },
-            textStyle = MaterialTheme.typography.bodyMedium
+            textStyle = MaterialTheme.typography.bodyMedium,
+            leadingIcon = leadingIcon
         )
 
         ExposedDropdownMenu(

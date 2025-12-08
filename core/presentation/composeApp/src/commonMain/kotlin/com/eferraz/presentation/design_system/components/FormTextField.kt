@@ -18,6 +18,7 @@ internal fun FormTextField(
     maxLines: Int = 1,
     validationErrors: Map<String, String>? = null,
     errorKey: String? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     val errorMessage = validationErrors?.let { errors ->
         errorKey?.let { errors[it] }
@@ -34,6 +35,7 @@ internal fun FormTextField(
         supportingText = errorMessage?.let { { Text(it) } },
         textStyle = MaterialTheme.typography.bodyMedium,
         maxLines = maxLines,
+        leadingIcon = leadingIcon,
         modifier = modifier
     )
 }
