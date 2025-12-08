@@ -14,11 +14,13 @@ import com.eferraz.entities.VariableIncomeAssetType
 import com.eferraz.usecases.AssetFormData
 import com.eferraz.usecases.FixedIncomeFormData
 import com.eferraz.usecases.GetAssetByIdUseCase
+import com.eferraz.usecases.GetBrokeragesUseCase
 import com.eferraz.usecases.GetIssuersUseCase
 import com.eferraz.usecases.InvestmentFundFormData
 import com.eferraz.usecases.SaveAssetUseCase
 import com.eferraz.usecases.ValidateException
 import com.eferraz.usecases.VariableIncomeFormData
+import com.eferraz.usecases.repositories.AssetHoldingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -48,6 +50,7 @@ internal sealed class AssetFormIntent {
     // Common
     data class UpdateIssuerName(val name: String) : AssetFormIntent()
     data class UpdateObservations(val observations: String) : AssetFormIntent()
+    data class UpdateBrokerageName(val name: String) : AssetFormIntent()
 
     // Actions
     data object LoadInitialData : AssetFormIntent()
@@ -61,8 +64,10 @@ internal sealed class AssetFormIntent {
 @KoinViewModel
 internal class AssetFormViewModel(
     private val getIssuersUseCase: GetIssuersUseCase,
+    private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val saveAssetUseCase: SaveAssetUseCase,
     private val getAssetByIdUseCase: GetAssetByIdUseCase,
+    private val assetHoldingRepository: AssetHoldingRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AssetFormState())
@@ -101,6 +106,13 @@ internal class AssetFormViewModel(
                     is FixedIncomeFormData -> formData.copy(observations = intent.observations)
                     is InvestmentFundFormData -> formData.copy(observations = intent.observations)
                     is VariableIncomeFormData -> formData.copy(observations = intent.observations)
+                }
+            }
+            is AssetFormIntent.UpdateBrokerageName -> updateCommonField { formData ->
+                when (formData) {
+                    is FixedIncomeFormData -> formData.copy(brokerageName = intent.name)
+                    is InvestmentFundFormData -> formData.copy(brokerageName = intent.name)
+                    is VariableIncomeFormData -> formData.copy(brokerageName = intent.name)
                 }
             }
             is AssetFormIntent.Save -> save()
@@ -156,7 +168,13 @@ internal class AssetFormViewModel(
     private fun loadData() {
         viewModelScope.launch {
             val issuers = getIssuersUseCase()
-            _state.update { it.copy(issuers = issuers.map { it.name }) }
+            val brokerages = getBrokeragesUseCase()
+            _state.update { 
+                it.copy(
+                    issuers = issuers.map { it.name },
+                    brokerages = brokerages.map { it.name }
+                )
+            }
         }
     }
 
@@ -184,8 +202,12 @@ internal class AssetFormViewModel(
             // Buscar asset atualizado do banco de dados
             val asset = getAssetByIdUseCase(assetId) ?: return@launch
             
-            // Garantir que os emissores estão carregados
-            if (_state.value.issuers.isEmpty()) {
+            // Buscar AssetHolding se existir
+            val assetHolding = assetHoldingRepository.getByAssetId(assetId)
+            val brokerageName = assetHolding?.brokerage?.name
+            
+            // Garantir que os emissores e corretoras estão carregados
+            if (_state.value.issuers.isEmpty() || _state.value.brokerages.isEmpty()) {
                 loadData()
             }
             
@@ -200,7 +222,8 @@ internal class AssetFormViewModel(
                     cdiRelativeYield = asset.cdiRelativeYield?.toString(),
                     liquidity = asset.liquidity,
                     issuerName = asset.issuer.name,
-                    observations = asset.observations
+                    observations = asset.observations,
+                    brokerageName = brokerageName
                 )
                 is InvestmentFundAsset -> InvestmentFundFormData(
                     id = asset.id,
@@ -210,7 +233,8 @@ internal class AssetFormViewModel(
                     liquidityDays = asset.liquidityDays.toString(),
                     expirationDate = asset.expirationDate?.toString(),
                     issuerName = asset.issuer.name,
-                    observations = asset.observations
+                    observations = asset.observations,
+                    brokerageName = brokerageName
                 )
                 is VariableIncomeAsset -> VariableIncomeFormData(
                     id = asset.id,
@@ -218,7 +242,8 @@ internal class AssetFormViewModel(
                     type = asset.type,
                     ticker = asset.ticker,
                     issuerName = asset.issuer.name,
-                    observations = asset.observations
+                    observations = asset.observations,
+                    brokerageName = brokerageName
                 )
             }
             
@@ -243,6 +268,7 @@ internal class AssetFormViewModel(
             }
             AssetFormState(
                 issuers = state.issuers,
+                brokerages = state.brokerages,
                 formData = newFormData,
                 isEditMode = false,
                 shouldCloseForm = false
@@ -256,6 +282,7 @@ internal class AssetFormViewModel(
 
     data class AssetFormState(
         val issuers: List<String> = emptyList(),
+        val brokerages: List<String> = emptyList(),
         val formData: AssetFormData = FixedIncomeFormData(), // TODO VERIFICAR
         val validationErrors: Map<String, String> = emptyMap(),
         val message: String? = null,

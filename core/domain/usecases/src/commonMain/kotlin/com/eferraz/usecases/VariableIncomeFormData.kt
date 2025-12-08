@@ -13,5 +13,6 @@ public data class VariableIncomeFormData(
     val ticker: String? = null,
     override val issuerName: String? = null,
     override val observations: String? = null,
+    override val brokerageName: String? = null,
 ) : AssetFormData()
 

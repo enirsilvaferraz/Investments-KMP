@@ -234,6 +234,17 @@ internal fun AssetFormScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
+                item(span = { GridItemSpan(2) }) {
+                    EnumDropdown(
+                        label = "Corretora",
+                        value = state.formData.brokerageName,
+                        options = listOf(null) + state.brokerages,
+                        optionLabel = { it ?: "" },
+                        onValueChange = { onIntent(AssetFormIntent.UpdateBrokerageName(it)) },
+                        onNullSelected = { onIntent(AssetFormIntent.UpdateBrokerageName("")) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             },
             actions = {
                 Button(onClick = { onIntent(AssetFormIntent.Save) }) {
@@ -261,7 +272,7 @@ private fun AssetFormScreenStructure(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {

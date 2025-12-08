@@ -19,4 +19,5 @@ public data class FixedIncomeFormData(
     val liquidity: Liquidity? = null,
     override val issuerName: String? = null,
     override val observations: String? = null,
+    override val brokerageName: String? = null,
 ) : AssetFormData()

@@ -11,5 +11,6 @@ public sealed class AssetFormData {
     public abstract val category: InvestmentCategory?
     public abstract val issuerName: String?
     public abstract val observations: String?
+    public abstract val brokerageName: String?
 }
 

@@ -1,10 +1,14 @@
 package com.eferraz.usecases
 
+import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.Liquidity
 import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
+import com.eferraz.usecases.repositories.BrokerageRepository
+import com.eferraz.usecases.repositories.OwnerRepository
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -16,6 +20,9 @@ import kotlin.time.ExperimentalTime
 public class SaveAssetUseCase(
     private val assetRepository: AssetRepository,
     private val getOrCreateIssuerUseCase: GetOrCreateIssuerUseCase,
+    private val brokerageRepository: BrokerageRepository,
+    private val ownerRepository: OwnerRepository,
+    private val assetHoldingRepository: AssetHoldingRepository,
 ) {
 
     /**
@@ -46,7 +53,7 @@ public class SaveAssetUseCase(
         val issuer = getOrCreateIssuerUseCase(formData.issuerName?.trim() ?: "") ?: return -1
 
         // Criar asset baseado no tipo
-        return when (formData) {
+        val assetId = when (formData) {
             is FixedIncomeFormData -> {
                 val asset = FixedIncomeAsset(
                     id = formData.id,
@@ -88,6 +95,41 @@ public class SaveAssetUseCase(
                 assetRepository.save(asset)
             }
         }
+
+        // Gerenciar AssetHolding
+        val brokerageName = formData.brokerageName
+        val existingHolding = assetHoldingRepository.getByAssetId(assetId)
+
+        when {
+            // Caso 1: Corretora foi informada
+            !brokerageName.isNullOrBlank() -> {
+                val brokerage = brokerageRepository.getByName(brokerageName.trim())
+                val owner = ownerRepository.getFirst()
+
+                if (brokerage != null && owner != null) {
+                    val savedAsset = assetRepository.getById(assetId) ?: return assetId
+
+                    // @Upsert cuida de inserir ou atualizar automaticamente
+                    val holding = existingHolding?.copy(
+                        brokerage = brokerage,
+                        owner = owner
+                    ) ?: AssetHolding(
+                        id = 0,
+                        asset = savedAsset,
+                        owner = owner,
+                        brokerage = brokerage
+                    )
+                    assetHoldingRepository.save(holding)
+                }
+            }
+            // Caso 2: Corretora foi removida (campo vazio) e existe AssetHolding
+            existingHolding != null -> {
+                // Deletar AssetHolding existente
+                assetHoldingRepository.delete(existingHolding.id)
+            }
+        }
+
+        return assetId
     }
 
     private fun validateCommonFields(formData: AssetFormData): Map<String, String> {

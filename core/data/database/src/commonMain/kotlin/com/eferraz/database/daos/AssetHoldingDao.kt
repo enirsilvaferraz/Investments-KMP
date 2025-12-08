@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
+import androidx.room.Upsert
 import com.eferraz.database.entities.AssetHoldingEntity
 import com.eferraz.database.entities.relationship.AssetHoldingWithDetails
 /**
@@ -13,14 +13,11 @@ import com.eferraz.database.entities.relationship.AssetHoldingWithDetails
 @Dao
 internal interface AssetHoldingDao {
 
-    @Insert
-    suspend fun insert(holding: AssetHoldingEntity): Long
+    @Upsert
+    suspend fun upsert(holding: AssetHoldingEntity): Long
 
     @Insert
     suspend fun insertAll(holdings: List<AssetHoldingEntity>): List<Long>
-
-    @Update
-    suspend fun update(holding: AssetHoldingEntity)
 
     @Query("SELECT * FROM asset_holdings")
     suspend fun getAll(): List<AssetHoldingEntity>
@@ -28,12 +25,14 @@ internal interface AssetHoldingDao {
     @Query("SELECT * FROM asset_holdings WHERE id = :id")
     suspend fun getById(id: Long): AssetHoldingEntity?
 
+    @Query("SELECT * FROM asset_holdings WHERE assetId = :assetId")
+    suspend fun getByAssetId(assetId: Long): AssetHoldingEntity?
+
+    @Query("DELETE FROM asset_holdings WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
     @Transaction
     @Query("SELECT * FROM asset_holdings")
     suspend fun getAllWithAsset(): List<AssetHoldingWithDetails>
-
-//    @Transaction
-//    @Query("SELECT * FROM asset_holdings WHERE id = :id")
-//    suspend fun getByIdWithAsset(id: Long): AssetHoldingWithDetails?
 }
 
