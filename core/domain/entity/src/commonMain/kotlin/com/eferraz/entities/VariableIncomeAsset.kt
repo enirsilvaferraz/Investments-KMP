@@ -14,7 +14,7 @@ package com.eferraz.entities
  * Estes valores são propriedades calculadas da classe, não podem ser alterados na criação da instância.
  */
 public data class VariableIncomeAsset(
-    override val id: Long,
+    override val id: Long = 0,
     override val name: String,
     override val issuer: Issuer,
     public val type: VariableIncomeAssetType,

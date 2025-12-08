@@ -1,18 +1,17 @@
 package com.eferraz.database.daos
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
-import androidx.room.Delete
+import androidx.room.Upsert
 import com.eferraz.database.entities.AssetEntity
 import com.eferraz.database.entities.FixedIncomeAssetEntity
-import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
 import com.eferraz.database.entities.InvestmentFundAssetEntity
-import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
 import com.eferraz.database.entities.VariableIncomeAssetEntity
+import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
+import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
 import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
+
 /**
  * DAO para operações CRUD na tabela assets e suas subclasses.
  * Suporta a estrutura polimórfica "Table per Subclass".
@@ -20,16 +19,16 @@ import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
 @Dao
 internal interface AssetDao {
 
-    @Insert
+    @Upsert
     suspend fun insertAsset(asset: AssetEntity): Long
 
-    @Insert
+    @Upsert
     suspend fun insertFixedIncome(fixedIncome: FixedIncomeAssetEntity)
 
-    @Insert
+    @Upsert
     suspend fun insertVariableIncome(variableIncome: VariableIncomeAssetEntity)
 
-    @Insert
+    @Upsert
     suspend fun insertInvestmentFund(investmentFund: InvestmentFundAssetEntity)
 
     @Query("SELECT * FROM assets WHERE id = :id")
@@ -58,17 +57,5 @@ internal interface AssetDao {
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'INVESTMENT_FUND' AND id = :id")
     suspend fun getInvestmentFundAssetById(id: Long): InvestmentFundAssetWithDetails?
-
-    @Update
-    suspend fun updateAsset(asset: AssetEntity)
-
-    @Update
-    suspend fun updateFixedIncome(fixedIncome: FixedIncomeAssetEntity)
-
-    @Query("DELETE FROM assets WHERE id = :id")
-    suspend fun deleteAsset(id: Long)
-
-    @Query("DELETE FROM fixed_income_assets WHERE assetId = :id")
-    suspend fun deleteFixedIncome(id: Long)
 }
 

@@ -14,7 +14,7 @@ import kotlinx.datetime.LocalDate
  * @property observations Notas e observações adicionais sobre o ativo (opcional).
  */
 public data class FixedIncomeAsset(
-    override val id: Long,
+    override val id: Long = 0,
     override val issuer: Issuer,
     public val type: FixedIncomeAssetType,
     public val subType: FixedIncomeSubType,

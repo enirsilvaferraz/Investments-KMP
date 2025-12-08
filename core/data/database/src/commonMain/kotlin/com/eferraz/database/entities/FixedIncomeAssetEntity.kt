@@ -25,17 +25,23 @@ import kotlinx.datetime.LocalDate
     ]
 )
 internal data class FixedIncomeAssetEntity(
+
     @PrimaryKey
     @ColumnInfo(name = "assetId")
     val assetId: Long,
+
     @ColumnInfo(name = "type")
     val type: FixedIncomeAssetType,
+
     @ColumnInfo(name = "subType")
     val subType: FixedIncomeSubType,
+
     @ColumnInfo(name = "expirationDate")
     val expirationDate: LocalDate,
+
     @ColumnInfo(name = "contractedYield")
     val contractedYield: Double,
+
     @ColumnInfo(name = "cdiRelativeYield")
     val cdiRelativeYield: Double? = null
 )

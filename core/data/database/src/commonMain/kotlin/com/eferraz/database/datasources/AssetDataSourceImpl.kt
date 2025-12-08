@@ -48,17 +48,6 @@ internal class AssetDataSourceImpl(
         return assetId
     }
 
-    override suspend fun update(asset: FixedIncomeAsset) {
-        val (assetEntity, fixedIncomeEntity) = asset.toEntity()
-        assetDao.updateAsset(assetEntity)
-        assetDao.updateFixedIncome(fixedIncomeEntity)
-    }
-
-    override suspend fun delete(id: Long) {
-        assetDao.deleteFixedIncome(id)
-        assetDao.deleteAsset(id)
-    }
-
     private fun FixedIncomeAssetWithDetails.toModel() =
         FixedIncomeAsset(
             id = asset.id,
