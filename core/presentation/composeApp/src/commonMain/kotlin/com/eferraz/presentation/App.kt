@@ -124,8 +124,8 @@ private fun AppNavigationHost() {
 
 private fun navigateTo(navController: NavHostController, route: Any) {
     navController.navigate(route) {
-        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+        popUpTo(navController.graph.findStartDestination().id) { saveState = false }
         launchSingleTop = true
-        restoreState = true
+        restoreState = false
     }
 }
