@@ -107,7 +107,7 @@ private fun AppNavigationHost() {
         content = {
             NavHost(
                 navController = navController,
-                startDestination = HistoryRouting,
+                startDestination = HomeRouting,
                 modifier = Modifier.fillMaxSize()
             ) {
                 composable<HomeRouting> {
