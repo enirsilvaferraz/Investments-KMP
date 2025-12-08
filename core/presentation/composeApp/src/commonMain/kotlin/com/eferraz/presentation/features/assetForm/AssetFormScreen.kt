@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,7 +60,7 @@ internal fun AssetFormScreen(
             modifier = Modifier.padding(it),
             formData = state.formData,
             header = {
-                item {
+                item(span = { GridItemSpan(2) }) {
                     EnumDropdown(
                         label = "Categoria",
                         value = state.formData.category,
@@ -73,77 +75,74 @@ internal fun AssetFormScreen(
             },
             fixedIncome = { formData ->
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        EnumDropdown(
-                            label = "Tipo",
-                            value = formData.type,
-                            options = FixedIncomeAssetType.entries,
-                            optionLabel = { it?.formated() ?: "" },
-                            onValueChange = { onIntent(AssetFormIntent.UpdateType(it)) },
-                            errorMessage = state.validationErrors["type"],
-                            modifier = Modifier.weight(1f),
-                        )
-
-                        EnumDropdown(
-                            label = "Subtipo",
-                            value = formData.subType,
-                            options = FixedIncomeSubType.entries,
-                            optionLabel = { it?.formated() ?: "" },
-                            onValueChange = { onIntent(AssetFormIntent.UpdateSubType(it)) },
-                            errorMessage = state.validationErrors["subType"],
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
+                    EnumDropdown(
+                        label = "Tipo",
+                        value = formData.type,
+                        options = FixedIncomeAssetType.entries,
+                        optionLabel = { it?.formated() ?: "" },
+                        onValueChange = { onIntent(AssetFormIntent.UpdateType(it)) },
+                        errorMessage = state.validationErrors["type"],
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        EnumDropdown(
-                            label = "Liquidez",
-                            value = formData.liquidity,
-                            options = listOf(Liquidity.DAILY, Liquidity.AT_MATURITY).map { it as Liquidity? },
-                            optionLabel = { it?.formated() ?: "" },
-                            onValueChange = { onIntent(AssetFormIntent.UpdateLiquidity(it)) },
-                            errorMessage = state.validationErrors["liquidity"],
-                            modifier = Modifier.weight(1f),
-                        )
-
-                        FormTextField(
-                            label = "Vencimento",
-                            value = formData.expirationDate ?: "",
-                            onValueChange = { onIntent(AssetFormIntent.UpdateExpirationDate(it)) },
-                            placeholder = "YYYY-MM-DD",
-                            validationErrors = state.validationErrors,
-                            errorKey = "expirationDate",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                    EnumDropdown(
+                        label = "Subtipo",
+                        value = formData.subType,
+                        options = FixedIncomeSubType.entries,
+                        optionLabel = { it?.formated() ?: "" },
+                        onValueChange = { onIntent(AssetFormIntent.UpdateSubType(it)) },
+                        errorMessage = state.validationErrors["subType"],
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        FormTextField(
-                            label = "Rentabilidade",
-                            value = formData.contractedYield.orEmpty(),
-                            onValueChange = { onIntent(AssetFormIntent.UpdateContractedYield(it)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            validationErrors = state.validationErrors,
-                            errorKey = "contractedYield",
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        FormTextField(
-                            label = "Relativa ao CDI",
-                            value = formData.cdiRelativeYield.orEmpty(),
-                            onValueChange = { onIntent(AssetFormIntent.UpdateCdiRelativeYield(it)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            validationErrors = state.validationErrors,
-                            errorKey = "cdiRelativeYield",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                    EnumDropdown(
+                        label = "Liquidez",
+                        value = formData.liquidity,
+                        options = listOf(Liquidity.DAILY, Liquidity.AT_MATURITY).map { it as Liquidity? },
+                        optionLabel = { it?.formated() ?: "" },
+                        onValueChange = { onIntent(AssetFormIntent.UpdateLiquidity(it)) },
+                        errorMessage = state.validationErrors["liquidity"],
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                item {
+                    FormTextField(
+                        label = "Vencimento",
+                        value = formData.expirationDate ?: "",
+                        onValueChange = { onIntent(AssetFormIntent.UpdateExpirationDate(it)) },
+                        placeholder = "YYYY-MM-DD",
+                        validationErrors = state.validationErrors,
+                        errorKey = "expirationDate",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    FormTextField(
+                        label = "Rentabilidade",
+                        value = formData.contractedYield.orEmpty(),
+                        onValueChange = { onIntent(AssetFormIntent.UpdateContractedYield(it)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        validationErrors = state.validationErrors,
+                        errorKey = "contractedYield",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    FormTextField(
+                        label = "Relativa ao CDI",
+                        value = formData.cdiRelativeYield.orEmpty(),
+                        onValueChange = { onIntent(AssetFormIntent.UpdateCdiRelativeYield(it)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        validationErrors = state.validationErrors,
+                        errorKey = "cdiRelativeYield",
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             },
             investmentFund = { formData ->
-                item {
+                item(span = { GridItemSpan(2) }) {
                     EnumDropdown(
                         label = "Tipo de Fundo",
                         value = formData.type,
@@ -155,7 +154,7 @@ internal fun AssetFormScreen(
                     )
                 }
 
-                item {
+                item(span = { GridItemSpan(2) }) {
                     FormTextField(
                         label = "Nome",
                         value = formData.name.orEmpty(),
@@ -167,57 +166,55 @@ internal fun AssetFormScreen(
                 }
 
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    FormTextField(
+                        label = "Dias para Resgate",
+                        value = formData.liquidityDays.orEmpty(),
+                        onValueChange = { onIntent(AssetFormIntent.UpdateLiquidityDays(it)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        validationErrors = state.validationErrors,
+                        errorKey = "liquidityDays",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-                        FormTextField(
-                            label = "Dias para Resgate",
-                            value = formData.liquidityDays.orEmpty(),
-                            onValueChange = { onIntent(AssetFormIntent.UpdateLiquidityDays(it)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            validationErrors = state.validationErrors,
-                            errorKey = "liquidityDays",
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        FormTextField(
-                            label = "Vencimento",
-                            value = formData.expirationDate ?: "",
-                            onValueChange = { onIntent(AssetFormIntent.UpdateFundExpirationDate(it)) },
-                            placeholder = "YYYY-MM-DD",
-                            validationErrors = state.validationErrors,
-                            errorKey = "expirationDate",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                item {
+                    FormTextField(
+                        label = "Vencimento",
+                        value = formData.expirationDate ?: "",
+                        onValueChange = { onIntent(AssetFormIntent.UpdateFundExpirationDate(it)) },
+                        placeholder = "YYYY-MM-DD",
+                        validationErrors = state.validationErrors,
+                        errorKey = "expirationDate",
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             },
             variableIncome = { formData ->
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    EnumDropdown(
+                        label = "Tipo",
+                        value = formData.type,
+                        options = VariableIncomeAssetType.entries,
+                        optionLabel = { it?.formated() ?: "" },
+                        onValueChange = { onIntent(AssetFormIntent.UpdateVariableType(it)) },
+                        errorMessage = state.validationErrors["type"],
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
 
-                        EnumDropdown(
-                            label = "Tipo",
-                            value = formData.type,
-                            options = VariableIncomeAssetType.entries,
-                            optionLabel = { it?.formated() ?: "" },
-                            onValueChange = { onIntent(AssetFormIntent.UpdateVariableType(it)) },
-                            errorMessage = state.validationErrors["type"],
-                            modifier = Modifier.weight(1f),
-                        )
-
-                        FormTextField(
-                            label = "Ticker",
-                            value = formData.ticker.orEmpty(),
-                            onValueChange = { onIntent(AssetFormIntent.UpdateTicker(it)) },
-                            validationErrors = state.validationErrors,
-                            errorKey = "ticker",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                item {
+                    FormTextField(
+                        label = "Ticker",
+                        value = formData.ticker.orEmpty(),
+                        onValueChange = { onIntent(AssetFormIntent.UpdateTicker(it)) },
+                        validationErrors = state.validationErrors,
+                        errorKey = "ticker",
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             },
             common = {
-                item {
+                item(span = { GridItemSpan(2) }) {
                     EnumDropdown(
                         label = "Emissor",
                         value = state.formData.issuerName,
@@ -228,7 +225,7 @@ internal fun AssetFormScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                item {
+                item(span = { GridItemSpan(2) }) {
                     FormTextField(
                         label = "Observações",
                         value = state.formData.observations.orEmpty(),
@@ -251,20 +248,22 @@ internal fun AssetFormScreen(
 private fun AssetFormScreenStructure(
     modifier: Modifier = Modifier,
     formData: AssetFormData,
-    header: LazyListScope.() -> Unit,
-    fixedIncome: LazyListScope.(FixedIncomeFormData) -> Unit,
-    investmentFund: LazyListScope.(InvestmentFundFormData) -> Unit,
-    variableIncome: LazyListScope.(VariableIncomeFormData) -> Unit,
-    common: LazyListScope.() -> Unit,
+    header: LazyGridScope.() -> Unit,
+    fixedIncome: LazyGridScope.(FixedIncomeFormData) -> Unit,
+    investmentFund: LazyGridScope.(InvestmentFundFormData) -> Unit,
+    variableIncome: LazyGridScope.(VariableIncomeFormData) -> Unit,
+    common: LazyGridScope.() -> Unit,
     actions: @Composable RowScope.() -> Unit,
 ) {
 
     Column(modifier) {
 
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
             header()
