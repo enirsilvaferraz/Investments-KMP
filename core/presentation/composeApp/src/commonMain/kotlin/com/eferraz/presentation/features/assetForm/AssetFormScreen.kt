@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -29,6 +28,7 @@ import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.Liquidity
 import com.eferraz.entities.VariableIncomeAssetType
 import com.eferraz.presentation.design_system.components.EnumDropdown
+import com.eferraz.presentation.design_system.components.FormTextField
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.usecases.AssetFormData
 import com.eferraz.usecases.FixedIncomeFormData
@@ -74,7 +74,6 @@ internal fun AssetFormScreen(
             fixedIncome = { formData ->
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-
                         EnumDropdown(
                             label = "Tipo",
                             value = formData.type,
@@ -98,7 +97,6 @@ internal fun AssetFormScreen(
                 }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-
                         EnumDropdown(
                             label = "Liquidez",
                             value = formData.liquidity,
@@ -109,40 +107,37 @@ internal fun AssetFormScreen(
                             modifier = Modifier.weight(1f),
                         )
 
-                        OutlinedTextField(
-                            label = { Text("Vencimento", style = MaterialTheme.typography.bodyMedium) },
+                        FormTextField(
+                            label = "Vencimento",
                             value = formData.expirationDate ?: "",
                             onValueChange = { onIntent(AssetFormIntent.UpdateExpirationDate(it)) },
-                            placeholder = { Text("YYYY-MM-DD", style = MaterialTheme.typography.bodyMedium) },
-                            isError = state.validationErrors.containsKey("expirationDate"),
-                            supportingText = state.validationErrors["expirationDate"]?.let { { Text(it) } },
-                            textStyle = MaterialTheme.typography.bodyMedium,
+                            placeholder = "YYYY-MM-DD",
+                            validationErrors = state.validationErrors,
+                            errorKey = "expirationDate",
                             modifier = Modifier.weight(1f)
                         )
                     }
                 }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-
-                        OutlinedTextField(
-                            label = { Text("Rentabilidade", style = MaterialTheme.typography.bodyMedium) },
+                        FormTextField(
+                            label = "Rentabilidade",
                             value = formData.contractedYield.orEmpty(),
                             onValueChange = { onIntent(AssetFormIntent.UpdateContractedYield(it)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            isError = state.validationErrors.containsKey("contractedYield"),
-                            supportingText = state.validationErrors["contractedYield"]?.let { { Text(it) } },
-                            textStyle = MaterialTheme.typography.bodyMedium,
+                            validationErrors = state.validationErrors,
+                            errorKey = "contractedYield",
                             modifier = Modifier.weight(1f)
                         )
 
-                        OutlinedTextField(
-                            label = { Text("Relativa ao CDI", style = MaterialTheme.typography.bodyMedium) },
+                        FormTextField(
+                            label = "Relativa ao CDI",
                             value = formData.cdiRelativeYield.orEmpty(),
                             onValueChange = { onIntent(AssetFormIntent.UpdateCdiRelativeYield(it)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            isError = state.validationErrors.containsKey("cdiRelativeYield"),
-                            supportingText = state.validationErrors["cdiRelativeYield"]?.let { { Text(it) } },
-                            modifier = Modifier.weight(1f),
+                            validationErrors = state.validationErrors,
+                            errorKey = "cdiRelativeYield",
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 }
@@ -161,13 +156,12 @@ internal fun AssetFormScreen(
                 }
 
                 item {
-                    OutlinedTextField(
-                        label = { Text("Nome", style = MaterialTheme.typography.bodyMedium) },
+                    FormTextField(
+                        label = "Nome",
                         value = formData.name.orEmpty(),
                         onValueChange = { onIntent(AssetFormIntent.UpdateFundName(it)) },
-                        isError = state.validationErrors.containsKey("name"),
-                        supportingText = state.validationErrors["name"]?.let { { Text(it) } },
-                        textStyle = MaterialTheme.typography.bodyMedium,
+                        validationErrors = state.validationErrors,
+                        errorKey = "name",
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -175,25 +169,23 @@ internal fun AssetFormScreen(
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
 
-                        OutlinedTextField(
-                            label = { Text("Dias para Resgate", style = MaterialTheme.typography.bodyMedium) },
+                        FormTextField(
+                            label = "Dias para Resgate",
                             value = formData.liquidityDays.orEmpty(),
                             onValueChange = { onIntent(AssetFormIntent.UpdateLiquidityDays(it)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            isError = state.validationErrors.containsKey("liquidityDays"),
-                            supportingText = state.validationErrors["liquidityDays"]?.let { { Text(it) } },
-                            textStyle = MaterialTheme.typography.bodyMedium,
+                            validationErrors = state.validationErrors,
+                            errorKey = "liquidityDays",
                             modifier = Modifier.weight(1f)
                         )
 
-                        OutlinedTextField(
-                            label = { Text("Vencimento", style = MaterialTheme.typography.bodyMedium) },
+                        FormTextField(
+                            label = "Vencimento",
                             value = formData.expirationDate ?: "",
                             onValueChange = { onIntent(AssetFormIntent.UpdateFundExpirationDate(it)) },
-                            placeholder = { Text("YYYY-MM-DD", style = MaterialTheme.typography.bodyMedium) },
-                            isError = state.validationErrors.containsKey("expirationDate"),
-                            supportingText = state.validationErrors["expirationDate"]?.let { { Text(it) } },
-                            textStyle = MaterialTheme.typography.bodyMedium,
+                            placeholder = "YYYY-MM-DD",
+                            validationErrors = state.validationErrors,
+                            errorKey = "expirationDate",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -213,13 +205,12 @@ internal fun AssetFormScreen(
                             modifier = Modifier.weight(1f),
                         )
 
-                        OutlinedTextField(
-                            label = { Text("Ticker", style = MaterialTheme.typography.bodyMedium) },
+                        FormTextField(
+                            label = "Ticker",
                             value = formData.ticker.orEmpty(),
                             onValueChange = { onIntent(AssetFormIntent.UpdateTicker(it)) },
-                            isError = state.validationErrors.containsKey("ticker"),
-                            supportingText = state.validationErrors["ticker"]?.let { { Text(it) } },
-                            textStyle = MaterialTheme.typography.bodyMedium,
+                            validationErrors = state.validationErrors,
+                            errorKey = "ticker",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -238,12 +229,12 @@ internal fun AssetFormScreen(
                     )
                 }
                 item {
-                    OutlinedTextField(
-                        label = { Text("Observações", style = MaterialTheme.typography.bodyMedium) },
+                    FormTextField(
+                        label = "Observações",
                         value = state.formData.observations.orEmpty(),
                         onValueChange = { onIntent(AssetFormIntent.UpdateObservations(it)) },
                         maxLines = 3,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             },
