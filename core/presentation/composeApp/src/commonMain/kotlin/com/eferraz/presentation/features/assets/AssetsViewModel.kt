@@ -22,7 +22,7 @@ internal class AssetsViewModel(
         loadAssets()
     }
 
-    private fun loadAssets() {
+    fun loadAssets() {
         viewModelScope.launch {
             val assets = repository.getAll()
             _state.update { AssetsState(assets) }

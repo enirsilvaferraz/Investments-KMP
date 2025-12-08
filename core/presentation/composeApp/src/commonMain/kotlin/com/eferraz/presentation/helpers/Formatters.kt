@@ -3,6 +3,8 @@ package com.eferraz.presentation.helpers
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.FixedIncomeAssetType
+import com.eferraz.entities.FixedIncomeSubType
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.Liquidity
@@ -25,6 +27,15 @@ internal object Formatters {
         FixedIncomeAssetType.POST_FIXED -> "Pós Fixado"
         FixedIncomeAssetType.PRE_FIXED -> "Prefixado"
         FixedIncomeAssetType.INFLATION_LINKED -> "IPCA"
+    }
+
+    internal fun FixedIncomeSubType.formated() = when (this) {
+        FixedIncomeSubType.CDB -> "CDB"
+        FixedIncomeSubType.LCI -> "LCI"
+        FixedIncomeSubType.LCA -> "LCA"
+        FixedIncomeSubType.CRA -> "CRA"
+        FixedIncomeSubType.CRI -> "CRI"
+        FixedIncomeSubType.DEBENTURE -> "Debênture"
     }
 
     internal fun InvestmentFundAssetType.formated() = when (this) {
@@ -51,5 +62,12 @@ internal object Formatters {
         Liquidity.DAILY -> "Diária"
         Liquidity.AT_MATURITY -> "No vencimento"
         Liquidity.D_PLUS_DAYS -> "D+${liquidityDays ?: 0}"
+    }
+
+    internal fun InvestmentCategory?.formated(): String = when (this) {
+        InvestmentCategory.FIXED_INCOME -> "Renda Fixa"
+        InvestmentCategory.VARIABLE_INCOME -> "Renda Variável"
+        InvestmentCategory.INVESTMENT_FUND -> "Fundos"
+        else -> ""
     }
 }

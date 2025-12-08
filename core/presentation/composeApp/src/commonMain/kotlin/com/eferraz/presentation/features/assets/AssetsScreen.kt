@@ -11,6 +11,7 @@ import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -18,6 +19,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.TableColumn
+import com.eferraz.presentation.features.assetForm.AssetFormContent
+import com.eferraz.presentation.features.assetForm.AssetFormViewModel
 import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -30,8 +33,18 @@ internal fun AssetsRoute() {
     val vm = koinViewModel<AssetsViewModel>()
     val state by vm.state.collectAsStateWithLifecycle()
 
+    val formVm = koinViewModel<AssetFormViewModel>()
+    val formState by formVm.state.collectAsStateWithLifecycle()
+
     val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
     val scope = rememberCoroutineScope()
+
+    // Recarrega assets quando o formulário salva
+    LaunchedEffect(formState.message) {
+        if (formState.message != null) {
+            vm.loadAssets()
+        }
+    }
 
     AppScaffold(
         title = "Ativos",
@@ -42,7 +55,14 @@ internal fun AssetsRoute() {
         actions = {
             AssetsActions(scope, navigator)
         },
-        extraPane = {}
+        extraPane = {
+            if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
+                AssetFormContent(
+                    state = formState,
+                    onIntent = { formVm.processIntent(it) },
+                )
+            }
+        }
     )
 }
 
