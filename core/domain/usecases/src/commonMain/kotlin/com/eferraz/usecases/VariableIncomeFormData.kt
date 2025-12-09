@@ -14,5 +14,16 @@ public data class VariableIncomeFormData(
     override val issuerName: String? = null,
     override val observations: String? = null,
     override val brokerageName: String? = null,
-) : AssetFormData()
+) : AssetFormData() {
+
+    override fun copy(
+        issuerName: String?,
+        observations: String?,
+        brokerageName: String?,
+    ): AssetFormData = this.copy(
+        issuerName = issuerName ?: this.issuerName,
+        observations = observations ?: this.observations,
+        brokerageName = brokerageName ?: this.brokerageName
+    )
+}
 

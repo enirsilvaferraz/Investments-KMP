@@ -2,15 +2,7 @@ package com.eferraz.presentation.features.assetForm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.FixedIncomeAssetType
-import com.eferraz.entities.FixedIncomeSubType
 import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.InvestmentFundAssetType
-import com.eferraz.entities.Liquidity
-import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.entities.VariableIncomeAssetType
 import com.eferraz.usecases.AssetFormData
 import com.eferraz.usecases.FixedIncomeFormData
 import com.eferraz.usecases.GetAssetByIdUseCase
@@ -20,46 +12,11 @@ import com.eferraz.usecases.InvestmentFundFormData
 import com.eferraz.usecases.SaveAssetUseCase
 import com.eferraz.usecases.ValidateException
 import com.eferraz.usecases.VariableIncomeFormData
-import com.eferraz.usecases.repositories.AssetHoldingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
-
-internal sealed class AssetFormIntent {
-    
-    // Fixed Income
-    data class UpdateType(val type: FixedIncomeAssetType?) : AssetFormIntent()
-    data class UpdateSubType(val subType: FixedIncomeSubType?) : AssetFormIntent()
-    data class UpdateExpirationDate(val date: String?) : AssetFormIntent()
-    data class UpdateContractedYield(val yield: String) : AssetFormIntent()
-    data class UpdateCdiRelativeYield(val yield: String) : AssetFormIntent()
-    data class UpdateLiquidity(val liquidity: Liquidity?) : AssetFormIntent()
-    
-    // Investment Fund
-    data class UpdateFundType(val type: InvestmentFundAssetType?) : AssetFormIntent()
-    data class UpdateFundName(val name: String) : AssetFormIntent()
-    data class UpdateLiquidityDays(val days: String) : AssetFormIntent()
-    data class UpdateFundExpirationDate(val date: String?) : AssetFormIntent()
-    
-    // Variable Income
-    data class UpdateVariableType(val type: VariableIncomeAssetType?) : AssetFormIntent()
-    data class UpdateTicker(val ticker: String) : AssetFormIntent()
-    
-    // Common
-    data class UpdateIssuerName(val name: String) : AssetFormIntent()
-    data class UpdateObservations(val observations: String) : AssetFormIntent()
-    data class UpdateBrokerageName(val name: String) : AssetFormIntent()
-
-    // Actions
-    data object LoadInitialData : AssetFormIntent()
-    data class UpdateCategory(val category: InvestmentCategory) : AssetFormIntent()
-    data class LoadAssetForEdit(val assetId: Long) : AssetFormIntent()
-    data object Save : AssetFormIntent()
-    data object ClearForm : AssetFormIntent()
-    data object ResetCloseFlag : AssetFormIntent()
-}
 
 @KoinViewModel
 internal class AssetFormViewModel(
@@ -67,7 +24,7 @@ internal class AssetFormViewModel(
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val saveAssetUseCase: SaveAssetUseCase,
     private val getAssetByIdUseCase: GetAssetByIdUseCase,
-    private val assetHoldingRepository: AssetHoldingRepository,
+    private val assetToFormDataMapper: AssetToFormDataMapper,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AssetFormState())
@@ -82,84 +39,63 @@ internal class AssetFormViewModel(
             is AssetFormIntent.LoadInitialData -> loadData()
             is AssetFormIntent.UpdateCategory -> updateCategory(intent.category)
             is AssetFormIntent.LoadAssetForEdit -> loadAssetForEdit(intent.assetId)
-            is AssetFormIntent.UpdateType -> updateFixedIncomeField { it.copy(type = intent.type) }
-            is AssetFormIntent.UpdateSubType -> updateFixedIncomeField { it.copy(subType = intent.subType) }
-            is AssetFormIntent.UpdateExpirationDate -> updateFixedIncomeField { it.copy(expirationDate = intent.date) }
-            is AssetFormIntent.UpdateContractedYield -> updateFixedIncomeField { it.copy(contractedYield = intent.yield) }
-            is AssetFormIntent.UpdateCdiRelativeYield -> updateFixedIncomeField { it.copy(cdiRelativeYield = intent.yield) }
-            is AssetFormIntent.UpdateLiquidity -> updateFixedIncomeField { it.copy(liquidity = intent.liquidity) }
-            is AssetFormIntent.UpdateFundType -> updateInvestmentFundField { it.copy(type = intent.type) }
-            is AssetFormIntent.UpdateFundName -> updateInvestmentFundField { it.copy(name = intent.name) }
-            is AssetFormIntent.UpdateLiquidityDays -> updateInvestmentFundField { it.copy(liquidityDays = intent.days) }
-            is AssetFormIntent.UpdateFundExpirationDate -> updateInvestmentFundField { it.copy(expirationDate = intent.date) }
-            is AssetFormIntent.UpdateVariableType -> updateVariableIncomeField { it.copy(type = intent.type) }
-            is AssetFormIntent.UpdateTicker -> updateVariableIncomeField { it.copy(ticker = intent.ticker) }
-            is AssetFormIntent.UpdateIssuerName -> updateCommonField { formData ->
-                when (formData) {
-                    is FixedIncomeFormData -> formData.copy(issuerName = intent.name)
-                    is InvestmentFundFormData -> formData.copy(issuerName = intent.name)
-                    is VariableIncomeFormData -> formData.copy(issuerName = intent.name)
-                }
-            }
-            is AssetFormIntent.UpdateObservations -> updateCommonField { formData ->
-                when (formData) {
-                    is FixedIncomeFormData -> formData.copy(observations = intent.observations)
-                    is InvestmentFundFormData -> formData.copy(observations = intent.observations)
-                    is VariableIncomeFormData -> formData.copy(observations = intent.observations)
-                }
-            }
-            is AssetFormIntent.UpdateBrokerageName -> updateCommonField { formData ->
-                when (formData) {
-                    is FixedIncomeFormData -> formData.copy(brokerageName = intent.name)
-                    is InvestmentFundFormData -> formData.copy(brokerageName = intent.name)
-                    is VariableIncomeFormData -> formData.copy(brokerageName = intent.name)
-                }
-            }
             is AssetFormIntent.Save -> save()
             is AssetFormIntent.ClearForm -> clearForm()
             is AssetFormIntent.ResetCloseFlag -> resetCloseFlag()
+
+            // Fixed Income
+            is AssetFormIntent.UpdateType -> updateFixedIncome { it.copy(type = intent.type) }
+            is AssetFormIntent.UpdateSubType -> updateFixedIncome { it.copy(subType = intent.subType) }
+            is AssetFormIntent.UpdateExpirationDate -> updateFixedIncome { it.copy(expirationDate = intent.date) }
+            is AssetFormIntent.UpdateContractedYield -> updateFixedIncome { it.copy(contractedYield = intent.yield) }
+            is AssetFormIntent.UpdateCdiRelativeYield -> updateFixedIncome { it.copy(cdiRelativeYield = intent.yield) }
+            is AssetFormIntent.UpdateLiquidity -> updateFixedIncome { it.copy(liquidity = intent.liquidity) }
+
+            // Investment Fund
+            is AssetFormIntent.UpdateFundType -> updateInvestmentFund { it.copy(type = intent.type) }
+            is AssetFormIntent.UpdateFundName -> updateInvestmentFund { it.copy(name = intent.name) }
+            is AssetFormIntent.UpdateLiquidityDays -> updateInvestmentFund { it.copy(liquidityDays = intent.days) }
+            is AssetFormIntent.UpdateFundExpirationDate -> updateInvestmentFund { it.copy(expirationDate = intent.date) }
+
+            // Variable Income
+            is AssetFormIntent.UpdateVariableType -> updateVariableIncome { it.copy(type = intent.type) }
+            is AssetFormIntent.UpdateTicker -> updateVariableIncome { it.copy(ticker = intent.ticker) }
+
+            // Common
+            is AssetFormIntent.UpdateIssuerName -> updateCommon { it.copy(issuerName = intent.name) }
+            is AssetFormIntent.UpdateObservations -> updateCommon { it.copy(observations = intent.observations) }
+            is AssetFormIntent.UpdateBrokerageName -> updateCommon { it.copy(brokerageName = intent.name) }
         }
     }
 
     private fun updateCategory(category: InvestmentCategory) {
-        _state.update { state ->
-            val newFormData = when (category) {
-                InvestmentCategory.FIXED_INCOME -> FixedIncomeFormData(category = category)
-                InvestmentCategory.INVESTMENT_FUND -> InvestmentFundFormData(category = category)
-                InvestmentCategory.VARIABLE_INCOME -> VariableIncomeFormData(category = category)
-            }
-            state.copy(formData = newFormData)
-        }
+        _state.update { state -> state.copy(formData = AssetFormData.build(category)) }
     }
 
-    private fun updateFixedIncomeField(update: (FixedIncomeFormData) -> FixedIncomeFormData) {
+    private inline fun <reified T : AssetFormData> updateFormField(
+        crossinline update: (T) -> AssetFormData
+    ) {
         _state.update { state ->
             when (val formData = state.formData) {
-                is FixedIncomeFormData -> state.copy(formData = update(formData))
+                is T -> state.copy(formData = update(formData))
                 else -> state
             }
         }
     }
 
-    private fun updateInvestmentFundField(update: (InvestmentFundFormData) -> InvestmentFundFormData) {
-        _state.update { state ->
-            when (val formData = state.formData) {
-                is InvestmentFundFormData -> state.copy(formData = update(formData))
-                else -> state
-            }
-        }
+    private fun updateFixedIncome(update: (FixedIncomeFormData) -> AssetFormData) {
+        updateFormField<FixedIncomeFormData>(update)
     }
 
-    private fun updateVariableIncomeField(update: (VariableIncomeFormData) -> VariableIncomeFormData) {
-        _state.update { state ->
-            when (val formData = state.formData) {
-                is VariableIncomeFormData -> state.copy(formData = update(formData))
-                else -> state
-            }
-        }
+    private fun updateInvestmentFund(update: (InvestmentFundFormData) -> AssetFormData) {
+        updateFormField<InvestmentFundFormData>(update)
     }
 
-    private fun updateCommonField(update: (AssetFormData) -> AssetFormData) {
+    private fun updateVariableIncome(update: (VariableIncomeFormData) -> AssetFormData) {
+        updateFormField<VariableIncomeFormData>(update)
+    }
+
+    private fun updateCommon(update: (AssetFormData) -> AssetFormData) {
         _state.update { state ->
             state.copy(formData = update(state.formData))
         }
@@ -169,7 +105,7 @@ internal class AssetFormViewModel(
         viewModelScope.launch {
             val issuers = getIssuersUseCase()
             val brokerages = getBrokeragesUseCase()
-            _state.update { 
+            _state.update {
                 it.copy(
                     issuers = issuers.map { it.name },
                     brokerages = brokerages.map { it.name }
@@ -181,14 +117,9 @@ internal class AssetFormViewModel(
     private fun save() {
         viewModelScope.launch {
             try {
-                // Salvar usando UseCase
                 val id: Long? = saveAssetUseCase(_state.value.formData)
-
-                // Limpar formulário
                 clearForm()
-
                 _state.update { it.copy(message = "Ativo $id salvo com sucesso!", shouldCloseForm = true) }
-
             } catch (e: ValidateException) {
                 _state.update { it.copy(validationErrors = e.messages) }
             } catch (e: Exception) {
@@ -199,55 +130,14 @@ internal class AssetFormViewModel(
 
     private fun loadAssetForEdit(assetId: Long) {
         viewModelScope.launch {
-            // Buscar asset atualizado do banco de dados
             val asset = getAssetByIdUseCase(assetId) ?: return@launch
-            
-            // Buscar AssetHolding se existir
-            val assetHolding = assetHoldingRepository.getByAssetId(assetId)
-            val brokerageName = assetHolding?.brokerage?.name
-            
-            // Garantir que os emissores e corretoras estão carregados
+
             if (_state.value.issuers.isEmpty() || _state.value.brokerages.isEmpty()) {
                 loadData()
             }
-            
-            val formData = when (asset) {
-                is FixedIncomeAsset -> FixedIncomeFormData(
-                    id = asset.id,
-                    category = InvestmentCategory.FIXED_INCOME,
-                    type = asset.type,
-                    subType = asset.subType,
-                    expirationDate = asset.expirationDate.toString(),
-                    contractedYield = asset.contractedYield.toString(),
-                    cdiRelativeYield = asset.cdiRelativeYield?.toString(),
-                    liquidity = asset.liquidity,
-                    issuerName = asset.issuer.name,
-                    observations = asset.observations,
-                    brokerageName = brokerageName
-                )
-                is InvestmentFundAsset -> InvestmentFundFormData(
-                    id = asset.id,
-                    category = InvestmentCategory.INVESTMENT_FUND,
-                    type = asset.type,
-                    name = asset.name,
-                    liquidityDays = asset.liquidityDays.toString(),
-                    expirationDate = asset.expirationDate?.toString(),
-                    issuerName = asset.issuer.name,
-                    observations = asset.observations,
-                    brokerageName = brokerageName
-                )
-                is VariableIncomeAsset -> VariableIncomeFormData(
-                    id = asset.id,
-                    category = InvestmentCategory.VARIABLE_INCOME,
-                    type = asset.type,
-                    ticker = asset.ticker,
-                    issuerName = asset.issuer.name,
-                    observations = asset.observations,
-                    brokerageName = brokerageName
-                )
-            }
-            
-            _state.update { 
+
+            val formData = assetToFormDataMapper.toFormData(asset)
+            _state.update {
                 it.copy(
                     formData = formData,
                     isEditMode = true,
@@ -279,14 +169,4 @@ internal class AssetFormViewModel(
     private fun resetCloseFlag() {
         _state.update { it.copy(shouldCloseForm = false) }
     }
-
-    data class AssetFormState(
-        val issuers: List<String> = emptyList(),
-        val brokerages: List<String> = emptyList(),
-        val formData: AssetFormData = FixedIncomeFormData(), // TODO VERIFICAR
-        val validationErrors: Map<String, String> = emptyMap(),
-        val message: String? = null,
-        val isEditMode: Boolean = false,
-        val shouldCloseForm: Boolean = false,
-    )
 }

@@ -40,7 +40,7 @@ import com.eferraz.usecases.VariableIncomeFormData
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AssetFormScreen(
-    state: AssetFormViewModel.AssetFormState,
+    state: AssetFormState,
     onIntent: (AssetFormIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
