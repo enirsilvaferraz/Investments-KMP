@@ -42,7 +42,6 @@ internal class KtorClientConfig : ClientConfig {
         //the deafult headers by defaultRequest builder
         defaultRequest {
             header("Content-Type", "application/json")
-            url("https://pokeapi.co/api/v2/")
         }
 
         //ContentNegotiation plugin for negotiationing media types between the client and server

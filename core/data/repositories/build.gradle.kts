@@ -17,5 +17,6 @@ kotlin {
         implementation(projects.entity)
         implementation(projects.usecases)
         implementation(projects.database)
+        implementation(projects.network)
     }
 }
