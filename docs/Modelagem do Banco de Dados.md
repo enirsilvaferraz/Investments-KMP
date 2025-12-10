@@ -64,6 +64,17 @@ erDiagram
         REAL end_of_month_average_cost "NN"
         REAL total_invested "NN"
     }
+    STOCK_QUOTE_HISTORY {
+        INTEGER id PK "NN"
+        TEXT ticker FK "NN"
+        TEXT date "NN, UNIQUE(ticker, date)"
+        REAL open
+        REAL high
+        REAL low
+        REAL close
+        INTEGER volume
+        REAL adjusted_close
+    }
 
     ASSETS ||--|{ FIXED_INCOME_ASSETS : "is a (1-to-1)"
     ASSETS ||--|{ VARIABLE_INCOME_ASSETS : "is a (1-to-1)"
@@ -73,6 +84,7 @@ erDiagram
     ASSET_HOLDINGS }|--|| OWNERS : "pertence a"
     ASSET_HOLDINGS }|--|| BROKERAGES : "está custodiado em"
     HOLDING_HISTORY }|--|| ASSET_HOLDINGS : "é um snapshot de"
+    VARIABLE_INCOME_ASSETS ||--|{ STOCK_QUOTE_HISTORY : "tem histórico de cotações"
 ```
 *Legenda: `NN` indica que o campo é obrigatório (NOT NULL). A constraint `UNIQUE(holding_id, reference_date)` garante que não existam registros duplicados de histórico para a mesma posição no mesmo mês.* 
 
@@ -227,7 +239,37 @@ CREATE TABLE holding_history (
 );
 ```
 
-## 5. Índices Recomendados
+## 5. Tabela de Histórico de Cotações
+
+A tabela `stock_quote_history` armazena o histórico diário de cotações de ações (OHLCV - Open, High, Low, Close, Volume) obtidas da API brapi. Esta tabela permite consultar cotações históricas e identificar o último dia útil do mês para cada ticker.
+
+### `stock_quote_history`
+
+```sql
+CREATE TABLE stock_quote_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticker TEXT NOT NULL,
+    date TEXT NOT NULL, -- Formato 'YYYY-MM-DD' (ISO 8601)
+    open REAL,
+    high REAL,
+    low REAL,
+    close REAL,
+    volume INTEGER,
+    adjusted_close REAL,
+    
+    FOREIGN KEY (ticker) REFERENCES variable_income_assets(ticker) ON DELETE CASCADE,
+    UNIQUE (ticker, date)
+);
+```
+
+**Notas importantes:**
+- A coluna `date` armazena a data no formato ISO 8601 (`YYYY-MM-DD`), seguindo o padrão do projeto para armazenamento de datas.
+- Os dados históricos da API brapi retornam timestamps Unix que devem ser convertidos para o formato ISO 8601 antes de serem armazenados.
+- A constraint `UNIQUE (ticker, date)` garante que não existam registros duplicados de cotações para o mesmo ticker na mesma data.
+- Os campos `open`, `high`, `low`, `close`, `volume` e `adjusted_close` podem ser nulos, permitindo armazenar dados incompletos quando necessário.
+- As consultas do último dia útil do mês podem ser realizadas usando funções SQL de manipulação de strings (ex: `SUBSTR()` para extrair ano/mês) ou funções de data disponíveis no SQLite.
+
+## 6. Índices Recomendados
 
 Os índices abaixo são recomendados para otimizar consultas frequentes no sistema. Eles melhoram significativamente a performance de buscas e joins, especialmente quando o volume de dados cresce.
 
@@ -274,7 +316,23 @@ CREATE INDEX idx_assets_category ON assets(category);
 
 **Nota**: A criação de índices deve ser balanceada com o impacto em operações de escrita (INSERT, UPDATE, DELETE), que podem ficar mais lentas. Em sistemas com alta frequência de escrita, avalie a necessidade de cada índice individualmente.
 
-## 6. Políticas de Integridade Referencial
+### Índices em `stock_quote_history`
+
+```sql
+-- Otimiza consultas por ticker (ex: buscar todo histórico de um ticker)
+CREATE INDEX idx_stock_quote_history_ticker ON stock_quote_history(ticker);
+
+-- Otimiza consultas por data (ex: buscar cotações de uma data específica)
+CREATE INDEX idx_stock_quote_history_date ON stock_quote_history(date);
+
+-- Índice único composto para garantir unicidade e otimizar buscas por ticker e data
+-- Nota: O UNIQUE já cria um índice automaticamente, mas é documentado aqui para referência
+-- CREATE UNIQUE INDEX já existe em stock_quote_history(ticker, date)
+```
+
+**Nota sobre consultas do último dia útil do mês**: Para consultar o último dia útil do mês de um ticker específico, pode-se usar funções SQL de manipulação de strings como `SUBSTR(date, 1, 7)` para extrair o ano-mês (`YYYY-MM`) e filtrar por dias úteis (excluindo sábados e domingos). Alternativamente, pode-se usar funções de data disponíveis no SQLite se suportadas pela versão.
+
+## 7. Políticas de Integridade Referencial
 
 As políticas de integridade referencial definem o comportamento do banco de dados quando registros referenciados são deletados. O modelo utiliza duas estratégias principais:
 
@@ -291,6 +349,9 @@ Remove automaticamente os registros dependentes quando o registro pai é deletad
   
 - `asset_holdings` → `holding_history`
   - **Justificativa**: O histórico mensal é um snapshot de uma posição específica. Se a posição é removida, seu histórico também deve ser removido.
+  
+- `variable_income_assets` → `stock_quote_history`
+  - **Justificativa**: O histórico de cotações está vinculado a um ticker específico. Se um ativo de renda variável é removido (e consequentemente seu ticker), o histórico de cotações relacionado também deve ser removido, pois não faz sentido manter cotações de um ticker que não existe mais no sistema.
 
 ### `ON DELETE RESTRICT`
 
@@ -308,13 +369,14 @@ Impede a deleção do registro pai se existirem registros dependentes. Utilizado
 
 ### Resumo das Políticas
 
-| Tabela Pai       | Tabela Filha             | Política | Motivo                                |
-|------------------|--------------------------|----------|---------------------------------------|
-| `issuers`        | `assets`                 | RESTRICT | Preservar integridade histórica       |
-| `assets`         | `fixed_income_assets`    | CASCADE  | Extensão do ativo                     |
-| `assets`         | `variable_income_assets` | CASCADE  | Extensão do ativo                     |
-| `assets`         | `investment_fund_assets` | CASCADE  | Extensão do ativo                     |
-| `assets`         | `asset_holdings`         | CASCADE  | Posição sem ativo não faz sentido     |
-| `owners`         | `asset_holdings`         | RESTRICT | Preservar dados de investimento       |
-| `brokerages`     | `asset_holdings`         | RESTRICT | Preservar dados de custódia           |
-| `asset_holdings` | `holding_history`        | CASCADE  | Histórico sem posição não faz sentido |
+| Tabela Pai               | Tabela Filha             | Política | Motivo                                |
+|--------------------------|--------------------------|----------|---------------------------------------|
+| `issuers`                | `assets`                 | RESTRICT | Preservar integridade histórica       |
+| `assets`                 | `fixed_income_assets`    | CASCADE  | Extensão do ativo                     |
+| `assets`                 | `variable_income_assets` | CASCADE  | Extensão do ativo                     |
+| `assets`                 | `investment_fund_assets` | CASCADE  | Extensão do ativo                     |
+| `assets`                 | `asset_holdings`         | CASCADE  | Posição sem ativo não faz sentido     |
+| `owners`                 | `asset_holdings`         | RESTRICT | Preservar dados de investimento       |
+| `brokerages`             | `asset_holdings`         | RESTRICT | Preservar dados de custódia           |
+| `asset_holdings`         | `holding_history`        | CASCADE  | Histórico sem posição não faz sentido |
+| `variable_income_assets` | `stock_quote_history`    | CASCADE  | Histórico sem ticker não faz sentido  |
