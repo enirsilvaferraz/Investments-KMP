@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,7 +30,8 @@ internal fun InputTextMoney(
     enabled: Boolean,
 ) {
 
-    var textFieldValueState: TextFieldValue by remember(value) {
+    // Mantém o estado interno persistente, não recria quando value muda
+    var textFieldValueState: TextFieldValue by remember {
         val textValue = (value * 100).toInt().toString()
         mutableStateOf(
             TextFieldValue(
@@ -37,6 +39,23 @@ internal fun InputTextMoney(
                 selection = TextRange(textValue.length)
             )
         )
+    }
+
+    // Sincroniza o estado interno com o valor externo apenas quando o valor externo muda
+    // de forma independente (não causado pela edição do usuário)
+    LaunchedEffect(value) {
+        val currentTextValue = textFieldValueState.text.trimStart { it == '0' }
+        val currentValue = if (currentTextValue.isEmpty()) 0.0 else currentTextValue.toDouble() / 100
+        
+        // Só atualiza se o valor externo for diferente do valor atual do campo
+        // Isso evita resetar o campo quando o usuário está editando
+        if (kotlin.math.abs(currentValue - value) > 0.001) {
+            val textValue = (value * 100).toInt().toString()
+            textFieldValueState = TextFieldValue(
+                text = textValue,
+                selection = TextRange(textValue.length)
+            )
+        }
     }
 
     val colors = MaterialTheme.colorScheme

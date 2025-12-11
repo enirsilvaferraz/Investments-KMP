@@ -13,8 +13,7 @@ import kotlinx.datetime.LocalDate
 internal class HoldingHistoryRow(
     val viewData: ViewData,
     val formatted: Formatted,
-    val currentEntryId: Long?,
-    val holdingId: AssetHolding,
+    val currentHistory: HoldingHistoryEntry
 ) {
 
     data class Formatted(
@@ -44,8 +43,8 @@ internal class HoldingHistoryRow(
         @Composable
         fun create(
             holding: AssetHolding,
-            currentEntry: HoldingHistoryEntry?,
-            previousEntry: HoldingHistoryEntry?,
+            currentEntry: HoldingHistoryEntry,
+            previousEntry: HoldingHistoryEntry,
         ): HoldingHistoryRow {
 
             val assetView = AssetView.create(holding.asset)
@@ -87,8 +86,7 @@ internal class HoldingHistoryRow(
             return HoldingHistoryRow(
                 formatted = formatted,
                 viewData = viewData,
-                currentEntryId = currentEntry?.id,
-                holdingId = holding,
+                currentHistory = currentEntry,
             )
         }
 
