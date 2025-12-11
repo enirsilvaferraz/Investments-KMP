@@ -44,25 +44,58 @@ public class GetHoldingHistoryUseCase(
             }
         }
 
+        triples.values.filter { it.second == null && it.first.asset !is VariableIncomeAsset }.forEach { (holding, _, previous) ->
+println("Asset -> ${holding.asset.name}")
+            if (previous != null) {
+                HoldingHistoryEntry(
+                    holding = holding,
+                    referenceDate = referenceDate,
+                    endOfMonthValue = previous.endOfMonthValue,
+                    endOfMonthQuantity = previous.endOfMonthQuantity,
+                    endOfMonthAverageCost = previous.endOfMonthAverageCost,
+                    totalInvested = previous.totalInvested
+                )
+            } else {
+                HoldingHistoryEntry(
+                    holding = holding,
+                    referenceDate = referenceDate,
+                    endOfMonthValue = 0.0,
+                    endOfMonthQuantity = 1.0,
+                    endOfMonthAverageCost = 0.0,
+                    totalInvested = 0.0
+                )
+            }.also {
+                val id = holdingHistoryRepository.insert(it)
+                triples[holding.id] = triples[holding.id]!!.copy(second = it.copy(id = id))
+            }
+        }
+
         if (referenceDate == Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).let { now -> YearMonth(now.year, now.month) }) {
 
             val filter = triples.values.filter { it.first.asset is VariableIncomeAsset && it.second == null }
 
-            filter.forEach { (holding, _, _) ->
+            filter.forEach { (holding, current, previous) ->
                 val quoteHistory = getQuotesUseCase((holding.asset as VariableIncomeAsset).ticker)
                 val holdingHistoryEntry = HoldingHistoryEntry(
                     holding = holding,
                     referenceDate = referenceDate,
                     endOfMonthValue = quoteHistory.close ?: quoteHistory.adjustedClose ?: 0.0,
-                    endOfMonthQuantity = 0.0,
+                    endOfMonthQuantity = current?.endOfMonthQuantity ?: previous?.endOfMonthQuantity ?: 0.0,
                     endOfMonthAverageCost = 0.0,
                     totalInvested = 0.0
                 )
-                holdingHistoryRepository.insert(holdingHistoryEntry)
-                triples[holding.id] = triples[holding.id]!!.copy(second = holdingHistoryEntry)
+                val id = holdingHistoryRepository.insert(holdingHistoryEntry)
+                triples[holding.id] = triples[holding.id]!!.copy(second = holdingHistoryEntry.copy(id = id))
             }
         }
 
-        return triples.values.toList()
+        return triples.values.toList().also {
+
+            it.sumOf { triple ->
+                (triple.second?.endOfMonthValue ?: 0.0) * (triple.second?.endOfMonthQuantity ?: 0.0)
+            }.also {
+                println("Total: " + it)
+            }
+        }
     }
 }

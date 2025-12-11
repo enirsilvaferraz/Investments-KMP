@@ -67,7 +67,7 @@ internal class HoldingHistoryRow(
                 maturity = assetView.maturity,
                 issuer = assetView.issuer,
                 previousValue = previousValue,
-                currentValue = currentValue ?: 0.0,
+                currentValue = ((currentValue ?: 0.0) * (currentQuantity ?: 0.0)).takeIf { it != 0.0 } ?: 0.0,
                 appreciation = formatAppreciation(currentValue, previousValue),
                 appreciationValue = appreciationValue,
                 situation = formatSituation(
