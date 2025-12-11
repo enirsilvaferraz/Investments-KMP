@@ -21,11 +21,6 @@ internal class HoldingHistoryRepositoryImpl(
     override suspend fun getByHoldingAndReferenceDate(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? =
         dataSource.getByHoldingAndReferenceDate(referenceDate, holding)
 
-    override suspend fun update(entry: HoldingHistoryEntry) {
-        dataSource.update(entry)
-    }
-
-    override suspend fun insert(entry: HoldingHistoryEntry) =
-        dataSource.insert(entry)
+    override suspend fun upsert(entry: HoldingHistoryEntry) =
+        dataSource.upsert(entry)
 }
-

@@ -2,10 +2,10 @@ package com.eferraz.presentation.features.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.AssetHolding
 import com.eferraz.usecases.HoldingHistoryResult
 import com.eferraz.usecases.MergeHistoryUseCase
-import com.eferraz.usecases.repositories.HoldingHistoryRepository
+import com.eferraz.usecases.UpsertHoldingHistoryUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -20,13 +20,13 @@ import kotlin.time.ExperimentalTime
 @KoinViewModel
 internal class HistoryViewModel(
     private val getHoldingHistoryUseCase: MergeHistoryUseCase,
-    private val repository: HoldingHistoryRepository,
+    private val upsertHoldingHistoryUseCase: UpsertHoldingHistoryUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(
         HistoryState(
             selectedPeriod = getCurrentYearMonth(),
-            periods = listOf(YearMonth(2025, 10), YearMonth(2025, 11), YearMonth(2025, 12), YearMonth(2026, 1), YearMonth(2026, 2))
+            periods = listOf(YearMonth(2025, 12), YearMonth(2026, 1), YearMonth(2026, 2))
         )
     )
     val state = _state.asStateFlow()
@@ -40,21 +40,24 @@ internal class HistoryViewModel(
         loadPeriodData(period)
     }
 
-    fun updateEntryValue(entryId: Long?, holdingId: Long, value: Double) {
-        viewModelScope.launch {
-            val result = _state.value.entries.firstOrNull { it.holding.id == holdingId }
-                ?: return@launch
+    fun updateEntryValue(
+        entryId: Long?,
+        holding: AssetHolding,
+        value: Double,
+    ) {
 
-            val entry = HoldingHistoryEntry(
-                id = entryId,
-                holding = result.holding,
-                referenceDate = _state.value.selectedPeriod,
-                endOfMonthValue = value,
-                endOfMonthQuantity = 1.0,
-                endOfMonthAverageCost = value
-            )
-            if (entryId == null) repository.insert(entry) else repository.update(entry)
-            loadPeriodData(_state.value.selectedPeriod)
+        viewModelScope.launch {
+
+            upsertHoldingHistoryUseCase(
+                UpsertHoldingHistoryUseCase.Params(
+                    entryId = entryId,
+                    holding = holding,
+                    referenceDate = _state.value.selectedPeriod,
+                    endOfMonthValue = value
+                )
+            ).onSuccess {
+                loadPeriodData(_state.value.selectedPeriod)
+            }
         }
     }
 

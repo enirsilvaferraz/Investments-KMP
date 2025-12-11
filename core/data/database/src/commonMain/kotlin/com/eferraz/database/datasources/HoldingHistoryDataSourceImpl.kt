@@ -32,12 +32,8 @@ internal class HoldingHistoryDataSourceImpl(
         return historyWithDetails.history.toModel(holding)
     }
 
-    override suspend fun update(entry: HoldingHistoryEntry) {
-        holdingHistoryDao.update(entry.toEntity())
-    }
-
-    override suspend fun insert(entry: HoldingHistoryEntry): Long =
-        holdingHistoryDao.insert(entry.toEntity())
+    override suspend fun upsert(entry: HoldingHistoryEntry): Long =
+        holdingHistoryDao.upsert(entry.toEntity())
 
     private fun HoldingHistoryEntry.toEntity() =
         HoldingHistoryEntryEntity(

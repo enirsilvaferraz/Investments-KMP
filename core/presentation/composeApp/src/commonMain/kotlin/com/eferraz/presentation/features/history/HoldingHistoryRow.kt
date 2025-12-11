@@ -14,7 +14,7 @@ internal class HoldingHistoryRow(
     val viewData: ViewData,
     val formatted: Formatted,
     val currentEntryId: Long?,
-    val holdingId: Long,
+    val holdingId: AssetHolding,
 ) {
 
     data class Formatted(
@@ -88,7 +88,7 @@ internal class HoldingHistoryRow(
                 formatted = formatted,
                 viewData = viewData,
                 currentEntryId = currentEntry?.id,
-                holdingId = holding.id,
+                holdingId = holding,
             )
         }
 

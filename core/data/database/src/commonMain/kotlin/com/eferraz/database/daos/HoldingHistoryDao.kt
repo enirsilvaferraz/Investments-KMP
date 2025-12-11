@@ -1,10 +1,10 @@
 package com.eferraz.database.daos
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.Upsert
 import com.eferraz.database.entities.HoldingHistoryEntryEntity
 import com.eferraz.database.entities.relationship.HoldingHistoryWithDetails
 import kotlinx.datetime.YearMonth
@@ -15,11 +15,8 @@ import kotlinx.datetime.YearMonth
 @Dao
 internal interface HoldingHistoryDao {
 
-    @Insert
-    suspend fun insert(historyEntry: HoldingHistoryEntryEntity): Long
-
-    @Insert
-    suspend fun insertAll(historyEntries: List<HoldingHistoryEntryEntity>): List<Long>
+    @Upsert
+    suspend fun upsert(historyEntry: HoldingHistoryEntryEntity): Long
 
     @Update
     suspend fun update(historyEntry: HoldingHistoryEntryEntity)

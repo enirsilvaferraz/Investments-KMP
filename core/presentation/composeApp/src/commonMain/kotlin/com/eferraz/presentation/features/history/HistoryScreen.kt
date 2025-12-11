@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eferraz.entities.AssetHolding
 import com.eferraz.usecases.HoldingHistoryResult
 import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.DataTable
@@ -102,7 +103,7 @@ private fun HistoryActions(
 private fun HistoryScreen(
     modifier: Modifier = Modifier,
     entries: List<HoldingHistoryResult>,
-    onUpdateValue: (Long?, Long, Double) -> Unit,
+    onUpdateValue: (Long?, AssetHolding, Double) -> Unit,
 ) {
 
     DataTable(

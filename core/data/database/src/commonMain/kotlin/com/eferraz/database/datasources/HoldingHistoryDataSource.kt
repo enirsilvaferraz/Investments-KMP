@@ -5,8 +5,7 @@ import com.eferraz.entities.HoldingHistoryEntry
 import kotlinx.datetime.YearMonth
 
 public interface HoldingHistoryDataSource {
-    public suspend fun insert(entry: HoldingHistoryEntry): Long
-    public suspend fun update(entry: HoldingHistoryEntry)
+    public suspend fun upsert(entry: HoldingHistoryEntry): Long
     public suspend fun getAllHoldings(): List<AssetHolding>
     public suspend fun getByReferenceDate(referenceDate: YearMonth): List<HoldingHistoryEntry>
     public suspend fun getByHoldingAndReferenceDate(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry?
