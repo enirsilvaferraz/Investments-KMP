@@ -27,6 +27,11 @@ internal class HoldingHistoryDataSourceImpl(
         }
     }
 
+    override suspend fun getByHoldingAndReferenceDate(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? {
+        val historyWithDetails = holdingHistoryDao.getByHoldingAndReferenceDate(referenceDate, holding.id) ?: return null
+        return historyWithDetails.history.toModel(holding)
+    }
+
     override suspend fun update(entry: HoldingHistoryEntry) {
         holdingHistoryDao.update(entry.toEntity())
     }

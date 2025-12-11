@@ -17,8 +17,13 @@ public data class HoldingHistoryEntry(
     public val id: Long? = null,
     public val holding: AssetHolding,
     public val referenceDate: YearMonth,
-    public val endOfMonthValue: Double,
-    public val endOfMonthQuantity: Double,
-    public val endOfMonthAverageCost: Double,
-    public val totalInvested: Double = endOfMonthAverageCost // TODO ENIR
-)
+    public val endOfMonthValue: Double = DEFAULT_VALUE,
+    public val endOfMonthQuantity: Double = DEFAULT_QUANTITY,
+    public val endOfMonthAverageCost: Double = DEFAULT_VALUE,
+    public val totalInvested: Double = endOfMonthAverageCost, // TODO ENIR
+) {
+    private companion object {
+        private const val DEFAULT_VALUE = 0.0
+        private const val DEFAULT_QUANTITY = 1.0
+    }
+}

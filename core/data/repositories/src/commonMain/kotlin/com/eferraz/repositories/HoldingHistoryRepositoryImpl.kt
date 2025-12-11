@@ -18,6 +18,9 @@ internal class HoldingHistoryRepositoryImpl(
     override suspend fun getByReferenceDate(referenceDate: YearMonth): List<HoldingHistoryEntry> =
         dataSource.getByReferenceDate(referenceDate)
 
+    override suspend fun getByHoldingAndReferenceDate(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? =
+        dataSource.getByHoldingAndReferenceDate(referenceDate, holding)
+
     override suspend fun update(entry: HoldingHistoryEntry) {
         dataSource.update(entry)
     }

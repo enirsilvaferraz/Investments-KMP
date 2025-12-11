@@ -3,8 +3,8 @@ package com.eferraz.presentation.features.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.usecases.GetHoldingHistoryUseCase
 import com.eferraz.usecases.HoldingHistoryResult
+import com.eferraz.usecases.MergeHistoryUseCase
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +19,7 @@ import kotlin.time.ExperimentalTime
 
 @KoinViewModel
 internal class HistoryViewModel(
-    private val getHoldingHistoryUseCase: GetHoldingHistoryUseCase,
+    private val getHoldingHistoryUseCase: MergeHistoryUseCase,
     private val repository: HoldingHistoryRepository,
 ) : ViewModel() {
 
@@ -44,7 +44,7 @@ internal class HistoryViewModel(
         viewModelScope.launch {
             val result = _state.value.entries.firstOrNull { it.holding.id == holdingId }
                 ?: return@launch
-            
+
             val entry = HoldingHistoryEntry(
                 id = entryId,
                 holding = result.holding,
@@ -60,8 +60,9 @@ internal class HistoryViewModel(
 
     private fun loadPeriodData(period: YearMonth) {
         viewModelScope.launch {
-            val entries = getHoldingHistoryUseCase(period)
-            _state.update { it.copy(entries = entries) }
+            getHoldingHistoryUseCase(MergeHistoryUseCase.Param(period)).onSuccess { entries ->
+                _state.update { it.copy(entries = entries) }
+            }
         }
     }
 
