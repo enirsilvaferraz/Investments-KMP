@@ -2,9 +2,9 @@ package com.eferraz.presentation.features.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.usecases.GetHoldingHistoryUseCase
+import com.eferraz.usecases.HoldingHistoryResult
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,9 +42,12 @@ internal class HistoryViewModel(
 
     fun updateEntryValue(entryId: Long?, holdingId: Long, value: Double) {
         viewModelScope.launch {
+            val result = _state.value.entries.firstOrNull { it.holding.id == holdingId }
+                ?: return@launch
+            
             val entry = HoldingHistoryEntry(
                 id = entryId,
-                holding = _state.value.entries.first { it.first.id == holdingId }.first,
+                holding = result.holding,
                 referenceDate = _state.value.selectedPeriod,
                 endOfMonthValue = value,
                 endOfMonthQuantity = 1.0,
@@ -70,7 +73,7 @@ internal class HistoryViewModel(
 
     data class HistoryState(
         val selectedPeriod: YearMonth,
-        val entries: List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>> = emptyList(),
+        val entries: List<HoldingHistoryResult> = emptyList(),
         val periods: List<YearMonth> = emptyList(),
     )
 }

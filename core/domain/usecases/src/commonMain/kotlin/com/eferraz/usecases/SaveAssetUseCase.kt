@@ -5,6 +5,10 @@ import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.Liquidity
 import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.usecases.entities.AssetFormData
+import com.eferraz.usecases.entities.FixedIncomeFormData
+import com.eferraz.usecases.entities.InvestmentFundFormData
+import com.eferraz.usecases.entities.VariableIncomeFormData
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.BrokerageRepository

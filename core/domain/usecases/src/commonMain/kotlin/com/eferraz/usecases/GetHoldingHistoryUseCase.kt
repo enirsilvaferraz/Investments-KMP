@@ -1,101 +1,150 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.usecases.providers.DateProvider
+import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
-import kotlinx.datetime.TimeZone
+import com.eferraz.usecases.strategies.HoldingHistoryEntryCreationStrategyFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
-import kotlinx.datetime.toLocalDateTime
 import org.koin.core.annotation.Factory
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
+/**
+ * Use case responsável por obter o histórico de posições de ativos para uma data de referência.
+ *
+ * Este use case:
+ * - Busca todas as posições de ativos (holdings)
+ * - Obtém as entradas de histórico para o mês de referência e o mês anterior
+ * - Cria entradas faltantes usando estratégias baseadas no tipo de ativo
+ *
+ * @property assetHoldingRepository Repositório para acesso a posições de ativos
+ * @property holdingHistoryRepository Repositório para acesso ao histórico de posições
+ * @property strategyFactory Factory para obter estratégias de criação de entradas
+ * @property dateProvider Provider para obter a data atual
+ */
 @Factory
 public class GetHoldingHistoryUseCase(
+    private val assetHoldingRepository: AssetHoldingRepository,
     private val holdingHistoryRepository: HoldingHistoryRepository,
-    private val getQuotesUseCase: GetQuotesUseCase,
+    private val strategyFactory: HoldingHistoryEntryCreationStrategyFactory,
+    private val dateProvider: DateProvider,
 ) {
 
-    @OptIn(ExperimentalTime::class)
-    public suspend operator fun invoke(referenceDate: YearMonth): List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>> {
+    /**
+     * Obtém o histórico de posições para uma data de referência.
+     *
+     * @param referenceDate A data de referência (mês/ano) para a qual o histórico será obtido
+     * @return Lista de resultados contendo cada posição com suas entradas de histórico atual e anterior
+     * @throws Exception Se houver erro ao buscar dados dos repositórios
+     */
+    public suspend operator fun invoke(referenceDate: YearMonth): List<HoldingHistoryResult> = withContext(Dispatchers.Default) {
+        try {
+            val previousMonth = referenceDate.minusMonth()
 
-        val previousMonth = referenceDate.minusMonth()
+            val holdings = assetHoldingRepository.getAll()
+            val currentEntries = holdingHistoryRepository.getByReferenceDate(referenceDate)
+            val previousEntries = holdingHistoryRepository.getByReferenceDate(previousMonth)
 
-        val holdings = holdingHistoryRepository.getAllHoldings() // TODO Mover para outro repository
-        val current = holdingHistoryRepository.getByReferenceDate(referenceDate)
-        val previous = holdingHistoryRepository.getByReferenceDate(previousMonth)
+            val historyMap = buildHoldingHistoryMap(holdings, currentEntries, previousEntries)
 
-        val triples: HashMap<Long, Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>> =
-            HashMap(holdings.map { Triple(it, null, null) }.associateBy { it.first.id })
+            createMissingEntries(historyMap, referenceDate, previousEntries)
 
-        current.forEach { entry ->
-            val holding = triples[entry.holding.id]?.first
-            if (holding != null) {
-                triples[entry.holding.id] = triples[entry.holding.id]!!.copy(second = entry)
-            }
+            historyMap.values.toList()
+        } catch (e: Exception) {
+            throw Exception("Erro ao obter histórico de posições: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Constrói o mapa inicial de histórico com todas as posições.
+     */
+    private fun buildHoldingHistoryMap(
+        holdings: List<com.eferraz.entities.AssetHolding>,
+        currentEntries: List<HoldingHistoryEntry>,
+        previousEntries: List<HoldingHistoryEntry>,
+    ): MutableMap<Long, HoldingHistoryResult> {
+        val historyMap = holdings.associateBy(
+            keySelector = { it.id },
+            valueTransform = { HoldingHistoryResult(holding = it) }
+        ).toMutableMap()
+
+        populateEntries(historyMap, currentEntries) { result, entry ->
+            result.copy(currentEntry = entry)
         }
 
-        previous.forEach { entry ->
-            val holding = triples[entry.holding.id]?.first
-            if (holding != null) {
-                triples[entry.holding.id] = triples[entry.holding.id]!!.copy(third = entry)
-            }
+        populateEntries(historyMap, previousEntries) { result, entry ->
+            result.copy(previousEntry = entry)
         }
 
-        triples.values.filter { it.second == null && it.first.asset !is VariableIncomeAsset }.forEach { (holding, _, previous) ->
-println("Asset -> ${holding.asset.name}")
-            if (previous != null) {
-                HoldingHistoryEntry(
-                    holding = holding,
-                    referenceDate = referenceDate,
-                    endOfMonthValue = previous.endOfMonthValue,
-                    endOfMonthQuantity = previous.endOfMonthQuantity,
-                    endOfMonthAverageCost = previous.endOfMonthAverageCost,
-                    totalInvested = previous.totalInvested
-                )
-            } else {
-                HoldingHistoryEntry(
-                    holding = holding,
-                    referenceDate = referenceDate,
-                    endOfMonthValue = 0.0,
-                    endOfMonthQuantity = 1.0,
-                    endOfMonthAverageCost = 0.0,
-                    totalInvested = 0.0
-                )
-            }.also {
-                val id = holdingHistoryRepository.insert(it)
-                triples[holding.id] = triples[holding.id]!!.copy(second = it.copy(id = id))
+        return historyMap
+    }
+
+    /**
+     * Popula entradas no mapa de histórico de forma genérica.
+     *
+     * @param historyMap O mapa de histórico a ser populado
+     * @param entries As entradas a serem adicionadas
+     * @param updateResult Função para atualizar o resultado com a entrada
+     */
+    private fun populateEntries(
+        historyMap: MutableMap<Long, HoldingHistoryResult>,
+        entries: List<HoldingHistoryEntry>,
+        updateResult: (HoldingHistoryResult, HoldingHistoryEntry) -> HoldingHistoryResult,
+    ) {
+        entries.forEach { entry ->
+            val existingResult = historyMap[entry.holding.id]
+            if (existingResult != null) {
+                historyMap[entry.holding.id] = updateResult(existingResult, entry)
             }
         }
+    }
 
-        if (referenceDate == Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).let { now -> YearMonth(now.year, now.month) }) {
+    /**
+     * Cria entradas faltantes usando estratégias baseadas no tipo de ativo.
+     */
+    private suspend fun createMissingEntries(
+        historyMap: MutableMap<Long, HoldingHistoryResult>,
+        referenceDate: YearMonth,
+        previousEntries: List<HoldingHistoryEntry>,
+    ) {
+        val previousEntriesMap = previousEntries.associateBy { it.holding.id }
+        val isCurrentMonth = referenceDate == dateProvider.getCurrentYearMonth()
 
-            val filter = triples.values.filter { it.first.asset is VariableIncomeAsset && it.second == null }
+        historyMap.values
+            .filter { result -> result.currentEntry == null }
+            .forEach { result ->
+                val strategy = strategyFactory.getStrategy(result.holding.asset)
+                    ?: return@forEach
 
-            filter.forEach { (holding, current, previous) ->
-                val quoteHistory = getQuotesUseCase((holding.asset as VariableIncomeAsset).ticker)
-                val holdingHistoryEntry = HoldingHistoryEntry(
-                    holding = holding,
-                    referenceDate = referenceDate,
-                    endOfMonthValue = quoteHistory.close ?: quoteHistory.adjustedClose ?: 0.0,
-                    endOfMonthQuantity = current?.endOfMonthQuantity ?: previous?.endOfMonthQuantity ?: 0.0,
-                    endOfMonthAverageCost = 0.0,
-                    totalInvested = 0.0
-                )
-                val id = holdingHistoryRepository.insert(holdingHistoryEntry)
-                triples[holding.id] = triples[holding.id]!!.copy(second = holdingHistoryEntry.copy(id = id))
+                // Para renda variável, só cria se for o mês atual
+                if (result.holding.asset is VariableIncomeAsset && !isCurrentMonth) {
+                    return@forEach
+                }
+
+                try {
+                    val previousEntry = previousEntriesMap[result.holding.id]
+                    val newEntry = strategy.createEntry(
+                        holding = result.holding,
+                        referenceDate = referenceDate,
+                        previousEntry = previousEntry,
+                        currentEntry = result.currentEntry,
+                    )
+
+                    val insertedId = holdingHistoryRepository.insert(newEntry)
+                    val entryWithId = newEntry.copy(id = insertedId)
+
+                    historyMap[result.holding.id] = result.copy(currentEntry = entryWithId)
+                } catch (e: Exception) {
+                    // Log do erro mas continua processando outras entradas
+                    // Em produção, considerar usar um logger apropriado
+                    throw Exception(
+                        "Erro ao criar entrada de histórico para holding ${result.holding.id}: ${e.message}",
+                        e
+                    )
+                }
             }
-        }
-
-        return triples.values.toList().also {
-
-            it.sumOf { triple ->
-                (triple.second?.endOfMonthValue ?: 0.0) * (triple.second?.endOfMonthQuantity ?: 0.0)
-            }.also {
-                println("Total: " + it)
-            }
-        }
     }
 }

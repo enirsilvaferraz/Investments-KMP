@@ -1,7 +1,7 @@
 package com.eferraz.presentation.features.assetForm
 
-import com.eferraz.usecases.AssetFormData
-import com.eferraz.usecases.FixedIncomeFormData
+import com.eferraz.usecases.entities.AssetFormData
+import com.eferraz.usecases.entities.FixedIncomeFormData
 
 internal data class AssetFormState(
     val issuers: List<String> = emptyList(),

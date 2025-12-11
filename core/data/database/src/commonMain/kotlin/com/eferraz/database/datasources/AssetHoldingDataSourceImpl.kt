@@ -4,7 +4,6 @@ import com.eferraz.database.daos.AssetHoldingDao
 import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.OwnerDao
 import com.eferraz.database.entities.AssetHoldingEntity
-import com.eferraz.entities.Asset
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.Brokerage
 import com.eferraz.entities.Owner
@@ -42,27 +41,42 @@ internal class AssetHoldingDataSourceImpl(
             // Se não tem ID, é inserção
             assetHolding.toEntity()
         }
-        
+
         // @Upsert cuida de inserir ou atualizar automaticamente
         return assetHoldingDao.upsert(entity)
     }
 
     override suspend fun getByAssetId(assetId: Long): AssetHolding? {
         val entity = assetHoldingDao.getByAssetId(assetId) ?: return null
-        
+
         // Buscar Asset completo
         val asset = assetDataSource.getByID(assetId) ?: return null
-        
+
         // Buscar Owner e Brokerage
         val ownerEntity = ownerDao.getById(entity.ownerId) ?: return null
         val brokerageEntity = brokerageDao.getById(entity.brokerageId) ?: return null
-        
+
         return AssetHolding(
             id = entity.id,
             asset = asset,
             owner = Owner(id = ownerEntity.id, name = ownerEntity.name),
             brokerage = Brokerage(id = brokerageEntity.id, name = brokerageEntity.name)
         )
+    }
+
+    override suspend fun getAll(): List<AssetHolding> {
+        val assetsMap = assetDataSource.getAll().associateBy { asset -> asset.id }
+        val holdingsWithDetails = assetHoldingDao.getAllWithAsset()
+
+        return holdingsWithDetails.mapNotNull { holdingWithDetails ->
+            val asset = assetsMap[holdingWithDetails.asset.id] ?: return@mapNotNull null
+            AssetHolding(
+                id = holdingWithDetails.holding.id,
+                asset = asset,
+                owner = Owner(id = holdingWithDetails.owner.id, name = holdingWithDetails.owner.name),
+                brokerage = Brokerage(id = holdingWithDetails.brokerage.id, name = holdingWithDetails.brokerage.name)
+            )
+        }
     }
 
     override suspend fun delete(id: Long) {

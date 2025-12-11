@@ -32,10 +32,10 @@ import com.eferraz.entities.VariableIncomeAssetType
 import com.eferraz.presentation.design_system.components.EnumDropdown
 import com.eferraz.presentation.design_system.components.FormTextField
 import com.eferraz.presentation.helpers.Formatters.formated
-import com.eferraz.usecases.AssetFormData
-import com.eferraz.usecases.FixedIncomeFormData
-import com.eferraz.usecases.InvestmentFundFormData
-import com.eferraz.usecases.VariableIncomeFormData
+import com.eferraz.usecases.entities.AssetFormData
+import com.eferraz.usecases.entities.FixedIncomeFormData
+import com.eferraz.usecases.entities.InvestmentFundFormData
+import com.eferraz.usecases.entities.VariableIncomeFormData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

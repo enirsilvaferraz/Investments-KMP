@@ -24,8 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.usecases.HoldingHistoryResult
 import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.InputTextMoney
@@ -102,7 +101,7 @@ private fun HistoryActions(
 @Composable
 private fun HistoryScreen(
     modifier: Modifier = Modifier,
-    entries: List<Triple<AssetHolding, HoldingHistoryEntry?, HoldingHistoryEntry?>>,
+    entries: List<HoldingHistoryResult>,
     onUpdateValue: (Long?, Long, Double) -> Unit,
 ) {
 
@@ -181,7 +180,7 @@ private fun HistoryScreen(
                 alignment = Alignment.CenterHorizontally,
             )
         ),
-        data = entries.map { (holding, current, preview) -> HoldingHistoryRow.create(holding, current, preview) },
+        data = entries.map { result -> HoldingHistoryRow.create(result.holding, result.currentEntry, result.previousEntry) },
     )
 }
 

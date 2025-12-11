@@ -1,4 +1,4 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.entities
 
 import com.eferraz.entities.FixedIncomeAssetType
 import com.eferraz.entities.FixedIncomeSubType

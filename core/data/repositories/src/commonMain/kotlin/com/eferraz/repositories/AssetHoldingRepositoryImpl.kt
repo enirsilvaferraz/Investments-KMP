@@ -14,6 +14,8 @@ internal class AssetHoldingRepositoryImpl(
 
     override suspend fun getByAssetId(assetId: Long) = dataSource.getByAssetId(assetId)
 
+    override suspend fun getAll() = dataSource.getAll()
+
     override suspend fun delete(id: Long) = dataSource.delete(id)
 }
 
