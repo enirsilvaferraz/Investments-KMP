@@ -6,5 +6,7 @@ public enum class FixedIncomeSubType {
     LCA,
     CRA,
     CRI,
-    DEBENTURE
+    DEBENTURE,
+    SELIC,
+    PRECATORIO
 }

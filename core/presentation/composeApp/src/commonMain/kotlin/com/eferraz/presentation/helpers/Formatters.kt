@@ -36,6 +36,8 @@ internal object Formatters {
         FixedIncomeSubType.CRA -> "CRA"
         FixedIncomeSubType.CRI -> "CRI"
         FixedIncomeSubType.DEBENTURE -> "Debênture"
+        FixedIncomeSubType.SELIC -> "SELIC"
+        FixedIncomeSubType.PRECATORIO -> "Precatório"
     }
 
     internal fun InvestmentFundAssetType.formated() = when (this) {

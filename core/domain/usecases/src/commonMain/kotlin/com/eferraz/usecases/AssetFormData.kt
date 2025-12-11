@@ -13,20 +13,6 @@ public sealed class AssetFormData {
     public abstract val observations: String?
     public abstract val brokerageName: String?
 
-    /**
-     * Cria uma cópia deste AssetFormData com os campos comuns atualizados.
-     * Permite atualizar campos comuns sem precisar fazer when para cada tipo.
-     * 
-     * @param issuerName Novo valor para issuerName. Se null, mantém o valor atual.
-     * @param observations Novo valor para observations. Se null, mantém o valor atual.
-     * @param brokerageName Novo valor para brokerageName. Se null, mantém o valor atual.
-     */
-    public abstract fun copy(
-        issuerName: String? = null,
-        observations: String? = null,
-        brokerageName: String? = null,
-    ): AssetFormData
-
     public companion object {
 
         public fun build(category: InvestmentCategory): AssetFormData = when (category) {

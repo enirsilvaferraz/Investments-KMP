@@ -62,9 +62,29 @@ internal class AssetFormViewModel(
             is AssetFormIntent.UpdateTicker -> updateVariableIncome { it.copy(ticker = intent.ticker) }
 
             // Common
-            is AssetFormIntent.UpdateIssuerName -> updateCommon { it.copy(issuerName = intent.name) }
-            is AssetFormIntent.UpdateObservations -> updateCommon { it.copy(observations = intent.observations) }
-            is AssetFormIntent.UpdateBrokerageName -> updateCommon { it.copy(brokerageName = intent.name) }
+            is AssetFormIntent.UpdateIssuerName -> updateCommon {
+                when (it) {
+                    is FixedIncomeFormData -> it.copy(issuerName = intent.name)
+                    is InvestmentFundFormData -> it.copy(issuerName = intent.name)
+                    is VariableIncomeFormData -> it.copy(issuerName = intent.name)
+                }
+            }
+
+            is AssetFormIntent.UpdateObservations -> updateCommon {
+                when (it) {
+                    is FixedIncomeFormData -> it.copy(observations = intent.observations)
+                    is InvestmentFundFormData -> it.copy(observations = intent.observations)
+                    is VariableIncomeFormData -> it.copy(observations = intent.observations)
+                }
+            }
+
+            is AssetFormIntent.UpdateBrokerageName -> updateCommon {
+                when (it) {
+                    is FixedIncomeFormData -> it.copy(brokerageName = intent.name)
+                    is InvestmentFundFormData -> it.copy(brokerageName = intent.name)
+                    is VariableIncomeFormData -> it.copy(brokerageName = intent.name)
+                }
+            }
         }
     }
 
@@ -73,7 +93,7 @@ internal class AssetFormViewModel(
     }
 
     private inline fun <reified T : AssetFormData> updateFormField(
-        crossinline update: (T) -> AssetFormData
+        crossinline update: (T) -> AssetFormData,
     ) {
         _state.update { state ->
             when (val formData = state.formData) {
