@@ -12,6 +12,7 @@ import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.Issuer
 import com.eferraz.entities.Liquidity
 import com.eferraz.entities.Owner
+import com.eferraz.entities.StockQuoteHistory
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.entities.VariableIncomeAssetType
 import kotlinx.datetime.LocalDate
@@ -69,4 +70,16 @@ object TestDataFactory {
         endOfMonthAverageCost: Double = 10.0,
         totalInvested: Double = 100.0,
     ) = HoldingHistoryEntry(id, holding, referenceDate, endOfMonthValue, endOfMonthQuantity, endOfMonthAverageCost, totalInvested)
+
+    fun createStockQuoteHistory(
+        id: Long = 1,
+        ticker: String = "TICKER",
+        date: LocalDate = LocalDate(2024, Month.JANUARY, 31),
+        open: Double? = 50.0,
+        high: Double? = 55.0,
+        low: Double? = 48.0,
+        close: Double? = 52.0,
+        volume: Long? = 1000000,
+        adjustedClose: Double? = 52.0,
+    ) = StockQuoteHistory(id, ticker, date, open, high, low, close, volume, adjustedClose)
 }

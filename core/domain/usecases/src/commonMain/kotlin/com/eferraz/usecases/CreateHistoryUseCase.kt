@@ -9,25 +9,25 @@ import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import com.eferraz.usecases.repositories.StockQuoteHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
 import org.koin.core.annotation.Factory
-
 
 @Factory
 public class CreateHistoryUseCase(
     private val holdingHistoryRepository: HoldingHistoryRepository,
     private val quoteHistoryRepository: StockQuoteHistoryRepository,
-    private val context: CoroutineDispatcher = Dispatchers.Default,
-) {
+    context: CoroutineDispatcher = Dispatchers.Default,
+) : AppUseCase<CreateHistoryUseCase.Param, HoldingHistoryEntry>(context) {
 
-    public suspend operator fun invoke(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry = withContext(context) {
+    public data class Param(val referenceDate: YearMonth, val holding: AssetHolding)
 
-        when (holding.asset) {
-            is FixedIncomeAsset, is InvestmentFundAsset -> createFixedIncomeHistory(referenceDate, holding)
-            is VariableIncomeAsset -> createVariableIncomeHistory(referenceDate, holding)
-        } ?: HoldingHistoryEntry(holding = holding, referenceDate = referenceDate)
+    override suspend fun execute(param: Param): HoldingHistoryEntry {
+
+        return when (param.holding.asset) {
+            is FixedIncomeAsset, is InvestmentFundAsset -> createFixedIncomeHistory(param.referenceDate, param.holding)
+            is VariableIncomeAsset -> createVariableIncomeHistory(param.referenceDate, param.holding)
+        } ?: HoldingHistoryEntry(holding = param.holding, referenceDate = param.referenceDate)
     }
 
     private suspend fun createFixedIncomeHistory(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? {

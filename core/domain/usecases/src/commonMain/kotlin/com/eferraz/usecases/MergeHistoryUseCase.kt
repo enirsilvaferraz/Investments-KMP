@@ -27,8 +27,8 @@ public class MergeHistoryUseCase(
         val current = mapByReferenceDate(param.referenceDate, holdings)
 
         return holdings.map { holding ->
-            val currentEntry = current[holding] ?: createHistoryUseCase(param.referenceDate, holding)
-            val previousEntry = previos[holding] ?: createHistoryUseCase(param.referenceDate.minusMonth(), holding)
+            val currentEntry = current[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate, holding)).getOrThrow()
+            val previousEntry = previos[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate.minusMonth(), holding)).getOrThrow()
             HoldingHistoryResult(holding, currentEntry, previousEntry)
         }
     }
