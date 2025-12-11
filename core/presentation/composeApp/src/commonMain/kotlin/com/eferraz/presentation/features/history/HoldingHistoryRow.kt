@@ -13,7 +13,7 @@ import kotlinx.datetime.LocalDate
 internal class HoldingHistoryRow(
     val viewData: ViewData,
     val formatted: Formatted,
-    val currentHistory: HoldingHistoryEntry
+    val currentHistory: HoldingHistoryEntry,
 ) {
 
     data class Formatted(
@@ -35,7 +35,7 @@ internal class HoldingHistoryRow(
         val appreciation: String,
         val appreciationValue: Double?, // Valor numérico para cálculo de cores
         val situation: String,
-        val editable: Boolean
+        val editable: Boolean,
     )
 
     companion object Companion {
@@ -49,14 +49,14 @@ internal class HoldingHistoryRow(
 
             val assetView = AssetView.create(holding.asset)
 
-            val previousQuantity = previousEntry?.endOfMonthQuantity
-            val previousValue = previousEntry?.endOfMonthValue
+            val previousQuantity = previousEntry.endOfMonthQuantity
+            val previousValue = previousEntry.endOfMonthValue
 
-            val currentQuantity = currentEntry?.endOfMonthQuantity
-            val currentValue = currentEntry?.endOfMonthValue
+            val currentQuantity = currentEntry.endOfMonthQuantity
+            val currentValue = currentEntry.endOfMonthValue
 
             val appreciationValue = calculateAppreciationValue(currentValue, previousValue)
-            
+
             val viewData = ViewData(
                 brokerage = holding.brokerage.name,
                 category = assetView.category,
@@ -66,21 +66,20 @@ internal class HoldingHistoryRow(
                 maturity = assetView.maturity,
                 issuer = assetView.issuer,
                 previousValue = previousValue,
-                currentValue = ((currentValue ?: 0.0) * (currentQuantity ?: 0.0)).takeIf { it != 0.0 } ?: 0.0,
+                currentValue = currentValue * currentQuantity,
                 appreciation = formatAppreciation(currentValue, previousValue),
                 appreciationValue = appreciationValue,
                 situation = formatSituation(
                     previousQuantity = previousQuantity,
-                    currentQuantity = currentQuantity,
-                    hasCurrentEntry = currentEntry != null
+                    currentQuantity = currentQuantity
                 ),
                 editable = holding.asset !is VariableIncomeAsset
             )
 
             val formatted = Formatted(
                 maturity = assetView.maturity.formated(),
-                previousValue = previousValue?.currencyFormat() ?: "",
-                currentValue = (currentValue ?: 0.0).currencyFormat(),
+                previousValue = previousValue.currencyFormat(),
+                currentValue = currentValue.currencyFormat(),
             )
 
             return HoldingHistoryRow(
@@ -112,7 +111,7 @@ internal class HoldingHistoryRow(
         internal fun formatSituation(
             previousQuantity: Double?,
             currentQuantity: Double?,
-            hasCurrentEntry: Boolean,
+            hasCurrentEntry: Boolean = true,
         ): String {
             if (!hasCurrentEntry && previousQuantity != null && previousQuantity > 0) {
                 return "Não Registrado"

@@ -1,11 +1,14 @@
 package com.eferraz.usecases
 
 import com.eferraz.entities.AssetHolding
+import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.Liquidity
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
 import org.koin.core.annotation.Factory
@@ -23,6 +26,12 @@ public class MergeHistoryUseCase(
     override suspend fun execute(param: Param): List<HoldingHistoryResult> {
 
         val holdings = assetHoldingRepository.getAll()
+            .filter { holding ->
+                when (val asset = holding.asset) {
+                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY
+                    else -> false
+                }
+            }
         val previos = mapByReferenceDate(param.referenceDate.minusMonth(), holdings)
         val current = mapByReferenceDate(param.referenceDate, holdings)
 
@@ -30,6 +39,8 @@ public class MergeHistoryUseCase(
             val currentEntry = current[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate, holding)).getOrThrow()
             val previousEntry = previos[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate.minusMonth(), holding)).getOrThrow()
             HoldingHistoryResult(holding, currentEntry, previousEntry)
+        }.also { it: List<HoldingHistoryResult> ->
+            println("Total: " + it.sumOf { it.currentEntry.endOfMonthQuantity * it.currentEntry.endOfMonthValue })
         }
     }
 

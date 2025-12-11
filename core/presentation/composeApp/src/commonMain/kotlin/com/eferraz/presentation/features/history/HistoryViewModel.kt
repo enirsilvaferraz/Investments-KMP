@@ -3,32 +3,27 @@ package com.eferraz.presentation.features.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.HoldingHistoryResult
 import com.eferraz.usecases.MergeHistoryUseCase
 import com.eferraz.usecases.UpdateHistoryValueUseCase
+import com.eferraz.usecases.providers.DateProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.toLocalDateTime
 import org.koin.android.annotation.KoinViewModel
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 @KoinViewModel
 internal class HistoryViewModel(
+    private val dateProvider: DateProvider,
+    private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getHoldingHistoryUseCase: MergeHistoryUseCase,
     private val updateHistoryValueUseCase: UpdateHistoryValueUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(
-        HistoryState(
-            selectedPeriod = getCurrentYearMonth(),
-            periods = listOf(YearMonth(2025, 12), YearMonth(2026, 1), YearMonth(2026, 2))
-        )
-    )
+    private val _state = MutableStateFlow(HistoryState(selectedPeriod = dateProvider.getCurrentYearMonth()))
     val state = _state.asStateFlow()
 
     init {
@@ -56,18 +51,18 @@ internal class HistoryViewModel(
     }
 
     private fun loadPeriodData(period: YearMonth) {
+
         viewModelScope.launch {
+
+            getDataPeriodUseCase(Unit).onSuccess { entries ->
+                _state.update { it.copy(periods = entries) }
+            }
+
             getHoldingHistoryUseCase(MergeHistoryUseCase.Param(period)).onSuccess { entries ->
                 _state.update { it.copy(entries = entries) }
             }
         }
     }
-
-    @OptIn(ExperimentalTime::class)
-    private fun getCurrentYearMonth(): YearMonth =
-        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).let { now ->
-            YearMonth(now.year, now.month)
-        }
 
     data class HistoryState(
         val selectedPeriod: YearMonth,
