@@ -12,6 +12,83 @@ A modelagem é dividida em três camadas conceituais para garantir clareza, flex
 
 ---
 
+## Diagrama de Relacionamento entre Entidades
+
+O diagrama abaixo ilustra os relacionamentos conceituais entre todas as entidades do domínio:
+
+```mermaid
+erDiagram
+    ASSET {
+        Long id PK
+        String name
+        String observations
+    }
+    FIXED_INCOME_ASSET {
+        Long id PK
+        FixedIncomeAssetType type
+        FixedIncomeSubType subType
+        LocalDate expirationDate
+        Double contractedYield
+        Double cdiRelativeYield
+        Liquidity liquidity
+    }
+    VARIABLE_INCOME_ASSET {
+        Long id PK
+        String name
+        VariableIncomeAssetType type
+        String ticker
+        Liquidity liquidity
+        Int liquidityDays
+    }
+    INVESTMENT_FUND_ASSET {
+        Long id PK
+        String name
+        InvestmentFundAssetType type
+        Liquidity liquidity
+        Int liquidityDays
+        LocalDate expirationDate
+    }
+    ASSET_HOLDING {
+        Long id PK
+        Double quantity
+        Double averageCost
+        Double investedValue
+        Double currentValue
+    }
+    HOLDING_HISTORY_ENTRY {
+        Long id PK
+        YearMonth referenceDate
+        Double endOfMonthValue
+        Double endOfMonthQuantity
+        Double endOfMonthAverageCost
+        Double totalInvested
+    }
+    OWNER {
+        Long id PK
+        String name
+    }
+    BROKERAGE {
+        Long id PK
+        String name
+    }
+    ISSUER {
+        Long id PK
+        String name
+        Boolean isInLiquidation
+    }
+
+    ASSET ||--o{ FIXED_INCOME_ASSET : "é um (herança)"
+    ASSET ||--o{ VARIABLE_INCOME_ASSET : "é um (herança)"
+    ASSET ||--o{ INVESTMENT_FUND_ASSET : "é um (herança)"
+    ASSET }o--|| ISSUER : "é emitido por"
+    ASSET_HOLDING }o--|| ASSET : "é uma posição de"
+    ASSET_HOLDING }o--|| OWNER : "pertence a"
+    ASSET_HOLDING }o--|| BROKERAGE : "está custodiado em"
+    HOLDING_HISTORY_ENTRY }o--|| ASSET_HOLDING : "é um snapshot de"
+```
+
+---
+
 ## Camada 1: Asset (O Ativo)
 
 Esta camada define as propriedades imutáveis que caracterizam um ativo, independentemente de quem o possui.
