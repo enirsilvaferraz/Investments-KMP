@@ -17,6 +17,7 @@ erDiagram
     ISSUERS {
         INTEGER id PK "NN"
         TEXT name "NN"
+        INTEGER is_in_liquidation "NN"
     }
     ASSETS {
         INTEGER id PK "NN"
@@ -117,7 +118,8 @@ CREATE TABLE brokerages (
 ```sql
 CREATE TABLE issuers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    is_in_liquidation INTEGER NOT NULL DEFAULT 0
 );
 ```
 

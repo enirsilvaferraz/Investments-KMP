@@ -70,7 +70,7 @@ internal class AssetDataSourceImpl(
     private fun FixedIncomeAssetWithDetails.toModel() =
         FixedIncomeAsset(
             id = asset.id,
-            issuer = Issuer(id = issuer.id, name = issuer.name),
+            issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
             type = fixedIncome.type,
             subType = fixedIncome.subType,
             expirationDate = fixedIncome.expirationDate,
@@ -84,7 +84,7 @@ internal class AssetDataSourceImpl(
         VariableIncomeAsset(
             id = asset.id,
             name = asset.name,
-            issuer = Issuer(id = issuer.id, name = issuer.name),
+            issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
             type = variableIncome.type,
             ticker = variableIncome.ticker,
             observations = asset.observations
@@ -94,7 +94,7 @@ internal class AssetDataSourceImpl(
         InvestmentFundAsset(
             id = asset.id,
             name = asset.name,
-            issuer = Issuer(id = issuer.id, name = issuer.name),
+            issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
             type = investmentFund.type,
             liquidity = asset.liquidity,
             liquidityDays = investmentFund.liquidityDays,

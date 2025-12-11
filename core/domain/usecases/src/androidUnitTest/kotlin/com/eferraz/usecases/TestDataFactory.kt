@@ -25,7 +25,7 @@ object TestDataFactory {
 
     fun createBrokerage(id: Long = 1, name: String = "Brokerage Name") = Brokerage(id, name)
 
-    fun createIssuer(id: Long = 1, name: String = "Issuer Name") = Issuer(id, name)
+    fun createIssuer(id: Long = 1, name: String = "Issuer Name", isInLiquidation: Boolean = false) = Issuer(id, name, isInLiquidation)
 
     fun createVariableIncomeAsset(
         id: Long = 1,

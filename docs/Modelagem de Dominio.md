@@ -281,8 +281,13 @@ Representa o "criador" do ativo. É a entidade que emitiu o ativo financeiro. O 
  * Representa a entidade que emitiu o ativo.
  * @property id O identificador único do emissor.
  * @property name O nome do emissor.
+ * @property isInLiquidation Indica se o emissor está em processo de liquidação por falência.
  */
-data class Issuer(val id: Long, val name: String)
+data class Issuer(
+    val id: Long, 
+    val name: String,
+    val isInLiquidation: Boolean = false
+)
 ```
 
 ---

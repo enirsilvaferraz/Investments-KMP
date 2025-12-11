@@ -28,7 +28,7 @@ public class MergeHistoryUseCase(
         val holdings = assetHoldingRepository.getAll()
             .filter { holding ->
                 when (val asset = holding.asset) {
-                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY
+                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY || asset.issuer.isInLiquidation
                     else -> false
                 }
             }

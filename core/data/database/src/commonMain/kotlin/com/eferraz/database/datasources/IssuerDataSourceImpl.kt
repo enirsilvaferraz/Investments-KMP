@@ -26,7 +26,8 @@ internal class IssuerDataSourceImpl(
 
     private fun IssuerEntity.toModel() = Issuer(
         id = id,
-        name = name
+        name = name,
+        isInLiquidation = isInLiquidation
     )
 }
 

@@ -14,6 +14,8 @@ internal data class IssuerEntity(
     @ColumnInfo(name = "id")
     val id: Long = 0,
     @ColumnInfo(name = "name")
-    val name: String
+    val name: String,
+    @ColumnInfo(name = "is_in_liquidation", defaultValue = "0")
+    val isInLiquidation: Boolean = false
 )
 
