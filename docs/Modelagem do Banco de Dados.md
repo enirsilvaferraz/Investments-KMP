@@ -51,10 +51,27 @@ erDiagram
         INTEGER asset_id FK "NN"
         INTEGER owner_id FK "NN"
         INTEGER brokerage_id FK "NN"
+    }
+    ASSET_TRANSACTIONS {
+        INTEGER id PK "NN"
+        INTEGER holding_id FK "NN"
+        TEXT transaction_date "NN"
+        TEXT type "NN"
+        TEXT category "NN"
+        TEXT observations
+    }
+    FIXED_INCOME_TRANSACTIONS {
+        INTEGER transaction_id PK, FK "NN"
+        REAL total_value "NN"
+    }
+    VARIABLE_INCOME_TRANSACTIONS {
+        INTEGER transaction_id PK, FK "NN"
         REAL quantity "NN"
-        REAL average_cost "NN"
-        REAL invested_value "NN"
-        REAL current_value "NN"
+        REAL unit_price "NN"
+    }
+    FUNDS_TRANSACTIONS {
+        INTEGER transaction_id PK, FK "NN"
+        REAL total_value "NN"
     }
     HOLDING_HISTORY {
         INTEGER id PK "NN"
@@ -73,6 +90,10 @@ erDiagram
     ASSET_HOLDINGS }|--|| ASSETS : "é uma posição de"
     ASSET_HOLDINGS }|--|| OWNERS : "pertence a"
     ASSET_HOLDINGS }|--|| BROKERAGES : "está custodiado em"
+    ASSET_HOLDINGS ||--o{ ASSET_TRANSACTIONS : "possui"
+    ASSET_TRANSACTIONS ||--o| FIXED_INCOME_TRANSACTIONS : "is a (1-to-1)"
+    ASSET_TRANSACTIONS ||--o| VARIABLE_INCOME_TRANSACTIONS : "is a (1-to-1)"
+    ASSET_TRANSACTIONS ||--o| FUNDS_TRANSACTIONS : "is a (1-to-1)"
     HOLDING_HISTORY }|--|| ASSET_HOLDINGS : "é um snapshot de"
 ```
 *Legenda: `NN` indica que o campo é obrigatório (NOT NULL). A constraint `UNIQUE(holding_id, reference_date)` garante que não existam registros duplicados de histórico para a mesma posição no mesmo mês.* 
@@ -202,16 +223,14 @@ CREATE TABLE asset_holdings (
     asset_id INTEGER NOT NULL,
     owner_id INTEGER NOT NULL,
     brokerage_id INTEGER NOT NULL,
-    quantity REAL NOT NULL,
-    average_cost REAL NOT NULL,
-    invested_value REAL NOT NULL,
-    current_value REAL NOT NULL,
 
     FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
     FOREIGN KEY (owner_id) REFERENCES owners(id) ON DELETE RESTRICT,
     FOREIGN KEY (brokerage_id) REFERENCES brokerages(id) ON DELETE RESTRICT
 );
 ```
+
+**Nota:** Os valores de `quantity`, `average_cost`, `invested_value` e `current_value` são calculados dinamicamente a partir das transações (`asset_transactions`) quando necessário, não sendo armazenados nesta tabela.
 
 ### `holding_history`
 ```sql
@@ -229,7 +248,72 @@ CREATE TABLE holding_history (
 );
 ```
 
-## 5. Índices Recomendados
+## 5. Tabelas de Transações (Estrutura Polimórfica)
+
+Adotamos a estratégia **Table per Subclass**, similar ao padrão utilizado para `assets`. Uma tabela base `asset_transactions` contém os campos comuns a todas as transações, e tabelas específicas armazenam os atributos de cada subclasse.
+
+### Tabela Base `asset_transactions`
+
+```sql
+CREATE TABLE asset_transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    holding_id INTEGER NOT NULL,
+    transaction_date TEXT NOT NULL, -- Formato 'YYYY-MM-DD'
+    
+    -- Tipo de transação: 'PURCHASE' ou 'SALE'
+    type TEXT NOT NULL,
+    
+    -- Coluna discriminadora: 'FIXED_INCOME', 'VARIABLE_INCOME', 'FUNDS'
+    category TEXT NOT NULL,
+    
+    -- Notas e observações adicionais sobre a transação (opcional)
+    observations TEXT,
+
+    FOREIGN KEY (holding_id) REFERENCES asset_holdings(id) ON DELETE CASCADE
+);
+```
+
+### Tabelas de Subclasses
+
+Cada tabela de subclasse usa o `transaction_id` como chave primária e chave estrangeira, estabelecendo um relacionamento 1-para-1 com a tabela `asset_transactions`.
+
+#### `fixed_income_transactions`
+
+```sql
+CREATE TABLE fixed_income_transactions (
+    transaction_id INTEGER PRIMARY KEY,
+    total_value REAL NOT NULL,
+
+    FOREIGN KEY (transaction_id) REFERENCES asset_transactions(id) ON DELETE CASCADE
+);
+```
+
+#### `variable_income_transactions`
+
+```sql
+CREATE TABLE variable_income_transactions (
+    transaction_id INTEGER PRIMARY KEY,
+    quantity REAL NOT NULL,
+    unit_price REAL NOT NULL,
+
+    FOREIGN KEY (transaction_id) REFERENCES asset_transactions(id) ON DELETE CASCADE
+);
+```
+
+**Nota:** Para transações de renda variável, o valor total pode ser calculado como `quantity * unit_price`, mas não é armazenado explicitamente na tabela.
+
+#### `funds_transactions`
+
+```sql
+CREATE TABLE funds_transactions (
+    transaction_id INTEGER PRIMARY KEY,
+    total_value REAL NOT NULL,
+
+    FOREIGN KEY (transaction_id) REFERENCES asset_transactions(id) ON DELETE CASCADE
+);
+```
+
+## 6. Índices Recomendados
 
 Os índices abaixo são recomendados para otimizar consultas frequentes no sistema. Eles melhoram significativamente a performance de buscas e joins, especialmente quando o volume de dados cresce.
 
@@ -274,9 +358,28 @@ CREATE INDEX idx_assets_category ON assets(category);
 -- CREATE UNIQUE INDEX já existe em variable_income_assets(ticker)
 ```
 
+### Índices em `asset_transactions`
+
+```sql
+-- Otimiza consultas de transações por posição (ex: histórico de uma holding)
+CREATE INDEX idx_asset_transactions_holding_id ON asset_transactions(holding_id);
+
+-- Otimiza consultas por data (ex: transações de um período)
+CREATE INDEX idx_asset_transactions_transaction_date ON asset_transactions(transaction_date);
+
+-- Otimiza filtros por tipo de transação (ex: todas as compras)
+CREATE INDEX idx_asset_transactions_type ON asset_transactions(type);
+
+-- Otimiza filtros por categoria (ex: todas as transações de renda fixa)
+CREATE INDEX idx_asset_transactions_category ON asset_transactions(category);
+
+-- Índice composto para consultas frequentes: posição + data
+CREATE INDEX idx_asset_transactions_holding_date ON asset_transactions(holding_id, transaction_date);
+```
+
 **Nota**: A criação de índices deve ser balanceada com o impacto em operações de escrita (INSERT, UPDATE, DELETE), que podem ficar mais lentas. Em sistemas com alta frequência de escrita, avalie a necessidade de cada índice individualmente.
 
-## 6. Políticas de Integridade Referencial
+## 7. Políticas de Integridade Referencial
 
 As políticas de integridade referencial definem o comportamento do banco de dados quando registros referenciados são deletados. O modelo utiliza duas estratégias principais:
 
@@ -290,6 +393,12 @@ Remove automaticamente os registros dependentes quando o registro pai é deletad
   
 - `assets` → `asset_holdings`
   - **Justificativa**: Se um ativo é removido do sistema, todas as posições relacionadas a ele também devem ser removidas, pois não há como manter uma posição de um ativo inexistente.
+  
+- `asset_holdings` → `asset_transactions`
+  - **Justificativa**: As transações são registros históricos de uma posição específica. Se a posição é removida, todas as suas transações também devem ser removidas.
+  
+- `asset_transactions` → `fixed_income_transactions`, `variable_income_transactions`, `funds_transactions`
+  - **Justificativa**: As tabelas de subclasse são extensões da tabela base. Se uma transação é removida, seus detalhes específicos também devem ser removidos.
   
 - `asset_holdings` → `holding_history`
   - **Justificativa**: O histórico mensal é um snapshot de uma posição específica. Se a posição é removida, seu histórico também deve ser removido.
@@ -310,13 +419,17 @@ Impede a deleção do registro pai se existirem registros dependentes. Utilizado
 
 ### Resumo das Políticas
 
-| Tabela Pai       | Tabela Filha             | Política | Motivo                                |
-|------------------|--------------------------|----------|---------------------------------------|
-| `issuers`        | `assets`                 | RESTRICT | Preservar integridade histórica       |
-| `assets`         | `fixed_income_assets`    | CASCADE  | Extensão do ativo                     |
-| `assets`         | `variable_income_assets` | CASCADE  | Extensão do ativo                     |
-| `assets`         | `investment_fund_assets` | CASCADE  | Extensão do ativo                     |
-| `assets`         | `asset_holdings`         | CASCADE  | Posição sem ativo não faz sentido     |
-| `owners`         | `asset_holdings`         | RESTRICT | Preservar dados de investimento       |
-| `brokerages`     | `asset_holdings`         | RESTRICT | Preservar dados de custódia           |
-| `asset_holdings` | `holding_history`        | CASCADE  | Histórico sem posição não faz sentido |
+| Tabela Pai           | Tabela Filha                   | Política | Motivo                                |
+|----------------------|--------------------------------|----------|---------------------------------------|
+| `issuers`            | `assets`                       | RESTRICT | Preservar integridade histórica       |
+| `assets`             | `fixed_income_assets`          | CASCADE  | Extensão do ativo                     |
+| `assets`             | `variable_income_assets`       | CASCADE  | Extensão do ativo                     |
+| `assets`             | `investment_fund_assets`       | CASCADE  | Extensão do ativo                     |
+| `assets`             | `asset_holdings`               | CASCADE  | Posição sem ativo não faz sentido     |
+| `owners`             | `asset_holdings`               | RESTRICT | Preservar dados de investimento       |
+| `brokerages`         | `asset_holdings`               | RESTRICT | Preservar dados de custódia           |
+| `asset_holdings`     | `asset_transactions`           | CASCADE  | Transação sem posição não faz sentido |
+| `asset_transactions` | `fixed_income_transactions`    | CASCADE  | Extensão da transação                 |
+| `asset_transactions` | `variable_income_transactions` | CASCADE  | Extensão da transação                 |
+| `asset_transactions` | `funds_transactions`           | CASCADE  | Extensão da transação                 |
+| `asset_holdings`     | `holding_history`              | CASCADE  | Histórico sem posição não faz sentido |

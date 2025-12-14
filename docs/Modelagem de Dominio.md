@@ -4,11 +4,12 @@ Este documento descreve a modelagem do domínio para as entidades de ativos de i
 
 ## Arquitetura do Domínio
 
-A modelagem é dividida em três camadas conceituais para garantir clareza, flexibilidade e escalabilidade:
+A modelagem é dividida em quatro camadas conceituais para garantir clareza, flexibilidade e escalabilidade:
 
 1.  **`Asset` (O Ativo):** Representa as características **intrínsecas** de um ativo negociável (ex: a ação PETR4, um CDB específico). Descreve "o quê" é o ativo.
-2.  **`AssetHolding` (A Posição):** Representa a **posse** de um `Asset` por um `Owner` em uma `Brokerage`. Esta é uma entidade rica que encapsula não apenas os dados da posição, mas também as **regras de negócio** associadas a ela.
-3.  **`HoldingHistoryEntry` (O Histórico):** Representa um **snapshot mensal** do desempenho de uma `AssetHolding`, permitindo a análise da evolução da posição ao longo do tempo.
+2.  **`AssetHolding` (A Posição):** Representa a **posse** de um `Asset` por um `Owner` em uma `Brokerage`. Armazena apenas os relacionamentos; os valores calculados (quantity, averageCost, investedValue) são obtidos dinamicamente a partir das transações.
+3.  **`AssetTransaction` (As Transações):** Representa cada operação individual (compra/venda, aporte/resgate) relacionada a uma `AssetHolding`. É a fonte de verdade para cálculo de posições e histórico completo de movimentações.
+4.  **`HoldingHistoryEntry` (O Histórico):** Representa um **snapshot mensal** do desempenho de uma `AssetHolding`, permitindo a análise da evolução da posição ao longo do tempo.
 
 ---
 
@@ -50,10 +51,24 @@ erDiagram
     }
     ASSET_HOLDING {
         Long id PK
+    }
+    ASSET_TRANSACTION {
+        Long id PK
+        LocalDate date
+        TransactionType type
+    }
+    FIXED_INCOME_TRANSACTION {
+        Long id PK
+        Double totalValue
+    }
+    VARIABLE_INCOME_TRANSACTION {
+        Long id PK
         Double quantity
-        Double averageCost
-        Double investedValue
-        Double currentValue
+        Double unitPrice
+    }
+    FUNDS_TRANSACTION {
+        Long id PK
+        Double totalValue
     }
     HOLDING_HISTORY_ENTRY {
         Long id PK
@@ -84,6 +99,10 @@ erDiagram
     ASSET_HOLDING }o--|| ASSET : "é uma posição de"
     ASSET_HOLDING }o--|| OWNER : "pertence a"
     ASSET_HOLDING }o--|| BROKERAGE : "está custodiado em"
+    ASSET_HOLDING ||--o{ ASSET_TRANSACTION : "possui"
+    ASSET_TRANSACTION ||--o| FIXED_INCOME_TRANSACTION : "é um (herança)"
+    ASSET_TRANSACTION ||--o| VARIABLE_INCOME_TRANSACTION : "é um (herança)"
+    ASSET_TRANSACTION ||--o| FUNDS_TRANSACTION : "é um (herança)"
     HOLDING_HISTORY_ENTRY }o--|| ASSET_HOLDING : "é um snapshot de"
 ```
 
@@ -203,77 +222,28 @@ data class InvestmentFundAsset(
 
 ## Camada 2: AssetHolding (A Posição)
 
-Esta entidade central conecta um `Asset` a um `Owner` e a uma `Brokerage`. Evoluiu de uma simples estrutura de dados para uma **entidade rica**, que encapsula as regras de negócio relativas a uma posição, como o recálculo do custo médio após um novo aporte.
+Esta entidade central conecta um `Asset` a um `Owner` e a uma `Brokerage`. Armazena apenas os relacionamentos fundamentais; os valores calculados (quantity, averageCost, investedValue) são obtidos dinamicamente a partir das transações (`AssetTransaction`) quando necessário.
 
 ```kotlin
 /**
  * Representa a posse de um ativo por um proprietário em uma corretora.
- * A modelagem utiliza um sistema de "unidades" para ser universalmente compatível.
  *
  * @property id O identificador único desta posição.
  * @property asset A referência para o ativo intrínseco (o "quê").
  * @property owner O proprietário desta posição (o "quem").
  * @property brokerage A corretora onde esta posição está custodiada (o "onde").
- * @property quantity O número de unidades detidas (ações, cotas, ou 1 para um título de Renda Fixa).
- * @property averageCost O custo médio pago por cada unidade.
- * @property investedValue O valor total investido na posição (calculado como quantity * averageCost).
- * @property currentValue O valor de mercado atual da posição.
  * 
- * Nota: Valores monetários são armazenados como `Double` (Kotlin KMP não possui BigDecimal nativo).
+ * Nota: Os valores de quantity, averageCost, investedValue e currentValue
+ * são calculados dinamicamente a partir das transações (AssetTransaction)
+ * quando necessário, não sendo armazenados nesta entidade.
  */
 data class AssetHolding(
     val id: Long,
     val asset: Asset,
     val owner: Owner,
-    val brokerage: Brokerage,
-    val quantity: Double,
-    val averageCost: Double,
-    val investedValue: Double,
-    val currentValue: Double
-) {
-    /**
-     * Retorna uma nova instância de `AssetHolding` refletindo um novo aporte (compra).
-     * A lógica de recálculo do custo médio está encapsulada aqui, garantindo consistência.
-     *
-     * @param purchaseQuantity A quantidade de novas unidades compradas.
-     * @param costPerUnit O custo por unidade na nova compra.
-     * @return Uma nova instância de `AssetHolding` com os valores atualizados.
-     */
-    fun recordPurchase(purchaseQuantity: Double, costPerUnit: Double): AssetHolding {
-        val newQuantity = this.quantity + purchaseQuantity
-        val purchaseValue = costPerUnit * purchaseQuantity
-        val newInvestedValue = this.investedValue + purchaseValue
-        val newAverageCost = newInvestedValue / newQuantity
-
-        return this.copy(
-            quantity = newQuantity,
-            averageCost = newAverageCost,
-            investedValue = newInvestedValue
-        )
-    }
-}
+    val brokerage: Brokerage
+)
 ```
-
-### Convenção de Unidades para `AssetHolding`
-
-Para que a entidade `AssetHolding` seja universal, suas propriedades (`quantity` e `averageCost`) devem ser interpretadas de acordo com a categoria do `Asset` vinculado:
-
-*   **Para Renda Fixa (`FixedIncomeAsset`):**
-    *   A "unidade" é o próprio título ou contrato de investimento.
-    *   `quantity`: Será sempre **`1.0`**, representando a posse de um único título.
-    *   `averageCost`: Será o valor total do aporte inicial.
-    *   `investedValue`: Será igual ao `averageCost`.
-
-*   **Para Renda Variável (`VariableIncomeAsset`):**
-    *   A "unidade" é a **ação** (ou FII, ETF, etc.).
-    *   `quantity`: Representa o número total de ações possuídas.
-    *   `averageCost`: É o preço médio de compra por ação, que deve ser recalculado a cada nova compra.
-
-*   **Para Fundo de Investimento (`InvestmentFundAsset`):**
-    *   A "unidade" é a **cota** do fundo.
-    *   `quantity`: Representa o número total de cotas que o investidor possui.
-    *   `averageCost`: É o custo médio de aquisição por cota.
-    *   **Aportes:** Um novo aporte (contribuição) em um fundo existente é tratado como a **compra de novas cotas** pelo preço do dia. Isso resulta em um aumento da `quantity` total e um recálculo do `averageCost` da posição.
 
 ---
 
@@ -316,6 +286,215 @@ Embora a combinação de `(holding, referenceDate)` seja naturalmente única, a 
 *   **Simplicidade:** Facilita a interação com frameworks de banco de dados (ORMs), que são altamente otimizados para chaves de coluna única em operações de busca, atualização e exclusão.
 *   **Relacionamentos:** Simplifica a criação de chaves estrangeiras se, no futuro, outra entidade precisar referenciar um registro de histórico específico.
 *   **Flexibilidade:** Permite maior liberdade para futuras alterações no modelo sem quebrar a identidade fundamental do registro.
+
+---
+
+## Camada 3: AssetTransaction (As Transações)
+
+Esta entidade registra cada operação individual relacionada a uma `AssetHolding`. É a **fonte de verdade** para o cálculo de posições, permitindo rastrear todo o histórico de compras, vendas, aportes e resgates. A modelagem utiliza sealed interfaces para segregar as regras específicas de cada categoria de ativo.
+
+### Tipo de Transação
+
+```kotlin
+/**
+ * Tipo de transação (genérico para todos os tipos de ativos).
+ */
+enum class TransactionType {
+    PURCHASE,  // Compra/Aporte - Aumenta a posição
+    SALE       // Venda/Resgate - Diminui a posição
+}
+```
+
+### Estrutura Base
+
+```kotlin
+import java.time.LocalDate
+
+/**
+ * Contrato base para todas as transações de ativos.
+ * Cada categoria de ativo possui suas próprias subclasses com regras específicas.
+ */
+sealed interface AssetTransaction {
+    val id: Long
+    val holding: AssetHolding
+    val date: LocalDate
+    val type: TransactionType
+    val observations: String?
+}
+```
+
+### Transações de Renda Fixa
+
+```kotlin
+/**
+ * Transações de Renda Fixa (CDB, LCI, LCA, Poupança, etc.).
+ * Regra: Apenas valor total (não há quantidade unitária).
+ */
+data class FixedIncomeTransaction(
+    override val id: Long,
+    override val holding: AssetHolding,
+    override val date: LocalDate,
+    override val type: TransactionType,
+    val totalValue: Double,
+    override val observations: String? = null
+) : AssetTransaction
+```
+
+**Exemplos de uso:**
+
+```kotlin
+// Aporte em CDB
+val deposit = FixedIncomeTransaction(
+    id = 1,
+    holding = cdbHolding,
+    date = LocalDate.of(2025, 1, 15),
+    type = TransactionType.PURCHASE,
+    totalValue = 2000.0
+)
+
+// Resgate no vencimento
+val withdrawal = FixedIncomeTransaction(
+    id = 2,
+    holding = cdbHolding,
+    date = LocalDate.of(2025, 12, 15),
+    type = TransactionType.SALE,
+    totalValue = 2500.0
+)
+
+// Aportes em poupança
+val savingsDeposit1 = FixedIncomeTransaction(
+    id = 3,
+    holding = savingsHolding,
+    date = LocalDate.of(2025, 1, 10),
+    type = TransactionType.PURCHASE,
+    totalValue = 1000.0
+)
+
+val savingsDeposit2 = FixedIncomeTransaction(
+    id = 4,
+    holding = savingsHolding,
+    date = LocalDate.of(2025, 1, 15),
+    type = TransactionType.PURCHASE,
+    totalValue = 1000.0
+)
+
+// Resgate de poupança
+val savingsWithdrawal = FixedIncomeTransaction(
+    id = 5,
+    holding = savingsHolding,
+    date = LocalDate.of(2025, 2, 1),
+    type = TransactionType.SALE,
+    totalValue = 5000.0
+)
+```
+
+### Transações de Renda Variável
+
+```kotlin
+/**
+ * Transações de Renda Variável (Ações, FIIs, ETFs).
+ * Regra: Quantidade e preço unitário (calcula valor total automaticamente).
+ */
+data class VariableIncomeTransaction(
+    override val id: Long,
+    override val holding: AssetHolding,
+    override val date: LocalDate,
+    override val type: TransactionType,
+    val quantity: Double,
+    val unitPrice: Double,
+    override val observations: String? = null
+) : AssetTransaction {
+    val totalValue: Double
+        get() = quantity * unitPrice
+}
+```
+
+**Exemplos de uso:**
+
+```kotlin
+// Compra de 50 ações a R$ 56,36
+val purchase1 = VariableIncomeTransaction(
+    id = 1,
+    holding = b3as3Holding,
+    date = LocalDate.of(2025, 1, 20),
+    type = TransactionType.PURCHASE,
+    quantity = 50.0,
+    unitPrice = 56.36
+)
+
+// Compra de mais 50 ações
+val purchase2 = VariableIncomeTransaction(
+    id = 2,
+    holding = b3as3Holding,
+    date = LocalDate.of(2025, 1, 20),
+    type = TransactionType.PURCHASE,
+    quantity = 50.0,
+    unitPrice = 56.36
+)
+
+// Venda de 10 ações
+val sale = VariableIncomeTransaction(
+    id = 3,
+    holding = b3as3Holding,
+    date = LocalDate.of(2025, 1, 25),
+    type = TransactionType.SALE,
+    quantity = 10.0,
+    unitPrice = 58.00
+)
+```
+
+### Transações de Fundos de Investimento
+
+```kotlin
+/**
+ * Transações de Fundos de Investimento.
+ * Regra: Apenas valor total (não há quantidade unitária).
+ */
+data class FundsTransaction(
+    override val id: Long,
+    override val holding: AssetHolding,
+    override val date: LocalDate,
+    override val type: TransactionType,
+    val totalValue: Double,
+    override val observations: String? = null
+) : AssetTransaction
+```
+
+**Exemplos de uso:**
+
+```kotlin
+// Aporte em fundo
+val deposit = FundsTransaction(
+    id = 1,
+    holding = fundHolding,
+    date = LocalDate.of(2025, 1, 10),
+    type = TransactionType.PURCHASE,
+    totalValue = 5000.0
+)
+
+// Resgate de fundo
+val withdrawal = FundsTransaction(
+    id = 2,
+    holding = fundHolding,
+    date = LocalDate.of(2025, 3, 15),
+    type = TransactionType.SALE,
+    totalValue = 2000.0
+)
+```
+
+### Cálculo de Posições a partir de Transações
+
+Os valores de `quantity`, `averageCost` e `investedValue` de uma `AssetHolding` são calculados dinamicamente a partir das transações:
+
+*   **Para Renda Variável:**
+    *   `quantity`: Soma de todas as compras (PURCHASE) menos soma de todas as vendas (SALE)
+    *   `averageCost`: Custo médio ponderado calculado a partir das compras
+    *   `investedValue`: Soma dos valores totais de todas as compras
+
+*   **Para Renda Fixa e Fundos:**
+    *   `quantity`: Sempre `1.0` (representa a posse do título/fundo)
+    *   `averageCost`: Soma dos valores totais de todos os aportes (PURCHASE)
+    *   `investedValue`: Igual ao `averageCost`
 
 ---
 
@@ -408,4 +587,5 @@ enum class FixedIncomeAssetType { POST_FIXED, PRE_FIXED, INFLATION_LINKED }
 enum class FixedIncomeSubType { CDB, LCI, LCA, CRA, CRI, DEBENTURE }
 enum class VariableIncomeAssetType { NATIONAL_STOCK, INTERNATIONAL_STOCK, REAL_ESTATE_FUND, ETF }
 enum class InvestmentFundAssetType { PENSION, STOCK_FUND, MULTIMARKET_FUND }
+enum class TransactionType { PURCHASE, SALE }
 ```
