@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -32,6 +31,7 @@ internal fun <T> TableHeader(
     theme: TableTheme,
     onSort: (Int, Boolean) -> Unit,
 ) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -41,7 +41,9 @@ internal fun <T> TableHeader(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         columns.forEachIndexed { index, column ->
+
             val isSorted = sortState.columnIndex == index
 
             Box(
@@ -49,38 +51,32 @@ internal fun <T> TableHeader(
                     .weight(column.weight)
                     .then(
                         if (column.isSortable) {
-                            Modifier.clickable {
-                                onSort(index, if (isSorted) !sortState.ascending else true)
-                            }
+                            Modifier.clickable { onSort(index, if (isSorted) !sortState.ascending else true) }
                         } else {
                             Modifier
                         }
                     ),
-                contentAlignment = when (column.alignment) {
-                    Alignment.Start -> Alignment.CenterStart
-                    Alignment.CenterHorizontally -> Alignment.Center
-                    Alignment.End -> Alignment.CenterEnd
-                    else -> Alignment.CenterStart
-                }
+                contentAlignment = alignment(column)
             ) {
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
+
                     Text(
                         text = column.title,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                         color = theme.headerText
                     )
 
-                    if (isSorted && column.isSortable) {
+                    if (isSorted && column.isSortable)
                         Icon(
                             imageVector = if (sortState.ascending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = theme.sortIcon
                         )
-                    }
                 }
             }
         }

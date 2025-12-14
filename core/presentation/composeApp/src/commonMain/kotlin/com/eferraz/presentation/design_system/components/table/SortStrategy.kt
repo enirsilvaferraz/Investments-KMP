@@ -4,6 +4,7 @@ package com.eferraz.presentation.design_system.components.table
  * Estratégia de ordenação para uma coluna da tabela
  */
 internal interface SortStrategy<T> {
+
     /**
      * Ordena a lista de dados
      * @param data Lista de dados a ordenar

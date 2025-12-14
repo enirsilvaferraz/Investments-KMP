@@ -14,14 +14,10 @@ internal fun <T> RowScope.TableCell(
     item: T,
     column: TableColumn<T>,
 ) {
+
     Box(
         modifier = Modifier.weight(column.weight),
-        contentAlignment = when (column.alignment) {
-            Alignment.Start -> Alignment.CenterStart
-            Alignment.CenterHorizontally -> Alignment.Center
-            Alignment.End -> Alignment.CenterEnd
-            else -> Alignment.CenterStart
-        }
+        contentAlignment = alignment(column)
     ) {
         column.cellContent.invoke(this@TableCell, item)
     }

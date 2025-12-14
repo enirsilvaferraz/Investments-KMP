@@ -38,7 +38,6 @@ internal data class TableColumn<T>(
     val config: ColumnConfig,
     val sortStrategy: SortStrategy<T> = NotSortableStrategy(),
     val cellContent: CellContent<T> = { item ->
-        // Conteúdo padrão: exibe o item como string
         Text(
             text = item.toString(),
             style = MaterialTheme.typography.bodyMedium,
@@ -47,6 +46,7 @@ internal data class TableColumn<T>(
     },
     val footerOperation: FooterOperation<T>? = null
 ) {
+
     /**
      * Indica se a coluna é ordenável
      */

@@ -26,7 +26,9 @@ internal fun <T> TableRow(
     onRowClick: ((T) -> Unit)?,
     showDivider: Boolean,
 ) {
+
     Column {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -37,6 +39,7 @@ internal fun <T> TableRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
         ) {
+
             columns.forEach { column ->
                 TableCell(
                     item = item,
@@ -45,12 +48,11 @@ internal fun <T> TableRow(
             }
         }
 
-        if (showDivider) {
+        if (showDivider)
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 color = dividerColor,
                 thickness = 1.dp
             )
-        }
     }
 }

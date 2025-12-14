@@ -1,7 +1,6 @@
 package com.eferraz.presentation.design_system.components.table
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,12 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /**
  * Componente de tabela de dados nativo seguindo especificações do Material Design 3
- * 
+ *
  * @param T Tipo do objeto de dados
  * @param modifier Modifier para customização
  * @param contentPadding Padding do conteúdo
@@ -45,11 +45,13 @@ internal fun <T> DataTable(
     }
 
     Column {
+
         LazyColumn(
             modifier = modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(0.dp),
             contentPadding = contentPadding
         ) {
+
             // Cabeçalho da tabela
             stickyHeader {
                 TableHeader(
@@ -64,19 +66,13 @@ internal fun <T> DataTable(
 
             // Linhas de dados
             itemsIndexed(sortedData) { index, item ->
-                val backgroundColor = if (index % 2 == 0) {
-                    theme.oddRowBackground
-                } else {
-                    theme.evenRowBackground
-                }
-
                 TableRow(
                     item = item,
                     columns = columns,
-                    backgroundColor = backgroundColor,
+                    backgroundColor = if (index % 2 == 0) theme.oddRowBackground else theme.evenRowBackground,
+                    showDivider = index < sortedData.size - 1,
                     dividerColor = theme.divider,
-                    onRowClick = onRowClick,
-                    showDivider = index < sortedData.size - 1
+                    onRowClick = onRowClick
                 )
             }
         }
@@ -85,15 +81,12 @@ internal fun <T> DataTable(
         val hasFooterOperation = columns.any { it.footerOperation != null }
 
         if (hasFooterOperation) {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = theme.divider,
-                    thickness = 1.dp
-                )
-            }
+
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                color = theme.divider,
+                thickness = 1.dp
+            )
 
             // Usa sortedData no footer em vez de data original (correção de bug)
             TableFooter(
@@ -103,4 +96,11 @@ internal fun <T> DataTable(
             )
         }
     }
+}
+
+internal fun <T> alignment(column: TableColumn<T>): Alignment = when (column.alignment) {
+    Alignment.Start -> Alignment.CenterStart
+    Alignment.CenterHorizontally -> Alignment.Center
+    Alignment.End -> Alignment.CenterEnd
+    else -> Alignment.CenterStart
 }

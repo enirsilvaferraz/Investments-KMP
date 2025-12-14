@@ -113,13 +113,16 @@ internal fun <T> TableColumn(
     },
     footerOperation: ((List<T>) -> String?)? = null,
 ): TableColumn<T> {
+
     val config = ColumnConfig(
         title = title,
         weight = weight,
         alignment = alignment
     )
 
-    val sortStrategy = ColumnSortStrategy<T> { item -> data(item) }
+    val sortStrategy = ColumnSortStrategy<T> { item ->
+        data(item)
+    }
 
     return TableColumn(
         config = config,

@@ -13,19 +13,16 @@ internal fun <T> sortData(
     columns: List<TableColumn<T>>,
     sortState: TableSortState<T>
 ): List<T> {
+
     val columnIndex = sortState.columnIndex ?: return data
     
     // Validação de índice
-    if (columnIndex < 0 || columnIndex >= columns.size) {
-        return data
-    }
+    if (columnIndex < 0 || columnIndex >= columns.size) return data
     
     val column = columns[columnIndex]
     
     // Verifica se a coluna é ordenável
-    if (!column.isSortable) {
-        return data
-    }
+    if (!column.isSortable) return data
     
     return column.sortStrategy.sort(data, sortState.ascending)
 }
