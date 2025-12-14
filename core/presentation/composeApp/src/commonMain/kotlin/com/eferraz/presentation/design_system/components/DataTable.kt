@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
  * @param formated Função para extrair valor como String (para ordenação e exibição padrão)
  * @param data Função opcional para comparar itens durante ordenação. Se null, a coluna não é ordenável
  * @param cellContent Composable customizado para renderizar o conteúdo da célula
+ * @param footerOperation Função opcional para calcular o valor do footer. Recebe a lista de dados e retorna String formatada ou null
  */
 internal data class TableColumn<T>(
     val title: String,
@@ -56,6 +57,7 @@ internal data class TableColumn<T>(
             color = MaterialTheme.colorScheme.onSurface
         )
     },
+    val footerOperation: ((List<T>) -> String?)? = null,
 )
 
 /**
@@ -104,35 +106,58 @@ internal fun <T> DataTable(
     val dividerColor = colors.outlineVariant
     val sortIconColor = colors.primary
 
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(0.dp),
-        contentPadding = contentPadding
-    ) {
+    Column {
 
-        // Cabeçalho da tabela
-        stickyHeader {
-            TableHeader(
-                columns = columns,
-                sortColumnIndex = sortColumnIndex,
-                sortAscending = sortAscending,
-                onSort = onSort,
-                backgroundColor = headerBackgroundColor,
-                textColor = headerTextColor,
-                sortIconColor = sortIconColor
-            )
+        LazyColumn(
+            modifier = modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+            contentPadding = contentPadding
+        ) {
+
+            // Cabeçalho da tabela
+            stickyHeader {
+                TableHeader(
+                    columns = columns,
+                    sortColumnIndex = sortColumnIndex,
+                    sortAscending = sortAscending,
+                    onSort = onSort,
+                    backgroundColor = headerBackgroundColor,
+                    textColor = headerTextColor,
+                    sortIconColor = sortIconColor
+                )
+            }
+
+            // Linhas de dados
+            itemsIndexed(sortedData) { index, item ->
+                TableRow(
+                    item = item,
+                    columns = columns,
+                    isEven = index % 2 == 0,
+                    backgroundColor = if (index % 2 == 0) oddRowColor else evenRowColor,
+                    dividerColor = dividerColor,
+                    onRowClick = onRowClick,
+                    showDivider = index < sortedData.size - 1
+                )
+            }
         }
 
-        // Linhas de dados
-        itemsIndexed(sortedData) { index, item ->
-            TableRow(
-                item = item,
+        val hasFooterOperation = columns.any { it.footerOperation != null }
+        
+        if (hasFooterOperation) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = dividerColor,
+                    thickness = 1.dp
+                )
+            }
+
+            TableFooter(
                 columns = columns,
-                isEven = index % 2 == 0,
-                backgroundColor = if (index % 2 == 0) oddRowColor else evenRowColor,
-                dividerColor = dividerColor,
-                onRowClick = onRowClick,
-                showDivider = index < sortedData.size - 1
+                data = data,
+                dividerColor = dividerColor
             )
         }
     }
@@ -195,6 +220,46 @@ private fun <T> TableHeader(
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                         tint = sortIconColor
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Footer da tabela
+ */
+@Composable
+private fun <T> TableFooter(
+    columns: List<TableColumn<T>>,
+    data: List<T>,
+    dividerColor: Color,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 52.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        columns.forEach { column ->
+            Box(
+                modifier = Modifier.weight(column.weight),
+                contentAlignment = when (column.alignment) {
+                    Alignment.Start -> Alignment.CenterStart
+                    Alignment.CenterHorizontally -> Alignment.Center
+                    Alignment.End -> Alignment.CenterEnd
+                    else -> Alignment.CenterStart
+                }
+            ) {
+                val footerValue = column.footerOperation?.invoke(data)
+                if (footerValue != null) {
+                    Text(
+                        text = footerValue,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

@@ -30,7 +30,7 @@ internal class HoldingHistoryRow(
         val observations: String,
         val maturity: LocalDate?,
         val issuer: String,
-        val previousValue: Double?,
+        val previousValue: Double,
         val currentValue: Double,
         val appreciation: String,
         val appreciationValue: Double?, // Valor numérico para cálculo de cores

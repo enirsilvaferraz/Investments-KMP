@@ -24,14 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.usecases.HoldingHistoryResult
 import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.InputTextMoney
 import com.eferraz.presentation.design_system.components.TableColumn
 import com.eferraz.presentation.helpers.Formatters.formated
+import com.eferraz.presentation.helpers.currencyFormat
+import com.eferraz.usecases.HoldingHistoryResult
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -159,7 +159,12 @@ private fun HistoryScreen(
                 title = "Valor Anterior",
                 data = { viewData.previousValue },
                 formated = { formatted.previousValue },
-                alignment = Alignment.End
+                alignment = Alignment.End,
+                footerOperation = { it: List<HoldingHistoryRow> ->
+                    it.sumOf { it.viewData.previousValue }.let {
+                        if (it == 0.0) null else it.currencyFormat()
+                    }
+                }
             ),
 
             TableColumn(
@@ -172,6 +177,11 @@ private fun HistoryScreen(
                         enabled = item.viewData.editable,
                         onValueChange = { onUpdateValue(item.currentHistory, it ?: 0.0) }
                     )
+                },
+                footerOperation = { it: List<HoldingHistoryRow> ->
+                    it.sumOf { it.viewData.currentValue }.let {
+                        if (it == 0.0) null else it.currencyFormat()
+                    }
                 }
             ),
 
