@@ -14,6 +14,13 @@ library {
 
 kotlin {
 
+    sourceSets.all {
+//        languageSettings.enabledLanguageFeatures("ExplicitBackingFields")
+        languageSettings {
+            enableLanguageFeature("ExplicitBackingFields")
+        }
+    }
+
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
 

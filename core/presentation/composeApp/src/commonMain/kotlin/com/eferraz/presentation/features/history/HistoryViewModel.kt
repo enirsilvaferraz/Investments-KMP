@@ -9,7 +9,7 @@ import com.eferraz.usecases.MergeHistoryUseCase
 import com.eferraz.usecases.UpdateHistoryValueUseCase
 import com.eferraz.usecases.providers.DateProvider
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
@@ -17,21 +17,21 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 internal class HistoryViewModel(
-    private val dateProvider: DateProvider,
+    dateProvider: DateProvider,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getHoldingHistoryUseCase: MergeHistoryUseCase,
     private val updateHistoryValueUseCase: UpdateHistoryValueUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HistoryState(selectedPeriod = dateProvider.getCurrentYearMonth()))
-    val state = _state.asStateFlow()
+    val state: StateFlow<HistoryState>
+        field = MutableStateFlow(HistoryState(selectedPeriod = dateProvider.getCurrentYearMonth()))
 
     init {
-        loadPeriodData(_state.value.selectedPeriod)
+        loadPeriodData(state.value.selectedPeriod)
     }
 
     fun selectPeriod(period: YearMonth) {
-        _state.update { it.copy(selectedPeriod = period) }
+        state.update { it.copy(selectedPeriod = period) }
         loadPeriodData(period)
     }
 
@@ -45,7 +45,7 @@ internal class HistoryViewModel(
             updateHistoryValueUseCase(
                 UpdateHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
             ).onSuccess {
-                loadPeriodData(_state.value.selectedPeriod)
+                loadPeriodData(state.value.selectedPeriod)
             }
         }
     }
@@ -55,11 +55,11 @@ internal class HistoryViewModel(
         viewModelScope.launch {
 
             getDataPeriodUseCase(Unit).onSuccess { entries ->
-                _state.update { it.copy(periods = entries) }
+                state.update { it.copy(periods = entries) }
             }
 
             getHoldingHistoryUseCase(MergeHistoryUseCase.Param(period)).onSuccess { entries ->
-                _state.update { it.copy(entries = entries) }
+                state.update { it.copy(entries = entries) }
             }
         }
     }
