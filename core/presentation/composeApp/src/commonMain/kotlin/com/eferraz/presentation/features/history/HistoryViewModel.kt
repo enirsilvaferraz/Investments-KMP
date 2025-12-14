@@ -27,30 +27,38 @@ internal class HistoryViewModel(
         field = MutableStateFlow(HistoryState(selectedPeriod = dateProvider.getCurrentYearMonth()))
 
     init {
-        loadPeriodData(state.value.selectedPeriod)
+        processIntent(HistoryIntent.LoadInitialData)
     }
 
-    fun selectPeriod(period: YearMonth) {
+    fun processIntent(intent: HistoryIntent) {
+        when (intent) {
+            is HistoryIntent.SelectPeriod -> selectPeriod(intent.period)
+            is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entry, intent.value)
+            is HistoryIntent.LoadInitialData -> loadPeriodData()
+        }
+    }
+
+    private fun selectPeriod(period: YearMonth) {
         state.update { it.copy(selectedPeriod = period) }
-        loadPeriodData(period)
+        processIntent(HistoryIntent.LoadInitialData)
     }
 
-    fun updateEntryValue(
+    private fun updateEntryValue(
         entry: HoldingHistoryEntry,
         value: Double,
     ) {
-
         viewModelScope.launch {
-
             updateHistoryValueUseCase(
                 UpdateHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
             ).onSuccess {
-                loadPeriodData(state.value.selectedPeriod)
+                processIntent(HistoryIntent.LoadInitialData)
             }
         }
     }
 
-    private fun loadPeriodData(period: YearMonth) {
+    private fun loadPeriodData() {
+
+        val period = state.value.selectedPeriod
 
         viewModelScope.launch {
 

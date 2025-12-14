@@ -49,11 +49,16 @@ internal fun HistoryRoute() {
             HistoryActions(
                 selected = state.selectedPeriod,
                 periods = state.periods,
-                onSelect = { vm.selectPeriod(it) }
+                onSelect = { vm.processIntent(HistoryIntent.SelectPeriod(it)) }
             )
         },
         mainPane = {
-            HistoryScreen(entries = state.entries, onUpdateValue = vm::updateEntryValue)
+            HistoryScreen(
+                entries = state.entries,
+                onUpdateValue = { entry, value ->
+                    vm.processIntent(HistoryIntent.UpdateEntryValue(entry, value))
+                }
+            )
         }
     )
 }
