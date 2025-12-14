@@ -17,8 +17,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.presentation.design_system.components.AppScaffold
-import com.eferraz.presentation.design_system.components.DataTable
-import com.eferraz.presentation.design_system.components.TableColumn
+import com.eferraz.presentation.design_system.components.table.DataTable
+import com.eferraz.presentation.design_system.components.table.TableColumn
 import com.eferraz.presentation.features.assetForm.AssetFormScreen
 import com.eferraz.presentation.features.assetForm.AssetFormIntent
 import com.eferraz.presentation.features.assetForm.AssetFormViewModel

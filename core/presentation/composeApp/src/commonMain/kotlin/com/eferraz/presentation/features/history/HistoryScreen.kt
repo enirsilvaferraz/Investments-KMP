@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.presentation.design_system.components.AppScaffold
-import com.eferraz.presentation.design_system.components.DataTable
 import com.eferraz.presentation.design_system.components.InputTextMoney
-import com.eferraz.presentation.design_system.components.TableColumn
+import com.eferraz.presentation.design_system.components.table.DataTable
+import com.eferraz.presentation.design_system.components.table.TableColumn
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.usecases.HoldingHistoryResult
