@@ -1,0 +1,14 @@
+package com.eferraz.database.datasources
+
+import com.eferraz.entities.AssetHolding
+import com.eferraz.entities.AssetTransaction
+import kotlinx.datetime.LocalDate
+
+public interface AssetTransactionDataSource {
+    public suspend fun save(transaction: AssetTransaction): Long
+    public suspend fun getById(id: Long, holding: AssetHolding): AssetTransaction?
+    public suspend fun getAllByHolding(holding: AssetHolding): List<AssetTransaction>
+    public suspend fun getAllByHoldingAndDateRange(holding: AssetHolding, startDate: LocalDate, endDate: LocalDate): List<AssetTransaction>
+    public suspend fun delete(id: Long)
+    public suspend fun update(transaction: AssetTransaction)
+}

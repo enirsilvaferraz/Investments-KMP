@@ -47,14 +47,6 @@ internal data class AssetHoldingEntity(
     @ColumnInfo(name = "ownerId")
     val ownerId: Long,
     @ColumnInfo(name = "brokerageId")
-    val brokerageId: Long,
-    @ColumnInfo(name = "quantity")
-    val quantity: Double,
-    @ColumnInfo(name = "averageCost")
-    val averageCost: Double,
-    @ColumnInfo(name = "investedValue")
-    val investedValue: Double,
-    @ColumnInfo(name = "currentValue")
-    val currentValue: Double
+    val brokerageId: Long
 )
 

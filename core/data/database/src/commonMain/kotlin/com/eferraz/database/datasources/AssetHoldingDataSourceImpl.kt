@@ -18,30 +18,7 @@ internal class AssetHoldingDataSourceImpl(
 ) : AssetHoldingDataSource {
 
     override suspend fun save(assetHolding: AssetHolding): Long {
-        // Se tem ID, é atualização - preservar valores existentes
-        val entity = if (assetHolding.id > 0) {
-            val existingEntity = assetHoldingDao.getById(assetHolding.id)
-            if (existingEntity != null) {
-                // Preservar valores numéricos existentes, atualizar apenas relacionamentos
-                AssetHoldingEntity(
-                    id = assetHolding.id,
-                    assetId = assetHolding.asset.id,
-                    ownerId = assetHolding.owner.id,
-                    brokerageId = assetHolding.brokerage.id,
-                    quantity = existingEntity.quantity,
-                    averageCost = existingEntity.averageCost,
-                    investedValue = existingEntity.investedValue,
-                    currentValue = existingEntity.currentValue
-                )
-            } else {
-                // Se não encontrou, criar novo (não deveria acontecer, mas por segurança)
-                assetHolding.toEntity()
-            }
-        } else {
-            // Se não tem ID, é inserção
-            assetHolding.toEntity()
-        }
-
+        val entity = assetHolding.toEntity()
         // @Upsert cuida de inserir ou atualizar automaticamente
         return assetHoldingDao.upsert(entity)
     }
@@ -87,11 +64,7 @@ internal class AssetHoldingDataSourceImpl(
         id = id,
         assetId = asset.id,
         ownerId = owner.id,
-        brokerageId = brokerage.id,
-        quantity = 0.0,
-        averageCost = 0.0,
-        investedValue = 0.0,
-        currentValue = 0.0
+        brokerageId = brokerage.id
     )
 }
 

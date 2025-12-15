@@ -4,6 +4,7 @@ import com.eferraz.database.core.AppDatabase
 import com.eferraz.database.core.PlatformDataBaseBuilder
 import com.eferraz.database.daos.AssetDao
 import com.eferraz.database.daos.AssetHoldingDao
+import com.eferraz.database.daos.AssetTransactionDao
 import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.HoldingHistoryDao
 import com.eferraz.database.daos.IssuerDao
@@ -36,4 +37,7 @@ public class DatabaseModule {
 
     @Single
     internal fun provideBrokerageDao(database: AppDatabase): BrokerageDao = database.brokerageDao()
+
+    @Single
+    internal fun provideAssetTransactionDao(database: AppDatabase): AssetTransactionDao = database.assetTransactionDao()
 }
