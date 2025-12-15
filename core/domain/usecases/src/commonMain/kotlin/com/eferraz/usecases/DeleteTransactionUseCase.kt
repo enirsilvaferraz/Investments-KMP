@@ -13,7 +13,7 @@ public class DeleteTransactionUseCase(
 
     public data class Param(val id: Long)
 
-    override suspend fun execute(param: Param): Unit {
-        assetTransactionRepository.delete(param.id).getOrThrow()
+    override suspend fun execute(param: Param) {
+        assetTransactionRepository.delete(param.id)
     }
 }

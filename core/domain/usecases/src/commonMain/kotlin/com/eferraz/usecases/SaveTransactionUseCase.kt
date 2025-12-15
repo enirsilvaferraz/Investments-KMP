@@ -15,6 +15,6 @@ public class SaveTransactionUseCase(
     public data class Param(val transaction: AssetTransaction)
 
     override suspend fun execute(param: Param): Long {
-        return assetTransactionRepository.save(param.transaction).getOrThrow()
+        return assetTransactionRepository.save(param.transaction)
     }
 }

@@ -16,7 +16,7 @@ internal class AssetTransactionDataSourceImpl(
     override suspend fun save(transaction: AssetTransaction): Long =
         assetTransactionDao.save(transaction.toEntity())
 
-    override suspend fun getById(id: Long, holding: AssetHolding): AssetTransaction? {
+    override suspend fun find(id: Long, holding: AssetHolding): AssetTransaction? {
         val transactionWithDetails = assetTransactionDao.find(id) ?: return null
         return transactionWithDetails.toDomain(holding)
     }
@@ -41,9 +41,5 @@ internal class AssetTransactionDataSourceImpl(
 
     override suspend fun delete(id: Long) {
         assetTransactionDao.deleteById(id)
-    }
-
-    override suspend fun update(transaction: AssetTransaction) {
-        save(transaction)
     }
 }
