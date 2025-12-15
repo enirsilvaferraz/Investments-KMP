@@ -5,7 +5,6 @@ import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.FundsTransactionEntity
 import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.TransactionWithDetails
-import com.eferraz.database.entities.transaction.BaseTransactionEntity
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.AssetTransaction
 import com.eferraz.entities.FixedIncomeTransaction
@@ -16,7 +15,7 @@ import com.eferraz.entities.VariableIncomeTransaction
  * Mappers para conversão entre entidades de domínio e entidades de banco de dados de transações.
  */
 
-internal fun AssetTransaction.toEntity(): Pair<AssetTransactionEntity, BaseTransactionEntity> {
+internal fun AssetTransaction.toEntity(): TransactionWithDetails {
 
     val baseEntity = AssetTransactionEntity(
         id = id,
@@ -31,26 +30,33 @@ internal fun AssetTransaction.toEntity(): Pair<AssetTransactionEntity, BaseTrans
         observations = observations
     )
 
-    val specificEntity = when (this) {
+    return when (this) {
 
-        is FixedIncomeTransaction -> FixedIncomeTransactionEntity(
-            transactionId = id,
-            totalValue = totalValue
+        is FixedIncomeTransaction -> TransactionWithDetails(
+            transaction = baseEntity,
+            fixedIncome = FixedIncomeTransactionEntity(
+                transactionId = id,
+                totalValue = totalValue
+            )
         )
 
-        is VariableIncomeTransaction -> VariableIncomeTransactionEntity(
-            transactionId = id,
-            quantity = quantity,
-            unitPrice = unitPrice
+        is VariableIncomeTransaction -> TransactionWithDetails(
+            transaction = baseEntity,
+            variableIncome = VariableIncomeTransactionEntity(
+                transactionId = id,
+                quantity = quantity,
+                unitPrice = unitPrice
+            )
         )
 
-        is FundsTransaction -> FundsTransactionEntity(
-            transactionId = id,
-            totalValue = totalValue
+        is FundsTransaction -> TransactionWithDetails(
+            transaction = baseEntity,
+            funds = FundsTransactionEntity(
+                transactionId = id,
+                totalValue = totalValue
+            )
         )
     }
-
-    return Pair(baseEntity, specificEntity)
 }
 
 internal fun TransactionWithDetails.toDomain(holding: AssetHolding): AssetTransaction {

@@ -29,8 +29,18 @@ internal interface AssetTransactionDao {
     @Upsert
     suspend fun save(transaction: FundsTransactionEntity): Long
 
+    @Transaction
+    suspend fun save(relationship: TransactionWithDetails): Long {
+        val id = save(relationship.transaction).takeIf { it != -1L } ?: relationship.transaction.id
+        relationship.fixedIncome?.let { save(it.copy(transactionId = id)) }
+        relationship.variableIncome?.let { save(it.copy(transactionId = id)) }
+        relationship.funds?.let { save(it.copy(transactionId = id)) }
+        return id
+    }
+
+    @Transaction
     @Query("SELECT * FROM asset_transactions WHERE id = :id")
-    suspend fun getById(id: Long): TransactionWithDetails?
+    suspend fun find(id: Long): TransactionWithDetails?
 
     @Query("DELETE FROM asset_transactions WHERE id = :id")
     suspend fun deleteById(id: Long)
@@ -55,7 +65,4 @@ internal interface AssetTransactionDao {
         endDate: LocalDate,
     ): List<TransactionWithDetails>
 
-    @Transaction
-    @Query("SELECT * FROM asset_transactions WHERE id = :id LIMIT 1")
-    suspend fun getByIdWithDetails(id: Long): TransactionWithDetails?
 }

@@ -1,9 +1,6 @@
 package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.AssetTransactionDao
-import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.transaction.FundsTransactionEntity
-import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.mappers.toDomain
 import com.eferraz.database.mappers.toEntity
 import com.eferraz.entities.AssetHolding
@@ -16,50 +13,11 @@ internal class AssetTransactionDataSourceImpl(
     private val assetTransactionDao: AssetTransactionDao,
 ) : AssetTransactionDataSource {
 
-    override suspend fun save(transaction: AssetTransaction): Long {
-        val (baseEntity, specificEntity) = transaction.toEntity()
-        
-        val transactionId = if (transaction.id > 0) {
-            // Atualização
-            assetTransactionDao.save(baseEntity)
-            transaction.id
-        } else {
-            // Inserção - o ID é gerado pelo banco
-            assetTransactionDao.save(baseEntity)
-        }
-
-        when (specificEntity) {
-            is FixedIncomeTransactionEntity -> {
-                val fixedIncomeEntity = specificEntity.copy(transactionId = transactionId)
-                if (transaction.id > 0) {
-                    assetTransactionDao.save(fixedIncomeEntity)
-                } else {
-                    assetTransactionDao.save(fixedIncomeEntity)
-                }
-            }
-            is VariableIncomeTransactionEntity -> {
-                val variableIncomeEntity = specificEntity.copy(transactionId = transactionId)
-                if (transaction.id > 0) {
-                    assetTransactionDao.save(variableIncomeEntity)
-                } else {
-                    assetTransactionDao.save(variableIncomeEntity)
-                }
-            }
-            is FundsTransactionEntity -> {
-                val fundsEntity = specificEntity.copy(transactionId = transactionId)
-                if (transaction.id > 0) {
-                    assetTransactionDao.save(fundsEntity)
-                } else {
-                    assetTransactionDao.save(fundsEntity)
-                }
-            }
-        }
-
-        return transactionId
-    }
+    override suspend fun save(transaction: AssetTransaction): Long =
+        assetTransactionDao.save(transaction.toEntity())
 
     override suspend fun getById(id: Long, holding: AssetHolding): AssetTransaction? {
-        val transactionWithDetails = assetTransactionDao.getByIdWithDetails(id) ?: return null
+        val transactionWithDetails = assetTransactionDao.find(id) ?: return null
         return transactionWithDetails.toDomain(holding)
     }
 

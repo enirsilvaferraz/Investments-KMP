@@ -16,17 +16,17 @@ internal data class TransactionWithDetails(
         parentColumn = "id",
         entityColumn = "transactionId"
     )
-    val fixedIncome: FixedIncomeTransactionEntity?,
+    val fixedIncome: FixedIncomeTransactionEntity? = null,
 
     @Relation(
         parentColumn = "id",
         entityColumn = "transactionId"
     )
-    val variableIncome: VariableIncomeTransactionEntity?,
+    val variableIncome: VariableIncomeTransactionEntity? = null,
 
     @Relation(
         parentColumn = "id",
         entityColumn = "transactionId"
     )
-    val funds: FundsTransactionEntity?,
+    val funds: FundsTransactionEntity? = null,
 )

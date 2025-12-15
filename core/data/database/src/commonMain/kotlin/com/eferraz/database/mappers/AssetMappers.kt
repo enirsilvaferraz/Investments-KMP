@@ -64,7 +64,7 @@ internal fun Issuer.toEntity() = IssuerEntity(
     id = id, name = name, isInLiquidation = isInLiquidation
 )
 
-internal fun Asset.toAssetWithDetails(): AssetWithDetails {
+internal fun Asset.toEntity(): AssetWithDetails {
 
     val (category, liquidity) = when (this) {
         is FixedIncomeAsset -> "FIXED_INCOME" to liquidity

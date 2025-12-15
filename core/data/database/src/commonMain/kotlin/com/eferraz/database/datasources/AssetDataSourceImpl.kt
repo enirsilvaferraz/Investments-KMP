@@ -1,8 +1,7 @@
 package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.AssetDao
-import com.eferraz.database.entities.assets.AssetWithDetails
-import com.eferraz.database.mappers.toAssetWithDetails
+import com.eferraz.database.mappers.toEntity
 import com.eferraz.database.mappers.toDomain
 import com.eferraz.entities.Asset
 import org.koin.core.annotation.Factory
@@ -19,5 +18,5 @@ internal class AssetDataSourceImpl(
         assetDao.find(id)?.toDomain()
 
     override suspend fun save(asset: Asset): Long =
-        assetDao.save(asset.toAssetWithDetails())
+        assetDao.save(asset.toEntity())
 }
