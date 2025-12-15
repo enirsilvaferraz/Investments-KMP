@@ -1,4 +1,4 @@
-package com.eferraz.database.entities
+package com.eferraz.database.entities.transaction
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -31,5 +31,6 @@ internal data class VariableIncomeTransactionEntity(
     val quantity: Double,
 
     @ColumnInfo(name = "unitPrice")
-    val unitPrice: Double
-)
+    val unitPrice: Double,
+
+    ) : BaseTransactionEntity

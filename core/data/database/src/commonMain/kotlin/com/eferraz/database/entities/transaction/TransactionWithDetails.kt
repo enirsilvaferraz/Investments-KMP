@@ -1,11 +1,7 @@
-package com.eferraz.database.entities.relationship
+package com.eferraz.database.entities.transaction
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.eferraz.database.entities.AssetTransactionEntity
-import com.eferraz.database.entities.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.FundsTransactionEntity
-import com.eferraz.database.entities.VariableIncomeTransactionEntity
 
 /**
  * Data class intermediária que representa uma transação completa com seus detalhes específicos.
@@ -32,5 +28,5 @@ internal data class TransactionWithDetails(
         parentColumn = "id",
         entityColumn = "transactionId"
     )
-    val funds: FundsTransactionEntity?
+    val funds: FundsTransactionEntity?,
 )

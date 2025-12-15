@@ -4,11 +4,11 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
-import com.eferraz.database.entities.AssetTransactionEntity
-import com.eferraz.database.entities.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.FundsTransactionEntity
-import com.eferraz.database.entities.VariableIncomeTransactionEntity
-import com.eferraz.database.entities.relationship.TransactionWithDetails
+import com.eferraz.database.entities.transaction.AssetTransactionEntity
+import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
+import com.eferraz.database.entities.transaction.FundsTransactionEntity
+import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
+import com.eferraz.database.entities.transaction.TransactionWithDetails
 import kotlinx.datetime.LocalDate
 
 /**

@@ -13,19 +13,19 @@ import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.HoldingHistoryDao
 import com.eferraz.database.daos.IssuerDao
 import com.eferraz.database.daos.OwnerDao
-import com.eferraz.database.entities.AssetEntity
+import com.eferraz.database.entities.assets.AssetEntity
 import com.eferraz.database.entities.AssetHoldingEntity
-import com.eferraz.database.entities.AssetTransactionEntity
+import com.eferraz.database.entities.transaction.AssetTransactionEntity
 import com.eferraz.database.entities.BrokerageEntity
-import com.eferraz.database.entities.FixedIncomeAssetEntity
-import com.eferraz.database.entities.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.FundsTransactionEntity
+import com.eferraz.database.entities.assets.FixedIncomeAssetEntity
+import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
+import com.eferraz.database.entities.transaction.FundsTransactionEntity
 import com.eferraz.database.entities.HoldingHistoryEntryEntity
-import com.eferraz.database.entities.InvestmentFundAssetEntity
+import com.eferraz.database.entities.assets.InvestmentFundAssetEntity
 import com.eferraz.database.entities.IssuerEntity
 import com.eferraz.database.entities.OwnerEntity
-import com.eferraz.database.entities.VariableIncomeAssetEntity
-import com.eferraz.database.entities.VariableIncomeTransactionEntity
+import com.eferraz.database.entities.assets.VariableIncomeAssetEntity
+import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.migrations.Migration3To4
 
 @Database(

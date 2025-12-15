@@ -1,10 +1,11 @@
 package com.eferraz.database.mappers
 
-import com.eferraz.database.entities.AssetTransactionEntity
-import com.eferraz.database.entities.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.FundsTransactionEntity
-import com.eferraz.database.entities.VariableIncomeTransactionEntity
-import com.eferraz.database.entities.relationship.TransactionWithDetails
+import com.eferraz.database.entities.transaction.AssetTransactionEntity
+import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
+import com.eferraz.database.entities.transaction.FundsTransactionEntity
+import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
+import com.eferraz.database.entities.transaction.TransactionWithDetails
+import com.eferraz.database.entities.transaction.BaseTransactionEntity
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.AssetTransaction
 import com.eferraz.entities.FixedIncomeTransaction
@@ -15,7 +16,7 @@ import com.eferraz.entities.VariableIncomeTransaction
  * Mappers para conversão entre entidades de domínio e entidades de banco de dados de transações.
  */
 
-internal fun AssetTransaction.toEntity(): Pair<AssetTransactionEntity, Any> {
+internal fun AssetTransaction.toEntity(): Pair<AssetTransactionEntity, BaseTransactionEntity> {
 
     val baseEntity = AssetTransactionEntity(
         id = id,

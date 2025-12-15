@@ -34,7 +34,7 @@ public class SaveAssetUseCase(
      *
      * @return ID do asset salvo
      */
-    public suspend operator fun invoke(formData: AssetFormData?): Long? {
+    public suspend operator fun invoke(formData: AssetFormData?): Long {
 
         require(formData != null) { "formData não pode ser nulo" }
 

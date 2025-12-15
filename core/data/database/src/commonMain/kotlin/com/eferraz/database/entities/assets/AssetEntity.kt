@@ -1,10 +1,11 @@
-package com.eferraz.database.entities
+package com.eferraz.database.entities.assets
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.eferraz.database.entities.IssuerEntity
 import com.eferraz.entities.Liquidity
 
 /**
@@ -29,18 +30,23 @@ import com.eferraz.entities.Liquidity
     ]
 )
 internal data class AssetEntity(
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long = 0,
+
     @ColumnInfo(name = "name")
     val name: String,
+
     @ColumnInfo(name = "issuerId")
     val issuerId: Long,
+
     @ColumnInfo(name = "category")
     val category: String, // 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND'
+
     @ColumnInfo(name = "liquidity")
     val liquidity: Liquidity,
+
     @ColumnInfo(name = "observations")
     val observations: String? = null
 )
-

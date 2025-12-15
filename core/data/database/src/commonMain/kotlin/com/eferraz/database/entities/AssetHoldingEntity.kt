@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.eferraz.database.entities.assets.AssetEntity
 
 /**
  * Entidade Room para a tabela asset_holdings.

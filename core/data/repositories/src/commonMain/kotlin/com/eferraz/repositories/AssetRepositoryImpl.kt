@@ -1,9 +1,7 @@
 package com.eferraz.repositories
 
 import com.eferraz.database.datasources.AssetDataSource
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.Asset
 import com.eferraz.usecases.repositories.AssetRepository
 import org.koin.core.annotation.Factory
 
@@ -16,9 +14,5 @@ internal class AssetRepositoryImpl(
 
     override suspend fun getById(id: Long) = dataSource.getByID(id)
 
-    override suspend fun save(asset: FixedIncomeAsset) = dataSource.save(asset)
-
-    override suspend fun save(asset: InvestmentFundAsset) = dataSource.save(asset)
-
-    override suspend fun save(asset: VariableIncomeAsset) = dataSource.save(asset)
+    override suspend fun save(asset: Asset) = dataSource.save(asset)
 }

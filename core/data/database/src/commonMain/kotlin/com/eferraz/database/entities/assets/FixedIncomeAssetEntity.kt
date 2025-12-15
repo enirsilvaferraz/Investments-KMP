@@ -1,4 +1,4 @@
-package com.eferraz.database.entities
+package com.eferraz.database.entities.assets
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -44,5 +44,5 @@ internal data class FixedIncomeAssetEntity(
 
     @ColumnInfo(name = "cdiRelativeYield")
     val cdiRelativeYield: Double? = null
-)
 
+) : BaseAssetEntity

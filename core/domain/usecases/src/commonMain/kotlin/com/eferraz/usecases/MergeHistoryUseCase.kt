@@ -18,7 +18,7 @@ public class MergeHistoryUseCase(
     private val holdingHistoryRepository: HoldingHistoryRepository,
     private val assetHoldingRepository: AssetHoldingRepository,
     private val createHistoryUseCase: CreateHistoryUseCase,
-    private val context: CoroutineDispatcher = Dispatchers.Default,
+    context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<MergeHistoryUseCase.Param, List<HoldingHistoryResult>>(context) {
 
     public data class Param(val referenceDate: YearMonth)
@@ -26,12 +26,12 @@ public class MergeHistoryUseCase(
     override suspend fun execute(param: Param): List<HoldingHistoryResult> {
 
         val holdings = assetHoldingRepository.getAll()
-            .filter { holding ->
-                when (val asset = holding.asset) {
-                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY || asset.issuer.isInLiquidation
-                    else -> false
-                }
-            }
+//            .filter { holding ->
+//                when (val asset = holding.asset) {
+//                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY || asset.issuer.isInLiquidation || asset.observations?.contains("FGTS") ?: false
+//                    else -> false
+//                }
+//            }
         val previos = mapByReferenceDate(param.referenceDate.minusMonth(), holdings)
         val current = mapByReferenceDate(param.referenceDate, holdings)
 

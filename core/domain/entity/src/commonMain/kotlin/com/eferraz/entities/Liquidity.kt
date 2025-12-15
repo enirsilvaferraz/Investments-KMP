@@ -7,6 +7,7 @@ package com.eferraz.entities
  * separadamente nas entidades que utilizam este tipo de liquidez.
  */
 public enum class Liquidity {
+
     /**
      * Representa a liquidez diária, onde o resgate pode ser solicitado a qualquer momento.
      */

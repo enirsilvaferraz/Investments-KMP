@@ -1,12 +1,8 @@
-package com.eferraz.database.entities.relationship
+package com.eferraz.database.entities.assets
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.eferraz.database.entities.AssetEntity
-import com.eferraz.database.entities.FixedIncomeAssetEntity
-import com.eferraz.database.entities.InvestmentFundAssetEntity
 import com.eferraz.database.entities.IssuerEntity
-import com.eferraz.database.entities.VariableIncomeAssetEntity
 
 /**
  * Data class intermediária que representa um ativo completo com seus detalhes específicos.
@@ -27,17 +23,17 @@ internal data class AssetWithDetails(
         parentColumn = "id",
         entityColumn = "assetId"
     )
-    val fixedIncome: FixedIncomeAssetEntity?,
+    val fixedIncome: FixedIncomeAssetEntity? = null,
 
     @Relation(
         parentColumn = "id",
         entityColumn = "assetId"
     )
-    val variableIncome: VariableIncomeAssetEntity?,
+    val variableIncome: VariableIncomeAssetEntity? = null,
 
     @Relation(
         parentColumn = "id",
         entityColumn = "assetId"
     )
-    val funds: InvestmentFundAssetEntity?
+    val funds: InvestmentFundAssetEntity? = null,
 )

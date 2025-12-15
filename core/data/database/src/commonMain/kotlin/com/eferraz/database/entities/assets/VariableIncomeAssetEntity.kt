@@ -1,4 +1,4 @@
-package com.eferraz.database.entities
+package com.eferraz.database.entities.assets
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -19,18 +19,21 @@ import com.eferraz.entities.VariableIncomeAssetType
             entity = AssetEntity::class,
             parentColumns = ["id"],
             childColumns = ["assetId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.Companion.CASCADE
         )
     ],
     indices = [Index(value = ["ticker"], unique = true)]
 )
 internal data class VariableIncomeAssetEntity(
+
     @PrimaryKey
     @ColumnInfo(name = "assetId")
     val assetId: Long,
+
     @ColumnInfo(name = "type")
     val type: VariableIncomeAssetType,
+
     @ColumnInfo(name = "ticker")
     val ticker: String // UNIQUE
-)
 
+) : BaseAssetEntity

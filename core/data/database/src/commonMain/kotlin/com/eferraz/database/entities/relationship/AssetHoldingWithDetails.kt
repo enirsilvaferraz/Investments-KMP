@@ -2,7 +2,7 @@ package com.eferraz.database.entities.relationship
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.eferraz.database.entities.AssetEntity
+import com.eferraz.database.entities.assets.AssetEntity
 import com.eferraz.database.entities.AssetHoldingEntity
 import com.eferraz.database.entities.BrokerageEntity
 import com.eferraz.database.entities.OwnerEntity

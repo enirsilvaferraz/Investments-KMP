@@ -1,9 +1,9 @@
 package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.AssetTransactionDao
-import com.eferraz.database.entities.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.FundsTransactionEntity
-import com.eferraz.database.entities.VariableIncomeTransactionEntity
+import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
+import com.eferraz.database.entities.transaction.FundsTransactionEntity
+import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.mappers.toDomain
 import com.eferraz.database.mappers.toEntity
 import com.eferraz.entities.AssetHolding

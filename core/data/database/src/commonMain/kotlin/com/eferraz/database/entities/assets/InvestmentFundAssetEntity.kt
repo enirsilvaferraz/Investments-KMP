@@ -1,4 +1,4 @@
-package com.eferraz.database.entities
+package com.eferraz.database.entities.assets
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -24,14 +24,18 @@ import kotlinx.datetime.LocalDate
     ]
 )
 internal data class InvestmentFundAssetEntity(
+
     @PrimaryKey
     @ColumnInfo(name = "assetId")
     val assetId: Long,
+
     @ColumnInfo(name = "type")
     val type: InvestmentFundAssetType,
+
     @ColumnInfo(name = "liquidityDays")
     val liquidityDays: Int, // Sempre presente quando liquidityRule = 'D_PLUS_DAYS'
+
     @ColumnInfo(name = "expirationDate")
     val expirationDate: LocalDate? = null // Opcional
-)
 
+) : BaseAssetEntity

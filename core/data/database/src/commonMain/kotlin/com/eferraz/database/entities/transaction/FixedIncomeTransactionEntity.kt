@@ -1,4 +1,4 @@
-package com.eferraz.database.entities
+package com.eferraz.database.entities.transaction
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -28,5 +28,6 @@ internal data class FixedIncomeTransactionEntity(
     val transactionId: Long,
 
     @ColumnInfo(name = "totalValue")
-    val totalValue: Double
-)
+    val totalValue: Double,
+
+    ) : BaseTransactionEntity

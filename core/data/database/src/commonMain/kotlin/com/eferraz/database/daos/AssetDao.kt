@@ -4,11 +4,11 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
-import com.eferraz.database.entities.AssetEntity
-import com.eferraz.database.entities.FixedIncomeAssetEntity
-import com.eferraz.database.entities.InvestmentFundAssetEntity
-import com.eferraz.database.entities.VariableIncomeAssetEntity
-import com.eferraz.database.entities.relationship.AssetWithDetails
+import com.eferraz.database.entities.assets.AssetEntity
+import com.eferraz.database.entities.assets.FixedIncomeAssetEntity
+import com.eferraz.database.entities.assets.InvestmentFundAssetEntity
+import com.eferraz.database.entities.assets.VariableIncomeAssetEntity
+import com.eferraz.database.entities.assets.AssetWithDetails
 
 /**
  * DAO para operações CRUD na tabela assets e suas subclasses.
@@ -21,20 +21,20 @@ internal interface AssetDao {
     suspend fun save(asset: AssetEntity): Long
 
     @Upsert
-    suspend fun save(fixedIncome: FixedIncomeAssetEntity): Long
+    suspend fun save(asset: FixedIncomeAssetEntity): Long
 
     @Upsert
-    suspend fun save(variableIncome: VariableIncomeAssetEntity): Long
+    suspend fun save(asset: VariableIncomeAssetEntity): Long
 
     @Upsert
-    suspend fun save(investmentFund: InvestmentFundAssetEntity): Long
+    suspend fun save(asset: InvestmentFundAssetEntity): Long
 
     @Transaction
-    suspend fun save(asset: AssetWithDetails): Long {
-        val id = save(asset.asset)
-        asset.fixedIncome?.let { save(it.copy(assetId = id)) }
-        asset.variableIncome?.let { save(it.copy(assetId = id)) }
-        asset.funds?.let { save(it.copy(assetId = id)) }
+    suspend fun save(relationship: AssetWithDetails): Long {
+        val id = save(relationship.asset).takeIf { it != -1L } ?: relationship.asset.id
+        relationship.fixedIncome?.let { save(it.copy(assetId = id)) }
+        relationship.variableIncome?.let { save(it.copy(assetId = id)) }
+        relationship.funds?.let { save(it.copy(assetId = id)) }
         return id
     }
 
