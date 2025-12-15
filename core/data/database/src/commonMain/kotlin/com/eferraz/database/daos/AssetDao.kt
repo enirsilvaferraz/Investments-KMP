@@ -8,9 +8,7 @@ import com.eferraz.database.entities.AssetEntity
 import com.eferraz.database.entities.FixedIncomeAssetEntity
 import com.eferraz.database.entities.InvestmentFundAssetEntity
 import com.eferraz.database.entities.VariableIncomeAssetEntity
-import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
-import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
-import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
+import com.eferraz.database.entities.relationship.AssetWithDetails
 
 /**
  * DAO para operações CRUD na tabela assets e suas subclasses.
@@ -20,42 +18,31 @@ import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
 internal interface AssetDao {
 
     @Upsert
-    suspend fun insertAsset(asset: AssetEntity): Long
+    suspend fun save(asset: AssetEntity): Long
 
     @Upsert
-    suspend fun insertFixedIncome(fixedIncome: FixedIncomeAssetEntity)
+    suspend fun save(fixedIncome: FixedIncomeAssetEntity): Long
 
     @Upsert
-    suspend fun insertVariableIncome(variableIncome: VariableIncomeAssetEntity)
+    suspend fun save(variableIncome: VariableIncomeAssetEntity): Long
 
     @Upsert
-    suspend fun insertInvestmentFund(investmentFund: InvestmentFundAssetEntity)
+    suspend fun save(investmentFund: InvestmentFundAssetEntity): Long
 
+    @Transaction
+    suspend fun save(asset: AssetWithDetails): Long {
+        val id = save(asset.asset)
+        asset.fixedIncome?.let { save(it.copy(assetId = id)) }
+        asset.variableIncome?.let { save(it.copy(assetId = id)) }
+        asset.funds?.let { save(it.copy(assetId = id)) }
+        return id
+    }
+
+    @Transaction
     @Query("SELECT * FROM assets WHERE id = :id")
-    suspend fun getAssetById(id: Long): AssetEntity?
+    suspend fun find(id: Long): AssetWithDetails?
 
     @Transaction
-    @Query("SELECT * FROM assets WHERE category = 'FIXED_INCOME'")
-    suspend fun getAllFixedIncomeAssets(): List<FixedIncomeAssetWithDetails>
-
-    @Transaction
-    @Query("SELECT * FROM assets WHERE category = 'VARIABLE_INCOME'")
-    suspend fun getAllVariableIncomeAssets(): List<VariableIncomeAssetWithDetails>
-
-    @Transaction
-    @Query("SELECT * FROM assets WHERE category = 'INVESTMENT_FUND'")
-    suspend fun getAllInvestmentFundAssets(): List<InvestmentFundAssetWithDetails>
-
-    @Transaction
-    @Query("SELECT * FROM assets WHERE category = 'FIXED_INCOME' AND id = :id")
-    suspend fun getFixedIncomeAssetById(id: Long): FixedIncomeAssetWithDetails?
-
-    @Transaction
-    @Query("SELECT * FROM assets WHERE category = 'VARIABLE_INCOME' AND id = :id")
-    suspend fun getVariableIncomeAssetById(id: Long): VariableIncomeAssetWithDetails?
-
-    @Transaction
-    @Query("SELECT * FROM assets WHERE category = 'INVESTMENT_FUND' AND id = :id")
-    suspend fun getInvestmentFundAssetById(id: Long): InvestmentFundAssetWithDetails?
+    @Query("SELECT * FROM assets")
+    suspend fun getAll(): List<AssetWithDetails>
 }
-

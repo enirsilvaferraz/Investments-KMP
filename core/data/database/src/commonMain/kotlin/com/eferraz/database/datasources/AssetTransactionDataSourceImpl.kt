@@ -8,9 +8,6 @@ import com.eferraz.database.mappers.toDomain
 import com.eferraz.database.mappers.toEntity
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.AssetTransaction
-import com.eferraz.entities.FixedIncomeTransaction
-import com.eferraz.entities.FundsTransaction
-import com.eferraz.entities.VariableIncomeTransaction
 import kotlinx.datetime.LocalDate
 import org.koin.core.annotation.Factory
 
@@ -24,36 +21,36 @@ internal class AssetTransactionDataSourceImpl(
         
         val transactionId = if (transaction.id > 0) {
             // Atualização
-            assetTransactionDao.upsertTransaction(baseEntity)
+            assetTransactionDao.save(baseEntity)
             transaction.id
         } else {
             // Inserção - o ID é gerado pelo banco
-            assetTransactionDao.insertTransaction(baseEntity)
+            assetTransactionDao.save(baseEntity)
         }
 
         when (specificEntity) {
             is FixedIncomeTransactionEntity -> {
                 val fixedIncomeEntity = specificEntity.copy(transactionId = transactionId)
                 if (transaction.id > 0) {
-                    assetTransactionDao.upsertFixedIncome(fixedIncomeEntity)
+                    assetTransactionDao.save(fixedIncomeEntity)
                 } else {
-                    assetTransactionDao.insertFixedIncome(fixedIncomeEntity)
+                    assetTransactionDao.save(fixedIncomeEntity)
                 }
             }
             is VariableIncomeTransactionEntity -> {
                 val variableIncomeEntity = specificEntity.copy(transactionId = transactionId)
                 if (transaction.id > 0) {
-                    assetTransactionDao.upsertVariableIncome(variableIncomeEntity)
+                    assetTransactionDao.save(variableIncomeEntity)
                 } else {
-                    assetTransactionDao.insertVariableIncome(variableIncomeEntity)
+                    assetTransactionDao.save(variableIncomeEntity)
                 }
             }
             is FundsTransactionEntity -> {
                 val fundsEntity = specificEntity.copy(transactionId = transactionId)
                 if (transaction.id > 0) {
-                    assetTransactionDao.upsertFunds(fundsEntity)
+                    assetTransactionDao.save(fundsEntity)
                 } else {
-                    assetTransactionDao.insertFunds(fundsEntity)
+                    assetTransactionDao.save(fundsEntity)
                 }
             }
         }

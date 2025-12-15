@@ -5,9 +5,7 @@ import com.eferraz.database.entities.AssetEntity
 import com.eferraz.database.entities.FixedIncomeAssetEntity
 import com.eferraz.database.entities.InvestmentFundAssetEntity
 import com.eferraz.database.entities.VariableIncomeAssetEntity
-import com.eferraz.database.entities.relationship.FixedIncomeAssetWithDetails
-import com.eferraz.database.entities.relationship.InvestmentFundAssetWithDetails
-import com.eferraz.database.entities.relationship.VariableIncomeAssetWithDetails
+import com.eferraz.database.entities.relationship.AssetWithDetails
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentFundAsset
@@ -21,86 +19,76 @@ internal class AssetDataSourceImpl(
 ) : AssetDataSource {
 
     override suspend fun getAll(): List<Asset> {
-        val fixedIncome = assetDao.getAllFixedIncomeAssets()
-        val variableIncome = assetDao.getAllVariableIncomeAssets()
-        val investmentFund = assetDao.getAllInvestmentFundAssets()
-        
-        return buildList {
-            addAll(fixedIncome.map { it.toModel() })
-            addAll(variableIncome.map { it.toModel() })
-            addAll(investmentFund.map { it.toModel() })
-        }
+        return assetDao.getAll().map { it.toModel() }
     }
 
     override suspend fun getByID(id: Long): Asset? {
-        val assetEntity = assetDao.getAssetById(id) ?: return null
-        
-        return when (assetEntity.category) {
-            "FIXED_INCOME" -> assetDao.getFixedIncomeAssetById(id)?.toModel()
-            "VARIABLE_INCOME" -> assetDao.getVariableIncomeAssetById(id)?.toModel()
-            "INVESTMENT_FUND" -> assetDao.getInvestmentFundAssetById(id)?.toModel()
-            else -> null
-        }
+        return assetDao.find(id)?.toModel()
     }
 
     override suspend fun save(asset: FixedIncomeAsset): Long {
         val (assetEntity, fixedIncomeEntity) = asset.toEntity()
-        val insertResult = assetDao.insertAsset(assetEntity)
+        val insertResult = assetDao.save(assetEntity)
         val assetId = if (insertResult == -1L) assetEntity.id else insertResult
-        assetDao.insertFixedIncome(fixedIncomeEntity.copy(assetId = assetId))
+        assetDao.save(fixedIncomeEntity.copy(assetId = assetId))
         return assetId
     }
 
     override suspend fun save(asset: InvestmentFundAsset): Long {
         val (assetEntity, investmentFundEntity) = asset.toEntity()
-        val insertResult = assetDao.insertAsset(assetEntity)
+        val insertResult = assetDao.save(assetEntity)
         val assetId = if (insertResult == -1L) assetEntity.id else insertResult
-        assetDao.insertInvestmentFund(investmentFundEntity.copy(assetId = assetId))
+        assetDao.save(investmentFundEntity.copy(assetId = assetId))
         return assetId
     }
 
     override suspend fun save(asset: VariableIncomeAsset): Long {
         val (assetEntity, variableIncomeEntity) = asset.toEntity()
-        val insertResult = assetDao.insertAsset(assetEntity)
+        val insertResult = assetDao.save(assetEntity)
         val assetId = if (insertResult == -1L) assetEntity.id else insertResult
-        assetDao.insertVariableIncome(variableIncomeEntity.copy(assetId = assetId))
+        assetDao.save(variableIncomeEntity.copy(assetId = assetId))
         return assetId
     }
 
-    private fun FixedIncomeAssetWithDetails.toModel() =
-        FixedIncomeAsset(
-            id = asset.id,
-            issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
-            type = fixedIncome.type,
-            subType = fixedIncome.subType,
-            expirationDate = fixedIncome.expirationDate,
-            contractedYield = fixedIncome.contractedYield,
-            cdiRelativeYield = fixedIncome.cdiRelativeYield,
-            liquidity = asset.liquidity,
-            observations = asset.observations
-        )
+    private fun AssetWithDetails.toModel(): Asset {
 
-    private fun VariableIncomeAssetWithDetails.toModel() =
-        VariableIncomeAsset(
-            id = asset.id,
-            name = asset.name,
-            issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
-            type = variableIncome.type,
-            ticker = variableIncome.ticker,
-            observations = asset.observations
-        )
+        return when {
 
-    private fun InvestmentFundAssetWithDetails.toModel() =
-        InvestmentFundAsset(
-            id = asset.id,
-            name = asset.name,
-            issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
-            type = investmentFund.type,
-            liquidity = asset.liquidity,
-            liquidityDays = investmentFund.liquidityDays,
-            expirationDate = investmentFund.expirationDate,
-            observations = asset.observations
-        )
+            fixedIncome != null -> FixedIncomeAsset(
+                id = asset.id,
+                issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
+                type = fixedIncome.type,
+                subType = fixedIncome.subType,
+                expirationDate = fixedIncome.expirationDate,
+                contractedYield = fixedIncome.contractedYield,
+                cdiRelativeYield = fixedIncome.cdiRelativeYield,
+                liquidity = asset.liquidity,
+                observations = asset.observations
+            )
+
+            variableIncome != null -> VariableIncomeAsset(
+                id = asset.id,
+                name = asset.name,
+                issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
+                type = variableIncome.type,
+                ticker = variableIncome.ticker,
+                observations = asset.observations
+            )
+
+            funds != null -> InvestmentFundAsset(
+                id = asset.id,
+                name = asset.name,
+                issuer = Issuer(id = issuer.id, name = issuer.name, isInLiquidation = issuer.isInLiquidation),
+                type = funds.type,
+                liquidity = asset.liquidity,
+                liquidityDays = funds.liquidityDays,
+                expirationDate = funds.expirationDate,
+                observations = asset.observations
+            )
+
+            else -> throw IllegalStateException("AssetEntity must have at least one specific asset type")
+        }
+    }
 
     private fun FixedIncomeAsset.toEntity(): Pair<AssetEntity, FixedIncomeAssetEntity> {
         val assetEntity = AssetEntity(

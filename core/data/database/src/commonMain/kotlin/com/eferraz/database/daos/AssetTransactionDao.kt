@@ -1,7 +1,6 @@
 package com.eferraz.database.daos
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
@@ -18,32 +17,20 @@ import kotlinx.datetime.LocalDate
 @Dao
 internal interface AssetTransactionDao {
 
-    @Insert
-    suspend fun insertTransaction(transaction: AssetTransactionEntity): Long
-
-    @Insert
-    suspend fun insertFixedIncome(fixedIncome: FixedIncomeTransactionEntity)
-
-    @Insert
-    suspend fun insertVariableIncome(variableIncome: VariableIncomeTransactionEntity)
-
-    @Insert
-    suspend fun insertFunds(funds: FundsTransactionEntity)
+    @Upsert
+    suspend fun save(transaction: AssetTransactionEntity): Long
 
     @Upsert
-    suspend fun upsertTransaction(transaction: AssetTransactionEntity): Long
+    suspend fun save(transaction: FixedIncomeTransactionEntity): Long
 
     @Upsert
-    suspend fun upsertFixedIncome(fixedIncome: FixedIncomeTransactionEntity)
+    suspend fun save(transaction: VariableIncomeTransactionEntity): Long
 
     @Upsert
-    suspend fun upsertVariableIncome(variableIncome: VariableIncomeTransactionEntity)
-
-    @Upsert
-    suspend fun upsertFunds(funds: FundsTransactionEntity)
+    suspend fun save(transaction: FundsTransactionEntity): Long
 
     @Query("SELECT * FROM asset_transactions WHERE id = :id")
-    suspend fun getById(id: Long): AssetTransactionEntity?
+    suspend fun getById(id: Long): TransactionWithDetails?
 
     @Query("DELETE FROM asset_transactions WHERE id = :id")
     suspend fun deleteById(id: Long)
@@ -65,7 +52,7 @@ internal interface AssetTransactionDao {
     suspend fun getAllByHoldingIdAndDateRange(
         holdingId: Long,
         startDate: LocalDate,
-        endDate: LocalDate
+        endDate: LocalDate,
     ): List<TransactionWithDetails>
 
     @Transaction
