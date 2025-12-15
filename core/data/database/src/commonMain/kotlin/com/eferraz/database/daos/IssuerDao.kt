@@ -3,7 +3,7 @@ package com.eferraz.database.daos
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.eferraz.database.entities.IssuerEntity
+import com.eferraz.database.entities.supports.IssuerEntity
 /**
  * DAO para operações CRUD na tabela issuers.
  */

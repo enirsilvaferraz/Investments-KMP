@@ -1,10 +1,12 @@
-package com.eferraz.database.entities
+package com.eferraz.database.entities.holdings
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.eferraz.database.entities.supports.BrokerageEntity
+import com.eferraz.database.entities.supports.OwnerEntity
 import com.eferraz.database.entities.assets.AssetEntity
 
 /**
@@ -18,19 +20,19 @@ import com.eferraz.database.entities.assets.AssetEntity
             entity = AssetEntity::class,
             parentColumns = ["id"],
             childColumns = ["assetId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.Companion.CASCADE
         ),
         ForeignKey(
             entity = OwnerEntity::class,
             parentColumns = ["id"],
             childColumns = ["ownerId"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.Companion.RESTRICT
         ),
         ForeignKey(
             entity = BrokerageEntity::class,
             parentColumns = ["id"],
             childColumns = ["brokerageId"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.Companion.RESTRICT
         )
     ],
     indices = [
@@ -50,4 +52,3 @@ internal data class AssetHoldingEntity(
     @ColumnInfo(name = "brokerageId")
     val brokerageId: Long
 )
-

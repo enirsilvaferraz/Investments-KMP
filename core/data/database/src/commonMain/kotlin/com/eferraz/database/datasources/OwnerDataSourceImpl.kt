@@ -1,7 +1,7 @@
 package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.OwnerDao
-import com.eferraz.database.entities.OwnerEntity
+import com.eferraz.database.entities.supports.OwnerEntity
 import com.eferraz.entities.Owner
 import org.koin.core.annotation.Factory
 

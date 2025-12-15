@@ -5,8 +5,8 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
-import com.eferraz.database.entities.AssetHoldingEntity
-import com.eferraz.database.entities.relationship.AssetHoldingWithDetails
+import com.eferraz.database.entities.holdings.AssetHoldingEntity
+import com.eferraz.database.entities.holdings.AssetHoldingWithDetails
 /**
  * DAO para operações CRUD na tabela asset_holdings.
  */

@@ -1,10 +1,11 @@
-package com.eferraz.database.entities
+package com.eferraz.database.entities.histories
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import kotlinx.datetime.YearMonth
 
 /**
@@ -18,7 +19,7 @@ import kotlinx.datetime.YearMonth
             entity = AssetHoldingEntity::class,
             parentColumns = ["id"],
             childColumns = ["holdingId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.Companion.CASCADE
         )
     ],
     indices = [
@@ -44,4 +45,3 @@ internal data class HoldingHistoryEntryEntity(
     @ColumnInfo(name = "totalInvested")
     val totalInvested: Double
 )
-

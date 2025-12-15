@@ -5,8 +5,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
-import com.eferraz.database.entities.HoldingHistoryEntryEntity
-import com.eferraz.database.entities.relationship.HoldingHistoryWithDetails
+import com.eferraz.database.entities.histories.HoldingHistoryEntryEntity
+import com.eferraz.database.entities.histories.HoldingHistoryWithDetails
 import kotlinx.datetime.YearMonth
 
 /**

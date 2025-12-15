@@ -3,7 +3,7 @@ package com.eferraz.database.datasources
 import com.eferraz.database.daos.AssetHoldingDao
 import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.OwnerDao
-import com.eferraz.database.entities.AssetHoldingEntity
+import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.Brokerage
 import com.eferraz.entities.Owner

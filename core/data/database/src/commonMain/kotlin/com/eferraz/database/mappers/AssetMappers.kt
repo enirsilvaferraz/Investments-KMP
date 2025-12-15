@@ -1,6 +1,6 @@
 package com.eferraz.database.mappers
 
-import com.eferraz.database.entities.IssuerEntity
+import com.eferraz.database.entities.supports.IssuerEntity
 import com.eferraz.database.entities.assets.AssetEntity
 import com.eferraz.database.entities.assets.AssetWithDetails
 import com.eferraz.database.entities.assets.FixedIncomeAssetEntity

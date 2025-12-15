@@ -1,11 +1,10 @@
-package com.eferraz.database.entities.relationship
+package com.eferraz.database.entities.holdings
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.eferraz.database.entities.supports.BrokerageEntity
+import com.eferraz.database.entities.supports.OwnerEntity
 import com.eferraz.database.entities.assets.AssetEntity
-import com.eferraz.database.entities.AssetHoldingEntity
-import com.eferraz.database.entities.BrokerageEntity
-import com.eferraz.database.entities.OwnerEntity
 
 /**
  * Data class intermediária que representa um holding completo com seu asset.
@@ -34,4 +33,3 @@ internal data class AssetHoldingWithDetails(
     )
     val brokerage: BrokerageEntity,
 )
-

@@ -2,7 +2,7 @@ package com.eferraz.database.entities.assets
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.eferraz.database.entities.IssuerEntity
+import com.eferraz.database.entities.supports.IssuerEntity
 
 /**
  * Data class intermediária que representa um ativo completo com seus detalhes específicos.

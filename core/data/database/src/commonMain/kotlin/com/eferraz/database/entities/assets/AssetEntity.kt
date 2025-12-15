@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.eferraz.database.entities.IssuerEntity
+import com.eferraz.database.entities.supports.IssuerEntity
 import com.eferraz.entities.Liquidity
 
 /**

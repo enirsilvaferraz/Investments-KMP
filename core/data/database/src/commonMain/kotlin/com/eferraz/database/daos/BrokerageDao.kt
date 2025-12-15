@@ -3,7 +3,7 @@ package com.eferraz.database.daos
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.eferraz.database.entities.BrokerageEntity
+import com.eferraz.database.entities.supports.BrokerageEntity
 /**
  * DAO para operações CRUD na tabela brokerages.
  */

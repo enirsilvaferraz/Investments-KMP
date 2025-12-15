@@ -1,7 +1,7 @@
 package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.HoldingHistoryDao
-import com.eferraz.database.entities.HoldingHistoryEntryEntity
+import com.eferraz.database.entities.histories.HoldingHistoryEntryEntity
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
 import kotlinx.datetime.YearMonth
