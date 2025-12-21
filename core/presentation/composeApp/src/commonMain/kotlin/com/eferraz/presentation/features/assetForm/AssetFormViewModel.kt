@@ -3,14 +3,14 @@ package com.eferraz.presentation.features.assetForm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.InvestmentCategory
-import com.eferraz.usecases.entities.AssetFormData
-import com.eferraz.usecases.entities.FixedIncomeFormData
-import com.eferraz.usecases.GetAssetByIdUseCase
+import com.eferraz.usecases.GetAssetUseCase
 import com.eferraz.usecases.GetBrokeragesUseCase
 import com.eferraz.usecases.GetIssuersUseCase
-import com.eferraz.usecases.entities.InvestmentFundFormData
 import com.eferraz.usecases.SaveAssetUseCase
-import com.eferraz.usecases.ValidateException
+import com.eferraz.usecases.exceptions.ValidateException
+import com.eferraz.usecases.entities.AssetFormData
+import com.eferraz.usecases.entities.FixedIncomeFormData
+import com.eferraz.usecases.entities.InvestmentFundFormData
 import com.eferraz.usecases.entities.VariableIncomeFormData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +23,7 @@ internal class AssetFormViewModel(
     private val getIssuersUseCase: GetIssuersUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val saveAssetUseCase: SaveAssetUseCase,
-    private val getAssetByIdUseCase: GetAssetByIdUseCase,
+    private val getAssetUseCase: GetAssetUseCase,
     private val assetToFormDataMapper: AssetToFormDataMapper,
 ) : ViewModel() {
 
@@ -137,7 +137,7 @@ internal class AssetFormViewModel(
     private fun save() {
         viewModelScope.launch {
             try {
-                val id: Long? = saveAssetUseCase(_state.value.formData)
+                val id: Long = saveAssetUseCase(_state.value.formData)
                 clearForm()
                 _state.update { it.copy(message = "Ativo $id salvo com sucesso!", shouldCloseForm = true) }
             } catch (e: ValidateException) {
@@ -149,22 +149,24 @@ internal class AssetFormViewModel(
     }
 
     private fun loadAssetForEdit(assetId: Long) {
+
         viewModelScope.launch {
-            val asset = getAssetByIdUseCase(assetId) ?: return@launch
 
             if (_state.value.issuers.isEmpty() || _state.value.brokerages.isEmpty()) {
                 loadData()
             }
 
-            val formData = assetToFormDataMapper.toFormData(asset)
-            _state.update {
-                it.copy(
-                    formData = formData,
-                    isEditMode = true,
-                    validationErrors = emptyMap(),
-                    message = null
-                )
-            }
+            getAssetUseCase(GetAssetUseCase.ById(assetId))
+                .onSuccess { asset ->
+                    _state.update {
+                        it.copy(
+                            formData = assetToFormDataMapper.toFormData(asset),
+                            isEditMode = true,
+                            validationErrors = emptyMap(),
+                            message = null
+                        )
+                    }
+                }
         }
     }
 

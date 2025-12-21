@@ -4,6 +4,7 @@ import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.Liquidity
+import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,7 +36,7 @@ public class MergeHistoryUseCase(
         val previos = mapByReferenceDate(param.referenceDate.minusMonth(), holdings)
         val current = mapByReferenceDate(param.referenceDate, holdings)
 
-        return holdings.map { holding ->
+        return holdings.map { holding -> // TODO melhorar a performance
             val currentEntry = current[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate, holding)).getOrThrow()
             val previousEntry = previos[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate.minusMonth(), holding)).getOrThrow()
             HoldingHistoryResult(holding, currentEntry, previousEntry)
@@ -47,7 +48,7 @@ public class MergeHistoryUseCase(
         holdings: List<AssetHolding>,
     ): Map<AssetHolding, HoldingHistoryEntry?> {
 
-        val histories = holdingHistoryRepository.getByReferenceDate(referenceDate).associateBy(
+        val histories: Map<AssetHolding, HoldingHistoryEntry> = holdingHistoryRepository.getByReferenceDate(referenceDate).associateBy(
             keySelector = { historyEntry -> historyEntry.holding },
             valueTransform = { historyEntry -> historyEntry }
         )

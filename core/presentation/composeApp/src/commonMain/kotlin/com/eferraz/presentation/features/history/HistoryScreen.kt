@@ -36,7 +36,7 @@ import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.TableColumn
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
-import com.eferraz.usecases.HoldingHistoryResult
+import com.eferraz.usecases.entities.HoldingHistoryResult
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
 

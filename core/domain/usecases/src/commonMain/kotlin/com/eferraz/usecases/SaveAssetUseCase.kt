@@ -9,6 +9,7 @@ import com.eferraz.usecases.entities.AssetFormData
 import com.eferraz.usecases.entities.FixedIncomeFormData
 import com.eferraz.usecases.entities.InvestmentFundFormData
 import com.eferraz.usecases.entities.VariableIncomeFormData
+import com.eferraz.usecases.exceptions.ValidateException
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.BrokerageRepository
@@ -238,6 +239,3 @@ public class SaveAssetUseCase(
         return errors
     }
 }
-
-public class ValidateException(public val messages: Map<String, String>) : Exception()
-

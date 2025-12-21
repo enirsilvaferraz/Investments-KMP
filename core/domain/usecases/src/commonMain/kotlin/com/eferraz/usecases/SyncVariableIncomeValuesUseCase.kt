@@ -5,10 +5,10 @@ import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.Factory
 
 @Factory
-public class UpdateVariableIncomeValuesUseCase(
+public class SyncVariableIncomeValuesUseCase(
     private val assetHoldingRepository: AssetHoldingRepository,
     private val createHistoryUseCase: CreateHistoryUseCase,
-) : AppUseCase<UpdateVariableIncomeValuesUseCase.Param, Unit>() {
+) : AppUseCase<SyncVariableIncomeValuesUseCase.Param, Unit>() {
 
     public data class Param(val referenceDate: YearMonth)
 

@@ -7,15 +7,16 @@ import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Factory
 
 @Factory
-public class GetAssetsUseCase(
+public class GetAssetUseCase(
     private val assetRepository: AssetRepository,
     context: CoroutineDispatcher = Dispatchers.Default
-) : AppUseCase<GetAssetsUseCase.Param, List<Asset>>(context) {
+) : AppUseCase<GetAssetUseCase.Param, Asset>(context) {
 
     public sealed interface Param
-    public object All : Param
+    public data class ById(val id: Long) : Param
 
-    override suspend fun execute(param: Param): List<Asset> = when (param) {
-        All -> assetRepository.getAll()
+    override suspend fun execute(param: Param): Asset = when (param) {
+        is ById -> assetRepository.getById(param.id) ?: throw Exception("Asset not found")
     }
 }
+

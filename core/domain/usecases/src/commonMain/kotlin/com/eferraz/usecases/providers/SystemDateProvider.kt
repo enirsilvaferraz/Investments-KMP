@@ -13,8 +13,7 @@ import kotlin.time.ExperimentalTime
 @Factory(binds = [DateProvider::class])
 @OptIn(ExperimentalTime::class)
 public class SystemDateProvider : DateProvider {
-    override fun getCurrentYearMonth(): YearMonth {
-        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        return YearMonth(now.year, now.month)
-    }
+
+    override fun getCurrentYearMonth(): YearMonth =
+        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).let { now -> YearMonth(now.year, now.month) }
 }

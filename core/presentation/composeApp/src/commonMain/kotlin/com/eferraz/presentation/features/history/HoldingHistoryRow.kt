@@ -49,11 +49,8 @@ internal class HoldingHistoryRow(
 
             val assetView = AssetView.create(holding.asset)
 
-            val previousQuantity = previousEntry.endOfMonthQuantity
-            val previousValue = previousEntry.endOfMonthValue
-
-            val currentQuantity = currentEntry.endOfMonthQuantity
-            val currentValue = currentEntry.endOfMonthValue
+            val previousValue = previousEntry.endOfMonthValue * previousEntry.endOfMonthQuantity
+            val currentValue = currentEntry.endOfMonthValue * currentEntry.endOfMonthQuantity
 
             val appreciationValue = calculateAppreciationValue(currentValue, previousValue)
 
@@ -66,13 +63,14 @@ internal class HoldingHistoryRow(
                 maturity = assetView.maturity,
                 issuer = assetView.issuer,
                 previousValue = previousValue,
-                currentValue = currentValue * currentQuantity,
+                currentValue = currentValue,
                 appreciation = formatAppreciation(currentValue, previousValue),
                 appreciationValue = appreciationValue,
-                situation = formatSituation(
-                    previousQuantity = previousQuantity,
-                    currentQuantity = currentQuantity
-                ),
+//                situation = formatSituation(
+//                    previousQuantity = previousQuantity,
+//                    currentQuantity = currentQuantity
+//                ),
+                situation = "",
                 editable = holding.asset !is VariableIncomeAsset
             )
 

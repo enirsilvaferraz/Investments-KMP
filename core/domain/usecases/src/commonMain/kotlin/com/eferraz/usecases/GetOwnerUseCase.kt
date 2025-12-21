@@ -5,7 +5,7 @@ import com.eferraz.usecases.repositories.OwnerRepository
 import org.koin.core.annotation.Factory
 
 @Factory
-public class GetFirstOwnerUseCase(
+public class GetOwnerUseCase(
     private val ownerRepository: OwnerRepository,
 ) {
 
