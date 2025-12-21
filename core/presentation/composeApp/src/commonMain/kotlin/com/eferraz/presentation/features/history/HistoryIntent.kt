@@ -15,4 +15,6 @@ internal sealed class HistoryIntent {
     ) : HistoryIntent()
     
     data object LoadInitialData : HistoryIntent()
+
+    data object Sync : HistoryIntent()
 }

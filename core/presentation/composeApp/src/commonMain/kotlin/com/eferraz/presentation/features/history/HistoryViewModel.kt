@@ -6,7 +6,8 @@ import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.HoldingHistoryResult
 import com.eferraz.usecases.MergeHistoryUseCase
-import com.eferraz.usecases.UpdateHistoryValueUseCase
+import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
+import com.eferraz.usecases.UpdateVariableIncomeValuesUseCase
 import com.eferraz.usecases.providers.DateProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,8 @@ internal class HistoryViewModel(
     dateProvider: DateProvider,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getHoldingHistoryUseCase: MergeHistoryUseCase,
-    private val updateHistoryValueUseCase: UpdateHistoryValueUseCase,
+    private val updateFixedIncomeAndFundsHistoryValueUseCase: UpdateFixedIncomeAndFundsHistoryValueUseCase,
+    private val updateVariableIncomeValues: UpdateVariableIncomeValuesUseCase,
 ) : ViewModel() {
 
     val state: StateFlow<HistoryState>
@@ -35,11 +37,12 @@ internal class HistoryViewModel(
             is HistoryIntent.SelectPeriod -> selectPeriod(intent.period)
             is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entry, intent.value)
             is HistoryIntent.LoadInitialData -> loadPeriodData()
+            is HistoryIntent.Sync -> sync()
         }
     }
 
     private fun selectPeriod(period: YearMonth) {
-        state.update { it.copy(selectedPeriod = period) }
+        state.value = state.value.copy(selectedPeriod = period)
         processIntent(HistoryIntent.LoadInitialData)
     }
 
@@ -48,10 +51,21 @@ internal class HistoryViewModel(
         value: Double,
     ) {
         viewModelScope.launch {
-            updateHistoryValueUseCase(
-                UpdateHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
+            updateFixedIncomeAndFundsHistoryValueUseCase(
+                UpdateFixedIncomeAndFundsHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
             ).onSuccess {
                 processIntent(HistoryIntent.LoadInitialData)
+            }
+        }
+    }
+
+    private fun sync() {
+        viewModelScope.launch {
+            updateVariableIncomeValues(
+                UpdateVariableIncomeValuesUseCase.Param(state.value.selectedPeriod)
+            ).onSuccess {
+                processIntent(HistoryIntent.LoadInitialData)
+                println("Success")
             }
         }
     }

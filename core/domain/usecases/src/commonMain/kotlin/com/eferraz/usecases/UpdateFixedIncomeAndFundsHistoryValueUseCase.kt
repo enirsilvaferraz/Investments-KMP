@@ -8,10 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Factory
 
 @Factory
-public class UpdateHistoryValueUseCase(
+public class UpdateFixedIncomeAndFundsHistoryValueUseCase(
     private val repository: HoldingHistoryRepository,
     context: CoroutineDispatcher = Dispatchers.Default,
-) : AppUseCase<UpdateHistoryValueUseCase.Params, Long>(context) {
+) : AppUseCase<UpdateFixedIncomeAndFundsHistoryValueUseCase.Params, Long>(context) {
 
     public data class Params(
         val entry: HoldingHistoryEntry,

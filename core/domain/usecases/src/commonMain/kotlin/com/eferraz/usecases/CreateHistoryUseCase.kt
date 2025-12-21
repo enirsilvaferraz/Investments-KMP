@@ -17,6 +17,7 @@ import org.koin.core.annotation.Factory
 public class CreateHistoryUseCase(
     private val holdingHistoryRepository: HoldingHistoryRepository,
     private val quoteHistoryRepository: StockQuoteHistoryRepository,
+    private val repository: HoldingHistoryRepository,
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<CreateHistoryUseCase.Param, HoldingHistoryEntry>(context) {
 
@@ -24,10 +25,12 @@ public class CreateHistoryUseCase(
 
     override suspend fun execute(param: Param): HoldingHistoryEntry {
 
-        return when (param.holding.asset) {
+        return (when (param.holding.asset) {
             is FixedIncomeAsset, is InvestmentFundAsset -> createFixedIncomeHistory(param.referenceDate, param.holding)
             is VariableIncomeAsset -> createVariableIncomeHistory(param.referenceDate, param.holding)
-        } ?: HoldingHistoryEntry(holding = param.holding, referenceDate = param.referenceDate)
+        } ?: HoldingHistoryEntry(holding = param.holding, referenceDate = param.referenceDate)).also {
+            repository.upsert(it)
+        }
     }
 
     private suspend fun createFixedIncomeHistory(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? {
@@ -37,18 +40,26 @@ public class CreateHistoryUseCase(
     private suspend fun createVariableIncomeHistory(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? {
 
         val rv = holding.asset as? VariableIncomeAsset ?: return null
-        val previous = holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate.minusMonth(), holding) ?: return null
 
-        val quoteHistory = quoteHistoryRepository.getQuote(rv.ticker)
+        val quoteHistory = quoteHistoryRepository.getQuote(rv.ticker) // TODO Passar referenceDate por parametro
         val endOfMonthValue = quoteHistory.close ?: quoteHistory.adjustedClose ?: return null
-        val endOfMonthQuantity = previous.endOfMonthQuantity
 
-        return HoldingHistoryEntry(
-            holding = holding,
-            referenceDate = referenceDate,
-            endOfMonthValue = endOfMonthValue,
-            endOfMonthQuantity = endOfMonthQuantity
-        )
+        holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding)?.let {
+            return it.copy(endOfMonthValue = endOfMonthValue).also {
+                println(" - Clonando: $it")
+            }
+        }
+
+        return (holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate.minusMonth(), holding))?.let {
+            HoldingHistoryEntry(
+                holding = holding,
+                referenceDate = referenceDate,
+                endOfMonthValue = endOfMonthValue,
+                endOfMonthQuantity = it.endOfMonthQuantity
+            ).also {
+                println(" - Criando: $it")
+            }
+        }
     }
 }
 

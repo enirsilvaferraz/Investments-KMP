@@ -45,4 +45,8 @@ internal interface AssetDao {
     @Transaction
     @Query("SELECT * FROM assets")
     suspend fun getAll(): List<AssetWithDetails>
+
+    @Transaction
+    @Query("SELECT * FROM assets WHERE category = 'VARIABLE_INCOME'")
+    suspend fun getAllVariableIncomeAssets(): List<AssetWithDetails>
 }

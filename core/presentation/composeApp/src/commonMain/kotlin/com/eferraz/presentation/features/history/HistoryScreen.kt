@@ -6,12 +6,17 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -46,11 +51,16 @@ internal fun HistoryRoute() {
     AppScaffold(
         title = "Posicionamento no Período",
         actions = {
-            HistoryActions(
-                selected = state.selectedPeriod,
-                periods = state.periods,
-                onSelect = { vm.processIntent(HistoryIntent.SelectPeriod(it)) }
-            )
+            Row {
+                PeriodActions(
+                    selected = state.selectedPeriod,
+                    periods = state.periods,
+                    onSelect = { vm.processIntent(HistoryIntent.SelectPeriod(it)) }
+                )
+                SyncButton(
+                    onClick = {vm.processIntent(HistoryIntent.Sync)}
+                )
+            }
         },
         mainPane = {
             HistoryScreen(
@@ -64,7 +74,7 @@ internal fun HistoryRoute() {
 }
 
 @Composable
-private fun HistoryActions(
+private fun PeriodActions(
     modifier: Modifier = Modifier,
     selected: YearMonth,
     periods: List<YearMonth>,
@@ -101,6 +111,19 @@ private fun HistoryActions(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SyncButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+
+    FilledTonalIconButton(
+        onClick = onClick
+    ) {
+        Icon(imageVector = Icons.Default.Sync, contentDescription = null)
     }
 }
 

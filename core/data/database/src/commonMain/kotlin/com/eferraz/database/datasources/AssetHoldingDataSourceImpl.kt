@@ -4,6 +4,7 @@ import com.eferraz.database.daos.AssetHoldingDao
 import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.OwnerDao
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
+import com.eferraz.entities.Asset
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.Brokerage
 import com.eferraz.entities.Owner
@@ -43,6 +44,15 @@ internal class AssetHoldingDataSourceImpl(
 
     override suspend fun getAll(): List<AssetHolding> {
         val assetsMap = assetDataSource.getAll().associateBy { asset -> asset.id }
+        return getHoldingsByAssets(assetsMap)
+    }
+
+    override suspend fun getAllVariableIncomeAssets(): List<AssetHolding> {
+        val assetsMap = assetDataSource.getAllVariableIncomeAssets().associateBy { asset -> asset.id }
+        return getHoldingsByAssets(assetsMap)
+    }
+
+    private suspend fun getHoldingsByAssets(assetsMap: Map<Long, Asset>): List<AssetHolding> {
         val holdingsWithDetails = assetHoldingDao.getAllWithAsset()
 
         return holdingsWithDetails.mapNotNull { holdingWithDetails ->

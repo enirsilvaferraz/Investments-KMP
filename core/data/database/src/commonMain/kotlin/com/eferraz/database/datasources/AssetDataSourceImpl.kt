@@ -14,6 +14,9 @@ internal class AssetDataSourceImpl(
     override suspend fun getAll(): List<Asset> =
         assetDao.getAll().map { it.toDomain() }
 
+    override suspend fun getAllVariableIncomeAssets(): List<Asset> =
+        assetDao.getAllVariableIncomeAssets().map { it.toDomain() }
+
     override suspend fun getByID(id: Long): Asset? =
         assetDao.find(id)?.toDomain()
 

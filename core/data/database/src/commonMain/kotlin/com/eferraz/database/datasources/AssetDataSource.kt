@@ -4,6 +4,7 @@ import com.eferraz.entities.Asset
 
 public interface AssetDataSource {
     public suspend fun getAll(): List<Asset>
+    public suspend fun getAllVariableIncomeAssets(): List<Asset>
     public suspend fun getByID(id: Long): Asset?
     public suspend fun save(asset: Asset): Long
 }

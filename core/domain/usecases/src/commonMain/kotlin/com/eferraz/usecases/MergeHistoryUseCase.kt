@@ -39,8 +39,6 @@ public class MergeHistoryUseCase(
             val currentEntry = current[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate, holding)).getOrThrow()
             val previousEntry = previos[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate.minusMonth(), holding)).getOrThrow()
             HoldingHistoryResult(holding, currentEntry, previousEntry)
-        }.also { it: List<HoldingHistoryResult> ->
-            println("Total: " + it.sumOf { it.currentEntry.endOfMonthQuantity * it.currentEntry.endOfMonthValue })
         }
     }
 
