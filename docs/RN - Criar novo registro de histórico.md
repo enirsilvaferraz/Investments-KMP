@@ -6,7 +6,6 @@
 2. [Fluxo Principal](#2-fluxo-principal)
 3. [Estratégias por Tipo de Ativo](#3-estratégias-por-tipo-de-ativo)
 4. [Regras de Negócio](#4-regras-de-negócio)
-5. [Estrutura do Registro](#5-estrutura-do-registro)
 
 ---
 
@@ -82,7 +81,7 @@ flowchart LR
     style Fail fill:#f8d7da
 ```
 
-**Justificativa:** Valores se mantêm estáveis entre meses, não requer cotações externas.
+**Justificativa:** Facilita o preenchimento manual realizado todo final de mês. Como não há API para retornar os valores de renda fixa e fundos, copiar do mês anterior facilita o trabalho e auxilia nos cálculos de total em investimentos.
 
 ### 3.2. Renda Variável
 
@@ -173,39 +172,6 @@ flowchart TD
 **Regra:** Quando não há histórico anterior, sistema cria registro vazio.
 
 **Comportamento:** Permite iniciar histórico de uma posição a qualquer momento, sem exigir histórico completo desde o início.
-
----
-
-## 5. Estrutura do Registro
-
-### 5.1. Campos
-
-**Identificação:**
-- Identificador único
-- Posição de ativo
-- Data de referência (YYYY-MM)
-
-**Dados financeiros:**
-- Valor de mercado no final do mês
-- Quantidade no final do mês
-- Custo médio no final do mês
-- Valor total investido
-
-### 5.2. Valores Padrão
-
-Quando registro vazio é criado:
-- Valor de mercado: 0,00
-- Quantidade: 1,00
-- Custo médio: 0,00
-- Valor investido: 0,00
-
-**Nota:** Quantidade padrão é 1,00 para evitar divisões por zero.
-
-### 5.3. Integridade
-
-- **Unicidade:** Um registro por posição + data
-- **Consistência:** Valores sempre válidos e não nulos
-- **Persistência:** Automática após criação
 
 ---
 
