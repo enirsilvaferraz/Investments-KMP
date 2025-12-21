@@ -3,225 +3,283 @@
 ## Índice
 
 1. [Objetivo](#1-objetivo)
-2. [Dados Exibidos na Tabela de Posições](#2-dados-exibidos-na-tabela-de-posições)
-3. [Composição da Tela](#3-composição-da-tela)
-4. [Ações da Tela](#4-ações-da-tela)
-5. [Regras de Negócio e Cálculos](#5-regras-de-negócio-e-cálculos)
-6. [Regras de Preenchimento da Tabela](#6-regras-de-preenchimento-da-tabela)
-7. [Exemplos](#7-exemplos)
-8. [Casos de Uso](#8-casos-de-uso)
+2. [Dados Exibidos na Tabela](#2-dados-exibidos-na-tabela)
+3. [Composição e Ações da Tela](#3-composição-e-ações-da-tela)
+4. [Regras de Negócio e Cálculos](#4-regras-de-negócio-e-cálculos)
+5. [Exemplos](#5-exemplos)
+6. [Casos de Uso](#6-casos-de-uso)
 
 ---
 
 ## 1. Objetivo
 
-Apresentar ao usuário uma visão consolidada de suas posições de ativos (`holdings`) em um determinado período (mês/ano), permitindo comparar com o período imediatamente anterior, analisar a valorização e registrar movimentações.
+Apresentar uma visão consolidada das posições de ativos (`holdings`) em um período (mês/ano), permitindo comparar com o período anterior, analisar valorização e registrar movimentações.
 
-A principal funcionalidade da tela é uma tabela que exibe as posições de ativos no período selecionado, comparando-as com o período anterior.
-
----
-
-## 2. Dados Exibidos na Tabela de Posições
-
-A tabela principal deverá exibir os seguintes dados para cada posição (`HoldingHistoryEntry`) encontrada no período de referência:
-
-| Coluna                  | Descrição                                                                               | Fonte                                                                                                                                             |
-|:------------------------|:----------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Corretora**           | Nome da corretora onde o ativo está custodiado.                                         | `HoldingHistoryEntry.holding.brokerage.name`                                                                                                      |
-| **Categoria**           | Tipo de investimento do ativo.                                                          | Calculado em tempo de execução, baseado no tipo do `Asset`.                                                                                       |
-| **SubCategoria**        | Subclassificação do tipo de investimento do ativo.                                      | Calculado em tempo de execução: `FixedIncomeAsset.subType.name`, `VariableIncomeAsset.type.formated()`, ou `InvestmentFundAsset.type.formated()`. |
-| **Descrição**           | Nome principal do ativo.                                                                | `HoldingHistoryEntry.holding.asset.name`                                                                                                          |
-| **Vencimento**          | Data de vencimento do ativo, se aplicável.                                              | `HoldingHistoryEntry.holding.asset.expirationDate`                                                                                                |
-| **Emissor**             | Nome da entidade que emitiu o ativo.                                                    | `HoldingHistoryEntry.holding.asset.issuer.name`                                                                                                   |
-| **Observações**         | Notas e observações adicionais sobre o ativo.                                           | `HoldingHistoryEntry.holding.asset.observations`                                                                                                  |
-| **Valor Anterior**      | Valor de mercado total da posição no final do mês **anterior**.                         | `HoldingHistoryEntryAnterior.endOfMonthValue`                                                                                                     |
-| **Valor Atual**         | Valor de mercado total da posição no final do mês **atual**. Campo de entrada de dados. | `HoldingHistoryEntryAtual.endOfMonthValue`                                                                                                        |
-| **Valorização**         | Variação percentual do valor de mercado no mês.                                         | Ver seção **5.1. Cálculo de Valorização**.                                                                                                        |
-| **Situação**            | Classificação da movimentação da posição no mês.                                        | Ver seção **5.2. Cálculo da Situação**.                                                                                                           |
-
-### 2.1. Formatação do Campo Categoria
-
-A categoria é calculada dinamicamente com base no tipo do `Asset`:
-
-- **Renda Fixa**: Para `FixedIncomeAsset` → exibido como `"Renda Fixa"`
-- **Renda Variável**: Para `VariableIncomeAsset` → exibido como `"Renda Variável"`
-- **Fundos**: Para `InvestmentFundAsset` → exibido como `"Fundos"`
-
-### 2.2. Formatação do Campo SubCategoria
-
-A subcategoria é calculada conforme o tipo de ativo:
-
-- **Renda Fixa** (`FixedIncomeAsset`): `asset.subType.name`
-- **Renda Variável** (`VariableIncomeAsset`): `asset.type.formated()`
-- **Fundos** (`InvestmentFundAsset`): `asset.type.formated()`
-
-### 2.3. Formatação do Campo Liquidez
-
-A liquidez é formatada conforme o tipo de regra aplicada ao ativo:
-
-- **Diária** (`Liquidity.DAILY`): Exibido como `"Diária"` - resgate pode ser solicitado a qualquer momento
-- **No vencimento** (`Liquidity.AT_MATURITY`): Exibido como `"No vencimento"` - liquidez apenas na data de vencimento do título
-- **Dias após venda** (`Liquidity.D_PLUS_DAYS`): Exibido como `"D+{days}"` onde `{days}` é o número de dias para o resgate ser efetivado (armazenado na propriedade `liquidityDays`)
-  - Exemplo: `"D+2"` (resgate em 2 dias após solicitação)
-  - Exemplo: `"D+60"` (resgate em 60 dias após solicitação)
-
-**Nota**: `Liquidity.DAILY` e `Liquidity.AT_MATURITY` são aplicáveis apenas a ativos de Renda Fixa (`FixedIncomeAsset`). `Liquidity.D_PLUS_DAYS` é aplicável a ativos de Renda Variável (`VariableIncomeAsset`) e Fundos de Investimento (`InvestmentFundAsset`), que possuem a propriedade `liquidityDays` para armazenar o número de dias.
+**Funcionalidade principal**: Tabela que exibe posições do período selecionado comparadas com o período anterior.
 
 ---
 
-## 3. Composição da Tela
+## 2. Dados Exibidos na Tabela
 
-A tela é composta pelos seguintes elementos:
+A tabela exibe os seguintes dados para cada posição (`HoldingHistoryEntry`) do período:
+
+| Coluna             | Descrição                              | Fonte                                                                                                                    |
+|:-------------------|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------------------|
+| **Corretora**      | Nome da corretora                      | `HoldingHistoryEntry.holding.brokerage.name`                                                                             |
+| **Categoria**      | Tipo de investimento                   | Calculado: `FixedIncomeAsset` → "Renda Fixa", `VariableIncomeAsset` → "Renda Variável", `InvestmentFundAsset` → "Fundos" |
+| **SubCategoria**   | Subclassificação                       | `FixedIncomeAsset.subType.name` ou `VariableIncomeAsset.type.formated()` ou `InvestmentFundAsset.type.formated()`        |
+| **Descrição**      | Nome do ativo                          | `HoldingHistoryEntry.holding.asset.name`                                                                                 |
+| **Vencimento**     | Data de vencimento (se aplicável)      | `HoldingHistoryEntry.holding.asset.expirationDate`                                                                       |
+| **Emissor**        | Nome do emissor                        | `HoldingHistoryEntry.holding.asset.issuer.name`                                                                          |
+| **Observações**    | Notas adicionais                       | `HoldingHistoryEntry.holding.asset.observations`                                                                         |
+| **Valor Anterior** | Valor no final do mês anterior         | `HoldingHistoryEntryAnterior.endOfMonthValue`                                                                            |
+| **Valor Atual**    | Valor no final do mês atual (editável) | `HoldingHistoryEntryAtual.endOfMonthValue`                                                                               |
+| **Valorização**    | Variação percentual no mês             | Calculado (ver seção 4.1)                                                                                                |
+| **Situação**       | Classificação da movimentação          | Calculado (ver seção 4.2)                                                                                                |
+
+**Regras de Exibição**:
+- Se não houver dados no mês anterior: "Valor Anterior" = `""`
+- Se não houver dados no mês atual: "Valor Atual" = vazio (permitindo entrada)
+- Para Renda Variável: ver seção 4.3
+
+---
+
+## 3. Composição e Ações da Tela
+
+### 3.1. Componentes
 
 - **Título**: "Posicionamento no Período"
-- **Seletor de Período**: Componente (dropdown) para seleção do período (mês/ano)
-- **Tabela Principal**: Tabela que exibe as posições de ativos conforme descrito na seção 2
+- **Seletor de Período**: Dropdown para seleção de mês/ano
+- **Tabela Principal**: Exibe posições conforme seção 2
+
+### 3.2. Ações Disponíveis
+
+#### Selecionar Período
+Ao selecionar um novo período, a tabela é atualizada com dados do período escolhido e do período anterior.
+
+#### Editar Posição do Ativo
+- **Campo editável**: Apenas "Valor Atual"
+- **Restrições**: 
+  - Não editável para ativos de Renda Variável (`VariableIncomeAsset`)
+  - Não há campo editável para quantidade
+- **Ação**: Ao inserir valor, o sistema:
+  1. Salva em `HoldingHistoryEntryAtual.endOfMonthValue`
+  2. Atualiza automaticamente `endOfMonthQuantity` e `endOfMonthAverageCost`
+  3. Recalcula valorização e situação
+- **Criação de registro**: Se não existir registro para o período, cria automaticamente seguindo [RN - Criar novo registro de histórico.md](RN%20-%20Criar%20novo%20registro%20de%20histórico.md)
 
 ---
 
-## 4. Ações da Tela
+## 4. Regras de Negócio e Cálculos
 
-### 4.1. Selecionar Período de Referência
+### 4.1. Cálculo de Valorização
 
-- **Componente**: Um seletor para que o usuário escolha o mês e o ano de referência.
-- **Ação**: Ao selecionar um novo período, a tabela é atualizada para refletir os dados do período escolhido e do período anterior correspondente.
+**Fórmula**: `Valorização = (Valor Atual / Valor Anterior) - 1`
 
-### 4.2. Editar Posição do Ativo
+**Regras**:
+- Calcula apenas se houver posição no mês anterior com valor > 0
+- Exibe `""` se:
+  - `Valor Atual == 0` (Venda Total)
+  - Não houver dados no mês anterior
 
-- **Componente**: Campo de entrada de dados para o `Valor Atual` em cada linha da tabela.
-- **Ação**: Ao inserir um valor no componente acima, o valor é salvo na posição do mês corrente daquele ativo (`HoldingHistoryEntryAtual.endOfMonthValue`). O sistema atualiza automaticamente os campos `endOfMonthQuantity` e `endOfMonthAverageCost` do registro.
-- **Restrições**:
-  - Apenas o campo "Valor Atual" é editável. Não há campo editável para quantidade.
-  - A edição está desabilitada para ativos de Renda Variável (`VariableIncomeAsset`).
+### 4.2. Cálculo da Situação
+
+A situação é determinada comparando quantidades (`endOfMonthQuantity`) entre período atual e anterior:
+
+```mermaid
+flowchart TD
+    Start([Calcular Situação]) --> HasCurrent{Existe registro<br/>mês atual?}
+    
+    HasCurrent -->|Não| HasPrevious{Existe registro<br/>mês anterior?}
+    HasPrevious -->|Sim| NotRegistered["Não Registrado"]
+    HasPrevious -->|Não| Start
+    
+    HasCurrent -->|Sim| HasPrevious2{Existe registro<br/>mês anterior?}
+    HasPrevious2 -->|Não| Buy["Compra"]
+    
+    HasPrevious2 -->|Sim| QtyPrev[Quantidade Anterior]
+    QtyPrev --> QtyCurrent[Quantidade Atual]
+    
+    QtyCurrent --> Check{QtyAtual == 0?}
+    Check -->|Sim| SellTotal["Venda Total"]
+    
+    Check -->|Não| Compare{QtyAtual < QtyAnterior?}
+    Compare -->|Sim| SellPartial["Venda Parcial"]
+    
+    Compare -->|Não| Compare2{QtyAtual > QtyAnterior?}
+    Compare2 -->|Sim| Contribution["Aporte"]
+    Compare2 -->|Não| Maintenance["Manutenção"]
+    
+    NotRegistered --> End([Retorna Situação])
+    Buy --> End
+    SellTotal --> End
+    SellPartial --> End
+    Contribution --> End
+    Maintenance --> End
+    
+    style Start fill:#e1f5ff
+    style End fill:#d4edda
+    style HasCurrent fill:#fff3cd
+    style HasPrevious fill:#fff3cd
+    style HasPrevious2 fill:#fff3cd
+    style Check fill:#fff3cd
+    style Compare fill:#fff3cd
+    style Compare2 fill:#fff3cd
+```
+
+### 4.3. Busca de Valores para Renda Variável
+
+Para ativos de Renda Variável (`VariableIncomeAsset`), o sistema busca valores atuais através de cotações:
+
+```mermaid
+flowchart TD
+    Start([Buscar Valor Renda Variável]) --> CheckMonth{Mês selecionado<br/>== Mês corrente?}
+    
+    CheckMonth -->|Não| Zero[Valor Atual = 0,00]
+    Zero --> End([Retorna])
+    
+    CheckMonth -->|Sim| SearchDB[Busca cotação<br/>dia de hoje no BD]
+    SearchDB --> Found{Encontrou<br/>no BD?}
+    
+    Found -->|Sim| Calc[Calcula: quantidade × preço]
+    Calc --> End
+    
+    Found -->|Não| CallAPI[Consulta API brapi<br/>cotação dia de hoje]
+    CallAPI --> APISuccess{API<br/>retornou?}
+    
+    APISuccess -->|Sim| Save[Armazena no BD]
+    Save --> Calc
+    
+    APISuccess -->|Não| Zero
+    
+    style Start fill:#e1f5ff
+    style End fill:#d4edda
+    style CheckMonth fill:#fff3cd
+    style Found fill:#fff3cd
+    style APISuccess fill:#fff3cd
+    style Zero fill:#f8d7da
+    style Calc fill:#d1ecf1
+```
+
+**Detalhes**:
+- **Mês corrente**: Busca cotação do dia de hoje no BD. Se não encontrar, consulta API brapi. Valor = `quantidade × preço_atual` (usa `close` ou `adjustedClose`).
+- **Outros meses**: Valor = `0,00`. Não consulta API.
+
+**Referência**: Para detalhes de implementação, consulte [RN - Criar novo registro de histórico.md](RN%20-%20Criar%20novo%20registro%20de%20histórico.md#32-renda-variável).
 
 ---
 
-## 5. Regras de Negócio e Cálculos
+## 5. Exemplos
 
-### 5.1. Cálculo de Valorização
+### Exemplo de Tabela
 
-- **Fórmula**: `Valorização = (Valor Atual / Valor Anterior) - 1`
-- **Regras**:
-  - O cálculo só deve ser feito se houver posição no mês anterior com valor de mercado maior que zero.
-  - Se o `Valor Atual` for zero (Venda Total), a valorização deve ser exibida como string vazia `""`.
-  - Se não houver dados no mês anterior, a valorização deve ser exibida como string vazia `""`.
-
-### 5.2. Cálculo da Situação
-
-A situação é calculada comparando as quantidades do ativo entre o período atual e o anterior, utilizando os campos `endOfMonthQuantity` dos registros `HoldingHistoryEntry`. A existência de um registro (`HoldingHistoryEntry`) para o mês atual é o principal fator.
-
-- Se existe posição no mês anterior mas não há registro para o mês atual: **"Não Registrado"**
-- Se não há registro no mês anterior e um novo registro é criado no mês atual: **"Compra"**
-- `Quantidade Anterior > 0` e `Quantidade Atual == 0`: **"Venda Total"**
-- `Quantidade Anterior > 0` e `Quantidade Atual < Quantidade Anterior`: **"Venda Parcial"**
-- `Quantidade Anterior > 0` e `Quantidade Atual > Quantidade Anterior`: **"Aporte"**
-- `Quantidade Anterior > 0` e `Quantidade Atual == Quantidade Anterior`: **"Manutenção"**
+| Corretora | Categoria | SubCategoria | Descrição | Valor Anterior | Valor Atual | Valorização | Situação |
+|:----------|:----------|:-------------|:----------|:---------------|:------------|:------------|:---------|
+| NuBank | Renda Fixa | CDB | CDB 100% CDI | R$ 1.000,00 | R$ 1.010,00 | 1,0% | Manutenção |
+| BTG | Renda Variável | ETF | ETF IVVB11 | — | R$ 26.000,00 | — | Compra |
+| XP | Renda Variável | Ação | Ação AAPL | R$ 3.200,00 | R$ 3.456,00 | 8,0% | Aporte |
+| Clear | Renda Variável | Ação | Ação MGLU3 | R$ 5.500,00 | R$ 2.200,00 | -60,0% | Venda Parcial |
+| Rico | Renda Variável | Ação | Ação B3SA3 | R$ 1.400,00 | R$ 0,00 | — | Venda Total |
+| Rico | Renda Variável | Ação | Ação B3SA3 | R$ 1.400,00 | — | — | Não Registrado |
 
 ---
 
-## 6. Regras de Preenchimento da Tabela
+## 6. Casos de Uso
 
-- Consultar o histórico de posicionamento do mês selecionado e do mês anterior.
-- Se não existir dados no mês anterior, apresentar string vazia `""` no campo "Valor Anterior".
-- Se não existir dados no mês atual, apresentar o campo "Valor Atual" como vazio (permitindo entrada de dados pelo usuário).
-
----
-
-## 7. Exemplos
-
-### 7.1. Exemplo de Tabela de Consulta
-
-| Corretora | Categoria      | SubCategoria | Descrição          | Vencimento | Emissor | Observações | Valor Anterior | Valor Atual  | Valorização | Situação       |
-|-----------|----------------|--------------|--------------------|------------|---------|-------------|----------------|--------------|-------------|----------------|
-| NuBank    | Renda Fixa     | CDB          | CDB de 100% do CDI | 2028-01-01 | NuBank  | —           | R$ 1.000,00    | R$ 1.010,00  | 1,0%        | Manutenção     |
-| BTG       | Renda Variável | ETF          | ETF IVVB11         | —          | BTG     | —           | —              | R$ 26.000,00 |             | Compra         |
-| XP        | Renda Variável | Ação         | Ação AAPL          | —          | Apple   | —           | R$ 3.200,00    | R$ 3.456,00  | 8,0%        | Aporte         |
-| Clear     | Renda Variável | Ação         | Ação MGLU3         | —          | Magalu  | —           | R$ 5.500,00    | R$ 2.200,00  | -60,0%      | Venda Parcial  |
-| Rico      | Renda Variável | Ação         | Ação B3SA3         | —          | B3      | —           | R$ 1.400,00    | R$ 0,00      |             | Venda Total    |
-| Rico      | Renda Variável | Ação         | Ação B3SA3         | —          | B3      | —           | R$ 1.400,00    | —            |             | Não Registrado |
-
----
-
-## 8. Casos de Uso
+**Referência**: Para criação de registros históricos, consulte [RN - Criar novo registro de histórico.md](RN%20-%20Criar%20novo%20registro%20de%20histórico.md).
 
 ### UC-01: Consultar Posicionamento do Período
 
-**Ator**: Usuário do sistema
+```mermaid
+flowchart TD
+    Start([Usuário acessa tela]) --> Display[Exibe tela com<br/>período atual]
+    Display --> Load[Carrega histórico<br/>período atual e anterior]
+    Load --> CheckRV{Existe Renda<br/>Variável?}
+    
+    CheckRV -->|Sim| CheckMonth{Mês<br/>corrente?}
+    CheckMonth -->|Sim| GetQuote[Busca cotação<br/>dia de hoje]
+    CheckMonth -->|Não| SetZero[Valor = 0]
+    GetQuote --> CalcRV[Calcula valor<br/>Renda Variável]
+    
+    CheckRV -->|Não| Calc[Calcula valorização<br/>e situação]
+    SetZero --> Calc
+    CalcRV --> Calc
+    
+    Calc --> Format[Formata dados]
+    Format --> Show[Exibe tabela]
+    Show --> End([Usuário visualiza])
+    
+    style Start fill:#e1f5ff
+    style End fill:#d4edda
+    style CheckRV fill:#fff3cd
+    style CheckMonth fill:#fff3cd
+    style Calc fill:#d1ecf1
+```
 
-**Pré-condições**:
+**Pré-condições**: Sistema inicializado, acesso ao repositório, pelo menos um período com dados.
 
-- Sistema inicializado
-- Acesso ao repositório de posições históricas
-- Pelo menos um período com dados cadastrados
-
-**Fluxo Principal**:
-
-1. Usuário acessa a Tela de Consulta de Posicionamento do Ativo por Período
-2. Sistema exibe a tela com o período atual selecionado por padrão
-3. Sistema recupera o histórico de posicionamento do período selecionado e do período anterior
-4. Sistema calcula os valores de valorização e situação para cada posição
-5. Sistema formata os dados de cada posição conforme as regras estabelecidas
-6. Sistema exibe tabela com todas as posições do período
-7. Usuário visualiza os dados na tabela
-
-**Pós-condições**:
-
-- Tela exibindo lista de posições do período selecionado
-- Valores de valorização e situação calculados e exibidos
+**Pós-condições**: Tela exibindo posições do período com valorização e situação calculadas.
 
 ---
 
 ### UC-02: Selecionar Período de Referência
 
-**Ator**: Usuário do sistema
+```mermaid
+flowchart TD
+    Start([Usuário seleciona período]) --> Load[Carrega histórico<br/>novo período e anterior]
+    Load --> CheckRV{Existe Renda<br/>Variável?}
+    
+    CheckRV -->|Sim| CheckMonth{Mês<br/>corrente?}
+    CheckMonth -->|Sim| GetQuote[Busca cotação<br/>dia de hoje]
+    CheckMonth -->|Não| SetZero[Valor = 0]
+    GetQuote --> CalcRV[Calcula valor<br/>Renda Variável]
+    
+    CheckRV -->|Não| Recalc[Recalcula valorização<br/>e situação]
+    SetZero --> Recalc
+    CalcRV --> Recalc
+    
+    Recalc --> Update[Atualiza tabela]
+    Update --> End([Tela atualizada])
+    
+    style Start fill:#e1f5ff
+    style End fill:#d4edda
+    style CheckRV fill:#fff3cd
+    style CheckMonth fill:#fff3cd
+    style Recalc fill:#d1ecf1
+```
 
-**Pré-condições**:
+**Pré-condições**: Usuário na tela, existem dados históricos para outros períodos.
 
-- Usuário está na Tela de Consulta de Posicionamento do Ativo por Período
-- Existem dados históricos disponíveis para outros períodos
-
-**Fluxo Principal**:
-
-1. Usuário clica no seletor de período (dropdown)
-2. Sistema exibe lista de períodos disponíveis (mês/ano)
-3. Usuário seleciona um período diferente do atual
-4. Sistema recupera o histórico de posicionamento do período selecionado e do período anterior
-5. Sistema recalcula os valores de valorização e situação
-6. Sistema atualiza a tabela com os dados do novo período
-
-**Pós-condições**:
-
-- Tela atualizada com dados do período selecionado
+**Pós-condições**: Tela atualizada com dados do novo período.
 
 ---
 
 ### UC-03: Editar Posição do Ativo
 
-**Ator**: Usuário do sistema
+```mermaid
+flowchart TD
+    Start([Usuário insere valor]) --> Validate[Valida valor]
+    Validate --> CheckExists{Existe registro<br/>período atual?}
+    
+    CheckExists -->|Não| Create[Cria novo registro<br/>ver RN]
+    CheckExists -->|Sim| Save[Salva valor]
+    Create --> Save
+    
+    Save --> UpdateFields[Atualiza quantidade<br/>e custo médio]
+    UpdateFields --> CalcVal[Recalcula valorização]
+    CalcVal --> CalcSit[Recalcula situação]
+    CalcSit --> UpdateTable[Atualiza linha tabela]
+    UpdateTable --> End([Concluído])
+    
+    style Start fill:#e1f5ff
+    style End fill:#d4edda
+    style CheckExists fill:#fff3cd
+    style Create fill:#d1ecf1
+    style Save fill:#d1ecf1
+```
 
-**Pré-condições**:
+**Pré-condições**: Usuário na tela, existe posição ou deseja criar nova.
 
-- Usuário está na Tela de Consulta de Posicionamento do Ativo por Período
-- Existe uma posição (`HoldingHistoryEntry`) para o período atual ou o usuário deseja criar uma nova
+**Restrições**: Não editável para Renda Variável.
 
-**Fluxo Principal**:
-
-1. Usuário localiza a linha da tabela correspondente ao ativo desejado
-2. Usuário insere ou modifica o valor no campo "Valor Atual"
-3. Sistema valida o valor inserido
-4. Sistema salva o valor na posição do mês corrente (`HoldingHistoryEntryAtual.endOfMonthValue`)
-5. Sistema atualiza automaticamente os campos `endOfMonthQuantity` e `endOfMonthAverageCost`
-6. Sistema recalcula a valorização da posição
-7. Sistema recalcula a situação da posição
-8. Sistema atualiza a linha da tabela com os novos valores calculados
-
-**Fluxo Alternativo - Criar Nova Posição**:
-
-3a. Se não existe registro para o período atual, sistema cria um novo `HoldingHistoryEntry` para o período
-4a. Sistema salva o valor no novo registro criado
-5a. Continua no passo 5 do fluxo principal
-
-**Pós-condições**:
-
-- Valor de mercado atual salvo no banco de dados
-- Tabela atualizada com valorização e situação recalculadas
+**Pós-condições**: Valor salvo, tabela atualizada com cálculos recalculados.
