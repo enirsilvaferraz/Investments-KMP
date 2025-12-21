@@ -117,14 +117,22 @@ flowchart TD
     Contribution --> End
     Maintenance --> End
     
-    style Start fill:#e1f5ff
-    style End fill:#d4edda
-    style HasCurrent fill:#fff3cd
-    style HasPrevious fill:#fff3cd
-    style HasPrevious2 fill:#fff3cd
-    style Check fill:#fff3cd
-    style Compare fill:#fff3cd
-    style Compare2 fill:#fff3cd
+    style Start fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style End fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    style HasCurrent fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style HasPrevious fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style HasPrevious2 fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style Check fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style Compare fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style Compare2 fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style NotRegistered fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Buy fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style SellTotal fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style SellPartial fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style Contribution fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    style Maintenance fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style QtyPrev fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style QtyCurrent fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
 ```
 
 ### 4.3. Busca de Valores para Renda Variável
@@ -152,13 +160,16 @@ flowchart TD
     
     APISuccess -->|Não| Zero
     
-    style Start fill:#e1f5ff
-    style End fill:#d4edda
-    style CheckMonth fill:#fff3cd
-    style Found fill:#fff3cd
-    style APISuccess fill:#fff3cd
-    style Zero fill:#f8d7da
-    style Calc fill:#d1ecf1
+    style Start fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style End fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    style CheckMonth fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style Found fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style APISuccess fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style Zero fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style Calc fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style SearchDB fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style CallAPI fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Save fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
 ```
 
 **Detalhes**:
@@ -209,11 +220,18 @@ flowchart TD
     Format --> Show[Exibe tabela]
     Show --> End([Usuário visualiza])
     
-    style Start fill:#e1f5ff
-    style End fill:#d4edda
-    style CheckRV fill:#fff3cd
-    style CheckMonth fill:#fff3cd
-    style Calc fill:#d1ecf1
+    style Start fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style End fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    style CheckRV fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style CheckMonth fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style Calc fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Display fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Load fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style GetQuote fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style SetZero fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style CalcRV fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Format fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Show fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
 ```
 
 **Pré-condições**: Sistema inicializado, acesso ao repositório, pelo menos um período com dados.
@@ -241,11 +259,16 @@ flowchart TD
     Recalc --> Update[Atualiza tabela]
     Update --> End([Tela atualizada])
     
-    style Start fill:#e1f5ff
-    style End fill:#d4edda
-    style CheckRV fill:#fff3cd
-    style CheckMonth fill:#fff3cd
-    style Recalc fill:#d1ecf1
+    style Start fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style End fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    style CheckRV fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style CheckMonth fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style Recalc fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Load fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style GetQuote fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style SetZero fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style CalcRV fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Update fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
 ```
 
 **Pré-condições**: Usuário na tela, existem dados históricos para outros períodos.
@@ -271,11 +294,16 @@ flowchart TD
     CalcSit --> UpdateTable[Atualiza linha tabela]
     UpdateTable --> End([Concluído])
     
-    style Start fill:#e1f5ff
-    style End fill:#d4edda
-    style CheckExists fill:#fff3cd
-    style Create fill:#d1ecf1
-    style Save fill:#d1ecf1
+    style Start fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style End fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    style CheckExists fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style Create fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Save fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Validate fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style UpdateFields fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style CalcVal fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style CalcSit fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style UpdateTable fill:#60a5fa,stroke:#3b82f6,stroke-width:2px,color:#fff
 ```
 
 **Pré-condições**: Usuário na tela, existe posição ou deseja criar nova.
