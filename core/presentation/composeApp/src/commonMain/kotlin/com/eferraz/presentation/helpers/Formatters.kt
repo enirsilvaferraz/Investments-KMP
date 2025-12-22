@@ -8,6 +8,7 @@ import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.Liquidity
+import com.eferraz.entities.TransactionType
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.entities.VariableIncomeAssetType
 import kotlinx.datetime.LocalDate
@@ -71,5 +72,10 @@ internal object Formatters {
         InvestmentCategory.VARIABLE_INCOME -> "Renda Variável"
         InvestmentCategory.INVESTMENT_FUND -> "Fundos"
         else -> ""
+    }
+
+    internal fun TransactionType.formated(): String = when (this) {
+        TransactionType.PURCHASE -> "Compra"
+        TransactionType.SALE -> "Venda"
     }
 }

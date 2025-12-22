@@ -1,6 +1,7 @@
 package com.eferraz.presentation.design_system.components
 
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -19,6 +20,8 @@ internal fun FormTextField(
     validationErrors: Map<String, String>? = null,
     errorKey: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    enabled: Boolean = true,
 ) {
     val errorMessage = validationErrors?.let { errors ->
         errorKey?.let { errors[it] }
@@ -36,6 +39,9 @@ internal fun FormTextField(
         textStyle = MaterialTheme.typography.bodyMedium,
         maxLines = maxLines,
         leadingIcon = leadingIcon,
+        visualTransformation = visualTransformation,
+        enabled = enabled,
+        readOnly = !enabled,
         modifier = modifier
     )
 }

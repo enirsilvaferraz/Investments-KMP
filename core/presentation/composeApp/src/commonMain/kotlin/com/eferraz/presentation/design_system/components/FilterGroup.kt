@@ -47,7 +47,7 @@ internal data class FilterGroup(
 }
 
 @Composable
-private fun HistoryFilter(
+internal fun HistoryFilter(
     filters: List<FilterGroup> = listOf(
         FilterGroup(
             "Período",

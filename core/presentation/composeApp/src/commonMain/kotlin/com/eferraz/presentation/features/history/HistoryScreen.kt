@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
@@ -20,10 +21,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,9 +38,11 @@ import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.InputTextMoney
 import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.TableColumn
+import com.eferraz.presentation.features.transactions.TransactionPanel
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.usecases.entities.HoldingHistoryResult
+import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -48,18 +54,34 @@ internal fun HistoryRoute() {
     val vm = koinViewModel<HistoryViewModel>()
     val state by vm.state.collectAsStateWithLifecycle()
 
+    val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
+    val scope = rememberCoroutineScope()
+
     AppScaffold(
         title = "Posicionamento no Período",
+        navigator = navigator,
         actions = {
             Row {
-                PeriodActions(
-                    selected = state.selectedPeriod,
-                    periods = state.periods,
-                    onSelect = { vm.processIntent(HistoryIntent.SelectPeriod(it)) }
-                )
-                SyncButton(
-                    onClick = {vm.processIntent(HistoryIntent.Sync)}
-                )
+                if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
+                    FilledTonalIconButton(
+                        onClick = {
+                            scope.launch {
+                                navigator.navigateBack()
+                            }
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                    }
+                } else {
+                    PeriodActions(
+                        selected = state.selectedPeriod,
+                        periods = state.periods,
+                        onSelect = { vm.processIntent(HistoryIntent.SelectPeriod(it)) }
+                    )
+                    SyncButton(
+                        onClick = { vm.processIntent(HistoryIntent.Sync) }
+                    )
+                }
             }
         },
         mainPane = {
@@ -67,8 +89,20 @@ internal fun HistoryRoute() {
                 entries = state.entries,
                 onUpdateValue = { entry, value ->
                     vm.processIntent(HistoryIntent.UpdateEntryValue(entry, value))
+                },
+                onRowClick = { row ->
+                    scope.launch {
+                        vm.processIntent(HistoryIntent.SelectHolding(row.currentHistory.holding))
+                        navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+                    }
                 }
             )
+        },
+        extraPane = {
+            if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary)
+                TransactionPanel(
+                    selectedHolding = state.selectedHolding
+                )
         }
     )
 }
@@ -133,6 +167,7 @@ private fun HistoryScreen(
     modifier: Modifier = Modifier,
     entries: List<HoldingHistoryResult>,
     onUpdateValue: (HoldingHistoryEntry, Double) -> Unit,
+    onRowClick: (HoldingHistoryRow) -> Unit,
 ) {
 
     DataTable(
@@ -144,15 +179,15 @@ private fun HistoryScreen(
                 data = { viewData.brokerage }
             ),
 
-            TableColumn(
-                title = "Categoria",
-                data = { viewData.category }
-            ),
+//            TableColumn(
+//                title = "Categoria",
+//                data = { viewData.category }
+//            ),
 
-            TableColumn(
-                title = "SubCategoria",
-                data = { viewData.subCategory }
-            ),
+//            TableColumn(
+//                title = "SubCategoria",
+//                data = { viewData.subCategory }
+//            ),
 
             TableColumn(
                 title = "Descrição",
@@ -221,6 +256,7 @@ private fun HistoryScreen(
 //            )
         ),
         data = entries.map { result -> HoldingHistoryRow.create(result.holding, result.currentEntry, result.previousEntry) },
+        onRowClick = onRowClick
     )
 }
 

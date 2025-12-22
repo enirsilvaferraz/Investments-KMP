@@ -1,5 +1,6 @@
 package com.eferraz.presentation.features.history
 
+import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
 import kotlinx.datetime.YearMonth
 
@@ -12,6 +13,10 @@ internal sealed class HistoryIntent {
     data class UpdateEntryValue(
         val entry: HoldingHistoryEntry,
         val value: Double,
+    ) : HistoryIntent()
+    
+    data class SelectHolding(
+        val holding: AssetHolding?
     ) : HistoryIntent()
     
     data object LoadInitialData : HistoryIntent()
