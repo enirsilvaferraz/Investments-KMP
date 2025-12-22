@@ -21,7 +21,7 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("build/generated/kotlin")
+            kotlin.srcDir(layout.buildDirectory.dir("generated/kotlin"))
         }
     }
 }
@@ -39,23 +39,36 @@ val brApiToken = localProperties.getProperty("BRAPI_TOKEN", "")
 
 
 // Gera um arquivo Kotlin com o token para uso em commonMain
-tasks.register("generateTokenConfig") {
-    val outputDir = file("build/generated/kotlin")
-    val outputFile = file("$outputDir/com/eferraz/network/TokenConfig.kt")
+val generateTokenConfig = tasks.register("generateTokenConfig") {
 
-    doFirst {
-        outputDir.mkdirs()
-        outputFile.parentFile.mkdirs()
-        outputFile.writeText("""
+    val outputFile = layout.buildDirectory.file("generated/kotlin/com/eferraz/network/TokenConfig.kt")
+    
+    inputs.property("brApiToken", brApiToken)
+    outputs.file(outputFile)
+    
+    doLast {
+        val token = inputs.properties["brApiToken"] as? String ?: ""
+        val file = outputFile.get().asFile
+        file.parentFile.mkdirs()
+        file.writeText("""
             package com.eferraz.network
             
             internal object TokenConfig {
-                const val BRAPI_TOKEN = "$brApiToken"
+                const val BRAPI_TOKEN = "$token"
             }
         """.trimIndent())
     }
 }
 
-tasks.named("compileKotlinMetadata") {
-    dependsOn("generateTokenConfig")
+// Configura para executar antes de todas as compilações do Kotlin
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    dependsOn(generateTokenConfig)
+}
+
+// Também configura para tasks de metadata (compatibilidade)
+tasks.matching { 
+    (it.name.contains("compile") || it.name.startsWith("ksp")) &&
+    (it.name.contains("Kotlin") || it.name.contains("Metadata"))
+}.configureEach {
+    dependsOn(generateTokenConfig)
 }
