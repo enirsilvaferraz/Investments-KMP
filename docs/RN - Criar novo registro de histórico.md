@@ -24,7 +24,7 @@ O processo recebe como entrada:
 - **Posição de Ativo**: A posição para a qual o histórico será gerado
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryBgColor':'#ffffff'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'background':'#ffffff', 'primaryColor':'#e1f5ff', 'primaryTextColor':'#000000', 'primaryBorderColor':'#000000', 'lineColor':'#000000', 'secondaryColor':'#d1ecf1', 'tertiaryColor':'#fff3cd'}}}%%
 flowchart TD
     Start([Solicitação de Criação]) --> CheckDate{Data <= Out/2025?}
     CheckDate -->|Sim| Empty[Registro vazio<br/>Valores padrão]
@@ -67,7 +67,7 @@ flowchart TD
 **Comportamento:** Copia todos os dados do histórico do mês anterior.
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryBgColor':'#ffffff'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'background':'#ffffff', 'primaryColor':'#e1f5ff', 'primaryTextColor':'#000000', 'primaryBorderColor':'#000000', 'lineColor':'#000000', 'secondaryColor':'#d1ecf1', 'tertiaryColor':'#fff3cd'}}}%%
 flowchart LR
     Start([Início]) --> Get[Busca histórico<br/>mês anterior]
     Get --> Exists{Existe?}
@@ -92,7 +92,7 @@ flowchart LR
 **Comportamento:** Busca cotação do mês e atualiza valor de fechamento, mantendo demais dados.
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryBgColor':'#ffffff'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'background':'#ffffff', 'primaryColor':'#e1f5ff', 'primaryTextColor':'#000000', 'primaryBorderColor':'#000000', 'lineColor':'#000000', 'secondaryColor':'#d1ecf1', 'tertiaryColor':'#fff3cd'}}}%%
 flowchart TD
     Start([Início]) --> Quote[Busca cotação<br/>do mês]
     Quote --> Extract[Extrai valor:<br/>fechamento ou ajustado]
