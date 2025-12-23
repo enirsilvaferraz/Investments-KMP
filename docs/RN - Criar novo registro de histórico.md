@@ -24,6 +24,7 @@ O processo recebe como entrada:
 - **Posição de Ativo**: A posição para a qual o histórico será gerado
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'primaryBgColor':'#ffffff'}}}%%
 flowchart TD
     Start([Solicitação de Criação]) --> CheckDate{Data <= Out/2025?}
     CheckDate -->|Sim| Empty[Registro vazio<br/>Valores padrão]
@@ -40,13 +41,13 @@ flowchart TD
     Save --> End([Retorna histórico])
     Empty --> End
     
-    style Start fill:#3b82f6
-    style End fill:#10b981
-    style CheckDate fill:#f59e0b
-    style HasStrategy fill:#f59e0b
-    style Success fill:#f59e0b
-    style Empty fill:#ef4444
-    style Save fill:#60a5fa
+    style Start fill:#e1f5ff
+    style End fill:#d4edda
+    style CheckDate fill:#fff3cd
+    style HasStrategy fill:#fff3cd
+    style Success fill:#fff3cd
+    style Empty fill:#f8d7da
+    style Save fill:#d1ecf1
 ```
 
 **Etapas:**
@@ -66,6 +67,7 @@ flowchart TD
 **Comportamento:** Copia todos os dados do histórico do mês anterior.
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'primaryBgColor':'#ffffff'}}}%%
 flowchart LR
     Start([Início]) --> Get[Busca histórico<br/>mês anterior]
     Get --> Exists{Existe?}
@@ -74,11 +76,11 @@ flowchart LR
     Copy --> Success([Sucesso])
     Fail --> Success
     
-    style Start fill:#3b82f6
-    style Success fill:#10b981
-    style Exists fill:#f59e0b
-    style Copy fill:#60a5fa
-    style Fail fill:#ef4444
+    style Start fill:#e1f5ff
+    style Success fill:#d4edda
+    style Exists fill:#fff3cd
+    style Copy fill:#d1ecf1
+    style Fail fill:#f8d7da
 ```
 
 **Justificativa:** Facilita o preenchimento manual realizado todo final de mês. Como não há API para retornar os valores de renda fixa e fundos, copiar do mês anterior facilita o trabalho e auxilia nos cálculos de total em investimentos.
@@ -90,6 +92,7 @@ flowchart LR
 **Comportamento:** Busca cotação do mês e atualiza valor de fechamento, mantendo demais dados.
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'primaryBgColor':'#ffffff'}}}%%
 flowchart TD
     Start([Início]) --> Quote[Busca cotação<br/>do mês]
     Quote --> Extract[Extrai valor:<br/>fechamento ou ajustado]
@@ -106,13 +109,13 @@ flowchart TD
     Create --> Success
     Fail --> Success
     
-    style Start fill:#3b82f6
-    style Success fill:#10b981
-    style Check fill:#f59e0b
-    style HasPrev fill:#f59e0b
-    style Update fill:#60a5fa
-    style Create fill:#60a5fa
-    style Fail fill:#ef4444
+    style Start fill:#e1f5ff
+    style Success fill:#d4edda
+    style Check fill:#fff3cd
+    style HasPrev fill:#fff3cd
+    style Update fill:#d1ecf1
+    style Create fill:#d1ecf1
+    style Fail fill:#f8d7da
 ```
 
 **Prioridade de cotação:**
