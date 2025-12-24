@@ -173,6 +173,35 @@ private fun TableInputDate(
     val colors = MaterialTheme.colorScheme
     val textColor = if (enabled) colors.onSurface else colors.onSurfaceVariant
 
+    fun onValueChange(newValue: TextFieldValue) {
+
+        // Filtra apenas dígitos
+        val filteredText = newValue.text.filter { it.isDigit() }
+
+        // Limita a 8 dígitos (DDMMYYYY ou YYYYMMDD)
+        val limitedText = if (filteredText.length > 8) {
+            filteredText.substring(0..7)
+        } else {
+            filteredText
+        }
+
+        // Mantém a posição do cursor
+        val cursorOffset = if (limitedText.length < newValue.text.length) {
+            minOf(newValue.selection.start.coerceIn(0, limitedText.length), limitedText.length)
+        } else {
+            val removedBeforeCursor = newValue.text.take(newValue.selection.start).count { !it.isDigit() }
+            (newValue.selection.start - removedBeforeCursor).coerceIn(0, limitedText.length)
+        }
+
+        textFieldValueState = TextFieldValue(
+            text = limitedText,
+            selection = TextRange(cursorOffset)
+        )
+
+        // Atualiza o valor externo apenas com dígitos
+        onValueChange(limitedText)
+    }
+
     TableInputLookAndFeel(
         modifier = modifier,
         actualInteractionSource = actualInteractionSource,
@@ -184,35 +213,8 @@ private fun TableInputDate(
         BasicTextField(
             value = textFieldValueState,
             enabled = enabled,
-            onValueChange = { newValue ->
-
-                // Filtra apenas dígitos
-                val filteredText = newValue.text.filter { it.isDigit() }
-
-                // Limita a 8 dígitos (DDMMYYYY ou YYYYMMDD)
-                val limitedText = if (filteredText.length > 8) {
-                    filteredText.substring(0..7)
-                } else {
-                    filteredText
-                }
-
-                // Mantém a posição do cursor
-                val cursorOffset = if (limitedText.length < newValue.text.length) {
-                    minOf(newValue.selection.start.coerceIn(0, limitedText.length), limitedText.length)
-                } else {
-                    val removedBeforeCursor = newValue.text.take(newValue.selection.start).count { !it.isDigit() }
-                    (newValue.selection.start - removedBeforeCursor).coerceIn(0, limitedText.length)
-                }
-
-                textFieldValueState = TextFieldValue(
-                    text = limitedText,
-                    selection = TextRange(cursorOffset)
-                )
-
-                // Atualiza o valor externo apenas com dígitos
-                onValueChange(limitedText)
-            },
-            modifier = Modifier.padding(horizontal = 8.dp).width(85.dp),
+            onValueChange = { newValue -> onValueChange(newValue) },
+            modifier = Modifier.padding(horizontal = 8.dp).width(80.dp),
             interactionSource = actualInteractionSource,
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyMedium.copy(color = textColor),

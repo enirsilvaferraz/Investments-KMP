@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.InputTextMoney
+import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.TableColumn
 import com.eferraz.presentation.features.transactions.TransactionPanel
@@ -230,11 +231,19 @@ private fun HistoryScreen(
                 data = { viewData.currentValue },
                 alignment = Alignment.CenterHorizontally,
                 cellContent = { item ->
-                    InputTextMoney(
+
+                    TableInputMoney(
                         value = item.viewData.currentValue,
-                        enabled = item.viewData.editable,
-                        onValueChange = { onUpdateValue(item.currentHistory, it ?: 0.0) }
+                        onValueChange = { onUpdateValue(item.currentHistory, it ?: 0.0) },
+                        modifier = Modifier,
+                        enabled = item.viewData.editable
                     )
+
+//                    InputTextMoney(
+//                        value = item.viewData.currentValue,
+//                        enabled = item.viewData.editable,
+//                        onValueChange = { onUpdateValue(item.currentHistory, it ?: 0.0) }
+//                    )
                 },
                 footerOperation = { it: List<HoldingHistoryRow> ->
                     it.sumOf { it.viewData.currentValue }.let {
