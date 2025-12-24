@@ -44,10 +44,11 @@ internal fun <T> DataTable(
         }
     }
 
-    Column {
+    Column (
+        modifier = modifier,//.weight(1f),
+    ){
 
         LazyColumn(
-            modifier = modifier,//.weight(1f),
             verticalArrangement = Arrangement.spacedBy(0.dp),
             contentPadding = contentPadding
         ) {

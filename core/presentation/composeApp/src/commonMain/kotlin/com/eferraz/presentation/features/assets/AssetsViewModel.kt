@@ -3,6 +3,7 @@ package com.eferraz.presentation.features.assets
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.Asset
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.usecases.repositories.AssetRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,13 +19,13 @@ internal class AssetsViewModel(
     private val _state = MutableStateFlow(AssetsState(emptyList()))
     val state = _state.asStateFlow()
 
-    init {
-        loadAssets()
-    }
+//    init {
+//        loadAssets()
+//    }
 
-    fun loadAssets() {
+    fun loadAssets(category: InvestmentCategory) {
         viewModelScope.launch {
-            val assets = repository.getAll()
+            val assets = repository.getByType(category)
             _state.update { AssetsState(assets) }
         }
     }

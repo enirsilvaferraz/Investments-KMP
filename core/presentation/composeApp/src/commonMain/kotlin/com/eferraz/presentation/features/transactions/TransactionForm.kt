@@ -157,7 +157,6 @@ internal fun TransactionForm(
         if (isFixedIncomeOrFunds) {
 
             val totalValue = formData.totalValue
-            println("totalValue: $totalValue")
 
             FormTextField(
                 label = "Valor Total",

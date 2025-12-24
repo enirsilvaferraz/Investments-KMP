@@ -2,6 +2,7 @@ package com.eferraz.repositories
 
 import com.eferraz.database.datasources.AssetDataSource
 import com.eferraz.entities.Asset
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.usecases.repositories.AssetRepository
 import org.koin.core.annotation.Factory
 
@@ -11,6 +12,8 @@ internal class AssetRepositoryImpl(
 ) : AssetRepository {
 
     override suspend fun getAll() = dataSource.getAll()
+
+    override suspend fun getByType(category: InvestmentCategory) = dataSource.getByType(category)
 
     override suspend fun getById(id: Long) = dataSource.getByID(id)
 

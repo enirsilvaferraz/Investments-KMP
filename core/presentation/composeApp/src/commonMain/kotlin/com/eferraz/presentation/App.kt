@@ -28,7 +28,6 @@ import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.KoinConfiguration
 
 @Composable
-@Preview
 public fun InternalApp(config: KoinConfiguration) {
 
     AppTheme {
@@ -48,7 +47,7 @@ private fun AppNavigationHost() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val isHomeSelected = currentRoute?.contains("HomeRouting", ignoreCase = true) == true
+    val isHomeSelected = currentRoute?.contains("AssetsRouting", ignoreCase = true) == true
     val isHistorySelected = currentRoute?.contains("HistoryRouting", ignoreCase = true) == true
 
     NavigationSuiteScaffold(
@@ -57,7 +56,7 @@ private fun AppNavigationHost() {
                 icon = { Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "Ativos") },
                 label = { Text("Ativos") },
                 selected = isHomeSelected,
-                onClick = { navigateTo(navController, HomeRouting) }
+                onClick = { navigateTo(navController, AssetsRouting) }
             )
             NavigationSuiteItem(
                 icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Histórico") },
@@ -91,12 +90,14 @@ private fun AppNavigationHost() {
 //            }
 //        },
         content = {
+
             NavHost(
                 navController = navController,
                 startDestination = HistoryRouting,
                 modifier = Modifier.fillMaxSize()
             ) {
-                composable<HomeRouting> {
+
+                composable<AssetsRouting> {
                     AssetsRoute()
                 }
 

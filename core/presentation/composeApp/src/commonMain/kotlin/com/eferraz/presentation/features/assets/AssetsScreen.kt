@@ -1,26 +1,46 @@
 package com.eferraz.presentation.features.assets
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.eferraz.entities.InvestmentCategory
+import com.eferraz.presentation.FixedIncomeAssetRouting
+import com.eferraz.presentation.FundsAssetRouting
+import com.eferraz.presentation.VariableIncomeAssetRouting
 import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.TableColumn
-import com.eferraz.presentation.features.assetForm.AssetFormScreen
 import com.eferraz.presentation.features.assetForm.AssetFormIntent
+import com.eferraz.presentation.features.assetForm.AssetFormScreen
 import com.eferraz.presentation.features.assetForm.AssetFormViewModel
 import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.coroutines.CoroutineScope
@@ -31,8 +51,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun AssetsRoute() {
 
-    val tableVm = koinViewModel<AssetsViewModel>()
-    val tableState by tableVm.state.collectAsStateWithLifecycle()
+
 
     val formVm = koinViewModel<AssetFormViewModel>()
     val formState by formVm.state.collectAsStateWithLifecycle()
@@ -40,33 +59,128 @@ internal fun AssetsRoute() {
     val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
     val scope = rememberCoroutineScope()
 
-    // Recarrega assets quando o formulário salva e fecha o painel se necessário
-    LaunchedEffect(formState.message, formState.shouldCloseForm) {
-        if (formState.message != null) {
-            tableVm.loadAssets()
-            
-            // Fechar o painel se foi salvo com sucesso
-            if (formState.shouldCloseForm && navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
-                navigator.navigateBack()
-                // Resetar o flag após usar
-                formVm.processIntent(AssetFormIntent.ResetCloseFlag)
-            }
-        }
-    }
+//    // Recarrega assets quando o formulário salva e fecha o painel se necessário
+//    LaunchedEffect(formState.message, formState.shouldCloseForm) {
+//        if (formState.message != null) {
+//            tableVm.loadAssets()
+//
+//            // Fechar o painel se foi salvo com sucesso
+//            if (formState.shouldCloseForm && navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
+//                navigator.navigateBack()
+//                // Resetar o flag após usar
+//                formVm.processIntent(AssetFormIntent.ResetCloseFlag)
+//            }
+//        }
+//    }
 
     AppScaffold(
         title = "Ativos",
         navigator = navigator,
         mainPane = {
-            AssetsScreen(
-                list = tableState.list.map { AssetView.create(it) },
-                onRowClick = { assetId ->
-                    scope.launch {
-                        formVm.processIntent(AssetFormIntent.LoadAssetForEdit(assetId))
-                        navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+
+            val colors = MaterialTheme.colorScheme
+
+            val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+
+            val isFixedIncomeSelected = currentRoute?.contains("FixedIncomeAssetRouting", ignoreCase = true) == true
+            val isVariableIncomeSelected = currentRoute?.contains("VariableIncomeAssetRouting", ignoreCase = true) == true
+            val isFundsSelected = currentRoute?.contains("FundsAssetRouting", ignoreCase = true) == true
+
+            Column(modifier = Modifier.fillMaxSize()) {
+
+                NavHost(
+                    navController = navController,
+                    startDestination = FixedIncomeAssetRouting,
+                    modifier = Modifier.weight(1f)
+                ) {
+
+                    composable<FixedIncomeAssetRouting> {
+
+                        val tableVm = koinViewModel<AssetsViewModel>(key = "1")
+                        val tableState by tableVm.state.collectAsStateWithLifecycle()
+                        tableVm.loadAssets(InvestmentCategory.FIXED_INCOME)
+
+                        AssetsScreen(
+                            list = tableState.list.map { AssetView.create(it) },
+                            onRowClick = { assetId ->
+                                scope.launch {
+                                    formVm.processIntent(AssetFormIntent.LoadAssetForEdit(assetId))
+                                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+                                }
+                            }
+                        )
+                    }
+
+                    composable<VariableIncomeAssetRouting> {
+
+                        val tableVm = koinViewModel<AssetsViewModel>(key = "2")
+                        val tableState by tableVm.state.collectAsStateWithLifecycle()
+                        tableVm.loadAssets(InvestmentCategory.VARIABLE_INCOME)
+
+                        AssetsScreen(
+                            list = tableState.list.map { AssetView.create(it) },
+                            onRowClick = { assetId ->
+                                scope.launch {
+                                    formVm.processIntent(AssetFormIntent.LoadAssetForEdit(assetId))
+                                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+                                }
+                            }
+                        )
+                    }
+
+                    composable<FundsAssetRouting> {
+
+                        val tableVm = koinViewModel<AssetsViewModel>(key = "3")
+                        val tableState by tableVm.state.collectAsStateWithLifecycle()
+                        tableVm.loadAssets(InvestmentCategory.INVESTMENT_FUND)
+
+                        AssetsScreen(
+                            list = tableState.list.map { AssetView.create(it) },
+                            onRowClick = { assetId ->
+                                scope.launch {
+                                    formVm.processIntent(AssetFormIntent.LoadAssetForEdit(assetId))
+                                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+                                }
+                            }
+                        )
                     }
                 }
-            )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.background(colors.background).padding(top = 8.dp).fillMaxWidth()) {
+
+                    FilterChip(
+                        selected = isFixedIncomeSelected,
+                        label = { Text("Renda Fixa") },
+                        onClick = { navController.navigate(FixedIncomeAssetRouting) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = if (isFixedIncomeSelected) colors.primaryContainer else colors.surface,
+                            selectedContainerColor = colors.primaryContainer
+                        )
+                    )
+
+                    FilterChip(
+                        selected = isVariableIncomeSelected,
+                        label = { Text("Renda Variável") },
+                        onClick = { navController.navigate(VariableIncomeAssetRouting) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = if (isVariableIncomeSelected) colors.primaryContainer else colors.surface,
+                            selectedContainerColor = colors.primaryContainer
+                        )
+                    )
+
+                    FilterChip(
+                        selected = isFundsSelected,
+                        label = { Text("Fundos") },
+                        onClick = { navController.navigate(FundsAssetRouting) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = if (isFundsSelected) colors.primaryContainer else colors.surface,
+                            selectedContainerColor = colors.primaryContainer
+                        )
+                    )
+                }
+            }
         },
         actions = {
             AssetsActions(scope, navigator, formVm)
@@ -112,13 +226,13 @@ private fun AssetsActions(
 }
 
 @Composable
-private fun AssetsScreen(
+private fun ColumnScope.AssetsScreen(
     modifier: Modifier = Modifier,
     list: List<AssetView>,
     onRowClick: (Long) -> Unit,
 ) {
     DataTable(
-        modifier = modifier,
+//        modifier = modifier.weight(1f),
         columns = listOf(
             TableColumn(title = "Categoria", data = { category }),
             TableColumn(title = "Subcategoria", data = { subCategory }),
@@ -132,3 +246,8 @@ private fun AssetsScreen(
         onRowClick = { view -> onRowClick(view.id) }
     )
 }
+
+//private fun String.toDate() =
+//    LocalDate.Format{
+//        year();  monthNumber(); day()
+//    }.parse(this)

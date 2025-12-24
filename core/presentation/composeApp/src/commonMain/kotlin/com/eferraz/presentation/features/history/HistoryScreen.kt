@@ -220,9 +220,7 @@ private fun HistoryScreen(
                 formated = { formatted.previousValue },
                 alignment = Alignment.End,
                 footerOperation = { it: List<HoldingHistoryRow> ->
-                    it.sumOf { it.viewData.previousValue }.let {
-                        if (it == 0.0) null else it.currencyFormat()
-                    }
+                    it.sumOf { it.viewData.previousValue }.currencyFormat()
                 }
             ),
 
@@ -231,24 +229,15 @@ private fun HistoryScreen(
                 data = { viewData.currentValue },
                 alignment = Alignment.CenterHorizontally,
                 cellContent = { item ->
-
                     TableInputMoney(
                         value = item.viewData.currentValue,
                         onValueChange = { onUpdateValue(item.currentHistory, it ?: 0.0) },
                         modifier = Modifier,
                         enabled = item.viewData.editable
                     )
-
-//                    InputTextMoney(
-//                        value = item.viewData.currentValue,
-//                        enabled = item.viewData.editable,
-//                        onValueChange = { onUpdateValue(item.currentHistory, it ?: 0.0) }
-//                    )
                 },
                 footerOperation = { it: List<HoldingHistoryRow> ->
-                    it.sumOf { it.viewData.currentValue }.let {
-                        if (it == 0.0) null else it.currencyFormat()
-                    }
+                    it.sumOf { it.viewData.currentValue }.currencyFormat()
                 }
             ),
 

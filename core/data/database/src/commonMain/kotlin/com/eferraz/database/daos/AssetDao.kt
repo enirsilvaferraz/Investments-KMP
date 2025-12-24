@@ -9,6 +9,7 @@ import com.eferraz.database.entities.assets.FixedIncomeAssetEntity
 import com.eferraz.database.entities.assets.InvestmentFundAssetEntity
 import com.eferraz.database.entities.assets.VariableIncomeAssetEntity
 import com.eferraz.database.entities.assets.AssetWithDetails
+import com.eferraz.entities.InvestmentCategory
 
 /**
  * DAO para operações CRUD na tabela assets e suas subclasses.
@@ -49,4 +50,8 @@ internal interface AssetDao {
     @Transaction
     @Query("SELECT * FROM assets WHERE category = 'VARIABLE_INCOME'")
     suspend fun getAllVariableIncomeAssets(): List<AssetWithDetails>
+
+    @Transaction
+    @Query("SELECT * FROM assets WHERE category = :category")
+    suspend fun getByType(category: InvestmentCategory): List<AssetWithDetails>
 }

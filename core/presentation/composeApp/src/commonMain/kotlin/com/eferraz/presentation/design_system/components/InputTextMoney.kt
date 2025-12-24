@@ -22,7 +22,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.eferraz.presentation.helpers.CurrencyVisualTransformation
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
+@Deprecated("Usar o novo input")
 @Composable
 internal fun InputTextMoney(
     value: Double,
@@ -131,4 +133,14 @@ internal fun InputTextMoney(
             visualTransformation = CurrencyVisualTransformation
         )
     }
+}
+
+@Preview
+@Composable
+internal fun A() {
+    InputTextMoney(
+        value = 10.0,
+        onValueChange = {},
+        enabled = true
+    )
 }

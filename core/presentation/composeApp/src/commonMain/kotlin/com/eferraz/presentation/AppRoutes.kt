@@ -3,7 +3,16 @@ package com.eferraz.presentation
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal object HomeRouting
+internal object HistoryRouting
 
 @Serializable
-internal object HistoryRouting
+internal object AssetsRouting
+
+@Serializable
+internal object FixedIncomeAssetRouting
+
+@Serializable
+internal object VariableIncomeAssetRouting
+
+@Serializable
+internal object FundsAssetRouting
