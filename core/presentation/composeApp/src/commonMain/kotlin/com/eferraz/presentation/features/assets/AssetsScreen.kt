@@ -1,30 +1,31 @@
 package com.eferraz.presentation.features.assets
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,6 +38,8 @@ import com.eferraz.presentation.FixedIncomeAssetRouting
 import com.eferraz.presentation.FundsAssetRouting
 import com.eferraz.presentation.VariableIncomeAssetRouting
 import com.eferraz.presentation.design_system.components.AppScaffold
+import com.eferraz.presentation.design_system.components.SegmentedControl
+import com.eferraz.presentation.design_system.components.SegmentedOption
 import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.TableColumn
 import com.eferraz.presentation.features.assetForm.AssetFormIntent
@@ -50,7 +53,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun AssetsRoute() {
-
 
 
     val formVm = koinViewModel<AssetFormViewModel>()
@@ -78,22 +80,22 @@ internal fun AssetsRoute() {
         navigator = navigator,
         mainPane = {
 
-            val colors = MaterialTheme.colorScheme
+            MaterialTheme.colorScheme
 
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-            val isFixedIncomeSelected = currentRoute?.contains("FixedIncomeAssetRouting", ignoreCase = true) == true
-            val isVariableIncomeSelected = currentRoute?.contains("VariableIncomeAssetRouting", ignoreCase = true) == true
-            val isFundsSelected = currentRoute?.contains("FundsAssetRouting", ignoreCase = true) == true
+            currentRoute?.contains("FixedIncomeAssetRouting", ignoreCase = true) == true
+            currentRoute?.contains("VariableIncomeAssetRouting", ignoreCase = true) == true
+            currentRoute?.contains("FundsAssetRouting", ignoreCase = true) == true
 
-            Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()) {
 
                 NavHost(
                     navController = navController,
                     startDestination = FixedIncomeAssetRouting,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxSize()//.weight(1f)
                 ) {
 
                     composable<FixedIncomeAssetRouting> {
@@ -148,38 +150,76 @@ internal fun AssetsRoute() {
                     }
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.background(colors.background).padding(top = 8.dp).fillMaxWidth()) {
-
-                    FilterChip(
-                        selected = isFixedIncomeSelected,
-                        label = { Text("Renda Fixa") },
-                        onClick = { navController.navigate(FixedIncomeAssetRouting) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = if (isFixedIncomeSelected) colors.primaryContainer else colors.surface,
-                            selectedContainerColor = colors.primaryContainer
-                        )
-                    )
-
-                    FilterChip(
-                        selected = isVariableIncomeSelected,
-                        label = { Text("Renda Variável") },
-                        onClick = { navController.navigate(VariableIncomeAssetRouting) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = if (isVariableIncomeSelected) colors.primaryContainer else colors.surface,
-                            selectedContainerColor = colors.primaryContainer
-                        )
-                    )
-
-                    FilterChip(
-                        selected = isFundsSelected,
-                        label = { Text("Fundos") },
-                        onClick = { navController.navigate(FundsAssetRouting) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = if (isFundsSelected) colors.primaryContainer else colors.surface,
-                            selectedContainerColor = colors.primaryContainer
-                        )
-                    )
+                val selectedCategory by remember(currentRoute) {
+                    derivedStateOf {
+                        when {
+                            currentRoute?.contains("FixedIncomeAssetRouting", ignoreCase = true) == true -> FixedIncomeAssetRouting
+                            currentRoute?.contains("VariableIncomeAssetRouting", ignoreCase = true) == true -> VariableIncomeAssetRouting
+                            currentRoute?.contains("FundsAssetRouting", ignoreCase = true) == true -> FundsAssetRouting
+                            else -> FundsAssetRouting
+                        }
+                    }
                 }
+
+                SegmentedControl(
+                    options = listOf(
+                        SegmentedOption(
+                            value = FixedIncomeAssetRouting,
+                            label = "Renda Fixa",
+                            icon = Icons.Default.Savings,
+                            contentDescription = "Renda Fixa"
+                        ),
+                        SegmentedOption(
+                            value = VariableIncomeAssetRouting,
+                            label = "Renda Variável",
+                            icon = Icons.Default.TrendingUp,
+                            contentDescription = "Renda Variável"
+                        ),
+                        SegmentedOption(
+                            value = FundsAssetRouting,
+                            label = "Fundos",
+                            icon = Icons.Default.AccountBalance,
+                            contentDescription = "Fundos"
+                        )
+                    ),
+                    selectedValue = selectedCategory,
+                    onValueChange = { navController.navigate(it) },
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.padding(6.dp).align(Alignment.BottomStart)
+                )
+
+//                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.background(colors.background).padding(top = 8.dp).fillMaxWidth()) {
+//
+//                    FilterChip(
+//                        selected = isFixedIncomeSelected,
+//                        label = { Text("Renda Fixa") },
+//                        onClick = { navController.navigate(FixedIncomeAssetRouting) },
+//                        colors = FilterChipDefaults.filterChipColors(
+//                            containerColor = if (isFixedIncomeSelected) colors.primaryContainer else colors.surface,
+//                            selectedContainerColor = colors.primaryContainer
+//                        )
+//                    )
+//
+//                    FilterChip(
+//                        selected = isVariableIncomeSelected,
+//                        label = { Text("Renda Variável") },
+//                        onClick = { navController.navigate(VariableIncomeAssetRouting) },
+//                        colors = FilterChipDefaults.filterChipColors(
+//                            containerColor = if (isVariableIncomeSelected) colors.primaryContainer else colors.surface,
+//                            selectedContainerColor = colors.primaryContainer
+//                        )
+//                    )
+//
+//                    FilterChip(
+//                        selected = isFundsSelected,
+//                        label = { Text("Fundos") },
+//                        onClick = { navController.navigate(FundsAssetRouting) },
+//                        colors = FilterChipDefaults.filterChipColors(
+//                            containerColor = if (isFundsSelected) colors.primaryContainer else colors.surface,
+//                            selectedContainerColor = colors.primaryContainer
+//                        )
+//                    )
+//                }
             }
         },
         actions = {
@@ -226,7 +266,7 @@ private fun AssetsActions(
 }
 
 @Composable
-private fun ColumnScope.AssetsScreen(
+private fun AssetsScreen(
     modifier: Modifier = Modifier,
     list: List<AssetView>,
     onRowClick: (Long) -> Unit,
@@ -243,7 +283,8 @@ private fun ColumnScope.AssetsScreen(
             TableColumn(title = "Observação", data = { notes }, weight = 2f)
         ),
         data = list,
-        onRowClick = { view -> onRowClick(view.id) }
+        onRowClick = { view -> onRowClick(view.id) },
+        contentPadding = PaddingValues(bottom = 70.dp)
     )
 }
 
