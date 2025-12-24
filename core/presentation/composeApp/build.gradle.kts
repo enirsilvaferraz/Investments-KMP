@@ -52,6 +52,12 @@ kotlin {
 
         implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
     }
+
+    sourceSets {
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+    }
 }
 
 dependencies {
