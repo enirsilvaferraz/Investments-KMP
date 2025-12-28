@@ -3,8 +3,12 @@ package com.eferraz.presentation.features.history
 import androidx.compose.runtime.Composable
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.FixedIncomeAsset
+import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.presentation.features.assets.AssetView
+import com.eferraz.presentation.features.assets.displayCategory
+import com.eferraz.presentation.features.assets.displayName
+import com.eferraz.presentation.features.assets.displaySubCategory
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
@@ -47,7 +51,13 @@ internal class HoldingHistoryRow(
             previousEntry: HoldingHistoryEntry,
         ): HoldingHistoryRow {
 
-            val assetView = AssetView.create(holding.asset)
+            val asset = holding.asset
+            val maturity = when (asset) {
+                is FixedIncomeAsset -> asset.expirationDate
+                is InvestmentFundAsset -> asset.expirationDate
+                is VariableIncomeAsset -> null
+                else -> null
+            }
 
             val previousValue = previousEntry.endOfMonthValue * previousEntry.endOfMonthQuantity
             val currentValue = currentEntry.endOfMonthValue * currentEntry.endOfMonthQuantity
@@ -56,12 +66,12 @@ internal class HoldingHistoryRow(
 
             val viewData = ViewData(
                 brokerage = holding.brokerage.name,
-                category = assetView.category,
-                subCategory = assetView.subCategory,
-                description = assetView.name,
-                observations = assetView.notes,
-                maturity = assetView.maturity,
-                issuer = assetView.issuer,
+                category = asset.displayCategory(),
+                subCategory = asset.displaySubCategory(),
+                description = asset.displayName(),
+                observations = asset.observations.orEmpty(),
+                maturity = maturity,
+                issuer = asset.issuer.name,
                 previousValue = previousValue,
                 currentValue = currentValue,
                 appreciation = formatAppreciation(currentValue, previousValue),
@@ -75,7 +85,7 @@ internal class HoldingHistoryRow(
             )
 
             val formatted = Formatted(
-                maturity = assetView.maturity.formated(),
+                maturity = maturity.formated(),
                 previousValue = previousValue.currencyFormat(),
                 currentValue = currentValue.currencyFormat(),
             )

@@ -14,7 +14,6 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
@@ -29,12 +28,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.FixedIncomeAssetType
 import com.eferraz.entities.FixedIncomeSubType
 import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.InvestmentFundAssetType
+import com.eferraz.entities.Issuer
 import com.eferraz.entities.Liquidity
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.entities.VariableIncomeAssetType
@@ -47,17 +48,17 @@ import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.SegmentedControl
 import com.eferraz.presentation.design_system.components.SegmentedOption
 import com.eferraz.presentation.design_system.components.table.DataTable
+import com.eferraz.presentation.design_system.components.table.TableColumn
 import com.eferraz.presentation.design_system.components.table.inputDateColumn
 import com.eferraz.presentation.design_system.components.table.inputSelectColumn
 import com.eferraz.presentation.design_system.components.table.inputTextColumn
-import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assetForm.AssetFormIntent
 import com.eferraz.presentation.features.assetForm.AssetFormScreen
 import com.eferraz.presentation.features.assetForm.AssetFormViewModel
+import com.eferraz.presentation.features.assets.AssetsViewModel.UpdateAsset
 import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -92,35 +93,61 @@ internal fun AssetsRoute() {
 
             val backStack = rememberNavBackStack(config, FixedIncomeAssetRouting)
 
-            @Composable
-            @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-            fun screen(category: InvestmentCategory) {
-
-                val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
-                val tableState by tableVm.state.collectAsStateWithLifecycle()
-                tableVm.loadAssets(category)
-
-                AssetsScreen(
-                    category = category,
-                    state = tableState,
-                    onRowClick = { assetId ->
-                        scope.launch {
-                            formVm.processIntent(AssetFormIntent.LoadAssetForEdit(assetId))
-                            navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
-                        }
-                    },
-                    onIntent = { tableVm.onIntent(it) }
-                )
-            }
+//            @Composable
+//            @OptIn(ExperimentalMaterial3AdaptiveApi::class)
+//            fun screen(category: InvestmentCategory) {
+//
+//                val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
+//                val tableState by tableVm.state.collectAsStateWithLifecycle()
+//                tableVm.loadAssets(category)
+//
+//                AssetsScreen(
+//                    category = category,
+//                    state = tableState,
+//                    onRowClick = { assetId ->
+//                        scope.launch {
+//                            formVm.processIntent(AssetFormIntent.LoadAssetForEdit(assetId))
+//                            navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
+//                        }
+//                    },
+//                    onIntent = { tableVm.onIntent(it) }
+//                )
+//            }
 
             Box(modifier = Modifier.fillMaxSize()) {
 
                 NavDisplay(
                     backStack = backStack,
                     entryProvider = entryProvider {
-                        entry<FixedIncomeAssetRouting> { screen(InvestmentCategory.FIXED_INCOME) }
-                        entry<VariableIncomeAssetRouting> { screen(InvestmentCategory.VARIABLE_INCOME) }
-                        entry<FundsAssetRouting> { screen(InvestmentCategory.INVESTMENT_FUND) }
+
+                        entry<FixedIncomeAssetRouting> {
+
+                            val category = InvestmentCategory.FIXED_INCOME
+                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
+                            val tableState by tableVm.state.collectAsStateWithLifecycle()
+                            tableVm.loadAssets(category)
+
+                            AssetsScreenFixedIncome(state = tableState, onIntent = { tableVm.onIntent(it) })
+                        }
+
+                        entry<VariableIncomeAssetRouting> {
+
+                            val category = InvestmentCategory.VARIABLE_INCOME
+                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
+                            val tableState by tableVm.state.collectAsStateWithLifecycle()
+                            tableVm.loadAssets(category)
+
+                            AssetsScreenVariableIncome(state = tableState, onIntent = { tableVm.onIntent(it) })
+                        }
+                        entry<FundsAssetRouting> {
+
+                            val category = InvestmentCategory.INVESTMENT_FUND
+                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
+                            val tableState by tableVm.state.collectAsStateWithLifecycle()
+                            tableVm.loadAssets(category)
+
+                            AssetsScreenFunds(state = tableState, onIntent = { tableVm.onIntent(it) })
+                        }
                     }
                 )
 
@@ -196,256 +223,218 @@ private fun AssetsActions(
 }
 
 @Composable
-private fun AssetsScreen(
+private fun AssetsScreenFixedIncome(
     modifier: Modifier = Modifier,
     state: AssetsViewModel.AssetsState,
-    category: InvestmentCategory,
-    onRowClick: (Long) -> Unit,
+    onRowClick: (Long) -> Unit = {},
     onIntent: (AssetsViewModel.AssetsIntent) -> Unit,
 ) {
 
     DataTable(
-        columns = when (category) {
+        columns = listOf(
 
-            InvestmentCategory.FIXED_INCOME -> listOf(
+            inputSelectColumn(
+                title = "SubCategoria",
+                sortableValue = { it.subType },
+                getValue = { it.subType },
+                options = FixedIncomeSubType.entries,
+                format = { it.formated() },
+                onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(subType = value))) }
+            ),
 
-                inputSelectColumn(
-                    title = "Subcategoria",
-                    getValue = { (it.asset as FixedIncomeAsset).subType },
-                    options = FixedIncomeSubType.entries,
-                    format = { it.formated() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as FixedIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(subType = value)))
-                    },
-                    sortableValue = { (it.asset as FixedIncomeAsset).subType }
-                ),
+            inputSelectColumn(
+                title = "Tipo",
+                sortableValue = { it.type },
+                getValue = { it.type },
+                options = FixedIncomeAssetType.entries,
+                format = { it.formated() },
+                onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(type = value))) },
+            ),
 
-                inputSelectColumn(
-                    title = "Tipo",
-                    getValue = { (it.asset as FixedIncomeAsset).type },
-                    options = FixedIncomeAssetType.entries,
-                    format = { it.formated() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as FixedIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(type = value)))
-                    },
-                    sortableValue = { (it.asset as FixedIncomeAsset).type }
-                ),
+            inputDateColumn(
+                title = "Vencimento",
+                sortableValue = { it.expirationDate },
+                getValue = { it.expirationDate.formated() },
+                onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(expirationDate = MaturityDate(value).get()))) },
+            ),
 
-                inputDateColumn(
-                    title = "Vencimento",
-                    getValue = { (it.asset as FixedIncomeAsset).expirationDate.formated() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as FixedIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(expirationDate = MaturityDate(value).get())))
-                    },
-                    sortableValue = { (it.asset as FixedIncomeAsset).expirationDate }
-                ),
+            inputTextColumn(
+                title = "Taxa",
+                sortableValue = { it.contractedYield },
+                getValue = { it.contractedYield.toString() },
+                onValueChange = { asset, value -> value.toDoubleOrNull()?.let { onIntent(UpdateAsset(asset.copy(contractedYield = it))) } }
+            ),
 
-                inputTextColumn(
-                    title = "Taxa",
-                    getValue = { (it.asset as FixedIncomeAsset).contractedYield.toString() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as FixedIncomeAsset
-                        value.toDoubleOrNull()?.let { onIntent(AssetsViewModel.UpdateAsset(asset.copy(contractedYield = it))) }
-                    },
-                    sortableValue = { (it.asset as FixedIncomeAsset).contractedYield }
-                ),
+            inputTextColumn(
+                title = "% CDI",
+                sortableValue = { it.cdiRelativeYield },
+                getValue = { it.cdiRelativeYield?.toString().orEmpty() },
+                onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(cdiRelativeYield = value.toDoubleOrNull()))) }
+            ),
 
-                inputTextColumn(
-                    title = "% CDI",
-                    getValue = { (it.asset as FixedIncomeAsset).cdiRelativeYield?.toString() ?: "" },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as FixedIncomeAsset
-                        val d = value.toDoubleOrNull()
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(cdiRelativeYield = d)))
-                    },
-                    sortableValue = { (it.asset as FixedIncomeAsset).cdiRelativeYield }
-                ),
+            inputSelectColumn(
+                title = "Emissor",
+                sortableValue = { it.issuer.name },
+                getValue = { it.issuer },
+                format = { it.name },
+                options = state.issuers,
+                onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(issuer = value))) }
+            ),
 
-                inputSelectColumn(
-                    title = "Emissor",
-                    getValue = { (it.asset as FixedIncomeAsset).issuer },
-                    options = state.issuers,
-                    format = { it.name },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as FixedIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(issuer = value)))
-                    },
-                    sortableValue = { (it.asset as FixedIncomeAsset).issuer.name }
-                ),
+            inputSelectColumn(
+                title = "Liquidez",
+                sortableValue = { it.liquidity },
+                getValue = { it.liquidity },
+                options = Liquidity.entries,
+                format = { it.formated() },
+                onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(liquidity = value))) }
+            ),
 
-                inputSelectColumn(
-                    title = "Liquidez",
-                    getValue = { (it.asset as FixedIncomeAsset).liquidity },
-                    options = Liquidity.entries,
-                    format = { it.formated() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as FixedIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(liquidity = value)))
-                    },
-                    sortableValue = { (it.asset as FixedIncomeAsset).liquidity }
-                ),
-
-                inputTextColumn(
-                    title = "Observação",
-                    getValue = { (it.asset as FixedIncomeAsset).observations.orEmpty() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as FixedIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(observations = value)))
-                    },
-                    weight = 2f,
-                    sortableValue = { (it.asset as FixedIncomeAsset).observations }
-                )
+            inputTextColumn(
+                title = "Observação",
+                sortableValue = { it.observations },
+                getValue = { it.observations.orEmpty() },
+                onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(observations = value))) },
+                weight = 2f
             )
-
-            InvestmentCategory.VARIABLE_INCOME -> listOf(
-                inputSelectColumn(
-                    title = "Tipo",
-                    getValue = { (it.asset as VariableIncomeAsset).type },
-                    options = VariableIncomeAssetType.entries,
-                    format = { it.formated() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as VariableIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(type = value)))
-                    },
-                    sortableValue = { (it.asset as VariableIncomeAsset).type }
-                ),
-                inputTextColumn(
-                    title = "Ticker",
-                    getValue = { (it.asset as VariableIncomeAsset).ticker },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as VariableIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(ticker = value)))
-                    },
-                    sortableValue = { (it.asset as VariableIncomeAsset).ticker }
-                ),
-                inputTextColumn(
-                    title = "Nome",
-                    getValue = { (it.asset as VariableIncomeAsset).name },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as VariableIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(name = value)))
-                    },
-                    sortableValue = { (it.asset as VariableIncomeAsset).name }
-                ),
-                inputSelectColumn(
-                    title = "Emissor",
-                    getValue = { (it.asset as VariableIncomeAsset).issuer },
-                    options = state.issuers,
-                    format = { it.name },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as VariableIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(issuer = value)))
-                    },
-                    sortableValue = { (it.asset as VariableIncomeAsset).issuer.name }
-                ),
-                inputTextColumn(
-                    title = "Observação",
-                    getValue = { (it.asset as VariableIncomeAsset).observations.orEmpty() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as VariableIncomeAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(observations = value)))
-                    },
-                    weight = 2f,
-                    sortableValue = { (it.asset as VariableIncomeAsset).observations }
-                )
-            )
-
-            InvestmentCategory.INVESTMENT_FUND -> listOf(
-                inputSelectColumn(
-                    title = "Tipo",
-                    getValue = { (it.asset as InvestmentFundAsset).type },
-                    options = InvestmentFundAssetType.entries,
-                    format = { it.formated() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as InvestmentFundAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(type = value)))
-                    },
-                    sortableValue = { (it.asset as InvestmentFundAsset).type }
-                ),
-                inputTextColumn(
-                    title = "Nome",
-                    getValue = { (it.asset as InvestmentFundAsset).name },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as InvestmentFundAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(name = value)))
-                    },
-                    weight = 2f,
-                    sortableValue = { (it.asset as InvestmentFundAsset).name }
-                ),
-                inputSelectColumn(
-                    title = "Liquidez",
-                    getValue = { (it.asset as InvestmentFundAsset).liquidity },
-                    options = Liquidity.entries,
-                    format = { it.formated() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as InvestmentFundAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(liquidity = value)))
-                    },
-                    sortableValue = { (it.asset as InvestmentFundAsset).liquidity }
-                ),
-                inputTextColumn(
-                    title = "Dias Liq.",
-                    getValue = { (it.asset as InvestmentFundAsset).liquidityDays.toString() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as InvestmentFundAsset
-                        value.toIntOrNull()?.let { onIntent(AssetsViewModel.UpdateAsset(asset.copy(liquidityDays = it))) }
-                    },
-                    sortableValue = { (it.asset as InvestmentFundAsset).liquidityDays }
-                ),
-                inputDateColumn(
-                    title = "Vencimento",
-                    getValue = { (it.asset as InvestmentFundAsset).expirationDate?.formated() ?: "" },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as InvestmentFundAsset
-                        val date = if (value.isBlank()) null else MaturityDate(value).get()
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(expirationDate = date)))
-                    },
-                    sortableValue = { (it.asset as InvestmentFundAsset).expirationDate }
-                ),
-                inputSelectColumn(
-                    title = "Emissor",
-                    getValue = { (it.asset as InvestmentFundAsset).issuer },
-                    options = state.issuers,
-                    format = { it.name },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as InvestmentFundAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(issuer = value)))
-                    },
-                    sortableValue = { (it.asset as InvestmentFundAsset).issuer.name }
-                ),
-                inputTextColumn(
-                    title = "Observação",
-                    getValue = { (it.asset as InvestmentFundAsset).observations.orEmpty() },
-                    onValueChange = { view, value ->
-                        val asset = view.asset as InvestmentFundAsset
-                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(observations = value)))
-                    },
-                    weight = 2f,
-                    sortableValue = { (it.asset as InvestmentFundAsset).observations }
-                )
-            )
-        },
-        data = state.list.map { AssetView.create(it) },
-//        onRowClick = { view -> onRowClick(view.id) },
+        ),
+        data = state.list.filterIsInstance<FixedIncomeAsset>(),
         contentPadding = PaddingValues(bottom = 70.dp)
     )
 }
 
-@Preview(widthDp = 800, heightDp = 200)
 @Composable
-private fun AssetsScreen() {
+private fun AssetsScreenVariableIncome(
+    modifier: Modifier = Modifier,
+    state: AssetsViewModel.AssetsState,
+    onRowClick: (Long) -> Unit = {},
+    onIntent: (AssetsViewModel.AssetsIntent) -> Unit,
+) {
 
-    AppTheme {
-        Surface {
-            AssetsScreen(
-                state = AssetsViewModel.AssetsState(emptyList(), emptyList()),
-                category = InvestmentCategory.FIXED_INCOME,
-                onRowClick = {},
-                onIntent = {}
-            )
-        }
-    }
+    DataTable(
+        columns = variableIncomeColumns(state.issuers, onIntent),
+        data = state.list.filterIsInstance<VariableIncomeAsset>(),
+        contentPadding = PaddingValues(bottom = 70.dp)
+    )
 }
+
+@Composable
+private fun AssetsScreenFunds(
+    modifier: Modifier = Modifier,
+    state: AssetsViewModel.AssetsState,
+    onRowClick: (Long) -> Unit = {},
+    onIntent: (AssetsViewModel.AssetsIntent) -> Unit,
+) {
+
+    DataTable(
+        columns = fundsColumns(state.issuers, onIntent),
+        data = state.list.filterIsInstance<InvestmentFundAsset>(),
+        contentPadding = PaddingValues(bottom = 70.dp)
+    )
+}
+
+private fun <T : Asset> issuerColumn(
+    issuers: List<Issuer>,
+    onUpdate: (T, Issuer) -> T,
+    onIntent: (AssetsViewModel.AssetsIntent) -> Unit,
+): TableColumn<T> = inputSelectColumn(
+    title = "Emissor",
+    getValue = { it.issuer },
+    options = issuers,
+    format = { it.name },
+    onValueChange = { asset, value ->
+        val updatedAsset = onUpdate(asset, value)
+        onIntent(UpdateAsset(updatedAsset))
+    },
+    sortableValue = { it.issuer.name }
+)
+
+private fun <T : Asset> notesColumn(
+    onUpdate: (T, String) -> T,
+    onIntent: (AssetsViewModel.AssetsIntent) -> Unit,
+): TableColumn<T> = inputTextColumn(
+    title = "Observação",
+    getValue = { it.observations.orEmpty() },
+    onValueChange = { asset, value ->
+        val updatedAsset = onUpdate(asset, value)
+        onIntent(UpdateAsset(updatedAsset))
+    },
+    weight = 2f,
+    sortableValue = { it.observations }
+)
+
+private fun variableIncomeColumns(
+    issuers: List<Issuer>,
+    onIntent: (AssetsViewModel.AssetsIntent) -> Unit,
+): List<TableColumn<VariableIncomeAsset>> = listOf(
+    inputSelectColumn(
+        title = "Tipo",
+        getValue = { it.type },
+        options = VariableIncomeAssetType.entries,
+        format = { it.formated() },
+        onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(type = value))) },
+        sortableValue = { it.type }
+    ),
+    inputTextColumn(
+        title = "Ticker",
+        getValue = { it.ticker },
+        onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(ticker = value))) },
+        sortableValue = { it.ticker }
+    ),
+    inputTextColumn(
+        title = "Nome",
+        getValue = { it.name },
+        onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(name = value))) },
+        sortableValue = { it.name }
+    ),
+    issuerColumn(issuers, { asset, issuer -> asset.copy(issuer = issuer) }, onIntent),
+    notesColumn({ asset, notes -> asset.copy(observations = notes) }, onIntent)
+)
+
+private fun fundsColumns(
+    issuers: List<Issuer>,
+    onIntent: (AssetsViewModel.AssetsIntent) -> Unit,
+): List<TableColumn<InvestmentFundAsset>> = listOf(
+    inputSelectColumn(
+        title = "Tipo",
+        getValue = { it.type },
+        options = InvestmentFundAssetType.entries,
+        format = { it.formated() },
+        onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(type = value))) },
+        sortableValue = { it.type }
+    ),
+    inputTextColumn(
+        title = "Nome",
+        getValue = { it.name },
+        onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(name = value))) },
+        weight = 2f,
+        sortableValue = { it.name }
+    ),
+    inputSelectColumn(
+        title = "Liquidez",
+        getValue = { it.liquidity },
+        options = Liquidity.entries,
+        format = { it.formated() },
+        onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(liquidity = value))) },
+        sortableValue = { it.liquidity }
+    ),
+    inputTextColumn(
+        title = "Dias Liq.",
+        getValue = { it.liquidityDays.toString() },
+        onValueChange = { asset, value ->
+            value.toIntOrNull()?.let { onIntent(UpdateAsset(asset.copy(liquidityDays = it))) }
+        },
+        sortableValue = { it.liquidityDays }
+    ),
+    inputDateColumn(
+        title = "Vencimento",
+        getValue = { it.expirationDate?.formated() ?: "" },
+        onValueChange = { asset, value ->
+            val date = if (value.isBlank()) null else MaturityDate(value).get()
+            onIntent(UpdateAsset(asset.copy(expirationDate = date)))
+        },
+        sortableValue = { it.expirationDate }
+    ),
+    issuerColumn(issuers, { asset, issuer -> asset.copy(issuer = issuer) }, onIntent),
+    notesColumn({ asset, notes -> asset.copy(observations = notes) }, onIntent)
+)
