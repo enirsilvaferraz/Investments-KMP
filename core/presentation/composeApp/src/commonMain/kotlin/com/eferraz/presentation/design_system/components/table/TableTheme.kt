@@ -35,7 +35,7 @@ internal fun MaterialTableTheme(): TableTheme = object : TableTheme {
         get() = colors.surface
 
     override val oddRowBackground: Color
-        get() = colors.surfaceContainerLow
+        get() = colors.surface//colors.surfaceContainerLow
 
     override val divider: Color
         get() = colors.outlineVariant

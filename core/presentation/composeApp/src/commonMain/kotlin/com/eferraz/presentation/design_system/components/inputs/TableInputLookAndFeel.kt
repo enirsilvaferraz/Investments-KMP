@@ -23,20 +23,22 @@ internal fun TableInputLookAndFeel(
     enabled: Boolean = true,
     isHovered: Boolean = false,
     isFocused: Boolean = false,
+    isError: Boolean = false,
     content: @Composable BoxScope.() -> Unit,
 ) {
 
     val colors = MaterialTheme.colorScheme
     val shapes = MaterialTheme.shapes
 
-    val showBorder = (isHovered || isFocused) && enabled
+    val showBorder = (isHovered || isFocused || isError) && enabled
 
     val backgroundColor = if (showBorder) colors.surfaceContainerHighest else Color.Transparent
 
-    val borderColor = if (showBorder) {
-        if (isFocused) colors.primary else colors.outline
-    } else {
-        Color.Transparent
+    val borderColor = when {
+        isError -> colors.error
+        isFocused -> colors.primary
+        showBorder -> colors.outline
+        else -> Color.Transparent
     }
 
     Box(
@@ -44,7 +46,7 @@ internal fun TableInputLookAndFeel(
             .hoverable(interactionSource = actualInteractionSource)
             .thenIf(
                 condition = showBorder,
-                ifTrue = { Modifier.background(backgroundColor, shapes.medium).border(1.dp, borderColor, shapes.medium) }
+                ifTrue = { modifier.background(backgroundColor, shapes.medium).border(1.dp, borderColor, shapes.medium) }
             )
             .height(35.dp),
         contentAlignment = Alignment.CenterStart,

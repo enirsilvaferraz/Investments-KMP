@@ -123,6 +123,7 @@ internal fun TableInputDate(
     modifier: Modifier = Modifier,
     dateFormat: DateFormat = DateFormat.YYYY_MM_DD,
     enabled: Boolean = true,
+    isError: Boolean = false,
 ) {
 
     val actualInteractionSource = remember { MutableInteractionSource() }
@@ -135,6 +136,7 @@ internal fun TableInputDate(
         modifier = modifier,
         dateFormat = dateFormat,
         enabled = enabled,
+        isError = isError,
         actualInteractionSource = actualInteractionSource,
         isHovered = isHoveredState,
         isFocused = isFocusedState
@@ -148,6 +150,7 @@ private fun TableInputDate(
     modifier: Modifier = Modifier,
     dateFormat: DateFormat = DateFormat.YYYY_MM_DD,
     enabled: Boolean = true,
+    isError: Boolean = false,
     actualInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     isHovered: Boolean = false,
     isFocused: Boolean = false,
@@ -171,7 +174,11 @@ private fun TableInputDate(
     }
 
     val colors = MaterialTheme.colorScheme
-    val textColor = if (enabled) colors.onSurface else colors.onSurfaceVariant
+    val textColor = when {
+        isError -> colors.error
+        enabled -> colors.onSurface
+        else -> colors.onSurfaceVariant
+    }
 
     fun onValueChange(newValue: TextFieldValue) {
 
@@ -185,17 +192,10 @@ private fun TableInputDate(
             filteredText
         }
 
-        // Mantém a posição do cursor
-        val cursorOffset = if (limitedText.length < newValue.text.length) {
-            minOf(newValue.selection.start.coerceIn(0, limitedText.length), limitedText.length)
-        } else {
-            val removedBeforeCursor = newValue.text.take(newValue.selection.start).count { !it.isDigit() }
-            (newValue.selection.start - removedBeforeCursor).coerceIn(0, limitedText.length)
-        }
-
+        // Sempre posiciona o cursor no final do texto (à direita)
         textFieldValueState = TextFieldValue(
             text = limitedText,
-            selection = TextRange(cursorOffset)
+            selection = TextRange(limitedText.length)
         )
 
         // Atualiza o valor externo apenas com dígitos
@@ -207,14 +207,15 @@ private fun TableInputDate(
         actualInteractionSource = actualInteractionSource,
         enabled = enabled,
         isHovered = isHovered,
-        isFocused = isFocused
+        isFocused = isFocused,
+        isError = isError
     ) {
 
         BasicTextField(
             value = textFieldValueState,
             enabled = enabled,
             onValueChange = { newValue -> onValueChange(newValue) },
-            modifier = Modifier.padding(horizontal = 8.dp).width(80.dp),
+            modifier = Modifier.padding(horizontal = 8.dp).width(85.dp),
             interactionSource = actualInteractionSource,
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyMedium.copy(color = textColor),
@@ -225,7 +226,7 @@ private fun TableInputDate(
 
 @Preview
 @Composable
-internal fun TableInputDatePreview() {
+private fun TableInputDatePreview() {
 
     Surface {
 
@@ -246,7 +247,7 @@ internal fun TableInputDatePreview() {
 
 @Preview
 @Composable
-internal fun TableInputDateHoverPreview() {
+private fun TableInputDateHoverPreview() {
 
     Surface {
 
@@ -268,7 +269,7 @@ internal fun TableInputDateHoverPreview() {
 
 @Preview
 @Composable
-internal fun TableInputDateFocusedPreview() {
+private fun TableInputDateFocusedPreview() {
 
     Surface {
 
@@ -291,7 +292,7 @@ internal fun TableInputDateFocusedPreview() {
 
 @Preview
 @Composable
-internal fun TableInputDateDisabledPreview() {
+private fun TableInputDateDisabledPreview() {
 
     Surface {
 
@@ -312,7 +313,7 @@ internal fun TableInputDateDisabledPreview() {
 
 @Preview
 @Composable
-internal fun TableInputDateDDMMYYYPreview() {
+private fun TableInputDateDDMMYYYPreview() {
 
     Surface {
 
@@ -333,7 +334,7 @@ internal fun TableInputDateDDMMYYYPreview() {
 
 @Preview
 @Composable
-internal fun TableInputDateEmptyPreview() {
+private fun TableInputDateEmptyPreview() {
 
     Surface {
 
@@ -347,6 +348,28 @@ internal fun TableInputDateEmptyPreview() {
                 onValueChange = { value5 = it },
                 dateFormat = DateFormat.YYYY_MM_DD,
                 enabled = true
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun TableInputDateErrorPreview() {
+
+    Surface {
+
+        // Estado de Erro
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+
+            Text("Erro", style = MaterialTheme.typography.labelSmall)
+            var value6 by remember { mutableStateOf("20240115") }
+            TableInputDate(
+                value = value6,
+                onValueChange = { value6 = it },
+                dateFormat = DateFormat.YYYY_MM_DD,
+                enabled = true,
+                isError = true
             )
         }
     }
