@@ -1,16 +1,20 @@
 package com.eferraz.presentation.design_system.components.table
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 /**
  * Builder para facilitar a criação de TableColumn
  * Mantém compatibilidade com a API antiga
  */
 internal class ColumnBuilder<T> {
+
     var title: String = ""
     var weight: Float = 1f
     var alignment: Alignment.Horizontal = Alignment.Start
@@ -106,6 +110,7 @@ internal fun <T> TableColumn(
     formated: T.() -> String = { data().toString() },
     cellContent: @Composable RowScope.(T) -> Unit = {
         Text(
+            modifier = Modifier.padding(horizontal = 8.dp),
             text = formated(it),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface

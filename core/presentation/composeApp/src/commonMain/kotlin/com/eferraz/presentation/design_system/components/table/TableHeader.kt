@@ -35,10 +35,7 @@ internal fun <T> TableHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(theme.headerBackground)
-            .heightIn(min = 52.dp)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            .background(theme.headerBackground),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -49,6 +46,7 @@ internal fun <T> TableHeader(
             Box(
                 modifier = Modifier
                     .weight(column.weight)
+                    .heightIn(min = 52.dp)
                     .then(
                         if (column.isSortable) {
                             Modifier.clickable { onSort(index, if (isSorted) !sortState.ascending else true) }
@@ -60,6 +58,7 @@ internal fun <T> TableHeader(
             ) {
 
                 Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {

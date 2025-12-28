@@ -7,20 +7,15 @@ import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.FixedIncomeSubType
 import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.Liquidity
-import com.eferraz.presentation.features.assets.SaveAssetUseCase2.Params
-import com.eferraz.usecases.AppUseCase
+import com.eferraz.entities.value.MaturityDate
+import com.eferraz.usecases.SaveAssetUseCase2.Params
 import com.eferraz.usecases.GetAssetsUseCase
-import com.eferraz.usecases.repositories.AssetRepository
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import com.eferraz.usecases.SaveAssetUseCase2
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
 import org.koin.android.annotation.KoinViewModel
-import org.koin.core.annotation.Factory
-import kotlin.jvm.JvmInline
 
 @KoinViewModel
 internal class AssetsViewModel(
@@ -55,41 +50,4 @@ internal class AssetsViewModel(
     internal data class UpdateDescription(val asset: Asset, val value: String) : AssetsIntent
     internal data class UpdateLiquidity(val asset: Asset, val value: Liquidity) : AssetsIntent
     internal data class UpdateSubType(val asset: Asset, val value: FixedIncomeSubType) : AssetsIntent
-}
-
-@Factory
-public class SaveAssetUseCase2(
-    private val repository: AssetRepository,
-    context: CoroutineDispatcher = Dispatchers.Default,
-) : AppUseCase<Params, Unit>(context) {
-
-    public data class Params(val model: Asset)
-
-    override suspend fun execute(param: Params) {
-        repository.save(param.model)
-    }
-}
-
-@JvmInline
-public value class MaturityDate(private val value: String) {
-
-    init {
-        value.toDate()
-    }
-
-    public fun get(): LocalDate =
-        value.toDate()
-
-    private fun String.toDate() =
-        LocalDate.Format { year(); monthNumber(); day() }.parse(this)
-}
-
-@JvmInline
-public value class MandatoryText(private val value: String) {
-
-    init {
-        if (value.isEmpty()) throw IllegalArgumentException("MandatoryText cannot be empty")
-    }
-
-    public fun get(): String = value
 }
