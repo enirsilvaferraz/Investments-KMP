@@ -14,6 +14,8 @@ import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.BrokerageRepository
 import com.eferraz.usecases.repositories.OwnerRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -28,15 +30,18 @@ public class SaveAssetUseCase(
     private val brokerageRepository: BrokerageRepository,
     private val ownerRepository: OwnerRepository,
     private val assetHoldingRepository: AssetHoldingRepository,
-) {
+    context: CoroutineDispatcher = Dispatchers.Default
+) : AppUseCase<SaveAssetUseCase.Param, Long>(context) {
+
+    public data class Param(val formData: AssetFormData?)
 
     /**
      * Salva ou atualiza um asset.
      *
      * @return ID do asset salvo
      */
-    public suspend operator fun invoke(formData: AssetFormData?): Long {
-
+    override suspend fun execute(param: Param): Long {
+        val formData = param.formData
         require(formData != null) { "formData não pode ser nulo" }
 
         // Validação comum
@@ -55,7 +60,9 @@ public class SaveAssetUseCase(
         }
 
         // Criar ou obter emissor usando UseCase
-        val issuer = getOrCreateIssuerUseCase(formData.issuerName?.trim() ?: "") ?: return -1
+        val issuer = getOrCreateIssuerUseCase(
+            GetOrCreateIssuerUseCase.Param(formData.issuerName?.trim() ?: "")
+        ).getOrNull() ?: return -1
 
         // Criar asset baseado no tipo
         val assetId = when (formData) {

@@ -123,8 +123,8 @@ internal class AssetFormViewModel(
 
     private fun loadData() {
         viewModelScope.launch {
-            val issuers = getIssuersUseCase()
-            val brokerages = getBrokeragesUseCase()
+            val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrElse { emptyList() }
+            val brokerages = getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrElse { emptyList() }
             _state.update {
                 it.copy(
                     issuers = issuers.map { it.name },
@@ -136,15 +136,22 @@ internal class AssetFormViewModel(
 
     private fun save() {
         viewModelScope.launch {
-            try {
-                val id: Long = saveAssetUseCase(_state.value.formData)
-                clearForm()
-                _state.update { it.copy(message = "Ativo $id salvo com sucesso!", shouldCloseForm = true) }
-            } catch (e: ValidateException) {
-                _state.update { it.copy(validationErrors = e.messages) }
-            } catch (e: Exception) {
-                _state.update { it.copy(message = "Erro ao salvar: ${e.message}") }
-            }
+            saveAssetUseCase(SaveAssetUseCase.Param(_state.value.formData))
+                .onSuccess { id ->
+                    clearForm()
+                    _state.update { it.copy(message = "Ativo $id salvo com sucesso!", shouldCloseForm = true) }
+                }
+                .onFailure { error ->
+                    when (error) {
+                        is ValidateException -> {
+                            _state.update { it.copy(validationErrors = error.messages) }
+                        }
+
+                        else -> {
+                            _state.update { it.copy(message = "Erro ao salvar: ${error.message}") }
+                        }
+                    }
+                }
         }
     }
 

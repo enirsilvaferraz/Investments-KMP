@@ -37,7 +37,7 @@ internal class AssetsViewModel(
             getUseCase(GetAssetsUseCase.ByCategory(category))
                 .onSuccess { assets ->
                     // Load issuers
-                    val issuers = getIssuersUseCase()
+                    val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrElse { emptyList() }
                     state.value = AssetsState(assets, issuers)
                 }
                 .onFailure { println("Error: $it") }
