@@ -1,8 +1,6 @@
 package com.eferraz.presentation.design_system.components.inputs
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -53,8 +51,6 @@ internal fun TableInputText(
 ) {
 
     val actualInteractionSource = remember { MutableInteractionSource() }
-    val isHoveredState by actualInteractionSource.collectIsHoveredAsState()
-    val isFocusedState by actualInteractionSource.collectIsFocusedAsState()
 
     TableInputText(
         value = value,
@@ -62,9 +58,7 @@ internal fun TableInputText(
         modifier = modifier,
         enabled = enabled,
         isError = isError,
-        actualInteractionSource = actualInteractionSource,
-        isHovered = isHoveredState,
-        isFocused = isFocusedState
+        interactionSource = actualInteractionSource
     )
 }
 
@@ -75,9 +69,9 @@ private fun TableInputText(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isError: Boolean = false,
-    actualInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    isHovered: Boolean = false,
-    isFocused: Boolean = false,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    isHovered: Boolean? = null,
+    isFocused: Boolean? = null,
 ) {
 
     // Mantém o estado interno do texto com a seleção do cursor
@@ -119,7 +113,7 @@ private fun TableInputText(
 
     TableInputLookAndFeel(
         modifier = modifier,
-        actualInteractionSource = actualInteractionSource,
+        interactionSource = interactionSource,
         enabled = enabled,
         isHovered = isHovered,
         isFocused = isFocused,
@@ -131,7 +125,7 @@ private fun TableInputText(
             enabled = enabled,
             onValueChange = { newValue -> onValueChange(newValue) },
             modifier = Modifier.padding(horizontal = 8.dp).fillMaxWidth(),
-            interactionSource = actualInteractionSource,
+            interactionSource = interactionSource,
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyMedium.copy(color = textColor)
         )

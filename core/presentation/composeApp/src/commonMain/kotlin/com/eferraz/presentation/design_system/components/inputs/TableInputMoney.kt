@@ -1,8 +1,6 @@
 package com.eferraz.presentation.design_system.components.inputs
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +20,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.eferraz.presentation.design_system.components.inputs.state.rememberMoneyInputState
 import com.eferraz.presentation.helpers.CurrencyVisualTransformation
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -34,17 +33,13 @@ internal fun TableInputMoney(
 ) {
 
     val actualInteractionSource = remember { MutableInteractionSource() }
-    val isHoveredState by actualInteractionSource.collectIsHoveredAsState()
-    val isFocusedState by actualInteractionSource.collectIsFocusedAsState()
 
     TableInputMoney(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,
         enabled = enabled,
-        actualInteractionSource = actualInteractionSource,
-        isHovered = isHoveredState,
-        isFocused = isFocusedState
+        interactionSource = actualInteractionSource
     )
 }
 
@@ -54,85 +49,34 @@ private fun TableInputMoney(
     onValueChange: (Double?) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    actualInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    isHovered: Boolean = false,
-    isFocused: Boolean = false,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    isHovered: Boolean? = null,
+    isFocused: Boolean? = null,
 ) {
 
-    // Mantém o estado interno persistente, não recria quando value muda
-    var textFieldValueState: TextFieldValue by remember {
-        val textValue = (value * 100).toInt().toString()
-        mutableStateOf(
-            TextFieldValue(
-                text = textValue,
-                selection = TextRange(textValue.length)
-            )
-        )
-    }
+    val state = rememberMoneyInputState(value)
 
-    // Sincroniza o estado interno com o valor externo apenas quando o valor externo muda
-    // de forma independente (não causado pela edição do usuário)
     LaunchedEffect(value) {
-
-        val currentTextValue = textFieldValueState.text.trimStart { it == '0' }
-        val currentValue = if (currentTextValue.isEmpty()) 0.0 else currentTextValue.toDouble() / 100
-
-        // Só atualiza se o valor externo for diferente do valor atual do campo
-        // Isso evita resetar o campo quando o usuário está editando
-        if (kotlin.math.abs(currentValue - value) > 0.001) {
-            val textValue = (value * 100).toInt().toString()
-            textFieldValueState = TextFieldValue(
-                text = textValue,
-                selection = TextRange(textValue.length)
-            )
-        }
+        state.syncWithExternalValue(value)
     }
 
     val colors = MaterialTheme.colorScheme
     val textColor = if (enabled) colors.onSurface else colors.onSurfaceVariant
 
-    fun onValueChangeInternal(newValue: TextFieldValue) {
-
-        // Filtra apenas dígitos (0-9)
-        val filteredText = newValue.text.filter { char -> char.isDigit() }
-
-        // Mantém a posição do cursor ajustada após a filtragem
-        val cursorOffset = if (filteredText.length < newValue.text.length) {
-            // Se caracteres foram removidos, ajusta o cursor
-            minOf(newValue.selection.start.coerceIn(0, filteredText.length), filteredText.length)
-        } else {
-            // Se não houve remoção, mantém a posição relativa
-            val removedBeforeCursor = newValue.text.take(newValue.selection.start).count { !it.isDigit() }
-            (newValue.selection.start - removedBeforeCursor).coerceIn(0, filteredText.length)
-        }
-
-        val newTextFieldValue = TextFieldValue(
-            text = filteredText,
-            selection = TextRange(cursorOffset)
-        )
-
-        textFieldValueState = newTextFieldValue
-
-        val string = filteredText.trimStart { it == '0' }
-
-        if (string.isEmpty()) onValueChange(null)
-        else onValueChange(string.toDouble() / 100)
-    }
-
     TableInputLookAndFeel(
         modifier = modifier,
-        actualInteractionSource = actualInteractionSource,
+        interactionSource = interactionSource,
         enabled = enabled,
         isHovered = isHovered,
         isFocused = isFocused
     ) {
 
         BasicTextField(
-            value = textFieldValueState,
+            value = state.textFieldValue,
             enabled = enabled,
-            onValueChange = { newValue -> onValueChangeInternal(newValue) },
+            onValueChange = { newValue -> state.onValueChange(newValue, onValueChange) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            interactionSource = actualInteractionSource,
+            interactionSource = interactionSource,
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyMedium.copy(
                 textAlign = TextAlign.End,

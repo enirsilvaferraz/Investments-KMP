@@ -64,8 +64,6 @@ internal fun <T> TableInputSelect(
 ) {
 
     val actualInteractionSource = remember { MutableInteractionSource() }
-    val isHoveredState by actualInteractionSource.collectIsHoveredAsState()
-    val isFocusedState by actualInteractionSource.collectIsFocusedAsState()
 
     TableInputSelect(
         value = value,
@@ -76,9 +74,7 @@ internal fun <T> TableInputSelect(
         enabled = enabled,
         isError = isError,
         placeholder = placeholder,
-        actualInteractionSource = actualInteractionSource,
-        isHovered = isHoveredState,
-        isFocused = isFocusedState
+        interactionSource = actualInteractionSource
     )
 }
 
@@ -93,17 +89,25 @@ private fun <T> TableInputSelect(
     enabled: Boolean = true,
     isError: Boolean = false,
     placeholder: String? = null,
-    actualInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    isHovered: Boolean = false,
-    isFocused: Boolean = false,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    isHovered: Boolean? = null,
+    isFocused: Boolean? = null,
 ) {
 
     var expanded by remember { mutableStateOf(false) }
 
     val displayValue = value?.let { format(it) } ?: (placeholder ?: "")
 
+    // Precisamos saber o estado para mostrar o ícone, então coletamos aqui também.
+    // O TableInputLookAndFeel coletará internamente para a borda.
+    val isHoveredState by interactionSource.collectIsHoveredAsState()
+    val isFocusedState by interactionSource.collectIsFocusedAsState()
+    
+    val actualIsHovered = isHovered ?: isHoveredState
+    val actualIsFocused = isFocused ?: isFocusedState
+
     // Mostra a seta apenas quando as bordas estão visíveis (hover, focus ou error)
-    val showBorder = (isHovered || isFocused || isError) && enabled
+    val showBorder = (actualIsHovered || actualIsFocused || isError) && enabled
 
     val colors = MaterialTheme.colorScheme
     val textColor = when {
@@ -120,7 +124,7 @@ private fun <T> TableInputSelect(
 
         TableInputLookAndFeel(
             modifier = Modifier.menuAnchor(),
-            actualInteractionSource = actualInteractionSource,
+            interactionSource = interactionSource,
             enabled = enabled,
             isHovered = isHovered,
             isFocused = isFocused,
@@ -139,7 +143,7 @@ private fun <T> TableInputSelect(
                     enabled = enabled,
                     readOnly = true,
                     modifier = Modifier.weight(1f),
-                    interactionSource = actualInteractionSource,
+                    interactionSource = interactionSource,
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(color = textColor)
                 )

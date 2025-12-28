@@ -1,8 +1,6 @@
 package com.eferraz.presentation.design_system.components.inputs
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -25,6 +23,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.eferraz.presentation.design_system.components.inputs.state.rememberDateInputState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
@@ -147,8 +146,6 @@ internal fun TableInputDate(
 ) {
 
     val actualInteractionSource = remember { MutableInteractionSource() }
-    val isHoveredState by actualInteractionSource.collectIsHoveredAsState()
-    val isFocusedState by actualInteractionSource.collectIsFocusedAsState()
 
     TableInputDate(
         value = value,
@@ -157,9 +154,7 @@ internal fun TableInputDate(
         dateFormat = dateFormat,
         enabled = enabled,
         isError = isError,
-        actualInteractionSource = actualInteractionSource,
-        isHovered = isHoveredState,
-        isFocused = isFocusedState
+        interactionSource = actualInteractionSource
     )
 }
 
@@ -171,26 +166,15 @@ private fun TableInputDate(
     dateFormat: DateFormat = DateFormat.YYYY_MM_DD,
     enabled: Boolean = true,
     isError: Boolean = false,
-    actualInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    isHovered: Boolean = false,
-    isFocused: Boolean = false,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    isHovered: Boolean? = null,
+    isFocused: Boolean? = null,
 ) {
 
-    // Mantém o estado interno do texto
-    var textFieldValueState: TextFieldValue by remember(value) {
-        val digits = value.filter { it.isDigit() }
-        mutableStateOf(TextFieldValue(text = digits, selection = TextRange(digits.length)))
-    }
+    val state = rememberDateInputState(value)
 
-    // Sincroniza quando o valor externo muda
     LaunchedEffect(value) {
-
-        val currentDigits = textFieldValueState.text.filter { it.isDigit() }
-        val externalDigits = value.filter { it.isDigit() }
-
-        if (currentDigits != externalDigits) {
-            textFieldValueState = TextFieldValue(text = externalDigits, selection = TextRange(externalDigits.length))
-        }
+        state.syncWithExternalValue(value)
     }
 
     val colors = MaterialTheme.colorScheme
@@ -200,31 +184,13 @@ private fun TableInputDate(
         else -> colors.onSurfaceVariant
     }
 
-    fun onValueChange(newValue: TextFieldValue) {
-
-        // Filtra apenas dígitos
-        val filteredText = newValue.text.filter { it.isDigit() }
-
-        // Limita a 8 dígitos (DDMMYYYY ou YYYYMMDD)
-        val limitedText = if (filteredText.length > 8) {
-            filteredText.substring(0..7)
-        } else {
-            filteredText
-        }
-
-        // Sempre posiciona o cursor no final do texto (à direita)
-        textFieldValueState = TextFieldValue(
-            text = limitedText,
-            selection = TextRange(limitedText.length)
-        )
-
-        // Atualiza o valor externo apenas com dígitos
-        onValueChange(limitedText)
+    val visualTransformation = remember(dateFormat) {
+        DateVisualTransformation(dateFormat)
     }
 
     TableInputLookAndFeel(
         modifier = modifier,
-        actualInteractionSource = actualInteractionSource,
+        interactionSource = interactionSource,
         enabled = enabled,
         isHovered = isHovered,
         isFocused = isFocused,
@@ -232,14 +198,14 @@ private fun TableInputDate(
     ) {
 
         BasicTextField(
-            value = textFieldValueState,
+            value = state.textFieldValue,
             enabled = enabled,
-            onValueChange = { newValue -> onValueChange(newValue) },
+            onValueChange = { newValue -> state.onValueChange(newValue, onValueChange) },
             modifier = Modifier.padding(horizontal = 8.dp).width(85.dp),
-            interactionSource = actualInteractionSource,
+            interactionSource = interactionSource,
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyMedium.copy(color = textColor),
-            visualTransformation = DateVisualTransformation(dateFormat)
+            visualTransformation = visualTransformation
         )
     }
 }
