@@ -1,4 +1,4 @@
-package com.eferraz.presentation.features.assets
+package com.eferraz.presentation.features.history
 
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
@@ -33,15 +33,6 @@ internal fun Asset.displayName(): String {
         is FixedIncomeAsset -> displayName()
         is InvestmentFundAsset -> name
         is VariableIncomeAsset -> name
-        else -> ""
-    }
-}
-
-internal fun Asset.displayLiquidity(): String {
-    return when (this) {
-        is FixedIncomeAsset -> liquidity.formated()
-        is InvestmentFundAsset -> liquidity.formated(liquidityDays)
-        is VariableIncomeAsset -> liquidity.formated(liquidityDays)
         else -> ""
     }
 }

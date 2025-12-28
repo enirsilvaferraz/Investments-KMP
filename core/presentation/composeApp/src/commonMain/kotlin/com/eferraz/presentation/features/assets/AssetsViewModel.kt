@@ -2,7 +2,10 @@ package com.eferraz.presentation.features.assets
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eferraz.entities.Asset
+import com.eferraz.entities.Brokerage
 import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.Issuer
 import com.eferraz.usecases.GetAssetsUseCase
 import com.eferraz.usecases.GetBrokeragesUseCase
 import com.eferraz.usecases.GetIssuersUseCase
@@ -62,4 +65,16 @@ internal class AssetsViewModel(
 
     private suspend fun reloadMap() =
         assetHoldingRepository.getAll().associate { it.asset.id to it.brokerage }
+
+    internal sealed interface AssetsIntent {
+        data class UpdateAsset(val asset: Asset) : AssetsIntent
+        data class UpdateBrokerage(val assetId: Long, val brokerage: Brokerage?) : AssetsIntent
+    }
+
+    internal data class AssetsState(
+        val list: List<Asset> = emptyList(),
+        val issuers: List<Issuer> = emptyList(),
+        val brokerages: List<Brokerage> = emptyList(),
+        val assetBrokerages: Map<Long, Brokerage?> = emptyMap(),
+    )
 }

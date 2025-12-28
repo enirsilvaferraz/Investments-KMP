@@ -6,9 +6,6 @@ import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.presentation.features.assets.displayCategory
-import com.eferraz.presentation.features.assets.displayName
-import com.eferraz.presentation.features.assets.displaySubCategory
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage

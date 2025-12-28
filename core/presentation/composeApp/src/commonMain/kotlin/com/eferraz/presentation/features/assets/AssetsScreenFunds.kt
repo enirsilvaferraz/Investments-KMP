@@ -12,8 +12,10 @@ import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.inputDateColumn
 import com.eferraz.presentation.design_system.components.table.inputSelectColumn
 import com.eferraz.presentation.design_system.components.table.inputTextColumn
-import com.eferraz.presentation.features.assets.AssetsIntent.UpdateAsset
-import com.eferraz.presentation.features.assets.AssetsIntent.UpdateBrokerage
+import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsIntent
+import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsIntent.UpdateAsset
+import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsIntent.UpdateBrokerage
+import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsState
 import com.eferraz.presentation.helpers.Formatters.formated
 
 @Composable
