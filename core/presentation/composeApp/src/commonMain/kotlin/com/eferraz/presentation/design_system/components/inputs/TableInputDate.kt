@@ -38,7 +38,7 @@ internal enum class DateFormat {
 /**
  * VisualTransformation para formatar datas conforme o padrão especificado
  */
-internal class DateVisualTransformation(
+private class DateVisualTransformation(
     private val format: DateFormat,
 ) : VisualTransformation {
 
@@ -114,6 +114,26 @@ internal class DateVisualTransformation(
             }
         }
     }
+}
+
+@Composable
+internal fun TableInputDate(
+    value: String,
+    onChange: (String) -> Unit,
+) {
+
+    val (value, setValue) = remember(value) { mutableStateOf(value) }
+    val (isError, setError) = remember { mutableStateOf(false) }
+
+    TableInputDate(
+        value = value,
+        isError = isError,
+        onValueChange = {
+            setValue(it)
+            setError(false)
+            runCatching { onChange(it) }.getOrElse { setError(true) }
+        }
+    )
 }
 
 @Composable

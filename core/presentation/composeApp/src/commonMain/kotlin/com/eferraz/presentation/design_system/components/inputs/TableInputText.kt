@@ -26,6 +26,26 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 internal fun TableInputText(
     value: String,
+    onChange: (String) -> Unit,
+) {
+
+    val (value, setValue) = remember(value) { mutableStateOf(value) }
+    val (isError, setError) = remember { mutableStateOf(false) }
+
+    TableInputText(
+        value = value,
+        isError = isError,
+        onValueChange = {
+            setValue(it)
+            setError(false)
+            runCatching { onChange(it) }.getOrElse { setError(true) }
+        }
+    )
+}
+
+@Composable
+internal fun TableInputText(
+    value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -71,13 +91,13 @@ private fun TableInputText(
             // Preserva a posição do cursor se possível, caso contrário coloca no final
             val currentSelection = textFieldValueState.selection
             val newLength = value.length
-            
+
             val newSelection = if (currentSelection.start <= newLength && currentSelection.end <= newLength) {
                 currentSelection
             } else {
                 TextRange(newLength)
             }
-            
+
             textFieldValueState = TextFieldValue(text = value, selection = newSelection)
         }
     }
@@ -92,7 +112,7 @@ private fun TableInputText(
     fun onValueChange(newValue: TextFieldValue) {
         // Atualiza o estado interno mantendo a seleção do cursor
         textFieldValueState = newValue
-        
+
         // Atualiza o valor externo
         onValueChange(newValue.text)
     }

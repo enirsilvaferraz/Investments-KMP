@@ -2,7 +2,6 @@ package com.eferraz.presentation.features.assets
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -21,8 +20,6 @@ import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +29,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.eferraz.entities.FixedIncomeAsset
+import com.eferraz.entities.FixedIncomeSubType
 import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.Liquidity
 import com.eferraz.presentation.FixedIncomeAssetRouting
@@ -203,19 +201,27 @@ private fun AssetsScreen(
 
             InvestmentCategory.FIXED_INCOME -> listOf(
 //                TableColumn(title = "Categoria", data = { category }),
-                TableColumn(title = "Subcategoria", data = { subCategory }),
+                TableColumn(title = "Subcategoria", data = { subCategory }, cellContent = { asset ->
+                    TableInputSelect((asset.asset as FixedIncomeAsset).subType, FixedIncomeSubType.entries, format = { it.name }) { value ->
+                        onIntent(AssetsViewModel.UpdateSubType(asset.asset, value))
+                    }
+                }),
                 TableColumn(title = "Descrição", data = { name }, weight = 2f),
                 TableColumn(title = "Vencimento", data = { maturity }, formated = { maturity.formated() }, cellContent = { asset ->
-                    DateComponent(asset.maturity.formated()) { value -> onIntent(AssetsViewModel.UpdateMaturity(asset.asset, MaturityDate(value))) }
+                    TableInputDate(asset.maturity.formated()) { value ->
+                        onIntent(AssetsViewModel.UpdateMaturity(asset.asset, MaturityDate(value)))
+                    }
                 }),
                 TableColumn(title = "Emissor", data = { issuer }),
                 TableColumn(title = "Liquidez", data = { liquidity }, cellContent = { asset ->
-                    SelectComponent(value = (asset.asset as FixedIncomeAsset).liquidity, options = Liquidity.entries, format = { it.formated() }) {
+                    TableInputSelect(value = (asset.asset as FixedIncomeAsset).liquidity, options = Liquidity.entries, format = { it.formated() }) {
                         onIntent(AssetsViewModel.UpdateLiquidity(asset.asset, it))
                     }
                 }),
                 TableColumn(title = "Observação", data = { notes }, weight = 2f, cellContent = { asset ->
-                    TextComponent(asset.notes) { value -> onIntent(AssetsViewModel.UpdateDescription(asset.asset, value)) }
+                    TableInputText(asset.notes) { value ->
+                        onIntent(AssetsViewModel.UpdateDescription(asset.asset, value))
+                    }
                 })
             )
 
@@ -246,73 +252,3 @@ private fun AssetsScreen(
         contentPadding = PaddingValues(bottom = 70.dp)
     )
 }
-
-@Composable
-private fun RowScope.DateComponent(
-    value: String,
-    onChange: (String) -> Unit,
-) {
-
-    val (value, setValue) = remember(value) { mutableStateOf(value) }
-    val (isError, setError) = remember { mutableStateOf(false) }
-
-    TableInputDate(
-        value = value,
-        isError = isError,
-        onValueChange = {
-            setValue(it)
-            setError(false)
-            runCatching { onChange(it) }.getOrElse { setError(true) }
-        }
-    )
-}
-
-
-@Composable
-private fun RowScope.TextComponent(
-    value: String,
-    onChange: (String) -> Unit,
-) {
-
-    val (value, setValue) = remember(value) { mutableStateOf(value) }
-    val (isError, setError) = remember { mutableStateOf(false) }
-
-    TableInputText(
-        value = value,
-        isError = isError,
-        onValueChange = {
-            setValue(it)
-            setError(false)
-            runCatching { onChange(it) }.getOrElse { setError(true) }
-        }
-    )
-}
-
-@Composable
-private fun <T> RowScope.SelectComponent(
-    value: T,
-    options: List<T>,
-    format: (T) -> String,
-    onChange: (T) -> Unit,
-) {
-
-    val (value, setValue) = remember(value) { mutableStateOf(value) }
-    val (isError, setError) = remember { mutableStateOf(false) }
-
-    TableInputSelect(
-        value = value,
-        isError = isError,
-        onValueChange = {
-            setValue(it)
-            setError(false)
-            runCatching { onChange(it) }.getOrElse { setError(true) }
-        },
-        options = options,
-        format = format
-    )
-}
-
-//private fun String.toDate() =
-//    LocalDate.Format{
-//        year();  monthNumber(); day()
-//    }.parse(this)

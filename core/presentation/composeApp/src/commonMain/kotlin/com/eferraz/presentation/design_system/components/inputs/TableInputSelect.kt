@@ -27,6 +27,30 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
+internal fun <T> TableInputSelect(
+    value: T,
+    options: List<T>,
+    format: (T) -> String,
+    onChange: (T) -> Unit,
+) {
+
+    val (value, setValue) = remember(value) { mutableStateOf(value) }
+    val (isError, setError) = remember { mutableStateOf(false) }
+
+    TableInputSelect(
+        value = value,
+        isError = isError,
+        onValueChange = {
+            setValue(it)
+            setError(false)
+            runCatching { onChange(it) }.getOrElse { setError(true) }
+        },
+        options = options,
+        format = format
+    )
+}
+
+@Composable
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun <T> TableInputSelect(
     value: T?,
@@ -75,12 +99,12 @@ private fun <T> TableInputSelect(
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-    
+
     val displayValue = value?.let { format(it) } ?: (placeholder ?: "")
-    
+
     // Mostra a seta apenas quando as bordas estão visíveis (hover, focus ou error)
     val showBorder = (isHovered || isFocused || isError) && enabled
-    
+
     val colors = MaterialTheme.colorScheme
     val textColor = when {
         isError -> colors.error
@@ -132,11 +156,11 @@ private fun <T> TableInputSelect(
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = { 
+                    text = {
                         Text(
                             text = format(option),
                             style = MaterialTheme.typography.bodyMedium
-                        ) 
+                        )
                     },
                     onClick = {
                         onValueChange(option)

@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
+import com.eferraz.entities.FixedIncomeSubType
 import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.Liquidity
-import com.eferraz.presentation.features.assets.SaveAssetUseCase2.*
+import com.eferraz.presentation.features.assets.SaveAssetUseCase2.Params
 import com.eferraz.usecases.AppUseCase
 import com.eferraz.usecases.GetAssetsUseCase
 import com.eferraz.usecases.repositories.AssetRepository
@@ -35,6 +36,7 @@ internal class AssetsViewModel(
             is UpdateMaturity -> saveUseCase(Params((intent.asset as FixedIncomeAsset).copy(expirationDate = intent.value.get())))
             is UpdateDescription -> saveUseCase(Params((intent.asset as FixedIncomeAsset).copy(observations = intent.value)))
             is UpdateLiquidity -> saveUseCase(Params((intent.asset as FixedIncomeAsset).copy(liquidity = intent.value)))
+            is UpdateSubType -> saveUseCase(Params((intent.asset as FixedIncomeAsset).copy(subType = intent.value)))
         }
     }
 
@@ -52,6 +54,7 @@ internal class AssetsViewModel(
     internal data class UpdateMaturity(val asset: Asset, val value: MaturityDate) : AssetsIntent
     internal data class UpdateDescription(val asset: Asset, val value: String) : AssetsIntent
     internal data class UpdateLiquidity(val asset: Asset, val value: Liquidity) : AssetsIntent
+    internal data class UpdateSubType(val asset: Asset, val value: FixedIncomeSubType) : AssetsIntent
 }
 
 @Factory
