@@ -14,6 +14,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
@@ -29,9 +30,15 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.eferraz.entities.FixedIncomeAsset
+import com.eferraz.entities.FixedIncomeAssetType
 import com.eferraz.entities.FixedIncomeSubType
 import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.InvestmentFundAsset
+import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.Liquidity
+import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.VariableIncomeAssetType
+import com.eferraz.entities.value.MaturityDate
 import com.eferraz.presentation.FixedIncomeAssetRouting
 import com.eferraz.presentation.FundsAssetRouting
 import com.eferraz.presentation.VariableIncomeAssetRouting
@@ -44,12 +51,14 @@ import com.eferraz.presentation.design_system.components.inputs.TableInputSelect
 import com.eferraz.presentation.design_system.components.inputs.TableInputText
 import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.TableColumn
+import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assetForm.AssetFormIntent
 import com.eferraz.presentation.features.assetForm.AssetFormScreen
 import com.eferraz.presentation.features.assetForm.AssetFormViewModel
 import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -200,55 +209,154 @@ private fun AssetsScreen(
         columns = when (category) {
 
             InvestmentCategory.FIXED_INCOME -> listOf(
-//                TableColumn(title = "Categoria", data = { category }),
-                TableColumn(title = "Subcategoria", data = { subCategory }, cellContent = { asset ->
-                    TableInputSelect((asset.asset as FixedIncomeAsset).subType, FixedIncomeSubType.entries, format = { it.name }) { value ->
-                        onIntent(AssetsViewModel.UpdateSubType(asset.asset, value))
+                TableColumn(title = "Subcategoria", data = { subCategory }, cellContent = { view ->
+                    val asset = view.asset as FixedIncomeAsset
+                    TableInputSelect(asset.subType, FixedIncomeSubType.entries, format = { it.formated() }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(subType = value)))
                     }
                 }),
-                TableColumn(title = "Descrição", data = { name }, weight = 2f),
-                TableColumn(title = "Vencimento", data = { maturity }, formated = { maturity.formated() }, cellContent = { asset ->
-                    TableInputDate(asset.maturity.formated()) { value ->
-                        onIntent(AssetsViewModel.UpdateMaturity(asset.asset, MaturityDate(value)))
+                TableColumn(title = "Tipo", data = { "" }, cellContent = { view ->
+                    val asset = view.asset as FixedIncomeAsset
+                    TableInputSelect(asset.type, FixedIncomeAssetType.entries, format = { it.formated() }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(type = value)))
                     }
                 }),
-                TableColumn(title = "Emissor", data = { issuer }),
-                TableColumn(title = "Liquidez", data = { liquidity }, cellContent = { asset ->
-                    TableInputSelect(value = (asset.asset as FixedIncomeAsset).liquidity, options = Liquidity.entries, format = { it.formated() }) {
-                        onIntent(AssetsViewModel.UpdateLiquidity(asset.asset, it))
+                TableColumn(title = "Vencimento", data = { maturity }, formated = { maturity.formated() }, cellContent = { view ->
+                    val asset = view.asset as FixedIncomeAsset
+                    TableInputDate(asset.expirationDate.formated()) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(expirationDate = MaturityDate(value).get())))
                     }
                 }),
-                TableColumn(title = "Observação", data = { notes }, weight = 2f, cellContent = { asset ->
-                    TableInputText(asset.notes) { value ->
-                        onIntent(AssetsViewModel.UpdateDescription(asset.asset, value))
+                TableColumn(title = "Taxa", data = { "" }, cellContent = { view ->
+                    val asset = view.asset as FixedIncomeAsset
+                    TableInputText(asset.contractedYield.toString()) { value ->
+                        value.toDoubleOrNull()?.let { onIntent(AssetsViewModel.UpdateAsset(asset.copy(contractedYield = it))) }
+                    }
+                }),
+                TableColumn(title = "% CDI", data = { "" }, cellContent = { view ->
+                    val asset = view.asset as FixedIncomeAsset
+                    TableInputText(asset.cdiRelativeYield?.toString() ?: "") { value ->
+                        val d = value.toDoubleOrNull()
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(cdiRelativeYield = d)))
+                    }
+                }),
+                TableColumn(title = "Emissor", data = { issuer }, cellContent = { view ->
+                    val asset = view.asset as FixedIncomeAsset
+                    TableInputSelect(asset.issuer, state.issuers, format = { it.name }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(issuer = value)))
+                    }
+                }),
+                TableColumn(title = "Liquidez", data = { liquidity }, cellContent = { view ->
+                    val asset = view.asset as FixedIncomeAsset
+                    TableInputSelect(asset.liquidity, Liquidity.entries, format = { it.formated() }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(liquidity = value)))
+                    }
+                }),
+                TableColumn(title = "Observação", data = { notes }, weight = 2f, cellContent = { view ->
+                    val asset = view.asset as FixedIncomeAsset
+                    TableInputText(asset.observations.orEmpty()) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(observations = value)))
                     }
                 })
             )
 
             InvestmentCategory.VARIABLE_INCOME -> listOf(
-//                TableColumn(title = "Categoria", data = { category }),
-                TableColumn(title = "Subcategoria", data = { subCategory }),
-                TableColumn(title = "Ticker", data = { name }),
-                TableColumn(title = "Emissor", data = { "" }, weight = 2f),
-                TableColumn(title = "CNPJ", data = { "" }),
-//                TableColumn(title = "Vencimento", data = { maturity }, formated = { maturity.formated() }),
-//                TableColumn(title = "Emissor", data = { issuer }),
-//                TableColumn(title = "Liquidez", data = { liquidity }),
-                TableColumn(title = "Observação", data = { notes }, weight = 2f)
+                TableColumn(title = "Tipo", data = { "" }, cellContent = { view ->
+                    val asset = view.asset as VariableIncomeAsset
+                    TableInputSelect(asset.type, VariableIncomeAssetType.entries, format = { it.formated() }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(type = value)))
+                    }
+                }),
+                TableColumn(title = "Ticker", data = { name }, cellContent = { view ->
+                    val asset = view.asset as VariableIncomeAsset
+                    TableInputText(asset.ticker) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(ticker = value)))
+                    }
+                }),
+                TableColumn(title = "Nome", data = { "" }, cellContent = { view ->
+                    val asset = view.asset as VariableIncomeAsset
+                    TableInputText(asset.name) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(name = value)))
+                    }
+                }),
+                TableColumn(title = "Emissor", data = { issuer }, cellContent = { view ->
+                    val asset = view.asset as VariableIncomeAsset
+                    TableInputSelect(asset.issuer, state.issuers, format = { it.name }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(issuer = value)))
+                    }
+                }),
+                TableColumn(title = "Observação", data = { notes }, weight = 2f, cellContent = { view ->
+                    val asset = view.asset as VariableIncomeAsset
+                    TableInputText(asset.observations.orEmpty()) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(observations = value)))
+                    }
+                })
             )
 
             InvestmentCategory.INVESTMENT_FUND -> listOf(
-//                TableColumn(title = "Categoria", data = { category }),
-                TableColumn(title = "Subcategoria", data = { subCategory }),
-                TableColumn(title = "Descrição", data = { name }, weight = 2f),
-//                TableColumn(title = "Vencimento", data = { maturity }, formated = { maturity.formated() }),
-                TableColumn(title = "Emissor", data = { issuer }),
-//                TableColumn(title = "Liquidez", data = { liquidity }),
-                TableColumn(title = "Observação", data = { notes }, weight = 2f)
+                TableColumn(title = "Tipo", data = { "" }, cellContent = { view ->
+                    val asset = view.asset as InvestmentFundAsset
+                    TableInputSelect(asset.type, InvestmentFundAssetType.entries, format = { it.formated() }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(type = value)))
+                    }
+                }),
+                TableColumn(title = "Nome", data = { name }, weight = 2f, cellContent = { view ->
+                    val asset = view.asset as InvestmentFundAsset
+                    TableInputText(asset.name) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(name = value)))
+                    }
+                }),
+                TableColumn(title = "Liquidez", data = { liquidity }, cellContent = { view ->
+                    val asset = view.asset as InvestmentFundAsset
+                    TableInputSelect(asset.liquidity, Liquidity.entries, format = { it.formated() }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(liquidity = value)))
+                    }
+                }),
+                TableColumn(title = "Dias Liq.", data = { "" }, cellContent = { view ->
+                    val asset = view.asset as InvestmentFundAsset
+                    TableInputText(asset.liquidityDays.toString()) { value ->
+                        value.toIntOrNull()?.let { onIntent(AssetsViewModel.UpdateAsset(asset.copy(liquidityDays = it))) }
+                    }
+                }),
+                TableColumn(title = "Vencimento", data = { maturity }, formated = { maturity.formated() }, cellContent = { view ->
+                    val asset = view.asset as InvestmentFundAsset
+                    TableInputDate(asset.expirationDate?.formated() ?: "") { value ->
+                        val date = if (value.isBlank()) null else MaturityDate(value).get()
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(expirationDate = date)))
+                    }
+                }),
+                TableColumn(title = "Emissor", data = { issuer }, cellContent = { view ->
+                    val asset = view.asset as InvestmentFundAsset
+                    TableInputSelect(asset.issuer, state.issuers, format = { it.name }) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(issuer = value)))
+                    }
+                }),
+                TableColumn(title = "Observação", data = { notes }, weight = 2f, cellContent = { view ->
+                    val asset = view.asset as InvestmentFundAsset
+                    TableInputText(asset.observations.orEmpty()) { value ->
+                        onIntent(AssetsViewModel.UpdateAsset(asset.copy(observations = value)))
+                    }
+                })
             )
         },
         data = state.list.map { AssetView.create(it) },
         onRowClick = { view -> onRowClick(view.id) },
         contentPadding = PaddingValues(bottom = 70.dp)
     )
+}
+
+@Preview( widthDp = 800, heightDp = 200)
+@Composable
+private fun AssetsScreen() {
+
+    AppTheme {
+        Surface {
+            AssetsScreen(
+                state = AssetsViewModel.AssetsState(emptyList(), emptyList()),
+                category = InvestmentCategory.FIXED_INCOME,
+                onRowClick = {},
+                onIntent = {}
+            )
+        }
+    }
 }
