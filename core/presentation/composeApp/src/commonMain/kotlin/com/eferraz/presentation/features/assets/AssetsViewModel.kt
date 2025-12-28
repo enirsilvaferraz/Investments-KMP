@@ -2,14 +2,12 @@ package com.eferraz.presentation.features.assets
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.Asset
 import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.Issuer
 import com.eferraz.usecases.GetAssetsUseCase
 import com.eferraz.usecases.GetIssuersUseCase
 import com.eferraz.usecases.SaveAssetUseCase2
 import com.eferraz.usecases.SaveAssetUseCase2.Params
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,30 +23,17 @@ internal class AssetsViewModel(
     internal val state: StateFlow<AssetsState>
         field = MutableStateFlow(AssetsState(emptyList(), emptyList()))
 
-    internal fun onIntent(intent: AssetsIntent): Job = viewModelScope.launch {
+    internal fun onIntent(intent: AssetsIntent) = viewModelScope.launch {
         when (intent) {
-            is UpdateAsset -> saveUseCase(Params(intent.asset))
+            is AssetsIntent.UpdateAsset -> saveUseCase(Params(intent.asset))
         }
     }
 
-    internal fun loadAssets(category: InvestmentCategory) {
-        viewModelScope.launch {
-            // Load assets
-            getUseCase(GetAssetsUseCase.ByCategory(category))
-                .onSuccess { assets ->
-                    // Load issuers
-                    val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrElse { emptyList() }
-                    state.value = AssetsState(assets, issuers)
-                }
-                .onFailure { println("Error: $it") }
-        }
+    internal fun loadAssets(category: InvestmentCategory) = viewModelScope.launch {
+
+        val issuers = async { getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList() }
+        val assets = async { getUseCase(GetAssetsUseCase.ByCategory(category)).getOrNull() ?: emptyList() }
+
+        state.value = AssetsState(assets.await(), issuers.await())
     }
-
-    internal data class AssetsState(
-        val list: List<Asset>,
-        val issuers: List<Issuer>,
-    )
-
-    internal sealed interface AssetsIntent
-    internal data class UpdateAsset(val asset: Asset) : AssetsIntent
 }

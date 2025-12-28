@@ -16,7 +16,7 @@ internal interface IssuerDao {
     @Insert
     suspend fun insertAll(issuers: List<IssuerEntity>): List<Long>
 
-    @Query("SELECT * FROM issuers")
+    @Query("SELECT * FROM issuers ORDER BY name")
     suspend fun getAll(): List<IssuerEntity>
 
     @Query("SELECT * FROM issuers WHERE id = :id")
