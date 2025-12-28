@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.eferraz.presentation.design_system.utils.thenIf
 
 /**
  * Cabeçalho da tabela
@@ -47,13 +48,7 @@ internal fun <T> TableHeader(
                 modifier = Modifier
                     .weight(column.weight)
                     .heightIn(min = 52.dp)
-                    .then(
-                        if (column.isSortable) {
-                            Modifier.clickable { onSort(index, if (isSorted) !sortState.ascending else true) }
-                        } else {
-                            Modifier
-                        }
-                    ),
+                    .thenIf(column.isSortable, { Modifier.clickable { onSort(index, if (isSorted) !sortState.ascending else true) } }),
                 contentAlignment = alignment(column)
             ) {
 
