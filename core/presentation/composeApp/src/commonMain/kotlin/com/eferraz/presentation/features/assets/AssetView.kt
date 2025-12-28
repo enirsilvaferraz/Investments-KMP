@@ -10,6 +10,7 @@ import com.eferraz.presentation.helpers.Formatters.formated
 import kotlinx.datetime.LocalDate
 
 internal class AssetView(
+    val asset: Asset,
     val id: Long,
     val category: String,
     val subCategory: String,
@@ -24,6 +25,7 @@ internal class AssetView(
 
         @Composable
         fun create(asset: Asset) = AssetView(
+            asset = asset,
             id = asset.id,
             category = asset.formated(),
             subCategory = when (asset) {

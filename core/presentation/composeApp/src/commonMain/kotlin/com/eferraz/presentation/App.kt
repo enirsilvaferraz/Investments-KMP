@@ -42,33 +42,27 @@ private fun AppNavigationHost() {
     val backStack = rememberNavBackStack(config, AssetsRouting)
 
     NavigationSuiteScaffold(
-        navigationItems = menus(backStack),
+        navigationItems = navRailMenus(backStack),
         navigationItemVerticalArrangement = Arrangement.Center,
         content = appNavDisplay(backStack),
 //        primaryActionContent = primaryActionContent,
     )
 }
 
-private fun menus(backStack: NavBackStack<NavKey>): @Composable () -> Unit = {
+private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Unit = {
 
     NavigationSuiteItem(
         icon = { Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "Ativos") },
         label = { Text("Ativos") },
         selected = backStack.lastOrNull() == AssetsRouting,
-        onClick = {
-            backStack.clear()
-            backStack.add(AssetsRouting)
-        }
+        onClick = { backStack[0] = AssetsRouting }
     )
 
     NavigationSuiteItem(
         icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Histórico") },
         label = { Text("Histórico") },
         selected = backStack.lastOrNull() == HistoryRouting,
-        onClick = {
-            backStack.clear()
-            backStack.add(HistoryRouting)
-        }
+        onClick = { backStack[0] = HistoryRouting }
     )
 }
 
