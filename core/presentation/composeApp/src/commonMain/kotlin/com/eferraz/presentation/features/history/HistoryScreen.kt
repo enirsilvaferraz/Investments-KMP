@@ -224,9 +224,7 @@ private fun HistoryScreen(
                 getValue = { it.viewData.previousValue },
                 format = { it.formatted.previousValue },
                 alignment = Alignment.End,
-                footerOperation = { data ->
-                    data.sumOf { it.viewData.previousValue }.currencyFormat()
-                }
+                footerOperation = { data -> data.sumOf { it.viewData.previousValue }.currencyFormat() }
             ),
 
             inputMoneyColumn(
@@ -234,10 +232,8 @@ private fun HistoryScreen(
                 getValue = { it.viewData.currentValue },
                 onValueChange = { item, value -> onUpdateValue(item.currentHistory, value ?: 0.0) },
                 getEnabled = { it.viewData.editable },
-                alignment = Alignment.CenterHorizontally,
-                footerOperation = { data ->
-                    data.sumOf { it.viewData.currentValue }.currencyFormat()
-                }
+                alignment = Alignment.End,
+                footerOperation = { data -> data.sumOf { it.viewData.currentValue }.currencyFormat() }
             ),
 
 //            textColumn(
