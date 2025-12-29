@@ -42,6 +42,25 @@ atingir o objetivo.
 | `monthlyHistory`          | List\<GoalMonthlySnapshot\>   | Histórico mensal consolidado                           |
 | `projections`             | List\<GoalMonthlyProjection\> | Projeções para meses futuros                           |
 
+### Estruturas de Dados
+
+```kotlin
+data class GoalMonthlySnapshot(
+    val referenceDate: YearMonth,
+    val totalValue: Double,
+    val totalInvested: Double,
+    val contribution: Double,
+    val monthlyReturnRate: Double
+)
+
+data class GoalMonthlyProjection(
+    val referenceDate: YearMonth,
+    val projectedValue: Double,
+    val projectedContribution: Double,
+    val projectedReturn: Double
+)
+```
+
 ---
 
 ## 3. Fluxo Principal
@@ -76,12 +95,13 @@ flowchart TD
 
 ### 4.1. Validação da Meta
 
-**Regra:** A meta deve existir no sistema.
+**Regra:** A meta deve existir no sistema e ter `targetValue` > 0.
 
 **Comportamento:**
 
 - Se meta não existe: retorna erro
-- Se meta existe: prossegue com o cálculo
+- Se `targetValue` ≤ 0: retorna erro
+- Se meta existe e `targetValue` > 0: prossegue com o cálculo
 
 ### 4.2. Validação de Owner
 
@@ -114,30 +134,36 @@ ver [RN - Associar Posição a Meta Financeira](RN%20-%20Associar%20Posição%20
 - `totalInvested` = Σ `totalInvested` de todos os holdings
 - `contribution` = `totalInvested[mês atual]` - `totalInvested[mês anterior]`
 
+**Comportamento:**
+
+- Se um holding não possui histórico para um mês específico, considera-se valor zero para aquele holding naquele mês
+- A consolidação soma todos os holdings disponíveis, mesmo que alguns não tenham dados históricos para o período
+
 ### 4.5. Cálculo de Rentabilidade Mensal
 
 **Regra:** A rentabilidade de um mês é calculada isolando o rendimento do aporte.
 
-**Fórmula:**
-
-```
-valorComRendimento = valorAtual - aporteDomês
-rentabilidade = (valorComRendimento - valorAnterior) / valorAnterior
-```
+**Fórmula:** Ver seção [5.2. Rentabilidade Mensal](#52-rentabilidade-mensal)
 
 **Casos especiais:**
 
-- Se `valorAnterior` = 0: rentabilidade = 0
+- Se `previousValue` = 0: rentabilidade = 0
 - Primeiro mês do histórico: rentabilidade = 0
 
 ### 4.6. Cálculo de Médias
 
-**Regra:** As médias são calculadas sobre todos os meses com histórico.
+**Regra:** As médias são calculadas sobre meses válidos com histórico.
 
 **Fórmulas:**
 
 - `avgMonthlyContribution` = média aritmética de todos os aportes mensais
-- `avgMonthlyReturnRate` = média aritmética de todas as rentabilidades mensais
+- `avgMonthlyReturnRate` = média aritmética de todas as rentabilidades mensais válidas
+
+**Comportamento:**
+
+- Meses com `previousValue = 0` são excluídos do cálculo de média de rentabilidade
+- Apenas meses com rentabilidade válida (denominador > 0) são considerados
+- Se não houver meses válidos para rentabilidade, `avgMonthlyReturnRate = 0`
 
 ### 4.7. Projeção de Valores Futuros
 
@@ -146,8 +172,14 @@ rentabilidade = (valorComRendimento - valorAnterior) / valorAnterior
 **Fórmula de projeção:**
 
 ```
+V(0) = currentValue
 V(n+1) = V(n) × (1 + rentabilidadeMédia) + aporteMédio
 ```
+
+**Onde:**
+
+- `V(0)` = `currentValue` (valor consolidado do último mês com histórico)
+- Projeções iniciam a partir do mês seguinte ao último histórico
 
 **Limites:**
 
@@ -166,12 +198,37 @@ V(n+1) = V(n) × (1 + rentabilidadeMédia) + aporteMédio
 
 ### 4.9. Período de Análise
 
-**Regra:** O histórico considera desde a `startDate` da meta até o mês atual.
+**Regra:** O histórico considera desde a `startDate` da meta até o último mês completo com histórico disponível.
 
 **Comportamento:**
 
 - Meses anteriores a `startDate`: ignorados
+- "Mês atual" refere-se ao último mês completo com histórico disponível
+- `currentValue` é o valor consolidado do último mês com histórico completo
+- Meses futuros (parciais) não são considerados no histórico
 - Meses sem histórico para algum holding: considera valor zero para aquele holding
+- Holdings adicionados à meta posteriormente: histórico consolidado considera apenas meses onde pelo menos um holding tem dados
+- Médias são calculadas apenas sobre meses com dados válidos de todos os holdings considerados
+
+### 4.10. Tratamento de Resgates
+
+**Regra:** Tratamento de aportes negativos (resgates).
+
+**Comportamento:**
+
+- Se `contribution < 0` (resgate), o cálculo de rentabilidade permanece válido
+- A média de aportes mensais pode ser negativa se houver mais resgates que aportes
+- Projeções consideram aporte médio negativo (meta pode não ser alcançável)
+
+### 4.11. Precisão e Arredondamento
+
+**Regra:** Precisão e arredondamento de valores calculados.
+
+**Comportamento:**
+
+- Valores monetários: 2 casas decimais
+- Percentuais: 2 casas decimais
+- Rentabilidades: 4 casas decimais (0,0000)
 
 ---
 
@@ -227,9 +284,17 @@ O mês em que `projectedValue(n) >= targetValue` é a `estimatedCompletionDate`.
 | 2   | 26.700,00     | 213,60     | 1.500  | 28.413,60   |
 | 3   | 28.413,60     | 227,31     | 1.500  | 30.140,91   |
 | ... | ...           | ...        | ...    | ...         |
-| ~36 | ~98.xxx       | ~xxx       | 1.500  | ≥ 100.000   |
+| 35  | 98.234,56     | 785,88     | 1.500  | 100.520,44  |
 
-**Resultado:** Meta alcançada em aproximadamente 36 meses.
+**Cálculo do mês 35:**
+- Valor Inicial: R$ 98.234,56 (do mês 34)
+- Rendimento: 98.234,56 × 0,008 = R$ 785,88
+- Aporte: R$ 1.500,00
+- Valor Final: 98.234,56 + 785,88 + 1.500,00 = R$ 100.520,44
+
+**Resultado:** Meta alcançada no mês 35, quando o valor projetado (R$ 100.520,44) ultrapassa o objetivo (R$ 100.000,00).
+
+**Nota:** Se a meta for atingida no meio de um mês, considera-se o mês completo em que o valor projetado ultrapassa o objetivo.
 
 ---
 
