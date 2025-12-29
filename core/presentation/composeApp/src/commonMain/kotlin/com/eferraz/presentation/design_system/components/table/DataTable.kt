@@ -14,9 +14,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.eferraz.presentation.design_system.utils.thenIf
 
 /**
  * Componente de tabela de dados nativo seguindo especificações do Material Design 3
+ *
+ * A tabela suporta:
+ * - Ordenação por colunas (quando configurado)
+ * - Footers com operações customizadas (soma, média, contagem, etc.)
+ * - Células editáveis e não editáveis
+ * - Tema customizável
+ *
+ * **Footers:**
+ * Para adicionar um footer a uma coluna, use as funções helper:
+ * - `column.withFooter { data -> "valor" }` - Footer customizado
+ * - `column.withSumFooter { it.value }` - Soma de valores numéricos
+ * - `column.withAverageFooter { it.value }` - Média de valores numéricos
+ * - `column.withCountFooter()` - Contagem de itens
+ * - `column.withTextFooter("Total")` - Texto fixo
+ *
+ * Exemplo:
+ * ```
+ * textColumn(
+ *     title = "Valor",
+ *     getValue = { it.value },
+ *     format = { it.value.toString() }
+ * ).withSumFooter(
+ *     extractor = { it.value },
+ *     formatter = { it.currencyFormat() }
+ * )
+ * ```
  *
  * @param T Tipo do objeto de dados
  * @param modifier Modifier para customização
@@ -44,13 +71,15 @@ internal fun <T> DataTable(
         }
     }
 
-    Column (
-        modifier = modifier,//.weight(1f),
-    ){
+    // Footer (se houver operações de footer)
+    val hasFooterOperation = columns.any { it.footerOperation != null }
+
+    Column(modifier = modifier) {
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(0.dp),
-            contentPadding = contentPadding
+            contentPadding = contentPadding,
+            modifier = Modifier.thenIf(hasFooterOperation, { Modifier.weight(1f) })
         ) {
 
             // Cabeçalho da tabela
@@ -77,9 +106,6 @@ internal fun <T> DataTable(
                 )
             }
         }
-
-        // Footer (se houver operações de footer)
-        val hasFooterOperation = columns.any { it.footerOperation != null }
 
         if (hasFooterOperation) {
 
