@@ -4,12 +4,13 @@ Este documento descreve a modelagem do domínio para as entidades de ativos de i
 
 ## Arquitetura do Domínio
 
-A modelagem é dividida em quatro camadas conceituais para garantir clareza, flexibilidade e escalabilidade:
+A modelagem é dividida em cinco camadas conceituais para garantir clareza, flexibilidade e escalabilidade:
 
 1.  **`Asset` (O Ativo):** Representa as características **intrínsecas** de um ativo negociável (ex: a ação PETR4, um CDB específico). Descreve "o quê" é o ativo.
-2.  **`AssetHolding` (A Posição):** Representa a **posse** de um `Asset` por um `Owner` em uma `Brokerage`. Armazena apenas os relacionamentos; os valores calculados (quantity, averageCost, investedValue) são obtidos dinamicamente a partir das transações.
+2.  **`AssetHolding` (A Posição):** Representa a **posse** de um `Asset` por um `Owner` em uma `Brokerage`. Armazena apenas os relacionamentos; os valores calculados (quantity, averageCost, investedValue) são obtidos dinamicamente a partir das transações. Pode estar opcionalmente associada a uma `FinancialGoal`.
 3.  **`AssetTransaction` (As Transações):** Representa cada operação individual (compra/venda, aporte/resgate) relacionada a uma `AssetHolding`. É a fonte de verdade para cálculo de posições e histórico completo de movimentações.
 4.  **`HoldingHistoryEntry` (O Histórico):** Representa um **snapshot mensal** do desempenho de uma `AssetHolding`, permitindo a análise da evolução da posição ao longo do tempo.
+5.  **`FinancialGoal` (A Meta):** Representa uma **meta financeira** a ser alcançada pelo investidor. Define um valor objetivo e agrega posições (`AssetHolding`) que contribuem para atingir essa meta.
 
 ---
 
@@ -51,6 +52,7 @@ erDiagram
     }
     ASSET_HOLDING {
         Long id PK
+        Long goalId FK "opcional"
     }
     ASSET_TRANSACTION {
         Long id PK
@@ -91,6 +93,13 @@ erDiagram
         String name
         Boolean isInLiquidation
     }
+    FINANCIAL_GOAL {
+        Long id PK
+        String name
+        Double targetValue
+        LocalDate startDate
+        String description
+    }
 
     ASSET ||--o{ FIXED_INCOME_ASSET : "é um (herança)"
     ASSET ||--o{ VARIABLE_INCOME_ASSET : "é um (herança)"
@@ -99,11 +108,13 @@ erDiagram
     ASSET_HOLDING }o--|| ASSET : "é uma posição de"
     ASSET_HOLDING }o--|| OWNER : "pertence a"
     ASSET_HOLDING }o--|| BROKERAGE : "está custodiado em"
+    ASSET_HOLDING }o--o| FINANCIAL_GOAL : "contribui para (opcional)"
     ASSET_HOLDING ||--o{ ASSET_TRANSACTION : "possui"
     ASSET_TRANSACTION ||--o| FIXED_INCOME_TRANSACTION : "é um (herança)"
     ASSET_TRANSACTION ||--o| VARIABLE_INCOME_TRANSACTION : "é um (herança)"
     ASSET_TRANSACTION ||--o| FUNDS_TRANSACTION : "é um (herança)"
     HOLDING_HISTORY_ENTRY }o--|| ASSET_HOLDING : "é um snapshot de"
+    FINANCIAL_GOAL }o--|| OWNER : "pertence a"
 ```
 
 ---
@@ -222,7 +233,7 @@ data class InvestmentFundAsset(
 
 ## Camada 2: AssetHolding (A Posição)
 
-Esta entidade central conecta um `Asset` a um `Owner` e a uma `Brokerage`. Armazena apenas os relacionamentos fundamentais; os valores calculados (quantity, averageCost, investedValue) são obtidos dinamicamente a partir das transações (`AssetTransaction`) quando necessário.
+Esta entidade central conecta um `Asset` a um `Owner` e a uma `Brokerage`. Armazena apenas os relacionamentos fundamentais; os valores calculados (quantity, averageCost, investedValue) são obtidos dinamicamente a partir das transações (`AssetTransaction`) quando necessário. Opcionalmente, pode estar associada a uma `FinancialGoal` para rastreamento de progresso em metas financeiras.
 
 ```kotlin
 /**
@@ -232,16 +243,21 @@ Esta entidade central conecta um `Asset` a um `Owner` e a uma `Brokerage`. Armaz
  * @property asset A referência para o ativo intrínseco (o "quê").
  * @property owner O proprietário desta posição (o "quem").
  * @property brokerage A corretora onde esta posição está custodiada (o "onde").
+ * @property goal A meta financeira à qual esta posição contribui (opcional).
  * 
  * Nota: Os valores de quantity, averageCost, investedValue e currentValue
  * são calculados dinamicamente a partir das transações (AssetTransaction)
  * quando necessário, não sendo armazenados nesta entidade.
+ * 
+ * Regra: Se a posição estiver associada a uma meta (goal), o Owner da posição
+ * deve ser o mesmo Owner da meta.
  */
 data class AssetHolding(
     val id: Long,
     val asset: Asset,
     val owner: Owner,
-    val brokerage: Brokerage
+    val brokerage: Brokerage,
+    val goal: FinancialGoal? = null
 )
 ```
 
@@ -495,6 +511,77 @@ Os valores de `quantity`, `averageCost` e `investedValue` de uma `AssetHolding` 
     *   `quantity`: Sempre `1.0` (representa a posse do título/fundo)
     *   `averageCost`: Soma dos valores totais de todos os aportes (PURCHASE)
     *   `investedValue`: Igual ao `averageCost`
+
+---
+
+## Camada 5: FinancialGoal (A Meta)
+
+Esta entidade representa um objetivo financeiro a ser alcançado pelo investidor. Uma meta agrega um conjunto de posições (`AssetHolding`) que contribuem para atingir o valor objetivo definido. O progresso da meta é calculado dinamicamente a partir do histórico das posições associadas.
+
+```kotlin
+import java.time.LocalDate
+
+/**
+ * Representa uma meta financeira a ser alcançada.
+ *
+ * @property id O identificador único da meta.
+ * @property owner O proprietário da meta (pessoa física ou jurídica).
+ * @property name O nome descritivo da meta (ex: "Aposentadoria", "Casa própria", "Reserva de emergência").
+ * @property targetValue O valor monetário objetivo a ser atingido.
+ * @property startDate A data de início da meta (quando começou a poupar para ela).
+ * @property description Descrição opcional com detalhes adicionais sobre a meta.
+ * 
+ * Nota: O valor atual da meta, a data de conclusão estimada, a média de aportes e
+ * a rentabilidade média são todos calculados dinamicamente a partir do histórico
+ * das posições (AssetHolding) associadas a esta meta.
+ */
+data class FinancialGoal(
+    val id: Long,
+    val owner: Owner,
+    val name: String,
+    val targetValue: Double,
+    val startDate: LocalDate,
+    val description: String? = null
+)
+```
+
+### Relacionamento com AssetHolding
+
+Uma `FinancialGoal` pode ter várias posições (`AssetHolding`) associadas a ela, mas cada posição só pode estar associada a uma meta (ou a nenhuma). O relacionamento é 1:N (um para muitos).
+
+```mermaid
+flowchart TD
+    Goal[FinancialGoal\nMeta: Aposentadoria\nTarget: R$ 1.000.000]
+    
+    Holding1[AssetHolding\nTesouro IPCA+ 2035\nR$ 50.000]
+    Holding2[AssetHolding\nCDB 120% CDI\nR$ 30.000]
+    Holding3[AssetHolding\nFundo Multimercado\nR$ 20.000]
+    Holding4[AssetHolding\nPoupança\nSem meta]
+    
+    Goal --> Holding1
+    Goal --> Holding2
+    Goal --> Holding3
+    Holding4 -.->|não associado| NoGoal[Sem meta]
+    
+    style Goal fill:#3b82f6
+    style Holding1 fill:#10b981
+    style Holding2 fill:#10b981
+    style Holding3 fill:#10b981
+    style Holding4 fill:#f59e0b
+    style NoGoal fill:#ef4444
+```
+
+### Valores Calculados Dinamicamente
+
+Os seguintes valores são derivados do histórico das posições associadas e **não são armazenados na entidade**. Eles são calculados sob demanda através de regras de negócio específicas (ver [RN - Calcular Progresso de Meta Financeira](RN%20-%20Calcular%20Progresso%20de%20Meta%20Financeira.md)):
+
+| Valor                     | Descrição                  | Fonte                                                   |
+|---------------------------|----------------------------|---------------------------------------------------------|
+| `currentValue`            | Valor atual consolidado    | Soma de `endOfMonthValue` do último mês de cada holding |
+| `progressPercentage`      | Percentual de progresso    | `(currentValue / targetValue) × 100`                    |
+| `avgMonthlyContribution`  | Média de aportes mensais   | Média de aportes calculada do histórico                 |
+| `avgMonthlyReturnRate`    | Rentabilidade média mensal | Média da rentabilidade de cada mês                      |
+| `estimatedCompletionDate` | Data estimada de conclusão | Projeção com base nas médias                            |
 
 ---
 
