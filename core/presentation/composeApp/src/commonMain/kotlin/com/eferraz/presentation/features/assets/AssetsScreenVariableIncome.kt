@@ -27,6 +27,15 @@ internal fun AssetsScreenVariableIncome(
         columns = listOf(
 
             inputSelectColumn(
+                title = "Corretora",
+                sortableValue = { state.assetBrokerages[it.id]?.name.orEmpty() },
+                getValue = { state.assetBrokerages[it.id] },
+                format = { it?.name.orEmpty() },
+                options = listOf(null) + state.brokerages,
+                onValueChange = { asset, value -> onIntent(UpdateBrokerage(asset.id, value)) }
+            ),
+
+            inputSelectColumn(
                 title = "Tipo",
                 sortableValue = { it.type },
                 getValue = { it.type },
@@ -64,15 +73,6 @@ internal fun AssetsScreenVariableIncome(
                 getValue = { it.observations.orEmpty() },
                 onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(observations = value))) },
                 weight = 2f
-            ),
-
-            inputSelectColumn(
-                title = "Corretora",
-                sortableValue = { state.assetBrokerages[it.id]?.name.orEmpty() },
-                getValue = { state.assetBrokerages[it.id] },
-                format = { it?.name.orEmpty() },
-                options = listOf(null) + state.brokerages,
-                onValueChange = { asset, value -> onIntent(UpdateBrokerage(asset.id, value)) }
             )
         ),
         contentPadding = PaddingValues(bottom = 70.dp)

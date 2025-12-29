@@ -35,10 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.presentation.design_system.components.AppScaffold
-import com.eferraz.presentation.design_system.components.InputTextMoney
-import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.components.table.DataTable
-import com.eferraz.presentation.design_system.components.table.TableColumn
+import com.eferraz.presentation.design_system.components.table.inputMoneyColumn
+import com.eferraz.presentation.design_system.components.table.textColumn
 import com.eferraz.presentation.features.transactions.TransactionPanel
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
@@ -175,82 +174,84 @@ private fun HistoryScreen(
         modifier = modifier,
         columns = listOf(
 
-            TableColumn(
+            textColumn(
                 title = "Corretora",
-                data = { viewData.brokerage }
+                getValue = { it.viewData.brokerage },
+                format = { it.viewData.brokerage }
             ),
 
-//            TableColumn(
+//            textColumn(
 //                title = "Categoria",
-//                data = { viewData.category }
+//                getValue = { it.viewData.category },
+//                format = { it.viewData.category }
 //            ),
 
-//            TableColumn(
+//            textColumn(
 //                title = "SubCategoria",
-//                data = { viewData.subCategory }
+//                getValue = { it.viewData.subCategory },
+//                format = { it.viewData.subCategory }
 //            ),
 
-            TableColumn(
+            textColumn(
                 title = "Descrição",
-                data = { viewData.description },
+                getValue = { it.viewData.description },
+                format = { it.viewData.description },
                 weight = 2f
             ),
 
-            TableColumn(
+            textColumn(
                 title = "Vencimento",
-                data = { viewData.maturity },
-                formated = { formatted.maturity },
+                getValue = { it.viewData.maturity },
+                format = { it.formatted.maturity },
                 alignment = Alignment.CenterHorizontally
             ),
 
-            TableColumn(
+            textColumn(
                 title = "Emissor",
-                data = { viewData.issuer }
+                getValue = { it.viewData.issuer },
+                format = { it.viewData.issuer }
             ),
 
-            TableColumn(
+            textColumn(
                 title = "Observações",
-                data = { viewData.observations },
+                getValue = { it.viewData.observations },
+                format = { it.viewData.observations },
                 weight = 2f
             ),
 
-            TableColumn(
+            textColumn(
                 title = "Valor Anterior",
-                data = { viewData.previousValue },
-                formated = { formatted.previousValue },
+                getValue = { it.viewData.previousValue },
+                format = { it.formatted.previousValue },
                 alignment = Alignment.End,
-                footerOperation = { it: List<HoldingHistoryRow> ->
-                    it.sumOf { it.viewData.previousValue }.currencyFormat()
+                footerOperation = { data ->
+                    data.sumOf { it.viewData.previousValue }.currencyFormat()
                 }
             ),
 
-            TableColumn(
+            inputMoneyColumn(
                 title = "Valor Atual",
-                data = { viewData.currentValue },
+                getValue = { it.viewData.currentValue },
+                onValueChange = { item, value -> onUpdateValue(item.currentHistory, value ?: 0.0) },
+                getEnabled = { it.viewData.editable },
                 alignment = Alignment.CenterHorizontally,
-                cellContent = { item ->
-                    TableInputMoney(
-                        value = item.viewData.currentValue,
-                        onValueChange = { onUpdateValue(item.currentHistory, it ?: 0.0) },
-                        modifier = Modifier,
-                        enabled = item.viewData.editable
-                    )
-                },
-                footerOperation = { it: List<HoldingHistoryRow> ->
-                    it.sumOf { it.viewData.currentValue }.currencyFormat()
+                footerOperation = { data ->
+                    data.sumOf { it.viewData.currentValue }.currencyFormat()
                 }
             ),
 
-//            TableColumn(
+//            textColumn(
 //                title = "Valorização",
-//                data = { viewData.appreciation },
-//                alignment = Alignment.CenterHorizontally,
+//                getValue = { it.viewData.appreciation },
+//                format = { it.viewData.appreciation },
+//                alignment = Alignment.CenterHorizontally
 //            ),
 //
-//            TableColumn(
+//            textColumn(
 //                title = "Situação",
-//                data = { viewData.situation },
-//                alignment = Alignment.CenterHorizontally,
+//                getValue = { it.viewData.situation },
+//                format = { it.viewData.situation },
+//                alignment = Alignment.CenterHorizontally
 //            )
         ),
         data = entries.map { result -> HoldingHistoryRow.create(result.holding, result.currentEntry, result.previousEntry) },
