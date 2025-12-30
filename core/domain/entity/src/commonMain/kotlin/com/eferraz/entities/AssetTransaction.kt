@@ -32,4 +32,9 @@ public sealed interface AssetTransaction {
      * Notas e observações adicionais sobre a transação (opcional).
      */
     public val observations: String?
+
+    /**
+     * O valor total da transação.
+     */
+    public val totalValue: Double
 }

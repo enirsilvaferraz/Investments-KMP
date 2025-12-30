@@ -11,6 +11,6 @@ public data class FundsTransaction(
     override val holding: AssetHolding,
     override val date: LocalDate,
     override val type: TransactionType,
-    public val totalValue: Double, // O valor total da transação.
+    override val totalValue: Double,
     override val observations: String? = null
 ) : AssetTransaction

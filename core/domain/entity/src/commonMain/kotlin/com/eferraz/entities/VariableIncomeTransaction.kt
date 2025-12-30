@@ -19,6 +19,6 @@ public data class VariableIncomeTransaction(
     /**
      * O valor total da transação, calculado como quantity * unitPrice.
      */
-    public val totalValue: Double
+    public override val totalValue: Double
         get() = quantity * unitPrice
 }
