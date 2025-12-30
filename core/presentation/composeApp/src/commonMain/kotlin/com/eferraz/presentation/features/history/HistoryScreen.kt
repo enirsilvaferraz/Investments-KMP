@@ -236,12 +236,12 @@ private fun HistoryScreen(
                 footerOperation = { data -> data.sumOf { it.viewData.currentValue }.currencyFormat() }
             ),
 
-//            textColumn(
-//                title = "Valorização",
-//                getValue = { it.viewData.appreciation },
-//                format = { it.viewData.appreciation },
-//                alignment = Alignment.CenterHorizontally
-//            ),
+            textColumn(
+                title = "Valorização",
+                getValue = { it.viewData.appreciation },
+                format = { it.viewData.appreciation },
+                alignment = Alignment.CenterHorizontally
+            ),
 //
 //            textColumn(
 //                title = "Situação",
@@ -250,7 +250,14 @@ private fun HistoryScreen(
 //                alignment = Alignment.CenterHorizontally
 //            )
         ),
-        data = entries.map { result -> HoldingHistoryRow.create(result.holding, result.currentEntry, result.previousEntry) },
+        data = entries.map { result ->
+            HoldingHistoryRow.create(
+                result.holding,
+                result.currentEntry,
+                result.previousEntry,
+                result.profitOrLoss
+            )
+        },
         onRowClick = onRowClick
     )
 }

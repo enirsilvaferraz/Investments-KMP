@@ -1,17 +1,20 @@
 package com.eferraz.usecases
 
 import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.Liquidity
+import com.eferraz.entities.rules.PositionProfitOrLoss
 import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.repositories.AssetHoldingRepository
+import com.eferraz.usecases.repositories.AssetTransactionRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.minus
 import kotlinx.datetime.minusMonth
+import kotlinx.datetime.plus
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -19,6 +22,7 @@ public class MergeHistoryUseCase(
     private val holdingHistoryRepository: HoldingHistoryRepository,
     private val assetHoldingRepository: AssetHoldingRepository,
     private val createHistoryUseCase: CreateHistoryUseCase,
+    private val assetTransactionRepository: AssetTransactionRepository,
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<MergeHistoryUseCase.Param, List<HoldingHistoryResult>>(context) {
 
@@ -37,9 +41,24 @@ public class MergeHistoryUseCase(
         val current = mapByReferenceDate(param.referenceDate, holdings)
 
         return holdings.map { holding -> // TODO melhorar a performance
+
             val currentEntry = current[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate, holding)).getOrThrow()
-            val previousEntry = previos[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate.minusMonth(), holding)).getOrThrow()
-            HoldingHistoryResult(holding, currentEntry, previousEntry)
+            val previousEntry =
+                previos[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate.minusMonth(), holding)).getOrThrow()
+
+            val startDate = LocalDate(param.referenceDate.year, param.referenceDate.month, 1)
+            val endDate = startDate.plus(DatePeriod(months = 1)).minus(DatePeriod(days = 1))
+            val transactions = assetTransactionRepository.getAllByHoldingAndDateRange(holding, startDate, endDate)
+
+            val profitOrLoss = PositionProfitOrLoss.calculate(
+                holding = holding,
+                referenceDate = param.referenceDate,
+                currentHistory = currentEntry,
+                previousHistory = previousEntry,
+                transactions = transactions
+            )
+
+            HoldingHistoryResult(holding, currentEntry, previousEntry, profitOrLoss)
         }
     }
 

@@ -2,10 +2,11 @@ package com.eferraz.presentation.features.history
 
 import androidx.compose.runtime.Composable
 import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.FixedIncomeAsset
+import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.rules.PositionProfitOrLoss
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
@@ -46,6 +47,7 @@ internal class HoldingHistoryRow(
             holding: AssetHolding,
             currentEntry: HoldingHistoryEntry,
             previousEntry: HoldingHistoryEntry,
+            profitOrLoss: PositionProfitOrLoss,
         ): HoldingHistoryRow {
 
             val asset = holding.asset
@@ -71,7 +73,7 @@ internal class HoldingHistoryRow(
                 issuer = asset.issuer.name,
                 previousValue = previousValue,
                 currentValue = currentValue,
-                appreciation = formatAppreciation(currentValue, previousValue),
+                appreciation = profitOrLoss.roiPercentage.toPercentage(),
                 appreciationValue = appreciationValue,
 //                situation = formatSituation(
 //                    previousQuantity = previousQuantity,
@@ -92,16 +94,6 @@ internal class HoldingHistoryRow(
                 viewData = viewData,
                 currentHistory = currentEntry,
             )
-        }
-
-        internal fun formatAppreciation(
-            currentValue: Double?,
-            previousValue: Double?,
-        ): String {
-            if (previousValue == null || previousValue <= 0.0) return ""
-            if (currentValue == null || currentValue == 0.0) return ""
-            val appreciation = ((currentValue / previousValue) - 1.0) * 100.0
-            return appreciation.toPercentage()
         }
 
         internal fun calculateAppreciationValue(
