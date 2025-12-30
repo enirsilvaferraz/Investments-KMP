@@ -239,7 +239,7 @@ private fun HistoryScreen(
             textColumn(
                 title = "Valorização",
                 getValue = { it.viewData.appreciation },
-                format = { it.viewData.appreciation },
+                format = { it.formatted.appreciation },
                 alignment = Alignment.CenterHorizontally
             ),
 //

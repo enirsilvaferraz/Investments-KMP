@@ -22,6 +22,7 @@ internal class HoldingHistoryRow(
         val maturity: String,
         val previousValue: String,
         val currentValue: String,
+        val appreciation: String,
     )
 
     data class ViewData(
@@ -34,7 +35,7 @@ internal class HoldingHistoryRow(
         val issuer: String,
         val previousValue: Double,
         val currentValue: Double,
-        val appreciation: String,
+        val appreciation: Double,
         val appreciationValue: Double?, // Valor numérico para cálculo de cores
         val situation: String,
         val editable: Boolean,
@@ -73,7 +74,7 @@ internal class HoldingHistoryRow(
                 issuer = asset.issuer.name,
                 previousValue = previousValue,
                 currentValue = currentValue,
-                appreciation = profitOrLoss.roiPercentage.toPercentage(),
+                appreciation = profitOrLoss.roiPercentage,
                 appreciationValue = appreciationValue,
 //                situation = formatSituation(
 //                    previousQuantity = previousQuantity,
@@ -87,6 +88,7 @@ internal class HoldingHistoryRow(
                 maturity = maturity.formated(),
                 previousValue = previousValue.currencyFormat(),
                 currentValue = currentValue.currencyFormat(),
+                appreciation = profitOrLoss.roiPercentage.toPercentage(),
             )
 
             return HoldingHistoryRow(
