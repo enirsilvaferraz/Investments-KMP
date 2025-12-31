@@ -26,6 +26,10 @@ kotlin {
     }
 }
 
+kotlin.android {
+    namespace = "com.eferraz.network"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+}
 
 // Lê o local.properties
 val localProperties = Properties()

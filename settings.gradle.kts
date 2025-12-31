@@ -43,8 +43,14 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-include(":app")
+include(":umbrellaApp")
+project(":umbrellaApp").projectDir = File(settingsDir, "core/apps/umbrellaApp")
 
+include(":androidApp")
+project(":androidApp").projectDir = File(settingsDir, "core/apps/androidApp")
+
+include(":desktopApp")
+project(":desktopApp").projectDir = File(settingsDir, "core/apps/desktopApp")
 
 include(":composeApp")
 project(":composeApp").projectDir = File(settingsDir, "core/presentation/composeApp")

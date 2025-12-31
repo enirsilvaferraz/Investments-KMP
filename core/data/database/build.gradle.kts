@@ -15,7 +15,11 @@ kotlin {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
-
         implementation(projects.entity)
     }
+}
+
+kotlin.android {
+    namespace = "com.eferraz.database"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 }

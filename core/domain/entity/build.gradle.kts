@@ -26,3 +26,8 @@ kotlin {
         }
     }
 }
+
+kotlin.android {
+    namespace = "com.eferraz.entities"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+}

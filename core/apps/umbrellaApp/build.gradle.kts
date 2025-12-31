@@ -7,11 +7,11 @@ plugins {
     alias(libs.plugins.foundation.library.koin)
 }
 
-application {
-    namespace = "com.eferraz.investments"
-    versionCode = 1
-    versionName = "1.0.0"
-}
+//application {
+//    namespace = "com.eferraz.investments"
+//    versionCode = 1
+//    versionName = "1.0.0"
+//}
 
 kotlin {
 
@@ -29,8 +29,15 @@ kotlin {
         implementation(projects.network)
         implementation(projects.database)
     }
+
 }
 
-dependencies {
-    debugImplementation(compose.uiTooling)
+
+//dependencies {
+//    debugImplementation(compose.uiTooling)
+//}
+
+kotlin.android {
+    namespace = "com.eferraz.investments"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 }

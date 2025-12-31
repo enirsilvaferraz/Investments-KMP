@@ -23,8 +23,6 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
-
-
         }
 
         androidUnitTest.dependencies {
@@ -33,4 +31,9 @@ kotlin {
             implementation("io.mockk:mockk-agent:${mockkVersion}")
         }
     }
+}
+
+kotlin.android {
+    namespace = "com.eferraz.usecases"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 }

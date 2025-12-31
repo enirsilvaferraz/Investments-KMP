@@ -6,6 +6,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-internal fun App() {
+public fun App() {
     InternalApp(config = AppDI())
 }

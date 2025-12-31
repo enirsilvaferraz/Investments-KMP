@@ -20,3 +20,8 @@ kotlin {
         implementation(projects.network)
     }
 }
+
+kotlin.android {
+    namespace = "com.eferraz.repositories"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+}
