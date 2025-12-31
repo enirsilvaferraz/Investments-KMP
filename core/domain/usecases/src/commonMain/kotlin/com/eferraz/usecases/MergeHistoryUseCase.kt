@@ -42,9 +42,8 @@ public class MergeHistoryUseCase(
 
         return holdings.map { holding -> // TODO melhorar a performance
 
-            val currentEntry = current[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate, holding)).getOrThrow()
-            val previousEntry =
-                previos[holding] ?: createHistoryUseCase(CreateHistoryUseCase.Param(param.referenceDate.minusMonth(), holding)).getOrThrow()
+            val currentEntry = current[holding] ?: create(param.referenceDate, holding)
+            val previousEntry = previos[holding] ?: create(param.referenceDate.minusMonth(), holding)
 
             val startDate = LocalDate(param.referenceDate.year, param.referenceDate.month, 1)
             val endDate = startDate.plus(DatePeriod(months = 1)).minus(DatePeriod(days = 1))
@@ -62,10 +61,10 @@ public class MergeHistoryUseCase(
         }
     }
 
-    private suspend fun mapByReferenceDate(
-        referenceDate: YearMonth,
-        holdings: List<AssetHolding>,
-    ): Map<AssetHolding, HoldingHistoryEntry?> {
+    private suspend fun create(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry =
+        createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+
+    private suspend fun mapByReferenceDate(referenceDate: YearMonth, holdings: List<AssetHolding>): Map<AssetHolding, HoldingHistoryEntry?> {
 
         val histories: Map<AssetHolding, HoldingHistoryEntry> = holdingHistoryRepository.getByReferenceDate(referenceDate).associateBy(
             keySelector = { historyEntry -> historyEntry.holding },

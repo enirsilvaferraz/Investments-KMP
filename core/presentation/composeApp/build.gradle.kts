@@ -14,11 +14,9 @@ library {
 
 kotlin {
 
-    sourceSets.all {
-//        languageSettings.enabledLanguageFeatures("ExplicitBackingFields")
-        languageSettings {
-            enableLanguageFeature("ExplicitBackingFields")
-        }
+    compilerOptions {
+        freeCompilerArgs.add("-Xreturn-value-checker=check")
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -45,5 +43,5 @@ kotlin {
 }
 
 dependencies {
-    debugImplementation(compose.uiTooling)
+//    debugImplementation(compose.uiTooling)
 }
