@@ -13,16 +13,9 @@ library {
 kotlin {
 
     sourceSets {
-
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(libs.kotlinx.coroutines.test)
-        }
-
         androidUnitTest.dependencies {
-            val mockkVersion = "1.14.7"
-            implementation("io.mockk:mockk-android:${mockkVersion}")
-            implementation("io.mockk:mockk-agent:${mockkVersion}")
+            implementation(libs.mockk.android)
+            implementation(libs.mockk.agent)
         }
     }
 }

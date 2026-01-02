@@ -1,20 +1,19 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.foundation.project.library)
+    alias(libs.plugins.foundation.library.compose)
 }
 
-android {
-    namespace = "com.eferraz.investments"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+kotlin {
+
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    dependencies {
+        implementation(projects.umbrellaApp)
     }
 }
 
-dependencies {
-    implementation(project(":umbrellaApp"))
-    implementation(libs.androidx.activity.compose)
-    debugImplementation(libs.androidx.ui.tooling)
+kotlin.android {
+    namespace = "com.eferraz.umbrella"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 }

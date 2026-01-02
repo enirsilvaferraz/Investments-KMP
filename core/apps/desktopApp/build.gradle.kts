@@ -2,7 +2,6 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.compose.compiler)
-//    alias(libs.plugins.composeHotReload)
     kotlin("jvm")
     alias(libs.plugins.compose.multiplatform)
 }
@@ -10,7 +9,6 @@ plugins {
 dependencies {
     implementation(project(":umbrellaApp"))
     implementation(compose.desktop.currentOs)
-//    implementation(libs.kotlinx.coroutinesSwing)
 }
 
 compose.desktop {

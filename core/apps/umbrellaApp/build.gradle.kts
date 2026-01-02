@@ -1,17 +1,10 @@
-import com.eferraz.buildlogic.scopes.application
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.foundation.project.application)
+    alias(libs.plugins.foundation.project.library)
     alias(libs.plugins.foundation.library.compose)
     alias(libs.plugins.foundation.library.koin)
 }
-
-//application {
-//    namespace = "com.eferraz.investments"
-//    versionCode = 1
-//    versionName = "1.0.0"
-//}
 
 kotlin {
 
@@ -21,7 +14,6 @@ kotlin {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
-
         implementation(projects.composeApp)
         implementation(projects.entity)
         implementation(projects.usecases)
@@ -29,13 +21,7 @@ kotlin {
         implementation(projects.network)
         implementation(projects.database)
     }
-
 }
-
-
-//dependencies {
-//    debugImplementation(compose.uiTooling)
-//}
 
 kotlin.android {
     namespace = "com.eferraz.investments"

@@ -1,5 +1,6 @@
 package com.eferraz.presentation.design_system.components.inputs
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,8 @@ internal enum class DateFormat {
 /**
  * VisualTransformation para formatar datas conforme o padrão especificado
  */
-private class DateVisualTransformation(
+@VisibleForTesting
+internal class DateVisualTransformation(
     private val format: DateFormat,
 ) : VisualTransformation {
 
