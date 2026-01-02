@@ -87,32 +87,28 @@ flowchart LR
 
 **Aplicável a:** Ações, ETFs e outros ativos de Renda Variável
 
-**Comportamento:** Busca cotação do mês e atualiza valor de fechamento, mantendo demais dados.
+**Comportamento:** Primeiro tenta copiar do mês anterior. Se não houver histórico anterior, busca cotação na API BR API.
 
 ```mermaid
 flowchart TD
-    Start([Início]) --> Quote[Busca cotação<br/>do mês]
-    Quote --> Extract[Extrai valor:<br/>fechamento ou ajustado]
-    Extract --> Check{Existe histórico<br/>para o mês?}
-    
-    Check -->|Sim| Update[Atualiza apenas<br/>valor de fechamento]
-    Check -->|Não| Previous[Busca histórico<br/>mês anterior]
-    
-    Previous --> HasPrev{Existe anterior?}
-    HasPrev -->|Sim| Create[Cria novo histórico:<br/>copia quantidade anterior<br/>atualiza valor fechamento]
-    HasPrev -->|Não| Fail[Retorna vazio]
-    
-    Update --> Success([Sucesso])
-    Create --> Success
-    Fail --> Success
+    Start([Início]) --> CheckCurrent{Existe histórico<br/>no mês atual?}
+    CheckCurrent -->|Sim| ReturnCurrent[Retorna histórico<br/>do mês atual]
+    CheckCurrent -->|Não| CheckPrevious{Existe histórico<br/>no mês anterior?}
+    CheckPrevious -->|Sim| CopyPrevious[Copia todos os dados<br/>do mês anterior]
+    CheckPrevious -->|Não| GetQuote[Busca cotação<br/>na API BR API]
+    GetQuote --> Extract[Extrai valor:<br/>fechamento ou ajustado]
+    Extract --> CreateNew[Cria novo histórico<br/>com cotação]
+    ReturnCurrent --> Success([Sucesso])
+    CopyPrevious --> Success
+    CreateNew --> Success
     
     style Start fill:#3b82f6
     style Success fill:#10b981
-    style Check fill:#f59e0b
-    style HasPrev fill:#f59e0b
-    style Update fill:#60a5fa
-    style Create fill:#60a5fa
-    style Fail fill:#ef4444
+    style CheckCurrent fill:#f59e0b
+    style CheckPrevious fill:#f59e0b
+    style CopyPrevious fill:#60a5fa
+    style GetQuote fill:#60a5fa
+    style CreateNew fill:#60a5fa
 ```
 
 **Prioridade de cotação:**
@@ -120,8 +116,12 @@ flowchart TD
 2. Valor de fechamento ajustado (fallback)
 
 **Comportamento:**
-- Se histórico existe: atualiza apenas valor de fechamento
-- Se não existe: copia dados do mês anterior e atualiza valor de fechamento
+- Se histórico existe no mês atual: retorna o histórico existente (sem alterações)
+- Se não existe: tenta copiar todos os dados do mês anterior (sem buscar API)
+- Se não existe histórico anterior: busca cotação na API BR API e cria novo histórico
+- Se a API falhar: retorna null (use case cria registro vazio)
+
+**Justificativa:** Facilita o preenchimento automático ao abrir a tela. Quando não há histórico no mês atual, copia do mês anterior (como renda fixa/fundos). A busca na API só acontece quando não há histórico anterior disponível, reduzindo chamadas desnecessárias à API.
 
 ---
 
@@ -162,8 +162,7 @@ flowchart TD
 **Cenários:**
 - Tipo de ativo não suportado
 - Falta histórico anterior (Renda Fixa/Fundos)
-- Falta cotação (Renda Variável)
-- Falta histórico anterior e cotação (Renda Variável)
+- Falta histórico anterior e falha na busca de cotação (Renda Variável)
 
 **Comportamento:** Registro vazio é criado e persistido normalmente.
 
