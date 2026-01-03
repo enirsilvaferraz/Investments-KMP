@@ -1,4 +1,4 @@
-import com.eferraz.buildlogic.ext.configureTokenConfigGeneration
+import com.eferraz.buildlogic.ext.generateConstants
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
@@ -20,7 +20,7 @@ kotlin.android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 }
 
-configureTokenConfigGeneration(
+generateConstants(
     fileName = "TokenConfig",
     packageName = "com.eferraz.network",
     properties = listOf("BRAPI_TOKEN")
