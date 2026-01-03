@@ -78,15 +78,6 @@ internal fun AssetsScreenVariableIncome(
                 getValue = { it.name },
             ),
 
-            inputSelectColumn(
-                title = "Emissor",
-                sortableValue = { it.issuer.name },
-                getValue = { it.issuer },
-                format = { it.name },
-                options = state.issuers,
-                onValueChange = { asset, value -> onIntent(UpdateAsset(asset.copy(issuer = value))) }
-            ),
-
             inputTextColumn(
                 title = "Observação",
                 sortableValue = { it.observations },

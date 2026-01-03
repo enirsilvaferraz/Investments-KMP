@@ -417,11 +417,6 @@ private fun HistoryScreenVariableIncome(
                 weight = 2f
             ),
             textColumn(
-                title = "Emissor",
-                getValue = { it.viewData.issuer },
-                format = { it.viewData.issuer }
-            ),
-            textColumn(
                 title = "Observação",
                 getValue = { it.viewData.observations },
                 format = { it.viewData.observations },
