@@ -8,10 +8,6 @@ plugins {
     alias(libs.plugins.foundation.library.ktor)
 }
 
-library {
-    namespace = "com.eferraz.network"
-}
-
 kotlin {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -20,7 +16,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             kotlin.srcDir(layout.buildDirectory.dir("generated/kotlin"))
         }
     }

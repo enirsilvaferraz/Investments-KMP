@@ -2,12 +2,12 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.compose.compiler)
-    kotlin("jvm")
     alias(libs.plugins.compose.multiplatform)
+    kotlin("jvm")
 }
 
 dependencies {
-    implementation(project(":umbrellaApp"))
+    implementation(projects.umbrellaApp)
     implementation(compose.desktop.currentOs)
 }
 

@@ -1,4 +1,3 @@
-import com.eferraz.buildlogic.scopes.library
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
@@ -6,25 +5,14 @@ plugins {
     alias(libs.plugins.foundation.library.koin)
 }
 
-library {
-    namespace = "com.eferraz.usecases"
-}
-
 kotlin {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
-
         api(projects.entity)
     }
 
     sourceSets {
-
-//        commonTest.dependencies {
-//            implementation(libs.kotlin.test)
-//            implementation(libs.kotlinx.coroutines.test)
-//        }
-
         androidUnitTest.dependencies {
             implementation(libs.mockk.android)
             implementation(libs.mockk.agent)
