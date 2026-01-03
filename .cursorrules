@@ -1,0 +1,51 @@
+# Regras do Projeto Investments-KMP
+
+## Build Automático
+Após fazer alterações no código e considerar que a tarefa foi concluída, SEMPRE execute automaticamente o comando de build no módulo que foi alterado, compilando APENAS o target JVM (exemplo: `./gradlew :entity:compileKotlinJvm`) para verificar se o build está funcionando corretamente. Me responda se realmente está buildando.
+
+Isso deve ser feito:
+- Após editar arquivos Kotlin (.kt, .kts)
+- Após editar arquivos de configuração Gradle (.gradle, .gradle.kts)
+- Após fazer alterações que possam afetar o build
+- Ao finalizar qualquer tarefa de desenvolvimento
+
+Isso não deve ser feito:
+- Ao editar documentações
+
+O comando deve ser executado no diretório raiz do projeto usando: `./gradlew :module:compileKotlinJvm`
+Onde "module" é o nome do subprojeto que teve seus arquivos alterados.
+
+**Como encontrar o nome correto do módulo:**
+- Execute `./gradlew projects` para listar todos os projetos disponíveis
+- Os nomes dos módulos são os identificadores após "Project ':" (ex: `:entity`, `:composeApp`, `:usecases`, etc.)
+- Exemplos de módulos comuns:
+  - `entity` (core/domain/entity)
+  - `usecases` (core/domain/usecases)
+  - `composeApp` (core/presentation/composeApp)
+  - `database` (core/data/database)
+  - `network` (core/data/network)
+  - `repositories` (core/data/repositories)
+
+**Importante:** 
+- Use `:module:compileKotlinJvm` para compilar APENAS o target JVM, não `:module:assemble` que compila todos os targets (JVM, iOS, etc.).
+- NÃO use `:module:jvmJar` - use sempre `:module:compileKotlinJvm` que é mais rápido e adequado para verificação de compilação.
+- O caminho do módulo no sistema de arquivos NÃO deve ser usado no comando Gradle. Use apenas o nome do projeto conforme listado em `./gradlew projects`.
+
+## Verificação de Documentação do Domínio
+SEMPRE que fizer alterações em arquivos dentro do módulo `core/domain/` (incluindo `core/domain/entity/` e `core/domain/usecases/`), você DEVE:
+
+1. **Verificar se a documentação em `docs/` precisa ser atualizada**, especialmente:
+   - `docs/Modelagem de Dominio.md` - quando entidades, propriedades, relacionamentos ou regras de negócio forem alterados
+   - Outros arquivos em `docs/` que possam estar relacionados às mudanças feitas
+
+2. **Analisar as alterações feitas** e determinar se:
+   - Novas entidades foram criadas
+   - Propriedades foram adicionadas, removidas ou modificadas
+   - Relacionamentos entre entidades foram alterados
+   - Novos casos de uso foram criados ou modificados
+   - Regras de negócio foram alteradas
+
+3. **Atualizar a documentação** se necessário, mantendo-a sincronizada com o código
+
+4. **Informar ao usuário** se a documentação foi atualizada ou se não foi necessário fazer alterações
+
