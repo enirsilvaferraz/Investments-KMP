@@ -3,6 +3,7 @@ package com.eferraz.presentation.features.history
 import com.eferraz.entities.Asset
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.FixedIncomeAssetType
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.presentation.helpers.Formatters.formated
@@ -34,5 +35,13 @@ internal fun Asset.displayName(): String {
         is InvestmentFundAsset -> name
         is VariableIncomeAsset -> name
         else -> ""
+    }
+}
+
+internal fun Asset.toInvestmentCategory(): InvestmentCategory {
+    return when (this) {
+        is FixedIncomeAsset -> InvestmentCategory.FIXED_INCOME
+        is VariableIncomeAsset -> InvestmentCategory.VARIABLE_INCOME
+        is InvestmentFundAsset -> InvestmentCategory.INVESTMENT_FUND
     }
 }
