@@ -52,7 +52,8 @@ internal class BrApiQuoteDataSourceImpl(
         low = regularMarketDayLow,
         close = regularMarketPrice,
         volume = regularMarketVolume,
-        adjustedClose = regularMarketPrice
+        adjustedClose = regularMarketPrice,
+        companyName = longName
     )
 
     private fun QuoteResult.toModel(yearMonth: YearMonth): StockQuoteHistory {
@@ -80,7 +81,8 @@ internal class BrApiQuoteDataSourceImpl(
             low = quoteData.low,
             close = quoteData.close,
             volume = quoteData.volume,
-            adjustedClose = quoteData.adjustedClose
+            adjustedClose = quoteData.adjustedClose,
+            companyName = longName
         )
     }
 

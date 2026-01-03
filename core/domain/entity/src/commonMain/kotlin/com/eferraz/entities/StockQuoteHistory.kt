@@ -16,6 +16,7 @@ import kotlinx.datetime.LocalDate
  * @property close O preço de fechamento do ativo no dia (opcional).
  * @property volume O volume negociado no dia (opcional).
  * @property adjustedClose O preço de fechamento ajustado (considerando splits, dividendos, etc.) (opcional).
+ * @property companyName O nome completo da empresa retornado pela BR API (opcional).
  */
 public data class StockQuoteHistory(
     public val id: Long = 0,
@@ -26,5 +27,6 @@ public data class StockQuoteHistory(
     public val low: Double? = null,
     public val close: Double? = null,
     public val volume: Long? = null,
-    public val adjustedClose: Double? = null
+    public val adjustedClose: Double? = null,
+    public val companyName: String? = null
 )

@@ -24,6 +24,9 @@ internal class AssetDataSourceImpl(
     override suspend fun getByID(id: Long): Asset? =
         assetDao.find(id)?.toDomain()
 
+    override suspend fun getByTicker(ticker: String): Asset? =
+        assetDao.findByTicker(ticker)?.toDomain()
+
     override suspend fun save(asset: Asset): Long =
         assetDao.save(asset.toEntity())
 }

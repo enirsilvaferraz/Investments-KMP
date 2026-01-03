@@ -8,5 +8,6 @@ public interface AssetDataSource {
     public suspend fun getByType(category: InvestmentCategory): List<Asset>
     public suspend fun getAllVariableIncomeAssets(): List<Asset>
     public suspend fun getByID(id: Long): Asset?
+    public suspend fun getByTicker(ticker: String): Asset?
     public suspend fun save(asset: Asset): Long
 }

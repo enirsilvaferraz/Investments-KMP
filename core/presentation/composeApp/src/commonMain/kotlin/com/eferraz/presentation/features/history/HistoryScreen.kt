@@ -41,6 +41,7 @@ import com.eferraz.presentation.design_system.components.table.textColumn
 import com.eferraz.presentation.features.transactions.TransactionPanel
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
+import com.eferraz.presentation.helpers.toPercentage
 import com.eferraz.usecases.entities.HoldingHistoryResult
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
@@ -240,7 +241,12 @@ private fun HistoryScreen(
                 title = "Valorização",
                 getValue = { it.viewData.appreciation },
                 format = { it.formatted.appreciation },
-                alignment = Alignment.CenterHorizontally
+                alignment = Alignment.CenterHorizontally,
+                footerOperation = { data ->
+                    val vf = data.sumOf { it.viewData.currentValue }
+                    val vi = data.sumOf { it.viewData.previousValue }
+                    ((vf - vi) / vi *100).toPercentage()
+                }
             ),
 //
 //            textColumn(

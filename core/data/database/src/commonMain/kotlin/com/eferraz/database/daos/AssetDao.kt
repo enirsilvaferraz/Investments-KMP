@@ -54,4 +54,14 @@ internal interface AssetDao {
     @Transaction
     @Query("SELECT * FROM assets WHERE category = :category")
     suspend fun getByType(category: InvestmentCategory): List<AssetWithDetails>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM assets 
+        WHERE category = 'VARIABLE_INCOME' 
+        AND id IN (
+            SELECT assetId FROM variable_income_assets WHERE ticker = :ticker
+        )
+    """)
+    suspend fun findByTicker(ticker: String): AssetWithDetails?
 }

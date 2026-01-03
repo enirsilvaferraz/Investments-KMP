@@ -17,5 +17,7 @@ internal class AssetRepositoryImpl(
 
     override suspend fun getById(id: Long) = dataSource.getByID(id)
 
+    override suspend fun getByTicker(ticker: String) = dataSource.getByTicker(ticker)
+
     override suspend fun save(asset: Asset) = dataSource.save(asset)
 }

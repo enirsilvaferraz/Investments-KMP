@@ -6,6 +6,7 @@ import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.usecases.GetQuotesUseCase
+import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
@@ -82,6 +83,7 @@ public interface CopyHistoryStrategy {
     public class VariableIncomeHistoryStrategy(
         private val holdingHistoryRepository: HoldingHistoryRepository,
         private val getQuotesUseCase: GetQuotesUseCase,
+        private val assetRepository: AssetRepository,
     ) : CopyHistoryStrategy {
 
         override fun canHandle(holding: AssetHolding): Boolean =
@@ -111,6 +113,15 @@ public interface CopyHistoryStrategy {
             return try {
                 val quoteHistory = getQuotesUseCase(GetQuotesUseCase.Params(asset.ticker, referenceDate))
                     .getOrThrow()
+
+                // Preencher nome automaticamente se ainda não foi preenchido
+                quoteHistory.companyName?.let { companyName ->
+                    // Verifica se o nome está vazio ou é igual ao ticker (indicando que não foi preenchido)
+                    if (asset.name.isBlank() || asset.name == asset.ticker) {
+                        val updatedAsset = asset.copy(name = companyName)
+                        assetRepository.save(updatedAsset)
+                    }
+                }
 
                 val endOfMonthValue = (quoteHistory.close ?: quoteHistory.adjustedClose)
                     ?: return null

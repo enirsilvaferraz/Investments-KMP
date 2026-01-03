@@ -39,6 +39,7 @@ erDiagram
         String name
         VariableIncomeAssetType type
         String ticker
+        CNPJ cnpj "opcional"
         Liquidity liquidity
         Int liquidityDays
     }
@@ -202,6 +203,7 @@ data class VariableIncomeAsset(
     override val issuer: Issuer,
     val type: VariableIncomeAssetType,
     val ticker: String,
+    val cnpj: CNPJ? = null,
     override val observations: String? = null
 ) : Asset {
     val liquidity: Liquidity = Liquidity.D_PLUS_DAYS

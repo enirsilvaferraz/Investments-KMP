@@ -1,10 +1,13 @@
 package com.eferraz.entities
 
+import com.eferraz.entities.value.CNPJ
+
 /**
  * Representa um ativo de renda variável.
  *
  * @property type O tipo de ativo de renda variável (ação, FII, etc.).
  * @property ticker O código de negociação único do ativo (ex: "PETR4").
+ * @property cnpj O CNPJ do ativo (opcional). Aceita formato com máscara (XX.XXX.XXX/XXXX-XX) ou sem máscara (14 dígitos).
  * @property observations Notas e observações adicionais sobre o ativo (opcional).
  * 
  * **Nota sobre liquidez:** Para ativos de renda variável, `liquidity` e `liquidityDays` são valores fixos
@@ -19,6 +22,7 @@ public data class VariableIncomeAsset(
     override val issuer: Issuer,
     public val type: VariableIncomeAssetType,
     public val ticker: String,
+    public val cnpj: CNPJ? = null,
     override val observations: String? = null
 ) : Asset {
 
