@@ -20,9 +20,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eferraz.presentation.helpers.CurrencyVisualTransformation
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Deprecated("Usar o novo input")
 @Composable

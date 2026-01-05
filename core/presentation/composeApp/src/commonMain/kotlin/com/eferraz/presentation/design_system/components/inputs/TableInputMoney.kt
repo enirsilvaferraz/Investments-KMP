@@ -16,13 +16,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eferraz.presentation.design_system.components.inputs.state.rememberMoneyInputState
 import com.eferraz.presentation.helpers.CurrencyVisualTransformation
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun TableInputMoney(

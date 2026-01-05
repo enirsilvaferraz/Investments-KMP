@@ -24,6 +24,6 @@ kotlin {
 }
 
 kotlin.android {
-    namespace = "com.eferraz.investments"
+    namespace = "com.eferraz.umbrella"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 }
