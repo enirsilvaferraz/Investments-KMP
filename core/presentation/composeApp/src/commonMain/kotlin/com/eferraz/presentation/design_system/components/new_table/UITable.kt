@@ -18,6 +18,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +36,7 @@ import com.eferraz.presentation.design_system.theme.AppTheme
 
 private data object UiTableScope {
     lateinit var columnWidths: SnapshotStateMap<Int, Int>
+    lateinit var adjustedWidths: SnapshotStateMap<Int, Int>
 }
 
 @Composable
@@ -47,6 +50,7 @@ internal fun <T> UiTable(
     with(UiTableScope) {
 
         columnWidths = remember { mutableStateMapOf() }
+        adjustedWidths = remember { mutableStateMapOf() }
 
         with(UiTableContentScopeImpl<T>().apply(content)) {
 
@@ -54,8 +58,47 @@ internal fun <T> UiTable(
                 mutableStateOf(UiTableSortState(data = data, columns = columns.values.map { it.sortedBy }))
             }
 
+            var availableWidth by remember { mutableStateOf<Int?>(null) }
+
+            // Calcula larguras ajustadas de forma reativa quando todas as condições são atendidas
+            val calculatedAdjustedWidths = remember(availableWidth, columnWidths, columns.size) {
+                derivedStateOf {
+                    val hasAllMeasurements = availableWidth != null && 
+                                            columnWidths.size == columns.size && 
+                                            columns.isNotEmpty()
+                    
+                    if (!hasAllMeasurements) {
+                        return@derivedStateOf emptyMap<Int, Int>()
+                    }
+
+                    val totalWidth = columnWidths.values.sum()
+                    val targetWidth = availableWidth!!
+
+                    when {
+                        totalWidth <= 0 -> emptyMap()
+                        totalWidth < targetWidth -> {
+                            // Distribui espaço proporcionalmente quando há espaço disponível
+                            val scaleFactor = targetWidth.toFloat() / totalWidth
+                            columnWidths.mapValues { (_, width) ->
+                                (width * scaleFactor).toInt()
+                            }
+                        }
+                        else -> {
+                            // Usa larguras originais quando não há espaço extra
+                            columnWidths.toMap()
+                        }
+                    }
+                }
+            }
+
+            // Atualiza adjustedWidths quando o cálculo muda
+            LaunchedEffect(calculatedAdjustedWidths.value) {
+                adjustedWidths.clear()
+                adjustedWidths.putAll(calculatedAdjustedWidths.value)
+            }
+
             LazyColumn(
-                modifier = Modifier.fillMaxSize()//.horizontalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxSize()
             ) {
 
                 // 1. STICKY HEADER
@@ -63,6 +106,7 @@ internal fun <T> UiTable(
                     UiTableRow(
                         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
                         content = headerOf { state = state.sort(it) },
+                        onWidthMeasured = { availableWidth = it },
                     )
                 }
 
@@ -71,7 +115,7 @@ internal fun <T> UiTable(
                     UiTableRow(
                         modifier = Modifier,
                         content = lineOf(item),
-                        showDivider = state.sortedData.last() != item
+                        showDivider = state.sortedData.last() != item,
                     )
                 }
 
@@ -92,11 +136,17 @@ private fun UiTableScope.UiTableRow(
     modifier: Modifier = Modifier,
     showDivider: Boolean = false,
     content: List<@Composable BoxScope.() -> Unit>,
+    onWidthMeasured: (Int) -> Unit = {},
 ) {
     Column {
 
         Row(
-            modifier = modifier.height(52.dp),
+            modifier = modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .onGloballyPositioned { coordinates ->
+                    onWidthMeasured(coordinates.size.width)
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -106,11 +156,12 @@ private fun UiTableScope.UiTableRow(
         }
 
         if (showDivider) {
-
-            val larguraAtualDp = with(LocalDensity.current) { columnWidths.values.sum().toDp() }
+            val totalWidth = adjustedWidths.values.sum().takeIf { it > 0 } 
+                ?: columnWidths.values.sum()
+            val dividerWidthDp = with(LocalDensity.current) { totalWidth.toDp() }
 
             HorizontalDivider(
-                modifier = Modifier.width(larguraAtualDp),
+                modifier = Modifier.width(dividerWidthDp),
                 color = MaterialTheme.colorScheme.outlineVariant,
                 thickness = 1.dp
             )
@@ -123,17 +174,21 @@ private fun UiTableScope.UiTableCell(
     index: Int,
     content: @Composable BoxScope.() -> Unit,
 ) {
-
-    val larguraAtualDp = with(LocalDensity.current) { columnWidths[index]?.toDp() }
+    // Usa largura ajustada se disponível, caso contrário usa a largura natural medida
+    val cellWidth = adjustedWidths[index] ?: columnWidths[index]
+    val cellWidthDp = with(LocalDensity.current) { cellWidth?.toDp() }
 
     Box(
         modifier = Modifier
-            .then(if (larguraAtualDp != null) Modifier.width(larguraAtualDp) else Modifier)
+            .then(cellWidthDp?.let { Modifier.width(it) } ?: Modifier)
             .onGloballyPositioned { coordinates ->
-                if (coordinates.size.width > (columnWidths[index] ?: 0)) columnWidths[index] = coordinates.size.width
+                // Atualiza a largura natural da coluna se o conteúdo for maior
+                val currentWidth = columnWidths[index] ?: 0
+                if (coordinates.size.width > currentWidth) {
+                    columnWidths[index] = coordinates.size.width
+                }
             },
     ) {
-
         Box(modifier = Modifier.padding(8.dp), content = content)
     }
 }
@@ -151,7 +206,7 @@ internal fun UITablePreview() {
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2 Qqwek nnwu", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
-                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B he"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B he ha"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3A"),
                 )
