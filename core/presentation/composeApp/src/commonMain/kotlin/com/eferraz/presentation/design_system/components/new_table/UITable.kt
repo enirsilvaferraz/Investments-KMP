@@ -36,12 +36,12 @@ import com.eferraz.presentation.design_system.theme.AppTheme
 
 private data object UiTableScope {
     lateinit var columnWidths: SnapshotStateMap<Int, Int>
-    lateinit var adjustedWidths: SnapshotStateMap<Int, Int>
+    lateinit var columnWeights: SnapshotStateMap<Int, Float>
 }
 
 @Composable
 internal fun <T> UiTable(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     data: List<T>,
     contentPadding: PaddingValues = PaddingValues(),
     content: UiTableContentScope<T>.() -> Unit,
@@ -50,7 +50,7 @@ internal fun <T> UiTable(
     with(UiTableScope) {
 
         columnWidths = remember { mutableStateMapOf() }
-        adjustedWidths = remember { mutableStateMapOf() }
+        columnWeights = remember { mutableStateMapOf() }
 
         with(UiTableContentScopeImpl<T>().apply(content)) {
 
@@ -58,47 +58,36 @@ internal fun <T> UiTable(
                 mutableStateOf(UiTableSortState(data = data, columns = columns.values.map { it.sortedBy }))
             }
 
-            var availableWidth by remember { mutableStateOf<Int?>(null) }
-
-            // Calcula larguras ajustadas de forma reativa quando todas as condições são atendidas
-            val calculatedAdjustedWidths = remember(availableWidth, columnWidths, columns.size) {
+            // Calcula os weights baseados nos percentuais das larguras naturais
+            val calculatedWeights = remember(columnWidths, columns.size) {
                 derivedStateOf {
-                    val hasAllMeasurements = availableWidth != null && 
-                                            columnWidths.size == columns.size && 
-                                            columns.isNotEmpty()
-                    
+                    val hasAllMeasurements = columnWidths.size == columns.size && columns.isNotEmpty()
+
                     if (!hasAllMeasurements) {
-                        return@derivedStateOf emptyMap<Int, Int>()
+                        return@derivedStateOf emptyMap<Int, Float>()
                     }
 
                     val totalWidth = columnWidths.values.sum()
-                    val targetWidth = availableWidth!!
 
-                    when {
-                        totalWidth <= 0 -> emptyMap()
-                        totalWidth < targetWidth -> {
-                            // Distribui espaço proporcionalmente quando há espaço disponível
-                            val scaleFactor = targetWidth.toFloat() / totalWidth
-                            columnWidths.mapValues { (_, width) ->
-                                (width * scaleFactor).toInt()
-                            }
-                        }
-                        else -> {
-                            // Usa larguras originais quando não há espaço extra
-                            columnWidths.toMap()
-                        }
+                    if (totalWidth <= 0) {
+                        return@derivedStateOf emptyMap<Int, Float>()
+                    }
+
+                    // Calcula o percentual de cada coluna como weight
+                    columnWidths.mapValues { (_, width) ->
+                        width.toFloat() / totalWidth
                     }
                 }
             }
 
-            // Atualiza adjustedWidths quando o cálculo muda
-            LaunchedEffect(calculatedAdjustedWidths.value) {
-                adjustedWidths.clear()
-                adjustedWidths.putAll(calculatedAdjustedWidths.value)
+            // Atualiza columnWeights quando o cálculo muda
+            LaunchedEffect(calculatedWeights.value) {
+                columnWeights.clear()
+                columnWeights.putAll(calculatedWeights.value)
             }
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize()
+                modifier = modifier.fillMaxSize()
             ) {
 
                 // 1. STICKY HEADER
@@ -106,7 +95,6 @@ internal fun <T> UiTable(
                     UiTableRow(
                         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
                         content = headerOf { state = state.sort(it) },
-                        onWidthMeasured = { availableWidth = it },
                     )
                 }
 
@@ -136,32 +124,28 @@ private fun UiTableScope.UiTableRow(
     modifier: Modifier = Modifier,
     showDivider: Boolean = false,
     content: List<@Composable BoxScope.() -> Unit>,
-    onWidthMeasured: (Int) -> Unit = {},
 ) {
+
+    var rowWidth by remember { mutableStateOf<Int?>(null) }
+
     Column {
 
         Row(
             modifier = modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .onGloballyPositioned { coordinates ->
-                    onWidthMeasured(coordinates.size.width)
-                },
+                .onGloballyPositioned { coordinates -> rowWidth = coordinates.size.width },
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            content.forEachIndexed { index, content ->
-                UiTableCell(index, content)
+            content.forEachIndexed { index, cellContent ->
+                UiTableCell(this@UiTableRow, index, cellContent, rowWidth)
             }
         }
 
         if (showDivider) {
-            val totalWidth = adjustedWidths.values.sum().takeIf { it > 0 } 
-                ?: columnWidths.values.sum()
-            val dividerWidthDp = with(LocalDensity.current) { totalWidth.toDp() }
-
             HorizontalDivider(
-                modifier = Modifier.width(dividerWidthDp),
+                modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.outlineVariant,
                 thickness = 1.dp
             )
@@ -170,22 +154,31 @@ private fun UiTableScope.UiTableRow(
 }
 
 @Composable
-private fun UiTableScope.UiTableCell(
+private fun UiTableCell(
+    scope: UiTableScope,
     index: Int,
     content: @Composable BoxScope.() -> Unit,
+    availableWidth: Int?,
 ) {
-    // Usa largura ajustada se disponível, caso contrário usa a largura natural medida
-    val cellWidth = adjustedWidths[index] ?: columnWidths[index]
-    val cellWidthDp = with(LocalDensity.current) { cellWidth?.toDp() }
+
+    val density = LocalDensity.current
+
+    // Calcula largura baseada no percentual se disponível, caso contrário deixa o conteúdo determinar
+    val cellModifier = if (availableWidth != null && scope.columnWeights[index] != null) {
+        val columnWeight = scope.columnWeights[index]!!
+        val cellWidth = (availableWidth * columnWeight).toInt()
+        Modifier.width(with(density) { cellWidth.toDp() })
+    } else {
+        Modifier
+    }
 
     Box(
-        modifier = Modifier
-            .then(cellWidthDp?.let { Modifier.width(it) } ?: Modifier)
+        modifier = cellModifier
             .onGloballyPositioned { coordinates ->
                 // Atualiza a largura natural da coluna se o conteúdo for maior
-                val currentWidth = columnWidths[index] ?: 0
+                val currentWidth = scope.columnWidths[index] ?: 0
                 if (coordinates.size.width > currentWidth) {
-                    columnWidths[index] = coordinates.size.width
+                    scope.columnWidths[index] = coordinates.size.width
                 }
             },
     ) {
@@ -206,7 +199,7 @@ internal fun UITablePreview() {
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2 Qqwek nnwu", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
-                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B he ha"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B he eweeha"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3A"),
                 )
