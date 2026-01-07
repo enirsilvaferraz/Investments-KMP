@@ -1,43 +1,23 @@
 package com.eferraz.presentation.design_system.components.new_table
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eferraz.presentation.design_system.theme.AppTheme
-
-private data object UiTableScope {
-    lateinit var columnWidths: SnapshotStateMap<Int, Int>
-    lateinit var columnWeights: SnapshotStateMap<Int, Float>
-}
 
 @Composable
 internal fun <T> UiTable(
@@ -47,144 +27,50 @@ internal fun <T> UiTable(
     content: UiTableContentScope<T>.() -> Unit,
 ) {
 
-    with(UiTableScope) {
+    with(UiTableContentScopeImpl<T>().apply(content)) {
 
-        columnWidths = remember { mutableStateMapOf() }
-        columnWeights = remember { mutableStateMapOf() }
-
-        with(UiTableContentScopeImpl<T>().apply(content)) {
-
-            var state by remember(data, columns) {
-                mutableStateOf(UiTableSortState(data = data, columns = columns.values.map { it.sortedBy }))
-            }
-
-            // Calcula os weights baseados nos percentuais das larguras naturais
-            val calculatedWeights = remember(columnWidths, columns.size) {
-                derivedStateOf {
-                    val hasAllMeasurements = columnWidths.size == columns.size && columns.isNotEmpty()
-
-                    if (!hasAllMeasurements) {
-                        return@derivedStateOf emptyMap<Int, Float>()
-                    }
-
-                    val totalWidth = columnWidths.values.sum()
-
-                    if (totalWidth <= 0) {
-                        return@derivedStateOf emptyMap<Int, Float>()
-                    }
-
-                    // Calcula o percentual de cada coluna como weight
-                    columnWidths.mapValues { (_, width) ->
-                        width.toFloat() / totalWidth
-                    }
-                }
-            }
-
-            // Atualiza columnWeights quando o cálculo muda
-            LaunchedEffect(calculatedWeights.value) {
-                columnWeights.clear()
-                columnWeights.putAll(calculatedWeights.value)
-            }
-
-            LazyColumn(
-                modifier = modifier.fillMaxSize()
-            ) {
-
-                // 1. STICKY HEADER
-                stickyHeader {
-                    UiTableRow(
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                        content = headerOf { state = state.sort(it) },
-                    )
-                }
-
-                // 2. ITEMS
-                items(state.sortedData) { item ->
-                    UiTableRow(
-                        modifier = Modifier,
-                        content = lineOf(item),
-                        showDivider = state.sortedData.last() != item,
-                    )
-                }
-
-                // 3. FOOTER
-                item {
-                    UiTableRow(
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                        content = footerOf(data),
-                    )
-                }
-            }
+        var state by remember(data, columns) {
+            mutableStateOf(UiTableSortState(data = data, columns = columns.values.map { it.sortedBy }))
         }
-    }
-}
 
-@Composable
-private fun UiTableScope.UiTableRow(
-    modifier: Modifier = Modifier,
-    showDivider: Boolean = false,
-    content: List<@Composable BoxScope.() -> Unit>,
-) {
+        // Cria o estado responsivo baseado no número de colunas
+        val responsiveState = rememberUiTableResponsiveState(columnCount = columns.size)
 
-    var rowWidth by remember { mutableStateOf<Int?>(null) }
-
-    Column {
-
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .onGloballyPositioned { coordinates -> rowWidth = coordinates.size.width },
-            verticalAlignment = Alignment.CenterVertically
+        LazyColumn(
+            modifier = modifier.fillMaxSize()
         ) {
 
-            content.forEachIndexed { index, cellContent ->
-                UiTableCell(this@UiTableRow, index, cellContent, rowWidth)
+            // 1. STICKY HEADER
+            stickyHeader {
+                ResponsiveRow(
+                    state = responsiveState,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                    content = headerOf { state = state.sort(it) },
+                )
+            }
+
+            // 2. ITEMS
+            items(state.sortedData) { item ->
+                ResponsiveRow(
+                    state = responsiveState,
+                    modifier = Modifier,
+                    showDivider = state.sortedData.last() != item,
+                    content = lineOf(item),
+                )
+            }
+
+            // 3. FOOTER
+            item {
+                ResponsiveRow(
+                    state = responsiveState,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                    content = footerOf(data),
+                )
             }
         }
-
-        if (showDivider) {
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.outlineVariant,
-                thickness = 1.dp
-            )
-        }
     }
 }
 
-@Composable
-private fun UiTableCell(
-    scope: UiTableScope,
-    index: Int,
-    content: @Composable BoxScope.() -> Unit,
-    availableWidth: Int?,
-) {
-
-    val density = LocalDensity.current
-
-    // Calcula largura baseada no percentual se disponível, caso contrário deixa o conteúdo determinar
-    val cellModifier = if (availableWidth != null && scope.columnWeights[index] != null) {
-        val columnWeight = scope.columnWeights[index]!!
-        val cellWidth = (availableWidth * columnWeight).toInt()
-        Modifier.width(with(density) { cellWidth.toDp() })
-    } else {
-        Modifier
-    }
-
-    Box(
-        modifier = cellModifier
-            .onGloballyPositioned { coordinates ->
-                // Atualiza a largura natural da coluna se o conteúdo for maior
-                val currentWidth = scope.columnWidths[index] ?: 0
-                if (coordinates.size.width > currentWidth) {
-                    scope.columnWidths[index] = coordinates.size.width
-                }
-            },
-    ) {
-        Box(modifier = Modifier.padding(8.dp), content = content)
-    }
-}
 
 private data class UITableRowData(val text1: String, val text2: String, val text3: String)
 
