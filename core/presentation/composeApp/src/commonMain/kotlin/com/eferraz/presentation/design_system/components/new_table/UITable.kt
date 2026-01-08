@@ -5,14 +5,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,10 +25,7 @@ internal fun <T> UiTable(
 
     with(UiTableContentScopeImpl<T>().apply(content)) {
 
-        var state by remember(data, columns) {
-            mutableStateOf(UiTableSortState(data = data, columns = columns.values.map { it.sortedBy }))
-        }
-
+        val sortState = rememberUiTableSortState(data = data, columns = columns.values.map { it.sortedBy })
         val responsiveState = rememberUiTableResponsiveState(columnCount = columns.size)
 
         LazyColumn(
@@ -43,16 +37,16 @@ internal fun <T> UiTable(
                 UiTableResponsiveRow(
                     state = responsiveState,
                     modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                    content = headerOf { state = state.sort(it) },
+                    content = headerOf { sortState.sort(it) },
                 )
             }
 
             // 2. ITEMS
-            items(state.sortedData) { item ->
+            itemsIndexed(sortState.sortedData) { index, item ->
                 UiTableResponsiveRow(
                     state = responsiveState,
                     modifier = Modifier,
-                    showDivider = state.sortedData.last() != item,
+                    showDivider = index < sortState.sortedData.size - 1,
                     content = lineOf(item),
                 )
             }
@@ -76,9 +70,8 @@ private data class UITableRowData(val text1: String, val text2: String, val text
 @Composable
 internal fun UITablePreview() {
     AppTheme {
-        Surface {
+        Surface(modifier = Modifier.padding(16.dp), shape = RoundedCornerShape(12.dp)) {
             UiTable(
-                modifier = Modifier.padding(16.dp),
                 data = listOf(
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2 Qqwek nnwu", "Texto 3"),
