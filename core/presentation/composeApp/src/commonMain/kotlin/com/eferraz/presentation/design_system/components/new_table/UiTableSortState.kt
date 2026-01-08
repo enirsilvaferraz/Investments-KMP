@@ -21,7 +21,7 @@ internal data class UiTableSortState<T>(
             sortedColumnIndex = index,
             isAscending = if (sortedColumnIndex == index) !isAscending else true,
         )
-    
+
     internal fun createComparator(columns: List<((T) -> Comparable<*>)?>): Comparator<T> {
         return compareBy<T> { columns[sortedColumnIndex]?.invoke(it) }
             .let { if (isAscending) it else it.reversed() }
@@ -33,12 +33,12 @@ internal data class UiTableSortState<T>(
  * Encapsula toda a lógica de controle dos itens da lista e ordenação.
  */
 internal class UiTableSortStateManager<T> {
-    
+
     internal var sortState: UiTableSortState<T> by mutableStateOf(UiTableSortState())
         private set
-    
+
     internal val sortedData: SnapshotStateList<T> = mutableStateListOf()
-    
+
     fun sort(index: Int) {
         sortState = sortState.sort(index)
     }

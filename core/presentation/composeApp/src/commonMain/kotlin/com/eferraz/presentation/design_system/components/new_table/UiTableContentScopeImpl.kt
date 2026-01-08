@@ -1,12 +1,25 @@
 package com.eferraz.presentation.design_system.components.new_table
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 
 internal class UiTableContentScopeImpl<T> internal constructor() : UiTableContentScope<T> {
 
@@ -49,28 +62,60 @@ internal class UiTableContentScopeImpl<T> internal constructor() : UiTableConten
     }
 
     internal fun lineOf(line: T): List<@Composable (BoxScope.() -> Unit)> =
-        columns.values.map { it.cell }.map { content -> { content(line) } }
+        columns.values.map { it.cell }.map { content ->
+            {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) { content(line) }
+            }
+        }
 
     internal fun footerOf(lines: List<T>): List<@Composable (BoxScope.() -> Unit)> =
         columns.values.map { it.footer }.map { content ->
             {
-                Text(
-                    text = content(lines),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                )
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        text = content(lines),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                    )
+                }
             }
         }
 
-    internal fun headerOf(onSelect: (Int) -> Unit): List<@Composable (BoxScope.() -> Unit)> =
+    internal fun headerOf(
+        sortedColumnIndex: Int,
+        isAscending: Boolean,
+        onSelect: (Int) -> Unit,
+    ): List<@Composable (BoxScope.() -> Unit)> =
         columns.values.mapIndexed { index, entry ->
             {
-                Text(
-                    text = entry.header,
-                    modifier = Modifier.clickable(enabled = entry.isSortable()) { onSelect(index) },
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(54.dp).clickable(enabled = entry.isSortable()) { onSelect(index) }.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+
+                    Text(
+                        text = entry.header,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                    )
+
+                    if (sortedColumnIndex == index)
+                        Icon(
+                            imageVector = if (isAscending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                }
+
             }
         }
 

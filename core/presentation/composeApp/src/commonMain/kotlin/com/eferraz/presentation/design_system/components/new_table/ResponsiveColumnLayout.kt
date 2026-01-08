@@ -3,10 +3,10 @@ package com.eferraz.presentation.design_system.components.new_table
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -113,7 +112,6 @@ internal fun rememberUiTableResponsiveState(columnCount: Int): UiTableResponsive
 internal fun UiTableResponsiveRow(
     state: UiTableResponsiveState,
     modifier: Modifier = Modifier,
-    height: Dp = 52.dp,
     showDivider: Boolean = false,
     content: List<@Composable BoxScope.() -> Unit>,
 ) {
@@ -125,7 +123,6 @@ internal fun UiTableResponsiveRow(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .height(height)
                 .onGloballyPositioned { coordinates ->
                     rowWidth = coordinates.size.width
                 },
@@ -134,6 +131,7 @@ internal fun UiTableResponsiveRow(
 
             content.forEachIndexed { index, cellContent ->
                 ResponsiveCell(
+                    modifier = Modifier.width(IntrinsicSize.Max),
                     state = state,
                     index = index,
                     availableWidth = rowWidth,
@@ -161,31 +159,28 @@ internal fun UiTableResponsiveRow(
  * @param index Índice da coluna (deve corresponder à posição no row)
  * @param availableWidth Largura disponível do row pai (medida automaticamente)
  * @param content Conteúdo da célula
- * @param cellPadding Padding interno da célula (padrão: 8.dp)
  */
 @Composable
 private fun ResponsiveCell(
+    modifier: Modifier = Modifier,
     state: UiTableResponsiveState,
     index: Int,
     availableWidth: Int?,
     content: @Composable BoxScope.() -> Unit,
-    cellPadding: Dp = 8.dp,
 ) {
 
     val density = LocalDensity.current
 
     val cellModifier = state.calculateCellWidth(index, availableWidth)?.let { widthPx ->
-        Modifier.width(with(density) { widthPx.toDp() })
-    } ?: Modifier
+        modifier.width(with(density) { widthPx.toDp() })
+    } ?: modifier
 
     Box(
         modifier = cellModifier.onGloballyPositioned { coordinates ->
             if (coordinates.size.width > (state.columnWidths[index] ?: 0))
                 state.columnWidths[index] = coordinates.size.width
         },
-    ) {
-
-        Box(modifier = Modifier.padding(cellPadding), content = content)
-    }
+        content = content
+    )
 }
 

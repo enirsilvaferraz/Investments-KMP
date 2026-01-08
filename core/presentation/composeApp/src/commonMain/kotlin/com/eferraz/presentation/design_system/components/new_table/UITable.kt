@@ -1,8 +1,9 @@
 package com.eferraz.presentation.design_system.components.new_table
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -28,37 +29,38 @@ internal fun <T> UiTable(
         val sortState = rememberUiTableSortState(data = data, columns = columns.values.map { it.sortedBy })
         val responsiveState = rememberUiTableResponsiveState(columnCount = columns.size)
 
-        LazyColumn(
-            modifier = modifier.fillMaxSize()
-        ) {
+        Column {
 
-            // 1. STICKY HEADER
-            stickyHeader {
-                UiTableResponsiveRow(
-                    state = responsiveState,
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                    content = headerOf { sortState.sort(it) },
-                )
-            }
+            LazyColumn(
+                modifier = modifier.fillMaxWidth().weight(1f),
+            ) {
 
-            // 2. ITEMS
-            itemsIndexed(sortState.sortedData) { index, item ->
-                UiTableResponsiveRow(
-                    state = responsiveState,
-                    modifier = Modifier,
-                    showDivider = index < sortState.sortedData.size - 1,
-                    content = lineOf(item),
-                )
+                // 1. STICKY HEADER
+                stickyHeader {
+                    UiTableResponsiveRow(
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                        state = responsiveState,
+                        content = headerOf(sortState.sortState.sortedColumnIndex, sortState.sortState.isAscending) { sortState.sort(it) },
+                    )
+                }
+
+                // 2. ITEMS
+                itemsIndexed(sortState.sortedData) { index, item ->
+                    UiTableResponsiveRow(
+                        modifier = Modifier,
+                        state = responsiveState,
+                        showDivider = index < sortState.sortedData.size - 1,
+                        content = lineOf(item),
+                    )
+                }
             }
 
             // 3. FOOTER
-            item {
-                UiTableResponsiveRow(
-                    state = responsiveState,
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                    content = footerOf(data),
-                )
-            }
+            UiTableResponsiveRow(
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                state = responsiveState,
+                content = footerOf(data),
+            )
         }
     }
 }
@@ -77,6 +79,31 @@ internal fun UITablePreview() {
                     UITableRowData("Texto 1", "Texto 2 Qqwek nnwu", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3A"),
                 )
@@ -84,6 +111,7 @@ internal fun UITablePreview() {
 
                 column(
                     header = "Header 1",
+                    sortedBy = { it.text1 },
                     cellValue = { it.text1 }
                 )
 
