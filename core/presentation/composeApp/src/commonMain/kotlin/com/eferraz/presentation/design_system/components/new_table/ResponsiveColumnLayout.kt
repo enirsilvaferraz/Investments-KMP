@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -22,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
  *
  * @param columnCount Número de colunas que serão gerenciadas
  */
-public class UiTableResponsiveState(
-    public val columnCount: Int
+internal class UiTableResponsiveState(
+    val columnCount: Int,
 ) {
 
     internal val columnWidths: SnapshotStateMap<Int, Int> = mutableStateMapOf()
@@ -56,6 +56,19 @@ public class UiTableResponsiveState(
             width.toFloat() / totalWidth
         }
     }
+
+    /**
+     * Calcula a largura da célula em pixels baseada no percentual.
+     * Retorna null se a largura não deve ser aplicada (fase de medição inicial).
+     *
+     * @param index Índice da coluna
+     * @param availableWidth Largura disponível do row pai em pixels
+     * @return Largura da célula em pixels ou null se não deve aplicar largura
+     */
+    internal fun calculateCellWidth(index: Int, availableWidth: Int?): Int? =
+        if (availableWidth != null && columnWeights[index] != null)
+            (availableWidth * columnWeights[index]!!).toInt()
+        else null
 }
 
 /**
@@ -65,7 +78,7 @@ public class UiTableResponsiveState(
  * @param columnCount Número de colunas que serão gerenciadas
  */
 @Composable
-public fun rememberUiTableResponsiveState(columnCount: Int): UiTableResponsiveState {
+internal fun rememberUiTableResponsiveState(columnCount: Int): UiTableResponsiveState {
 
     val state = remember(columnCount) { UiTableResponsiveState(columnCount) }
 
@@ -97,7 +110,7 @@ public fun rememberUiTableResponsiveState(columnCount: Int): UiTableResponsiveSt
  * @param content Lista de composables para cada célula (índice corresponde à coluna)
  */
 @Composable
-public fun ResponsiveRow(
+internal fun UiTableResponsiveRow(
     state: UiTableResponsiveState,
     modifier: Modifier = Modifier,
     height: Dp = 52.dp,
@@ -151,7 +164,7 @@ public fun ResponsiveRow(
  * @param cellPadding Padding interno da célula (padrão: 8.dp)
  */
 @Composable
-public fun ResponsiveCell(
+private fun ResponsiveCell(
     state: UiTableResponsiveState,
     index: Int,
     availableWidth: Int?,
@@ -161,25 +174,17 @@ public fun ResponsiveCell(
 
     val density = LocalDensity.current
 
-    // Calcula largura baseada no percentual se disponível, caso contrário deixa o conteúdo determinar
-    val cellModifier = if (availableWidth != null && state.columnWeights[index] != null) {
-        val columnWeight = state.columnWeights[index]!!
-        val cellWidth = (availableWidth * columnWeight).toInt()
-        Modifier.width(with(density) { cellWidth.toDp() })
-    } else {
-        Modifier
-    }
+    val cellModifier = state.calculateCellWidth(index, availableWidth)?.let { widthPx ->
+        Modifier.width(with(density) { widthPx.toDp() })
+    } ?: Modifier
 
     Box(
-        modifier = cellModifier
-            .onGloballyPositioned { coordinates ->
-                // Atualiza a largura natural da coluna se o conteúdo for maior
-                val currentWidth = state.columnWidths[index] ?: 0
-                if (coordinates.size.width > currentWidth) {
-                    state.columnWidths[index] = coordinates.size.width
-                }
-            },
+        modifier = cellModifier.onGloballyPositioned { coordinates ->
+            if (coordinates.size.width > (state.columnWidths[index] ?: 0))
+                state.columnWidths[index] = coordinates.size.width
+        },
     ) {
+
         Box(modifier = Modifier.padding(cellPadding), content = content)
     }
 }

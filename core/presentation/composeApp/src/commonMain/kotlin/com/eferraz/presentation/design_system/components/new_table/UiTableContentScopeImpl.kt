@@ -36,7 +36,13 @@ internal class UiTableContentScopeImpl<T> internal constructor() : UiTableConten
 
         columns[columns.size] = UiColumnData(
             header = header,
-            cell = @Composable { current -> Text(text = cellValue(current)) },
+            cell = @Composable { current ->
+                Text(
+                    text = cellValue(current),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
             footer = footer,
             sortedBy = sortedBy
         )

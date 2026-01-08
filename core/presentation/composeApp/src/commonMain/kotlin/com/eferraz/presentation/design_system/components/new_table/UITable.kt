@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +32,6 @@ internal fun <T> UiTable(
             mutableStateOf(UiTableSortState(data = data, columns = columns.values.map { it.sortedBy }))
         }
 
-        // Cria o estado responsivo baseado no número de colunas
         val responsiveState = rememberUiTableResponsiveState(columnCount = columns.size)
 
         LazyColumn(
@@ -42,7 +40,7 @@ internal fun <T> UiTable(
 
             // 1. STICKY HEADER
             stickyHeader {
-                ResponsiveRow(
+                UiTableResponsiveRow(
                     state = responsiveState,
                     modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
                     content = headerOf { state = state.sort(it) },
@@ -51,7 +49,7 @@ internal fun <T> UiTable(
 
             // 2. ITEMS
             items(state.sortedData) { item ->
-                ResponsiveRow(
+                UiTableResponsiveRow(
                     state = responsiveState,
                     modifier = Modifier,
                     showDivider = state.sortedData.last() != item,
@@ -61,7 +59,7 @@ internal fun <T> UiTable(
 
             // 3. FOOTER
             item {
-                ResponsiveRow(
+                UiTableResponsiveRow(
                     state = responsiveState,
                     modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
                     content = footerOf(data),
@@ -85,7 +83,7 @@ internal fun UITablePreview() {
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2 Qqwek nnwu", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
-                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B he eweeha"),
+                    UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3A"),
                 )
@@ -93,25 +91,25 @@ internal fun UITablePreview() {
 
                 column(
                     header = "Header 1",
-                    cellContent = @Composable { Text(it.text1) }
+                    cellValue = { it.text1 }
                 )
 
                 column(
                     header = "Header 2",
                     sortedBy = { it.text2 },
-                    cellContent = @Composable { Text(it.text2) },
+                    cellValue = { it.text2 },
                     footer = { "Footer teste teste teste teste" }
                 )
 
                 column(
                     header = "Header 3",
                     sortedBy = { it.text3 },
-                    cellContent = @Composable { Text(it.text3) }
+                    cellValue = { it.text3 }
                 )
 
                 column(
                     header = "Header 4",
-                    cellValue = @Composable { it.text1 },
+                    cellValue = { it.text1 },
                     footer = { it.size.toString() }
                 )
             }
