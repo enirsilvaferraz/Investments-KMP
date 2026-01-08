@@ -1,6 +1,7 @@
 package com.eferraz.presentation.design_system.components.new_table
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ internal fun <T> UiTable(
     modifier: Modifier = Modifier,
     data: List<T>,
     contentPadding: PaddingValues = PaddingValues(),
+    onSelect: ((T) -> Unit)? = null,
     content: UiTableContentScope<T>.() -> Unit,
 ) {
 
@@ -33,6 +35,7 @@ internal fun <T> UiTable(
 
             LazyColumn(
                 modifier = modifier.fillMaxWidth().weight(1f),
+                contentPadding = contentPadding
             ) {
 
                 // 1. STICKY HEADER
@@ -47,7 +50,7 @@ internal fun <T> UiTable(
                 // 2. ITEMS
                 itemsIndexed(sortState.sortedData) { index, item ->
                     UiTableResponsiveRow(
-                        modifier = Modifier,
+                        modifier = Modifier.clickable(onSelect != null) { onSelect?.invoke(item) },
                         state = responsiveState,
                         showDivider = index < sortState.sortedData.size - 1,
                         content = lineOf(item),
@@ -106,7 +109,10 @@ internal fun UITablePreview() {
                     UITableRowData("Texto 1", "Texto 2 dc", "Texto 3B"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3"),
                     UITableRowData("Texto 1", "Texto 2", "Texto 3A"),
-                )
+                ),
+                onSelect = {
+                    println("Selected: $it")
+                }
             ) {
 
                 column(
