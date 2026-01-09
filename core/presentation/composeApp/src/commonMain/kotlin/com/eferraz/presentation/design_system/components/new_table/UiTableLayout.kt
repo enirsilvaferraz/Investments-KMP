@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 // ============================================================================
 
 @Composable
+private fun headerFooterModifier() = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
+
+@Composable
 internal fun <T> TableHeader(
     columns: List<ColumnData<T>>,
     sortState: SortStateManager<T>,
@@ -34,17 +37,16 @@ internal fun <T> TableHeader(
     cellRenderer: CellRenderer<T>,
     onSort: (Int) -> Unit,
 ) {
-
     ResponsiveRow(
-        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
+        modifier = headerFooterModifier(),
         state = responsiveState
     ) { availableWidth ->
-
-        columns.forEachIndexed { index, col ->
-
-            // PERFORMANCE: Lembra lambda de click para cada coluna
+        renderCells(
+            columns = columns,
+            responsiveState = responsiveState,
+            availableWidth = availableWidth
+        ) { index, col ->
             val onColumnClick = remember(index, onSort) { { onSort(index) } }
-
             Cell(
                 state = responsiveState,
                 index = index,
@@ -67,8 +69,6 @@ internal fun <T> TableRow(
     cellRenderer: CellRenderer<T>,
     onSelect: androidx.compose.runtime.State<((T) -> Unit)?>,
 ) {
-
-    // PERFORMANCE: Lembra lambda de click apenas uma vez por item
     val onRowClick = remember(item, onSelect) {
         {
             val callback = onSelect.value
@@ -80,9 +80,11 @@ internal fun <T> TableRow(
         modifier = Modifier.clickable(onSelect.value != null, onClick = onRowClick),
         state = responsiveState,
     ) { availableWidth ->
-
-        columns.forEachIndexed { colIndex, col ->
-
+        renderCells(
+            columns = columns,
+            responsiveState = responsiveState,
+            availableWidth = availableWidth
+        ) { colIndex, col ->
             Cell(
                 state = responsiveState,
                 index = colIndex,
@@ -101,14 +103,15 @@ internal fun <T> TableFooter(
     responsiveState: ResponsiveState,
     cellRenderer: CellRenderer<T>,
 ) {
-
     ResponsiveRow(
-        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
+        modifier = headerFooterModifier(),
         state = responsiveState
     ) { availableWidth ->
-
-        columns.forEachIndexed { index, col ->
-
+        renderCells(
+            columns = columns,
+            responsiveState = responsiveState,
+            availableWidth = availableWidth
+        ) { index, col ->
             Cell(
                 state = responsiveState,
                 index = index,
@@ -117,6 +120,18 @@ internal fun <T> TableFooter(
                 cellRenderer.renderFooter(col, data)
             }
         }
+    }
+}
+
+@Composable
+private fun <T> renderCells(
+    columns: List<ColumnData<T>>,
+    responsiveState: ResponsiveState,
+    availableWidth: Int?,
+    cellContent: @Composable (index: Int, column: ColumnData<T>) -> Unit
+) {
+    columns.forEachIndexed { index, col ->
+        cellContent(index, col)
     }
 }
 

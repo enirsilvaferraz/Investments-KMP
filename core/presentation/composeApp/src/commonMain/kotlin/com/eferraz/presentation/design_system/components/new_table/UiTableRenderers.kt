@@ -22,6 +22,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 
 // ============================================================================
+// CONSTANTES E HELPERS
+// ============================================================================
+
+private val CELL_HEIGHT = 54.dp
+private val CELL_PADDING = 8.dp
+
+@Composable
+private fun headerFooterTextStyle() = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+
+// ============================================================================
 // INTERFACE DE RENDERIZAÇÃO DE CÉLULAS
 // ============================================================================
 
@@ -64,16 +74,16 @@ internal class DefaultCellRenderer<T> : CellRenderer<T> {
     ) {
 
         Row(
-            modifier = Modifier.fillMaxWidth().height(54.dp),
+            modifier = Modifier.fillMaxWidth().height(CELL_HEIGHT),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
 
             Text(
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(CELL_PADDING),
                 text = column.header,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                style = headerFooterTextStyle(),
             )
 
             if (sortState.sortedColumnIndex == index) {
@@ -90,29 +100,29 @@ internal class DefaultCellRenderer<T> : CellRenderer<T> {
 
     @Composable
     override fun renderCell(column: ColumnData<T>, item: T) {
-
-        Box(
-            modifier = Modifier.fillMaxWidth().height(54.dp).padding(8.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-
+        CellContentBox {
             column.cell.invoke(this, item)
         }
     }
 
     @Composable
     override fun renderFooter(column: ColumnData<T>, data: List<T>) {
-
-        Box(
-            modifier = Modifier.fillMaxWidth().height(54.dp).padding(8.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-
+        CellContentBox {
             Text(
                 text = column.footer(data),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                style = headerFooterTextStyle(),
             )
+        }
+    }
+
+    @Composable
+    private fun CellContentBox(content: @Composable BoxScope.() -> Unit) {
+        Box(
+            modifier = Modifier.fillMaxWidth().height(CELL_HEIGHT).padding(CELL_PADDING),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            content()
         }
     }
 }

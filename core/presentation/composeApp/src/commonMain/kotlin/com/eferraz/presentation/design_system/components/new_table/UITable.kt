@@ -49,7 +49,6 @@ internal fun <T> UiTable(
     // PERFORMANCE: Lembra callbacks para evitar recriação de lambdas
     val onSort = remember { { index: Int -> sortState.sort(index) } }
     val onSelectUpdated = rememberUpdatedState(onSelect)
-    val totalItems = remember(sortState.sortedData.size) { sortState.sortedData.size }
 
     Column {
 
@@ -77,7 +76,7 @@ internal fun <T> UiTable(
                 TableRow(
                     item = item,
                     index = index,
-                    totalItems = totalItems,
+                    totalItems = sortState.sortedData.size,
                     columns = columns,
                     responsiveState = responsiveState,
                     cellRenderer = cellRenderer,
