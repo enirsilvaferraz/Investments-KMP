@@ -7,6 +7,9 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
 @Serializable
+internal object TestRouting : NavKey
+
+@Serializable
 internal object HistoryRouting : NavKey
 
 @Serializable
@@ -35,6 +38,7 @@ internal object FundsHistoryRouting : NavKey
 internal val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
+            subclass(TestRouting::class, TestRouting.serializer())
             subclass(AssetsRouting::class, AssetsRouting.serializer())
             subclass(HistoryRouting::class, HistoryRouting.serializer())
             subclass(FixedIncomeAssetRouting::class, FixedIncomeAssetRouting.serializer())
