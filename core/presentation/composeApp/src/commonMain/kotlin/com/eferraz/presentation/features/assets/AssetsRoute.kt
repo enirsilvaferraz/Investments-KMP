@@ -19,6 +19,7 @@ import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -84,7 +85,10 @@ internal fun AssetsRoute() {
                             val category = InvestmentCategory.FIXED_INCOME
                             val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
-                            tableVm.loadAssets(category)
+                            
+                            LaunchedEffect(category) {
+                                tableVm.loadAssets(category)
+                            }
 
                             AssetsScreenFixedIncome(
                                 state = tableState,
@@ -97,7 +101,10 @@ internal fun AssetsRoute() {
                             val category = InvestmentCategory.VARIABLE_INCOME
                             val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
-                            tableVm.loadAssets(category)
+                            
+                            LaunchedEffect(category) {
+                                tableVm.loadAssets(category)
+                            }
 
                             AssetsScreenVariableIncome(
                                 state = tableState,
@@ -110,7 +117,10 @@ internal fun AssetsRoute() {
                             val category = InvestmentCategory.INVESTMENT_FUND
                             val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
-                            tableVm.loadAssets(category)
+                            
+                            LaunchedEffect(category) {
+                                tableVm.loadAssets(category)
+                            }
 
                             AssetsScreenFunds(
                                 state = tableState,
@@ -212,13 +222,15 @@ private fun AssetsScreenFixedIncome(
             header = "Corretora",
             sortedBy = { it.brokerageName },
             cellContent = { row ->
+                val brokerage = state.brokerages.find { it.id == row.brokerageId }
                 TableInputSelect(
-                    value = state.brokerages.find { it.id == row.brokerageId },
+                    value = brokerage,
+                    onValueChange = { value ->
+                        viewModel.onIntent(UpdateBrokerage(row.assetId, value, category))
+                    },
                     options = listOf(null) + state.brokerages,
                     format = { it?.name.orEmpty() },
-                    onChange = { value ->
-                        viewModel.onIntent(UpdateBrokerage(row.assetId, value, category))
-                    }
+                    placeholder = if (brokerage == null && row.brokerageName.isNotEmpty()) row.brokerageName else null
                 )
             }
         )
@@ -377,13 +389,15 @@ private fun AssetsScreenVariableIncome(
             header = "Corretora",
             sortedBy = { it.brokerageName },
             cellContent = { row ->
+                val brokerage = state.brokerages.find { it.id == row.brokerageId }
                 TableInputSelect(
-                    value = state.brokerages.find { it.id == row.brokerageId },
+                    value = brokerage,
+                    onValueChange = { value ->
+                        viewModel.onIntent(UpdateBrokerage(row.assetId, value, category))
+                    },
                     options = listOf(null) + state.brokerages,
                     format = { it?.name.orEmpty() },
-                    onChange = { value ->
-                        viewModel.onIntent(UpdateBrokerage(row.assetId, value, category))
-                    }
+                    placeholder = if (brokerage == null && row.brokerageName.isNotEmpty()) row.brokerageName else null
                 )
             }
         )
@@ -494,13 +508,15 @@ private fun AssetsScreenFunds(
             header = "Corretora",
             sortedBy = { it.brokerageName },
             cellContent = { row ->
+                val brokerage = state.brokerages.find { it.id == row.brokerageId }
                 TableInputSelect(
-                    value = state.brokerages.find { it.id == row.brokerageId },
+                    value = brokerage,
+                    onValueChange = { value ->
+                        viewModel.onIntent(UpdateBrokerage(row.assetId, value, category))
+                    },
                     options = listOf(null) + state.brokerages,
                     format = { it?.name.orEmpty() },
-                    onChange = { value ->
-                        viewModel.onIntent(UpdateBrokerage(row.assetId, value, category))
-                    }
+                    placeholder = if (brokerage == null && row.brokerageName.isNotEmpty()) row.brokerageName else null
                 )
             }
         )

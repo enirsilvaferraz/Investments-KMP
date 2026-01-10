@@ -33,8 +33,11 @@ public class GetAssetsTableDataUseCase(
         val assets = getAssetsUseCase(GetAssetsUseCase.ByCategory(param.category))
             .getOrNull() ?: emptyList()
         
+        // Buscar todos os holdings de uma vez e criar mapa assetId -> brokerage
+        // Se um asset tiver múltiplos holdings, mantém o primeiro encontrado
         val assetBrokeragesMap = assetHoldingRepository.getAll()
-            .associate { it.asset.id to it.brokerage }
+            .associateBy { it.asset.id }
+            .mapValues { it.value.brokerage }
 
         // Converter cada asset para o formato de tabela
         return when (param.category) {

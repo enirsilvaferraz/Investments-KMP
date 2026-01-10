@@ -86,7 +86,7 @@ internal class HistoryViewModel(
         val period = _state.value.selectedPeriod
 
         viewModelScope.launch {
-            
+
             val periods = async {
                 getDataPeriodUseCase(Unit).getOrNull() ?: emptyList()
             }
