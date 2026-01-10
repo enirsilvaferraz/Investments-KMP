@@ -4,12 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.usecases.GetDataPeriodUseCase
+import com.eferraz.usecases.GetHistoryTableDataUseCase
 import com.eferraz.usecases.MergeHistoryUseCase
 import com.eferraz.usecases.SyncVariableIncomeValuesUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
-import com.eferraz.usecases.entities.HoldingHistoryResult
+import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.providers.DateProvider
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,31 +24,32 @@ import org.koin.android.annotation.KoinViewModel
 internal class HistoryViewModel(
     dateProvider: DateProvider,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
-    private val getHoldingHistoryUseCase: MergeHistoryUseCase,
+    private val getHistoryTableDataUseCase: GetHistoryTableDataUseCase,
+    private val mergeHistoryUseCase: MergeHistoryUseCase,
     private val updateFixedIncomeAndFundsHistoryValueUseCase: UpdateFixedIncomeAndFundsHistoryValueUseCase,
     private val updateVariableIncomeValues: SyncVariableIncomeValuesUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HistoryState(selectedPeriod = dateProvider.getCurrentYearMonth()))
-    val state: StateFlow<HistoryState> = _state.asStateFlow()
+    internal val state: StateFlow<HistoryState> = _state.asStateFlow()
 
     init {
-        processIntent(HistoryIntent.LoadInitialData)
+        processIntent(HistoryIntent.LoadInitialData(null))
     }
 
-    fun processIntent(intent: HistoryIntent) {
+    internal fun processIntent(intent: HistoryIntent) {
         when (intent) {
             is HistoryIntent.SelectPeriod -> selectPeriod(intent.period)
-            is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entry, intent.value)
+            is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entryId, intent.value)
             is HistoryIntent.SelectHolding -> selectHolding(intent.holding)
-            is HistoryIntent.LoadInitialData -> loadPeriodData()
+            is HistoryIntent.LoadInitialData -> loadPeriodData(intent.category)
             is HistoryIntent.Sync -> sync()
         }
     }
 
     private fun selectPeriod(period: YearMonth) {
         _state.value = _state.value.copy(selectedPeriod = period)
-        processIntent(HistoryIntent.LoadInitialData)
+        processIntent(HistoryIntent.LoadInitialData(_state.value.currentCategory))
     }
 
     private fun selectHolding(holding: AssetHolding?) {
@@ -53,14 +57,17 @@ internal class HistoryViewModel(
     }
 
     private fun updateEntryValue(
-        entry: HoldingHistoryEntry,
+        entryId: Long,
         value: Double,
     ) {
         viewModelScope.launch {
-            updateFixedIncomeAndFundsHistoryValueUseCase(
-                UpdateFixedIncomeAndFundsHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
-            ).onSuccess {
-                processIntent(HistoryIntent.LoadInitialData)
+            val entry = _state.value.entryMap[entryId]
+            if (entry != null) {
+                updateFixedIncomeAndFundsHistoryValueUseCase(
+                    UpdateFixedIncomeAndFundsHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
+                ).onSuccess {
+                    processIntent(HistoryIntent.LoadInitialData(_state.value.currentCategory))
+                }
             }
         }
     }
@@ -70,35 +77,60 @@ internal class HistoryViewModel(
             updateVariableIncomeValues(
                 SyncVariableIncomeValuesUseCase.Param(_state.value.selectedPeriod)
             ).onSuccess {
-                processIntent(HistoryIntent.LoadInitialData)
-                println("Success")
+                processIntent(HistoryIntent.LoadInitialData(_state.value.currentCategory))
             }
         }
     }
 
-    private fun loadPeriodData() {
-
+    internal fun loadPeriodData(category: InvestmentCategory?) {
         val period = _state.value.selectedPeriod
 
         viewModelScope.launch {
-
-            getDataPeriodUseCase(Unit).onSuccess { entries ->
-                _state.value = _state.value.copy(periods = entries)
+            
+            val periods = async {
+                getDataPeriodUseCase(Unit).getOrNull() ?: emptyList()
+            }
+            val tableData = async {
+                getHistoryTableDataUseCase(GetHistoryTableDataUseCase.Param(period, category)).getOrNull() ?: emptyList()
             }
 
-            getHoldingHistoryUseCase(MergeHistoryUseCase.Param(period)).onSuccess { entries ->
-                _state.value = _state.value.copy(entries = entries)
-            }.onFailure {
-                println("Error: $it")
-            }
+            // Buscar os resultados originais para manter referência aos entries
+            val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(period)).getOrNull() ?: emptyList()
+            
+            // Criar mapa de entryId para entry (filtrar entries sem ID)
+            val entryMap = results
+                .mapNotNull { result -> result.currentEntry.id?.let { id -> id to result.currentEntry } }
+                .toMap()
+            
+            // Criar mapa de holdingId para holding
+            val holdingMap = results.associate { it.holding.id to it.holding }
+
+            _state.value = _state.value.copy(
+                periods = periods.await(),
+                tableData = tableData.await(),
+                currentCategory = category,
+                entryMap = entryMap,
+                holdingMap = holdingMap
+            )
         }
     }
 
-    data class HistoryState(
+    internal sealed interface HistoryIntent {
+        data class SelectPeriod(val period: YearMonth) : HistoryIntent
+        data class UpdateEntryValue(val entryId: Long, val value: Double) : HistoryIntent
+        data class SelectHolding(val holding: AssetHolding?) : HistoryIntent
+        data class LoadInitialData(val category: InvestmentCategory? = null) : HistoryIntent
+        data object Sync : HistoryIntent
+    }
+
+    internal data class HistoryState(
         val selectedPeriod: YearMonth,
-        val entries: List<HoldingHistoryResult> = emptyList(),
+        val tableData: List<HistoryTableData> = emptyList(),
         val periods: List<YearMonth> = emptyList(),
         val selectedHolding: AssetHolding? = null,
+        val currentCategory: InvestmentCategory? = null,
+        val entryMap: Map<Long, HoldingHistoryEntry> = emptyMap(),
+        val holdingMap: Map<Long, AssetHolding> = emptyMap(),
     )
 }
 
