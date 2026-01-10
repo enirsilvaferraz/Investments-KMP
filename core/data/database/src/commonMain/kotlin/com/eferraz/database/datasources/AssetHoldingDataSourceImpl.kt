@@ -7,6 +7,7 @@ import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.entities.Asset
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.Brokerage
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.Owner
 import org.koin.core.annotation.Factory
 
@@ -52,14 +53,27 @@ internal class AssetHoldingDataSourceImpl(
         return getHoldingsByAssets(assetsMap)
     }
 
+    override suspend fun getByCategory(category: InvestmentCategory): List<AssetHolding> {
+        val assetsMap = assetDataSource.getByType(category).associateBy { asset -> asset.id }
+        val holdingsWithDetails = assetHoldingDao.getAllWithAssetByCategory(category)
+
+        return holdingsWithDetails.mapNotNull { holdingWithDetails ->
+            AssetHolding(
+                id = holdingWithDetails.holding.id,
+                asset = assetsMap[holdingWithDetails.asset.id] ?: return@mapNotNull null,
+                owner = Owner(id = holdingWithDetails.owner.id, name = holdingWithDetails.owner.name),
+                brokerage = Brokerage(id = holdingWithDetails.brokerage.id, name = holdingWithDetails.brokerage.name)
+            )
+        }
+    }
+
     private suspend fun getHoldingsByAssets(assetsMap: Map<Long, Asset>): List<AssetHolding> {
         val holdingsWithDetails = assetHoldingDao.getAllWithAsset()
 
         return holdingsWithDetails.mapNotNull { holdingWithDetails ->
-            val asset = assetsMap[holdingWithDetails.asset.id] ?: return@mapNotNull null
             AssetHolding(
                 id = holdingWithDetails.holding.id,
-                asset = asset,
+                asset = assetsMap[holdingWithDetails.asset.id] ?: return@mapNotNull null,
                 owner = Owner(id = holdingWithDetails.owner.id, name = holdingWithDetails.owner.name),
                 brokerage = Brokerage(id = holdingWithDetails.brokerage.id, name = holdingWithDetails.brokerage.name)
             )

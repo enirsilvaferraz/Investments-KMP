@@ -26,29 +26,16 @@ public class GetHistoryTableDataUseCase(
 
     public data class Param(
         val referenceDate: kotlinx.datetime.YearMonth,
-        val category: InvestmentCategory?
+        val category: InvestmentCategory
     )
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
-        // Buscar histórico de todas as posições
-        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate))
+        // Buscar histórico de posições (já filtrado por categoria no MergeHistoryUseCase)
+        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, param.category))
             .getOrNull() ?: emptyList()
 
-        // Filtrar por categoria se especificada
-        val filteredResults = if (param.category != null) {
-            results.filter { result ->
-                when (param.category) {
-                    InvestmentCategory.FIXED_INCOME -> result.holding.asset is FixedIncomeAsset
-                    InvestmentCategory.VARIABLE_INCOME -> result.holding.asset is VariableIncomeAsset
-                    InvestmentCategory.INVESTMENT_FUND -> result.holding.asset is InvestmentFundAsset
-                }
-            }
-        } else {
-            results
-        }
-
         // Converter cada resultado para o formato de tabela
-        return filteredResults.map { result ->
+        return results.map { result ->
             val asset = result.holding.asset
             val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity
             val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity

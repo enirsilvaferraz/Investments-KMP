@@ -2,6 +2,7 @@ package com.eferraz.usecases
 
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.usecases.TestDataFactory.createAssetHolding
 import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
 import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry
@@ -64,13 +65,14 @@ class MergeHistoryUseCaseTest {
         val previousEntry2 = createHoldingHistoryEntry(id = 4, holding = holding2, referenceDate = previousDate, endOfMonthValue = 180.0)
 
         val holdings = listOf(holding1, holding2)
+        val category = InvestmentCategory.VARIABLE_INCOME
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns listOf(currentEntry1, currentEntry2)
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns listOf(previousEntry1, previousEntry2)
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertEquals(2, result.size)
@@ -88,7 +90,7 @@ class MergeHistoryUseCaseTest {
         assertEquals(previousEntry2, result2.previousEntry)
 
         // Verificar chamadas
-        coVerify(exactly = 1) { mockAssetHoldingRepository.getAll() }
+        coVerify(exactly = 1) { mockAssetHoldingRepository.getByCategory(category) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByReferenceDate(previousDate) }
         coVerify(exactly = 0) { mockCreateHistoryUseCase(any()) }
@@ -118,15 +120,16 @@ class MergeHistoryUseCaseTest {
         val holdings = listOf(holding1, holding2)
         val defaultPreviousEntry1 = createHoldingHistoryEntry(holding = holding1, referenceDate = previousDate)
         val defaultPreviousEntry2 = createHoldingHistoryEntry(holding = holding2, referenceDate = previousDate)
+        val category = InvestmentCategory.VARIABLE_INCOME
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns listOf(currentEntry1, currentEntry2)
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns emptyList()
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(previousDate, holding1)) } returns Result.success(defaultPreviousEntry1)
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(previousDate, holding2)) } returns Result.success(defaultPreviousEntry2)
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertEquals(2, result.size)
@@ -169,14 +172,15 @@ class MergeHistoryUseCaseTest {
         val defaultCurrentEntry1 = createHoldingHistoryEntry(holding = holding1, referenceDate = referenceDate)
         val defaultCurrentEntry2 = createHoldingHistoryEntry(holding = holding2, referenceDate = referenceDate)
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        val category = InvestmentCategory.VARIABLE_INCOME
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns emptyList()
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns listOf(previousEntry1, previousEntry2)
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding1)) } returns Result.success(defaultCurrentEntry1)
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding2)) } returns Result.success(defaultCurrentEntry2)
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertEquals(2, result.size)
@@ -220,7 +224,8 @@ class MergeHistoryUseCaseTest {
         val defaultPreviousEntry2 = createHoldingHistoryEntry(holding = holding2, referenceDate = previousDate)
         val defaultPreviousEntry3 = createHoldingHistoryEntry(holding = holding3, referenceDate = previousDate)
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        val category = InvestmentCategory.VARIABLE_INCOME
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns emptyList()
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns emptyList()
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding1)) } returns Result.success(defaultCurrentEntry1)
@@ -231,7 +236,7 @@ class MergeHistoryUseCaseTest {
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(previousDate, holding3)) } returns Result.success(defaultPreviousEntry3)
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertEquals(3, result.size)
@@ -265,18 +270,19 @@ class MergeHistoryUseCaseTest {
 
         val holdings = emptyList<AssetHolding>()
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        val category = InvestmentCategory.VARIABLE_INCOME
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns emptyList()
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns emptyList()
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertTrue(result.isEmpty())
 
         // Verificar que os repositórios são chamados mesmo sem holdings
-        coVerify(exactly = 1) { mockAssetHoldingRepository.getAll() }
+        coVerify(exactly = 1) { mockAssetHoldingRepository.getByCategory(category) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByReferenceDate(previousDate) }
         coVerify(exactly = 0) { mockCreateHistoryUseCase(any()) }
@@ -308,12 +314,13 @@ class MergeHistoryUseCaseTest {
         val previousEntry3 = createHoldingHistoryEntry(id = 7, holding = holding3, referenceDate = previousDate)
         val previousEntry4 = createHoldingHistoryEntry(id = 8, holding = holding4, referenceDate = previousDate)
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        val category = InvestmentCategory.VARIABLE_INCOME
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns listOf(currentEntry1, currentEntry2, currentEntry3, currentEntry4)
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns listOf(previousEntry1, previousEntry2, previousEntry3, previousEntry4)
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertEquals(4, result.size)
@@ -360,7 +367,8 @@ class MergeHistoryUseCaseTest {
 
         val holdings = listOf(holding1, holding2, holding3, holding4)
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        val category = InvestmentCategory.VARIABLE_INCOME
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns listOf(currentEntry1, currentEntry2)
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns listOf(previousEntry1, previousEntry3)
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(previousDate, holding2)) } returns Result.success(defaultPreviousEntry2)
@@ -369,7 +377,7 @@ class MergeHistoryUseCaseTest {
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(previousDate, holding4)) } returns Result.success(defaultPreviousEntry4)
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertEquals(4, result.size)
@@ -431,12 +439,13 @@ class MergeHistoryUseCaseTest {
 
         val holdings = listOf(holding1, holding2, holding3)
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        val category = InvestmentCategory.VARIABLE_INCOME
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns listOf(currentEntry1, currentEntry2, currentEntry3)
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns listOf(previousEntry1, previousEntry2, previousEntry3)
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertEquals(3, result.size)
@@ -485,14 +494,15 @@ class MergeHistoryUseCaseTest {
 
         val holdings = listOf(holding1, holding2, holding3)
 
-        coEvery { mockAssetHoldingRepository.getAll() } returns holdings
+        val category = InvestmentCategory.VARIABLE_INCOME
+        coEvery { mockAssetHoldingRepository.getByCategory(category) } returns holdings
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(referenceDate) } returns listOf(currentEntry1, currentEntry2)
         coEvery { mockHoldingHistoryRepository.getByReferenceDate(previousDate) } returns listOf(previousEntry1, previousEntry2)
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding3)) } returns Result.success(defaultCurrentEntry3)
         coEvery { mockCreateHistoryUseCase(CreateHistoryUseCase.Param(previousDate, holding3)) } returns Result.success(defaultPreviousEntry3)
 
         // Act
-        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
+        val result = mergeHistoryUseCase(MergeHistoryUseCase.Param(referenceDate, category)).getOrThrow()
 
         // Assert
         assertEquals(3, result.size)

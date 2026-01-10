@@ -3,10 +3,12 @@ package com.eferraz.database.daos
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import androidx.room.Upsert
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.database.entities.holdings.AssetHoldingWithDetails
+import com.eferraz.entities.InvestmentCategory
 /**
  * DAO para operações CRUD na tabela asset_holdings.
  */
@@ -34,5 +36,14 @@ internal interface AssetHoldingDao {
     @Transaction
     @Query("SELECT * FROM asset_holdings")
     suspend fun getAllWithAsset(): List<AssetHoldingWithDetails>
+
+    @Transaction
+    @RewriteQueriesToDropUnusedColumns
+    @Query("""
+        SELECT * FROM asset_holdings
+        INNER JOIN assets ON asset_holdings.assetId = assets.id
+        WHERE assets.category = :category
+    """)
+    suspend fun getAllWithAssetByCategory(category: InvestmentCategory): List<AssetHoldingWithDetails>
 }
 
