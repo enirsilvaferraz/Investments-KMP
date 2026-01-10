@@ -271,24 +271,28 @@ private fun HistoryScreenFixedIncome(
         column(
             header = "Corretora",
             sortedBy = { it.viewData.brokerage },
+            weight = 1.2f,
             cellValue = { it.viewData.brokerage }
         )
         
         column(
             header = "SubCategoria",
             sortedBy = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.subType?.name ?: "" },
+            weight = 0.9f,
             cellValue = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.subType?.formated() ?: "" }
         )
         
         column(
             header = "Tipo",
             sortedBy = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.type?.name ?: "" },
+            weight = 0.9f,
             cellValue = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.type?.formated() ?: "" }
         )
         
         column(
             header = "Vencimento",
             sortedBy = { it.viewData.maturity?.toString() ?: "" },
+            weight = 1.0f,
             cellContent = { row ->
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -303,36 +307,43 @@ private fun HistoryScreenFixedIncome(
         column(
             header = "Taxa",
             sortedBy = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.contractedYield ?: 0.0 },
+            weight = 0.8f,
             cellValue = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.contractedYield?.toString() ?: "" }
         )
         
         column(
             header = "% CDI",
             sortedBy = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.cdiRelativeYield ?: 0.0 },
+            weight = 0.8f,
             cellValue = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.cdiRelativeYield?.toString() ?: "" }
         )
         
         column(
             header = "Emissor",
             sortedBy = { it.viewData.issuer },
+            weight = 1.5f,
             cellValue = { it.viewData.issuer }
         )
         
         column(
             header = "Liquidez",
             sortedBy = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.liquidity?.name ?: "" },
+            weight = 1f,
             cellValue = { (it.currentHistory.holding.asset as? FixedIncomeAsset)?.liquidity?.formated() ?: "" }
         )
         
         column(
             header = "Observação",
             sortedBy = { it.viewData.observations.orEmpty() },
+            weight = 2.0f,
             cellValue = { it.viewData.observations.orEmpty() }
         )
         
         column(
             header = "Valor Anterior",
+            alignment = Alignment.End,
             sortedBy = { it.viewData.previousValue },
+            weight = 1.3f,
             cellContent = { row ->
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -347,7 +358,9 @@ private fun HistoryScreenFixedIncome(
         
         column(
             header = "Valor Atual",
+            alignment = Alignment.End,
             sortedBy = { it.viewData.currentValue },
+            weight = 1.3f,
             cellContent = { row ->
                 TableInputMoney(
                     value = row.viewData.currentValue,
@@ -359,8 +372,10 @@ private fun HistoryScreenFixedIncome(
         )
         
         column(
-            header = "Valorização",
+            header = "%",
+            alignment = Alignment.CenterHorizontally,
             sortedBy = { it.viewData.appreciation },
+            weight = 0.5f,
             cellContent = { row ->
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -403,42 +418,50 @@ private fun HistoryScreenVariableIncome(
         column(
             header = "Corretora",
             sortedBy = { it.viewData.brokerage },
+            weight = 1.2f,
             cellValue = { it.viewData.brokerage }
         )
         
         column(
             header = "Tipo",
             sortedBy = { (it.currentHistory.holding.asset as? VariableIncomeAsset)?.type?.name ?: "" },
+            weight = 0.9f,
             cellValue = { (it.currentHistory.holding.asset as? VariableIncomeAsset)?.type?.formated() ?: "" }
         )
         
         column(
             header = "Ticker",
             sortedBy = { (it.currentHistory.holding.asset as? VariableIncomeAsset)?.ticker ?: "" },
+            weight = 0.9f,
             cellValue = { (it.currentHistory.holding.asset as? VariableIncomeAsset)?.ticker ?: "" }
         )
         
         column(
             header = "CNPJ",
             sortedBy = { (it.currentHistory.holding.asset as? VariableIncomeAsset)?.cnpj?.get() ?: "" },
+            weight = 0.7f,
             cellValue = { (it.currentHistory.holding.asset as? VariableIncomeAsset)?.cnpj?.get() ?: "" }
         )
         
         column(
             header = "Nome",
             sortedBy = { (it.currentHistory.holding.asset as? VariableIncomeAsset)?.name ?: "" },
+            weight = 2.5f,
             cellValue = { (it.currentHistory.holding.asset as? VariableIncomeAsset)?.name ?: "" }
         )
         
         column(
             header = "Observação",
             sortedBy = { it.viewData.observations.orEmpty() },
+            weight = 0.7f,
             cellValue = { it.viewData.observations.orEmpty() }
         )
         
         column(
             header = "Valor Anterior",
+            alignment = Alignment.End,
             sortedBy = { it.viewData.previousValue },
+            weight = 1.3f,
             cellContent = { row ->
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -453,7 +476,9 @@ private fun HistoryScreenVariableIncome(
         
         column(
             header = "Valor Atual",
+            alignment = Alignment.End,
             sortedBy = { it.viewData.currentValue },
+            weight = 1.3f,
             cellContent = { row ->
                 TableInputMoney(
                     value = row.viewData.currentValue,
@@ -465,8 +490,10 @@ private fun HistoryScreenVariableIncome(
         )
         
         column(
-            header = "Valorização",
+            header = "%",
+            alignment = Alignment.CenterHorizontally,
             sortedBy = { it.viewData.appreciation },
+            weight = 0.5f,
             cellContent = { row ->
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -509,54 +536,64 @@ private fun HistoryScreenFunds(
         column(
             header = "Corretora",
             sortedBy = { it.viewData.brokerage },
+            weight = 1.2f,
             cellValue = { it.viewData.brokerage }
         )
         
         column(
             header = "Tipo",
             sortedBy = { (it.currentHistory.holding.asset as? InvestmentFundAsset)?.type?.name ?: "" },
+            weight = 0.9f,
             cellValue = { (it.currentHistory.holding.asset as? InvestmentFundAsset)?.type?.formated() ?: "" }
         )
         
         column(
             header = "Nome",
             sortedBy = { (it.currentHistory.holding.asset as? InvestmentFundAsset)?.name ?: "" },
+            weight = 2.0f,
             cellValue = { (it.currentHistory.holding.asset as? InvestmentFundAsset)?.name ?: "" }
         )
         
         column(
             header = "Liquidez",
             sortedBy = { (it.currentHistory.holding.asset as? InvestmentFundAsset)?.liquidity?.name ?: "" },
+            weight = 1f,
             cellValue = { (it.currentHistory.holding.asset as? InvestmentFundAsset)?.liquidity?.formated() ?: "" }
         )
         
         column(
             header = "Dias Liq.",
             sortedBy = { (it.currentHistory.holding.asset as? InvestmentFundAsset)?.liquidityDays ?: 0 },
+            weight = 0.8f,
             cellValue = { (it.currentHistory.holding.asset as? InvestmentFundAsset)?.liquidityDays?.toString() ?: "" }
         )
         
         column(
             header = "Vencimento",
             sortedBy = { it.viewData.maturity?.toString() ?: "" },
+            weight = 0.8f,
             cellValue = { it.formatted.maturity }
         )
         
         column(
             header = "Emissor",
             sortedBy = { it.viewData.issuer },
+            weight = 1.2f,
             cellValue = { it.viewData.issuer }
         )
         
         column(
             header = "Observação",
             sortedBy = { it.viewData.observations },
+            weight = 0.7f,
             cellValue = { it.viewData.observations }
         )
         
         column(
             header = "Valor Anterior",
+            alignment = Alignment.End,
             sortedBy = { it.viewData.previousValue },
+            weight = 1.3f,
             cellContent = { row ->
                 Text(
                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -571,7 +608,9 @@ private fun HistoryScreenFunds(
         
         column(
             header = "Valor Atual",
+            alignment = Alignment.End,
             sortedBy = { it.viewData.currentValue },
+            weight = 1.3f,
             cellContent = { row ->
                 TableInputMoney(
                     value = row.viewData.currentValue,
@@ -583,7 +622,9 @@ private fun HistoryScreenFunds(
         )
         
         column(
-            header = "Valorização",
+            header = "%",
+            weight = 0.5f,
+            alignment = Alignment.CenterHorizontally,
             sortedBy = { it.viewData.appreciation },
             cellContent = { row ->
                 Text(

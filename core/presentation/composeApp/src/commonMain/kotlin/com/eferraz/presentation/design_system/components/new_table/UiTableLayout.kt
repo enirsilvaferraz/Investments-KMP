@@ -6,22 +6,17 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.Color
 
 // ============================================================================
 // COMPONENTES DE LAYOUT - HEADER, ROW, FOOTER
@@ -42,12 +37,10 @@ internal fun <T> TableHeader(
     ResponsiveRow(
         modifier = headerFooterModifier(),
         state = responsiveState
-    ) { availableWidth ->
-
+    ) {
         renderCells(
             columns = columns,
-            responsiveState = responsiveState,
-            availableWidth = availableWidth
+            responsiveState = responsiveState
         ) { index, col ->
 
             val onColumnClick = remember(index, onSort) { { onSort(index) } }
@@ -55,7 +48,6 @@ internal fun <T> TableHeader(
             Cell(
                 state = responsiveState,
                 index = index,
-                availableWidth = availableWidth,
                 modifier = Modifier.clickable(enabled = col.isSortable(), onClick = onColumnClick)
             ) {
 
@@ -96,18 +88,15 @@ internal fun <T> TableRow(
             .hoverable(interactionSource = interactionSource)
             .clickable(onSelect.value != null, onClick = onRowClick),
         state = responsiveState,
-    ) { availableWidth ->
-
+    ) {
         renderCells(
             columns = columns,
-            responsiveState = responsiveState,
-            availableWidth = availableWidth
+            responsiveState = responsiveState
         ) { colIndex, col ->
 
             Cell(
                 state = responsiveState,
-                index = colIndex,
-                availableWidth = availableWidth
+                index = colIndex
             ) {
                 cellRenderer.renderCell(col, item)
             }
@@ -126,18 +115,15 @@ internal fun <T> TableFooter(
     ResponsiveRow(
         modifier = headerFooterModifier(),
         state = responsiveState
-    ) { availableWidth ->
-
+    ) {
         renderCells(
             columns = columns,
-            responsiveState = responsiveState,
-            availableWidth = availableWidth
+            responsiveState = responsiveState
         ) { index, col ->
 
             Cell(
                 state = responsiveState,
-                index = index,
-                availableWidth = availableWidth
+                index = index
             ) {
 
                 cellRenderer.renderFooter(col, data)
@@ -147,11 +133,10 @@ internal fun <T> TableFooter(
 }
 
 @Composable
-private fun <T> renderCells(
+private fun <T> RowScope.renderCells(
     columns: List<ColumnData<T>>,
     responsiveState: ResponsiveState,
-    availableWidth: Int?,
-    cellContent: @Composable (index: Int, column: ColumnData<T>) -> Unit,
+    cellContent: @Composable RowScope.(index: Int, column: ColumnData<T>) -> Unit,
 ) {
 
     columns.forEachIndexed { index, col ->
@@ -167,48 +152,33 @@ private fun <T> renderCells(
 internal fun ResponsiveRow(
     state: ResponsiveState,
     modifier: Modifier = Modifier,
-    content: @Composable RowScope.(availableWidth: Int?) -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
 
-    var rowWidth by remember { mutableStateOf<Int?>(null) }
-
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .onGloballyPositioned { coordinates ->
-                rowWidth = coordinates.size.width
-            },
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        content(rowWidth)
+        content()
     }
 }
 
 @Composable
-internal fun Cell(
+internal fun RowScope.Cell(
     state: ResponsiveState,
     index: Int,
-    availableWidth: Int?,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
 
-    val density = LocalDensity.current
-    val calculatedWidth = state.calculateCellWidth(index, availableWidth)
-
-    // PERFORMANCE: Lembra modifier apenas quando necessário
-    val widthModifier = remember(calculatedWidth, density) {
-        if (calculatedWidth != null) Modifier.width(with(density) { calculatedWidth.toDp() })
-        else Modifier.width(IntrinsicSize.Max)
-    }
+    val weight = state.getWeight(index)
 
     Box(
-        modifier = widthModifier
+        modifier = Modifier
+            .weight(weight)
+//            .background((if (index % 2 == 0) Color.Blue else Color.Red).copy(alpha = 0.4f))
             .then(modifier)
-            .onGloballyPositioned { coordinates ->
-                state.updateWidth(index, coordinates.size.width)
-            }
     ) {
 
         content()

@@ -32,6 +32,15 @@ private val CELL_PADDING = 8.dp
 @Composable
 private fun headerFooterTextStyle() = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
 
+private fun Alignment.Horizontal.toBoxAlignment(): Alignment {
+    return when (this) {
+        Alignment.Start -> Alignment.CenterStart
+        Alignment.CenterHorizontally -> Alignment.Center
+        Alignment.End -> Alignment.CenterEnd
+        else -> Alignment.CenterStart
+    }
+}
+
 // ============================================================================
 // INTERFACE DE RENDERIZAÇÃO DE CÉLULAS
 // ============================================================================
@@ -73,28 +82,43 @@ internal class DefaultCellRenderer<T> : CellRenderer<T> {
         sortState: SortState,
         onSort: (Int) -> Unit,
     ) {
+        val textAlign = when (column.alignment) {
+            Alignment.Start -> androidx.compose.ui.text.style.TextAlign.Start
+            Alignment.CenterHorizontally -> androidx.compose.ui.text.style.TextAlign.Center
+            Alignment.End -> androidx.compose.ui.text.style.TextAlign.End
+            else -> androidx.compose.ui.text.style.TextAlign.Start
+        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth().height(HEADER_HEIGHT).padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        Box(
+            modifier = Modifier.fillMaxWidth().height(HEADER_HEIGHT).padding(CELL_PADDING),
+            contentAlignment = column.alignment.toBoxAlignment()
         ) {
-
-            Text(
-                modifier = Modifier.padding(CELL_PADDING),
-                text = column.header,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = headerFooterTextStyle(),
-            )
-
-            if (sortState.sortedColumnIndex == index) {
-
-                Icon(
-                    imageVector = if (sortState.isAscending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.primary
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = when (column.alignment) {
+                    Alignment.Start -> Arrangement.Start
+                    Alignment.CenterHorizontally -> Arrangement.Center
+                    Alignment.End -> Arrangement.End
+                    else -> Arrangement.Start
+                }
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = CELL_PADDING),
+                    text = column.header,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = headerFooterTextStyle(),
+                    textAlign = textAlign
                 )
+
+                if (sortState.sortedColumnIndex == index) {
+                    Icon(
+                        imageVector = if (sortState.isAscending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
@@ -103,7 +127,7 @@ internal class DefaultCellRenderer<T> : CellRenderer<T> {
     override fun renderCell(column: ColumnData<T>, item: T) {
         Box(
             modifier = Modifier.fillMaxWidth().height(CELL_HEIGHT).padding(CELL_PADDING),
-            contentAlignment = Alignment.CenterStart
+            contentAlignment = column.alignment.toBoxAlignment()
         ) {
             column.cell.invoke(this, item)
         }
@@ -111,14 +135,22 @@ internal class DefaultCellRenderer<T> : CellRenderer<T> {
 
     @Composable
     override fun renderFooter(column: ColumnData<T>, data: List<T>) {
+        val textAlign = when (column.alignment) {
+            Alignment.Start -> androidx.compose.ui.text.style.TextAlign.Start
+            Alignment.CenterHorizontally -> androidx.compose.ui.text.style.TextAlign.Center
+            Alignment.End -> androidx.compose.ui.text.style.TextAlign.End
+            else -> androidx.compose.ui.text.style.TextAlign.Start
+        }
+        
         Box(
             modifier = Modifier.fillMaxWidth().height(FOOTER_HEIGHT).padding(CELL_PADDING),
-            contentAlignment = Alignment.CenterStart
+            contentAlignment = column.alignment.toBoxAlignment()
         ) {
             Text(
                 text = column.footer(data),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = headerFooterTextStyle(),
+                textAlign = textAlign
             )
         }
     }

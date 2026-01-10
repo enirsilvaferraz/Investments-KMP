@@ -38,13 +38,14 @@ internal fun <T> UiTable(
     // PERFORMANCE: Usa headers como chave estável para remember
     val columns = remember(scope.columns.map { it.header }) { scope.columns }
     val sortedByFunctions = remember(columns) { columns.map { it.sortedBy } }
+    val weights = remember(columns) { columns.map { it.weight } }
 
     // PERFORMANCE: Estratégias criadas uma vez e lembradas
     val sortStrategy = remember { DefaultSortStrategy<T>() }
     val cellRenderer = remember { DefaultCellRenderer<T>() }
 
     val sortState = rememberSortState(data, sortedByFunctions, sortStrategy)
-    val responsiveState = rememberResponsiveState(columns.size)
+    val responsiveState = rememberResponsiveState(weights)
 
     // PERFORMANCE: Lembra callbacks para evitar recriação de lambdas
     val onSort = remember { { index: Int -> sortState.sort(index) } }
@@ -120,10 +121,10 @@ internal fun UITablePreview() {
                 ).toList(),
                 onSelect = { println("Selected: $it") }
             ) {
-                column(header = "Header 1", sortedBy = { it.text1 }, cellValue = { it.text1 })
-                column(header = "Header 2", sortedBy = { it.text2 }, cellValue = { it.text2 }, footer = { "Footer teste" })
-                column(header = "Header 3", sortedBy = { it.text3 }, cellValue = { it.text3 })
-                column(header = "Header 4", cellValue = { it.text1 }, footer = { it.size.toString() })
+                column(header = "Header 1", sortedBy = { it.text1 }, weight = 1.0f, cellValue = { it.text1 })
+                column(header = "Header 2", sortedBy = { it.text2 }, weight = 2.0f, cellValue = { it.text2 }, footer = { "Footer teste" })
+                column(header = "Header 3", sortedBy = { it.text3 }, weight = 1.5f, cellValue = { it.text3 })
+                column(header = "Header 4", weight = 1.0f, cellValue = { it.text1 }, footer = { it.size.toString() })
             }
         }
     }
