@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import com.eferraz.presentation.design_system.utils.thenIf
 
 // ============================================================================
 // COMPONENTES DE LAYOUT - HEADER, ROW, FOOTER
@@ -73,7 +73,7 @@ internal fun <T> TableRow(
     columns: List<ColumnData<T>>,
     responsiveState: ResponsiveState,
     cellRenderer: CellRenderer<T>,
-    onSelect: androidx.compose.runtime.State<((T) -> Unit)?>,
+    onSelect: State<((T) -> Unit)?>,
 ) {
 
     val onRowClick = remember(item, onSelect) {
@@ -94,9 +94,7 @@ internal fun <T> TableRow(
         modifier = Modifier
             .background(rowBackgroundColor)
             .hoverable(interactionSource = interactionSource)
-            .thenIf(onSelect.value != null) {
-                Modifier.clickable(onClick = onRowClick)
-            },
+            .clickable(onSelect.value != null, onClick = onRowClick),
         state = responsiveState,
     ) { availableWidth ->
 

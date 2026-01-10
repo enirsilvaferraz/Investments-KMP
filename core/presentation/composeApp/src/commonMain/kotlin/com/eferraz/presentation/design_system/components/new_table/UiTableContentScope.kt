@@ -1,10 +1,13 @@
 package com.eferraz.presentation.design_system.components.new_table
 
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 // ============================================================================
 // API PÚBLICA - SCOPE DSL
@@ -57,6 +60,7 @@ internal class UiTableScope<T> : UiTableContentScope<T> {
                 sortedBy = sortedBy,
                 cell = @Composable { current ->
                     Text(
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         text = cellValue(current),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface

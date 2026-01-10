@@ -27,8 +27,9 @@ internal fun AssetsScreenFixedIncome(
     UiTable(
         modifier = modifier,
         data = state.list.filterIsInstance<FixedIncomeAsset>(),
-        onSelect = { asset -> onRowClick(asset.id) }
+//        onSelect = { asset -> onRowClick(asset.id) }
     ) {
+
         column(
             header = "Corretora",
             sortedBy = { state.assetBrokerages[it.id]?.name.orEmpty() },
