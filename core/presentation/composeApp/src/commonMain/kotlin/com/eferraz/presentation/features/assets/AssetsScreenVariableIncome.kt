@@ -37,7 +37,6 @@ internal fun AssetsScreenVariableIncome(
             header = "Corretora",
             sortedBy = { state.assetBrokerages[it.id]?.name.orEmpty() },
             cellContent = { asset ->
-                println(state.assetBrokerages[asset.id])
                 TableInputSelect(
                     value = state.assetBrokerages[asset.id],
                     options = listOf(null) + state.brokerages,
