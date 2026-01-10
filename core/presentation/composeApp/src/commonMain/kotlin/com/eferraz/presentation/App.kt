@@ -66,12 +66,12 @@ private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Uni
         onClick = { backStack[0] = HistoryRouting }
     )
 
-    NavigationSuiteItem(
-        icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Test") },
-        label = { Text("Test") },
-        selected = backStack.lastOrNull() == TestRouting,
-        onClick = { backStack[0] = TestRouting }
-    )
+//    NavigationSuiteItem(
+//        icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Test") },
+//        label = { Text("Test") },
+//        selected = backStack.lastOrNull() == TestRouting,
+//        onClick = { backStack[0] = TestRouting }
+//    )
 }
 
 private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Unit = {
