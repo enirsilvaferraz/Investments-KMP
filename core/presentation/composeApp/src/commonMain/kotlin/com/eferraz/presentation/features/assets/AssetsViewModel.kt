@@ -4,34 +4,39 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.Asset
 import com.eferraz.entities.Brokerage
+import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.Issuer
-import com.eferraz.usecases.GetAssetsUseCase
+import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.usecases.GetAssetUseCase
+import com.eferraz.usecases.GetAssetsTableDataUseCase
 import com.eferraz.usecases.GetBrokeragesUseCase
 import com.eferraz.usecases.GetIssuersUseCase
 import com.eferraz.usecases.SaveAssetUseCase2
 import com.eferraz.usecases.SaveAssetUseCase2.Params
 import com.eferraz.usecases.SetBrokerageToHoldingUseCase
-import com.eferraz.usecases.repositories.AssetHoldingRepository
+import com.eferraz.usecases.entities.AssetsTableData
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 internal class AssetsViewModel(
-    private val getAssetsUseCase: GetAssetsUseCase,
+    private val getAssetsTableDataUseCase: GetAssetsTableDataUseCase,
+    private val getAssetUseCase: GetAssetUseCase,
     private val saveAssetUseCase: SaveAssetUseCase2,
     private val getIssuersUseCase: GetIssuersUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val setBrokerageToHoldingUseCase: SetBrokerageToHoldingUseCase,
-    private val assetHoldingRepository: AssetHoldingRepository,
 ) : ViewModel() {
 
     internal val state: StateFlow<AssetsState>
-        field = MutableStateFlow(AssetsState())
+        get() = _state
+
+    private val _state = MutableStateFlow(AssetsState())
 
     internal fun onIntent(intent: AssetsIntent) = viewModelScope.launch {
 
@@ -39,42 +44,78 @@ internal class AssetsViewModel(
 
             is AssetsIntent.UpdateAsset -> {
                 saveAssetUseCase(Params(intent.asset))
+                // Recarregar dados após atualização
+                loadAssets(intent.category)
             }
 
             is AssetsIntent.UpdateBrokerage -> {
                 setBrokerageToHoldingUseCase(SetBrokerageToHoldingUseCase.Param(assetId = intent.assetId, brokerage = intent.brokerage))
-                state.update { currentState -> currentState.copy(assetBrokerages = reloadMap()) }
+                // Recarregar dados após atualização
+                loadAssets(intent.category)
             }
         }
     }
 
     internal fun loadAssets(category: InvestmentCategory) = viewModelScope.launch {
 
-        val issuers = async { getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList() }
-        val assets = async { getAssetsUseCase(GetAssetsUseCase.ByCategory(category)).getOrNull() ?: emptyList() }
-        val brokerages = async { getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull() ?: emptyList() }
-        val assetBrokeragesMap = async { reloadMap() }
+        val tableData = async { 
+            getAssetsTableDataUseCase(GetAssetsTableDataUseCase.Param(category)).getOrNull() ?: emptyList() 
+        }
+        val issuers = async { 
+            getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList() 
+        }
+        val brokerages = async { 
+            getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull() ?: emptyList() 
+        }
 
-        state.value = AssetsState(
-            list = assets.await(),
+        _state.value = AssetsState(
+            tableData = tableData.await(),
             issuers = issuers.await(),
             brokerages = brokerages.await(),
-            assetBrokerages = assetBrokeragesMap.await()
         )
     }
 
-    private suspend fun reloadMap() =
-        assetHoldingRepository.getAll().associate { it.asset.id to it.brokerage }
+    internal fun updateFixedIncomeAsset(
+        assetId: Long,
+        category: InvestmentCategory,
+        update: (FixedIncomeAsset) -> FixedIncomeAsset
+    ) = viewModelScope.launch {
+        val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? FixedIncomeAsset
+        asset?.let { updatedAsset ->
+            onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+        }
+    }
+
+    internal fun updateVariableIncomeAsset(
+        assetId: Long,
+        category: InvestmentCategory,
+        update: (VariableIncomeAsset) -> VariableIncomeAsset
+    ) = viewModelScope.launch {
+        val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? VariableIncomeAsset
+        asset?.let { updatedAsset ->
+            onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+        }
+    }
+
+    internal fun updateInvestmentFundAsset(
+        assetId: Long,
+        category: InvestmentCategory,
+        update: (InvestmentFundAsset) -> InvestmentFundAsset
+    ) = viewModelScope.launch {
+        val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? InvestmentFundAsset
+        asset?.let { updatedAsset ->
+            onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+        }
+    }
 
     internal sealed interface AssetsIntent {
-        data class UpdateAsset(val asset: Asset) : AssetsIntent
-        data class UpdateBrokerage(val assetId: Long, val brokerage: Brokerage?) : AssetsIntent
+        data class UpdateAsset(val asset: Asset, val category: InvestmentCategory) : AssetsIntent
+        data class UpdateBrokerage(val assetId: Long, val brokerage: Brokerage?, val category: InvestmentCategory) : AssetsIntent
     }
 
     internal data class AssetsState(
-        val list: List<Asset> = emptyList(),
+        val tableData: List<AssetsTableData> = emptyList(),
         val issuers: List<Issuer> = emptyList(),
         val brokerages: List<Brokerage> = emptyList(),
-        val assetBrokerages: Map<Long, Brokerage?> = emptyMap(),
     )
 }

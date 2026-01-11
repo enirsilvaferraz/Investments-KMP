@@ -38,13 +38,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.presentation.FixedIncomeHistoryRouting
 import com.eferraz.presentation.FundsHistoryRouting
 import com.eferraz.presentation.VariableIncomeHistoryRouting
@@ -52,14 +51,17 @@ import com.eferraz.presentation.config
 import com.eferraz.presentation.design_system.components.AppScaffold
 import com.eferraz.presentation.design_system.components.SegmentedControl
 import com.eferraz.presentation.design_system.components.SegmentedOption
-import com.eferraz.presentation.design_system.components.table.DataTable
-import com.eferraz.presentation.design_system.components.table.inputMoneyColumn
-import com.eferraz.presentation.design_system.components.table.textColumn
+import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
+import com.eferraz.presentation.design_system.components.new_table.UiTable
+import com.eferraz.presentation.features.history.HistoryViewModel.HistoryIntent
+import com.eferraz.presentation.features.history.HistoryViewModel.HistoryState
 import com.eferraz.presentation.features.transactions.TransactionPanel
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
-import com.eferraz.usecases.entities.HoldingHistoryResult
+import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
+import com.eferraz.usecases.entities.InvestmentFundHistoryTableData
+import com.eferraz.usecases.entities.VariableIncomeHistoryTableData
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
@@ -69,9 +71,37 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun HistoryRoute() {
 
-    val vm = koinViewModel<HistoryViewModel>()
-    val state by vm.state.collectAsStateWithLifecycle()
+    val sharedVm = koinViewModel<HistoryViewModel>()
+    val sharedState by sharedVm.state.collectAsStateWithLifecycle()
 
+    val backStack = rememberNavBackStack(config, FixedIncomeHistoryRouting)
+
+    NavDisplay(
+        backStack = backStack,
+        entryProvider = entryProvider {
+
+            entry<FixedIncomeHistoryRouting> {
+                HistoryScreen(sharedState, sharedVm, backStack)
+            }
+
+            entry<VariableIncomeHistoryRouting> {
+                HistoryScreen(sharedState, sharedVm, backStack)
+            }
+
+            entry<FundsHistoryRouting> {
+                HistoryScreen(sharedState, sharedVm, backStack)
+            }
+        }
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun HistoryScreen(
+    sharedState: HistoryState,
+    sharedVm: HistoryViewModel,
+    backStack: NavBackStack<NavKey>,
+) {
     val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
     val scope = rememberCoroutineScope()
 
@@ -92,103 +122,82 @@ internal fun HistoryRoute() {
                     }
                 } else {
                     PeriodActions(
-                        selected = state.selectedPeriod,
-                        periods = state.periods,
-                        onSelect = { vm.processIntent(HistoryIntent.SelectPeriod(it)) }
+                        selected = sharedState.selectedPeriod,
+                        periods = sharedState.periods,
+                        onSelect = { sharedVm.processIntent(HistoryIntent.SelectPeriod(it)) }
                     )
                     SyncButton(
-                        onClick = { vm.processIntent(HistoryIntent.Sync) }
+                        onClick = { sharedVm.processIntent(HistoryIntent.Sync) }
                     )
                 }
             }
         },
         mainPane = {
-            val backStack = rememberNavBackStack(config, FixedIncomeHistoryRouting)
 
             Box(modifier = Modifier.fillMaxSize()) {
-                NavDisplay(
-                    backStack = backStack,
-                    entryProvider = entryProvider {
-                        entry<FixedIncomeHistoryRouting> {
-                            HistoryScreenFixedIncome(
-                                entries = state.entries.filter { it.holding.asset is FixedIncomeAsset },
-                                onUpdateValue = { entry, value ->
-                                    vm.processIntent(HistoryIntent.UpdateEntryValue(entry, value))
-                                },
-                                onRowClick = { row ->
-                                    scope.launch {
-                                        vm.processIntent(HistoryIntent.SelectHolding(row.currentHistory.holding))
-                                        navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
-                                    }
-                                }
-                            )
-                        }
 
-                        entry<VariableIncomeHistoryRouting> {
-                            HistoryScreenVariableIncome(
-                                entries = state.entries.filter { it.holding.asset is VariableIncomeAsset },
-                                onUpdateValue = { entry, value ->
-                                    vm.processIntent(HistoryIntent.UpdateEntryValue(entry, value))
-                                },
-                                onRowClick = { row ->
-                                    scope.launch {
-                                        vm.processIntent(HistoryIntent.SelectHolding(row.currentHistory.holding))
-                                        navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
-                                    }
-                                }
-                            )
-                        }
+                when (sharedState.currentCategory) {
 
-                        entry<FundsHistoryRouting> {
-                            HistoryScreenFunds(
-                                entries = state.entries.filter { it.holding.asset is InvestmentFundAsset },
-                                onUpdateValue = { entry, value ->
-                                    vm.processIntent(HistoryIntent.UpdateEntryValue(entry, value))
-                                },
-                                onRowClick = { row ->
-                                    scope.launch {
-                                        vm.processIntent(HistoryIntent.SelectHolding(row.currentHistory.holding))
-                                        navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
-                                    }
-                                }
-                            )
-                        }
-                    }
-                )
+                    InvestmentCategory.FIXED_INCOME -> HistoryScreenFixedIncome(
+                        state = sharedState,
+                        viewModel = sharedVm,
+                        scope = scope,
+                        navigator = navigator
+                    )
+
+                    InvestmentCategory.VARIABLE_INCOME -> HistoryScreenVariableIncome(
+                        state = sharedState,
+                        viewModel = sharedVm,
+                        scope = scope,
+                        navigator = navigator
+                    )
+
+                    InvestmentCategory.INVESTMENT_FUND -> HistoryScreenFunds(
+                        state = sharedState,
+                        viewModel = sharedVm,
+                        scope = scope,
+                        navigator = navigator
+                    )
+                }
 
                 SegmentedControl(
                     options = listOf(
+
                         SegmentedOption(
-                            value = FixedIncomeHistoryRouting,
+                            value = InvestmentCategory.FIXED_INCOME,
                             label = "Renda Fixa",
                             icon = Icons.Default.Savings,
                             contentDescription = "Renda Fixa"
                         ),
+
                         SegmentedOption(
-                            value = VariableIncomeHistoryRouting,
+                            value = InvestmentCategory.VARIABLE_INCOME,
                             label = "Renda Variável",
                             icon = Icons.AutoMirrored.Filled.TrendingUp,
                             contentDescription = "Renda Variável"
                         ),
+
                         SegmentedOption(
-                            value = FundsHistoryRouting,
+                            value = InvestmentCategory.INVESTMENT_FUND,
                             label = "Fundos",
                             icon = Icons.Default.AccountBalance,
                             contentDescription = "Fundos"
                         )
                     ),
-                    selectedValue = backStack.lastOrNull() ?: FixedIncomeHistoryRouting,
-                    onValueChange = { backStack[0] = it },
+                    selectedValue = sharedState.currentCategory,
+                    onValueChange = { sharedVm.processIntent(HistoryIntent.SelectCategory(it)) },
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     modifier = Modifier.padding(start = 16.dp, bottom = 8.dp).align(Alignment.BottomStart)
                 )
             }
         },
+
         extraPane = {
-            if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary)
+            if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
                 TransactionPanel(
-                    selectedHolding = state.selectedHolding
+                    selectedHolding = sharedState.selectedHolding
                 )
+            }
         }
     )
 }
@@ -247,326 +256,357 @@ private fun SyncButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun HistoryScreenFixedIncome(
     modifier: Modifier = Modifier,
-    entries: List<HoldingHistoryResult>,
-    onUpdateValue: (HoldingHistoryEntry, Double) -> Unit,
-    onRowClick: (HoldingHistoryRow) -> Unit,
+    state: HistoryState,
+    viewModel: HistoryViewModel,
+    scope: kotlinx.coroutines.CoroutineScope,
+    navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
 ) {
-    DataTable(
+    val fixedIncomeData = state.tableData.filterIsInstance<FixedIncomeHistoryTableData>()
+
+    UiTable(
         modifier = modifier,
-        columns = listOf(
-            textColumn(
-                title = "Corretora",
-                getValue = { it.viewData.brokerage },
-                format = { it.viewData.brokerage }
-            ),
-            textColumn(
-                title = "SubCategoria",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.subType?.name ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.subType?.formated() ?: ""
+        data = fixedIncomeData,
+        onSelect = { row ->
+            scope.launch {
+                state.holdingMap[row.holdingId]?.let { holding ->
+                    viewModel.processIntent(HistoryIntent.SelectHolding(holding))
+                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
                 }
-            ),
-            textColumn(
-                title = "Tipo",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.type?.name ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.type?.formated() ?: ""
-                }
-            ),
-            textColumn(
-                title = "Vencimento",
-                getValue = { it.viewData.maturity },
-                format = { it.formatted.maturity },
-                alignment = Alignment.CenterHorizontally
-            ),
-            textColumn(
-                title = "Taxa",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.contractedYield
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.contractedYield?.toString() ?: ""
-                }
-            ),
-            textColumn(
-                title = "% CDI",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.cdiRelativeYield
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.cdiRelativeYield?.toString() ?: ""
-                }
-            ),
-            textColumn(
-                title = "Emissor",
-                getValue = { it.viewData.issuer },
-                format = { it.viewData.issuer }
-            ),
-            textColumn(
-                title = "Liquidez",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.liquidity?.name ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? FixedIncomeAsset)?.liquidity?.formated() ?: ""
-                }
-            ),
-            textColumn(
-                title = "Observação",
-                getValue = { it.viewData.observations },
-                format = { it.viewData.observations },
-                weight = 2f
-            ),
-            textColumn(
-                title = "Valor Anterior",
-                getValue = { it.viewData.previousValue },
-                format = { it.formatted.previousValue },
-                alignment = Alignment.End,
-                footerOperation = { data -> data.sumOf { it.viewData.previousValue }.currencyFormat() }
-            ),
-            inputMoneyColumn(
-                title = "Valor Atual",
-                getValue = { it.viewData.currentValue },
-                onValueChange = { item, value -> onUpdateValue(item.currentHistory, value ?: 0.0) },
-                getEnabled = { it.viewData.editable },
-                alignment = Alignment.End,
-                footerOperation = { data -> data.sumOf { it.viewData.currentValue }.currencyFormat() }
-            ),
-            textColumn(
-                title = "Valorização",
-                getValue = { it.viewData.appreciation },
-                format = { it.formatted.appreciation },
-                alignment = Alignment.CenterHorizontally,
-                footerOperation = { data ->
-                    val vf = data.sumOf { it.viewData.currentValue }
-                    val vi = data.sumOf { it.viewData.previousValue }
-                    if (vi > 0) ((vf - vi) / vi * 100).toPercentage() else "—"
-                }
-            )
-        ),
-        data = entries.map { result ->
-            HoldingHistoryRow.create(
-                result.holding,
-                result.currentEntry,
-                result.previousEntry,
-                result.profitOrLoss
-            )
-        },
-        onRowClick = onRowClick,
-        contentPadding = PaddingValues(bottom = 70.dp)
-    )
+            }
+        }
+    ) {
+        column(
+            header = "Corretora",
+            sortedBy = { it.brokerageName },
+            weight = 1.1f,
+            cellValue = { it.brokerageName }
+        )
+
+        column(
+            header = "SubCategoria",
+            sortedBy = { it.subType },
+            weight = 1.0f,
+            cellValue = { it.subType.formated() }
+        )
+
+        column(
+            header = "Tipo",
+            sortedBy = { it.type },
+            weight = 1.0f,
+            cellValue = { it.type.formated() }
+        )
+
+        column(
+            header = "Vencimento",
+            alignment = Alignment.CenterHorizontally,
+            sortedBy = { it.expirationDate.toString() },
+            weight = 1.0f,
+            cellValue = { it.expirationDate.formated() }
+        )
+
+        column(
+            header = "Taxa",
+            sortedBy = { it.contractedYield },
+            weight = 0.9f,
+            cellValue = { it.contractedYield.toString() }
+        )
+
+        column(
+            header = "% CDI",
+            sortedBy = { it.cdiRelativeYield ?: 0.0 },
+            weight = 0.9f,
+            cellValue = { it.cdiRelativeYield?.toString() ?: "" }
+        )
+
+        column(
+            header = "Emissor",
+            sortedBy = { it.issuerName },
+            weight = 1.3f,
+            cellValue = { it.issuerName }
+        )
+
+        column(
+            header = "Liquidez",
+            sortedBy = { it.liquidity },
+            weight = 1.1f,
+            cellValue = { it.liquidity.formated() }
+        )
+
+        column(
+            header = "Observação",
+            sortedBy = { it.observations },
+            weight = 1.8f,
+            cellValue = { it.observations }
+        )
+
+        column(
+            header = "Valor Anterior",
+            alignment = Alignment.End,
+            sortedBy = { it.previousValue },
+            weight = 1.4f,
+            cellValue = { it.previousValue.currencyFormat() },
+            footer = { data -> data.sumOf { it.previousValue }.currencyFormat() }
+        )
+
+        column(
+            header = "Valor Atual",
+            alignment = Alignment.End,
+            sortedBy = { it.currentValue },
+            weight = 1.4f,
+            cellContent = { row ->
+                TableInputMoney(
+                    value = row.currentValue,
+                    onValueChange = { value ->
+                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntryId, value ?: 0.0))
+                    },
+                    enabled = row.editable
+                )
+            },
+            footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
+        )
+
+        column(
+            header = "%",
+            alignment = Alignment.CenterHorizontally,
+            sortedBy = { it.appreciation },
+            weight = 0.7f,
+            cellValue = { it.appreciation.toPercentage() },
+            footer = { data ->
+                val vf = data.sumOf { it.currentValue }
+                val vi = data.sumOf { it.previousValue }
+                if (vi > 0) ((vf - vi) / vi * 100).toPercentage() else "—"
+            }
+        )
+    }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun HistoryScreenVariableIncome(
     modifier: Modifier = Modifier,
-    entries: List<HoldingHistoryResult>,
-    onUpdateValue: (HoldingHistoryEntry, Double) -> Unit,
-    onRowClick: (HoldingHistoryRow) -> Unit,
+    state: HistoryState,
+    viewModel: HistoryViewModel,
+    scope: kotlinx.coroutines.CoroutineScope,
+    navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
 ) {
-    DataTable(
+    val variableIncomeData = state.tableData.filterIsInstance<VariableIncomeHistoryTableData>()
+
+    UiTable(
         modifier = modifier,
-        columns = listOf(
-            textColumn(
-                title = "Corretora",
-                getValue = { it.viewData.brokerage },
-                format = { it.viewData.brokerage }
-            ),
-            textColumn(
-                title = "Tipo",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? VariableIncomeAsset)?.type?.name ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? VariableIncomeAsset)?.type?.formated() ?: ""
+        data = variableIncomeData,
+        onSelect = { row ->
+            scope.launch {
+                state.holdingMap[row.holdingId]?.let { holding ->
+                    viewModel.processIntent(HistoryIntent.SelectHolding(holding))
+                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
                 }
-            ),
-            textColumn(
-                title = "Ticker",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? VariableIncomeAsset)?.ticker ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? VariableIncomeAsset)?.ticker ?: ""
-                }
-            ),
-            textColumn(
-                title = "CNPJ",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? VariableIncomeAsset)?.cnpj?.get() ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? VariableIncomeAsset)?.cnpj?.get() ?: ""
-                }
-            ),
-            textColumn(
-                title = "Nome",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? VariableIncomeAsset)?.name ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? VariableIncomeAsset)?.name ?: ""
-                },
-                weight = 2f
-            ),
-            textColumn(
-                title = "Observação",
-                getValue = { it.viewData.observations },
-                format = { it.viewData.observations },
-                weight = 2f
-            ),
-            textColumn(
-                title = "Valor Anterior",
-                getValue = { it.viewData.previousValue },
-                format = { it.formatted.previousValue },
-                alignment = Alignment.End,
-                footerOperation = { data -> data.sumOf { it.viewData.previousValue }.currencyFormat() }
-            ),
-            inputMoneyColumn(
-                title = "Valor Atual",
-                getValue = { it.viewData.currentValue },
-                onValueChange = { item, value -> onUpdateValue(item.currentHistory, value ?: 0.0) },
-                getEnabled = { it.viewData.editable },
-                alignment = Alignment.End,
-                footerOperation = { data -> data.sumOf { it.viewData.currentValue }.currencyFormat() }
-            ),
-            textColumn(
-                title = "Valorização",
-                getValue = { it.viewData.appreciation },
-                format = { it.formatted.appreciation },
-                alignment = Alignment.CenterHorizontally,
-                footerOperation = { data ->
-                    val vf = data.sumOf { it.viewData.currentValue }
-                    val vi = data.sumOf { it.viewData.previousValue }
-                    if (vi > 0) ((vf - vi) / vi * 100).toPercentage() else "—"
-                }
-            )
-        ),
-        data = entries.map { result ->
-            HoldingHistoryRow.create(
-                result.holding,
-                result.currentEntry,
-                result.previousEntry,
-                result.profitOrLoss
-            )
-        },
-        onRowClick = onRowClick,
-        contentPadding = PaddingValues(bottom = 70.dp)
-    )
+            }
+        }
+    ) {
+        column(
+            header = "Corretora",
+            sortedBy = { it.brokerageName },
+            weight = 1.1f,
+            cellValue = { it.brokerageName }
+        )
+
+        column(
+            header = "Tipo",
+            sortedBy = { it.type },
+            weight = 1.0f,
+            cellValue = { it.type.formated() }
+        )
+
+        column(
+            header = "Ticker",
+            sortedBy = { it.ticker },
+            weight = 0.8f,
+            cellValue = { it.ticker }
+        )
+
+        column(
+            header = "CNPJ",
+            sortedBy = { it.cnpj },
+            weight = 0.9f,
+            cellValue = { it.cnpj }
+        )
+
+        column(
+            header = "Nome",
+            sortedBy = { it.name },
+            weight = 2.2f,
+            cellValue = { it.name }
+        )
+
+        column(
+            header = "Observação",
+            sortedBy = { it.observations },
+            weight = 1.0f,
+            cellValue = { it.observations }
+        )
+
+        column(
+            header = "Valor Anterior",
+            alignment = Alignment.End,
+            sortedBy = { it.previousValue },
+            weight = 1.4f,
+            cellValue = { it.previousValue.currencyFormat() },
+            footer = { data -> data.sumOf { it.previousValue }.currencyFormat() }
+        )
+
+        column(
+            header = "Valor Atual",
+            alignment = Alignment.End,
+            sortedBy = { it.currentValue },
+            weight = 1.4f,
+            cellContent = { row ->
+                TableInputMoney(
+                    value = row.currentValue,
+                    onValueChange = { value ->
+                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntryId, value ?: 0.0))
+                    },
+                    enabled = row.editable
+                )
+            },
+            footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
+        )
+
+        column(
+            header = "%",
+            alignment = Alignment.CenterHorizontally,
+            sortedBy = { it.appreciation },
+            weight = 0.7f,
+            cellValue = { it.appreciation.toPercentage() },
+            footer = { data ->
+                val vf = data.sumOf { it.currentValue }
+                val vi = data.sumOf { it.previousValue }
+                if (vi > 0) ((vf - vi) / vi * 100).toPercentage() else "—"
+            }
+        )
+    }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun HistoryScreenFunds(
     modifier: Modifier = Modifier,
-    entries: List<HoldingHistoryResult>,
-    onUpdateValue: (HoldingHistoryEntry, Double) -> Unit,
-    onRowClick: (HoldingHistoryRow) -> Unit,
+    state: HistoryState,
+    viewModel: HistoryViewModel,
+    scope: kotlinx.coroutines.CoroutineScope,
+    navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
 ) {
-    DataTable(
+    val fundsData = state.tableData.filterIsInstance<InvestmentFundHistoryTableData>()
+
+    UiTable(
         modifier = modifier,
-        columns = listOf(
-            textColumn(
-                title = "Corretora",
-                getValue = { it.viewData.brokerage },
-                format = { it.viewData.brokerage }
-            ),
-            textColumn(
-                title = "Tipo",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? InvestmentFundAsset)?.type?.name ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? InvestmentFundAsset)?.type?.formated() ?: ""
+        data = fundsData,
+        onSelect = { row ->
+            scope.launch {
+                state.holdingMap[row.holdingId]?.let { holding ->
+                    viewModel.processIntent(HistoryIntent.SelectHolding(holding))
+                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
                 }
-            ),
-            textColumn(
-                title = "Nome",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? InvestmentFundAsset)?.name ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? InvestmentFundAsset)?.name ?: ""
-                },
-                weight = 2f
-            ),
-            textColumn(
-                title = "Liquidez",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? InvestmentFundAsset)?.liquidity?.name ?: ""
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? InvestmentFundAsset)?.liquidity?.formated() ?: ""
-                }
-            ),
-            textColumn(
-                title = "Dias Liq.",
-                getValue = { 
-                    (it.currentHistory.holding.asset as? InvestmentFundAsset)?.liquidityDays
-                },
-                format = { 
-                    (it.currentHistory.holding.asset as? InvestmentFundAsset)?.liquidityDays?.toString() ?: ""
-                }
-            ),
-            textColumn(
-                title = "Vencimento",
-                getValue = { it.viewData.maturity },
-                format = { it.formatted.maturity }
-            ),
-            textColumn(
-                title = "Emissor",
-                getValue = { it.viewData.issuer },
-                format = { it.viewData.issuer }
-            ),
-            textColumn(
-                title = "Observação",
-                getValue = { it.viewData.observations },
-                format = { it.viewData.observations },
-                weight = 2f
-            ),
-            textColumn(
-                title = "Valor Anterior",
-                getValue = { it.viewData.previousValue },
-                format = { it.formatted.previousValue },
-                alignment = Alignment.End,
-                footerOperation = { data -> data.sumOf { it.viewData.previousValue }.currencyFormat() }
-            ),
-            inputMoneyColumn(
-                title = "Valor Atual",
-                getValue = { it.viewData.currentValue },
-                onValueChange = { item, value -> onUpdateValue(item.currentHistory, value ?: 0.0) },
-                getEnabled = { it.viewData.editable },
-                alignment = Alignment.End,
-                footerOperation = { data -> data.sumOf { it.viewData.currentValue }.currencyFormat() }
-            ),
-            textColumn(
-                title = "Valorização",
-                getValue = { it.viewData.appreciation },
-                format = { it.formatted.appreciation },
-                alignment = Alignment.CenterHorizontally,
-                footerOperation = { data ->
-                    val vf = data.sumOf { it.viewData.currentValue }
-                    val vi = data.sumOf { it.viewData.previousValue }
-                    if (vi > 0) ((vf - vi) / vi * 100).toPercentage() else "—"
-                }
-            )
-        ),
-        data = entries.map { result ->
-            HoldingHistoryRow.create(
-                result.holding,
-                result.currentEntry,
-                result.previousEntry,
-                result.profitOrLoss
-            )
-        },
-        onRowClick = onRowClick,
-        contentPadding = PaddingValues(bottom = 70.dp)
-    )
+            }
+        }
+    ) {
+        column(
+            header = "Corretora",
+            sortedBy = { it.brokerageName },
+            weight = 1.1f,
+            cellValue = { it.brokerageName }
+        )
+
+        column(
+            header = "Tipo",
+            sortedBy = { it.type },
+            weight = 1.0f,
+            cellValue = { it.type.formated() }
+        )
+
+        column(
+            header = "Nome",
+            sortedBy = { it.name },
+            weight = 2.1f,
+            cellValue = { it.name }
+        )
+
+        column(
+            header = "Liquidez",
+            sortedBy = { it.liquidity },
+            weight = 1.1f,
+            cellValue = { it.liquidity.formated(it.liquidityDays) }
+        )
+
+        column(
+            header = "Dias Liq.",
+            sortedBy = { it.liquidityDays },
+            weight = 0.9f,
+            cellValue = { it.liquidityDays.toString() }
+        )
+
+        column(
+            header = "Vencimento",
+            sortedBy = { it.expirationDate?.toString() ?: "" },
+            weight = 1.0f,
+            cellValue = { it.expirationDate?.formated() ?: "" }
+        )
+
+        column(
+            header = "Emissor",
+            sortedBy = { it.issuerName },
+            weight = 1.3f,
+            cellValue = { it.issuerName }
+        )
+
+        column(
+            header = "Observação",
+            sortedBy = { it.observations },
+            weight = 1.0f,
+            cellValue = { it.observations }
+        )
+
+        column(
+            header = "Valor Anterior",
+            alignment = Alignment.End,
+            sortedBy = { it.previousValue },
+            weight = 1.4f,
+            cellValue = { it.previousValue.currencyFormat() },
+            footer = { data -> data.sumOf { it.previousValue }.currencyFormat() }
+        )
+
+        column(
+            header = "Valor Atual",
+            alignment = Alignment.End,
+            sortedBy = { it.currentValue },
+            weight = 1.4f,
+            cellContent = { row ->
+                TableInputMoney(
+                    value = row.currentValue,
+                    onValueChange = { value ->
+                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntryId, value ?: 0.0))
+                    },
+                    enabled = row.editable
+                )
+            },
+            footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
+        )
+
+        column(
+            header = "%",
+            weight = 0.7f,
+            alignment = Alignment.CenterHorizontally,
+            sortedBy = { it.appreciation },
+            cellValue = { it.appreciation.toPercentage() },
+            footer = { data ->
+                val vf = data.sumOf { it.currentValue }
+                val vi = data.sumOf { it.previousValue }
+                if (vi > 0) ((vf - vi) / vi * 100).toPercentage() else "—"
+            }
+        )
+    }
 }
 

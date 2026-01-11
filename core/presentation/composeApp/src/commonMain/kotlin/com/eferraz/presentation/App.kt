@@ -15,6 +15,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.eferraz.presentation.design_system.components.new_table.UITablePreview
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
 import com.eferraz.presentation.features.history.HistoryRoute
@@ -39,7 +40,7 @@ public fun InternalApp(config: KoinConfiguration) {
 @Composable
 private fun AppNavigationHost() {
 
-    val backStack = rememberNavBackStack(config, AssetsRouting)
+    val backStack = rememberNavBackStack(config, HistoryRouting)
 
     NavigationSuiteScaffold(
         navigationItems = navRailMenus(backStack),
@@ -64,6 +65,13 @@ private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Uni
         selected = backStack.lastOrNull() == HistoryRouting,
         onClick = { backStack[0] = HistoryRouting }
     )
+
+//    NavigationSuiteItem(
+//        icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Test") },
+//        label = { Text("Test") },
+//        selected = backStack.lastOrNull() == TestRouting,
+//        onClick = { backStack[0] = TestRouting }
+//    )
 }
 
 private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Unit = {
@@ -78,6 +86,10 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
 
             entry<HistoryRouting> {
                 HistoryRoute()
+            }
+
+            entry<TestRouting> {
+                UITablePreview()
             }
         }
     )

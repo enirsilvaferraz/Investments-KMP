@@ -14,7 +14,11 @@ public abstract class AppUseCase<in P, out R>(private val context: CoroutineDisp
 
     private suspend inline fun <T> result(function: suspend () -> T): Result<T> =
         runCatching {
-            Result.success(function())
+            val label = this::class.simpleName ?: "UnknownUseCase"
+            val pair = measureTimeMillisSuspend<T>(label) {
+                function()
+            }
+            Result.success(pair.second)
         }.getOrElse {
             Result.failure(it)
         }

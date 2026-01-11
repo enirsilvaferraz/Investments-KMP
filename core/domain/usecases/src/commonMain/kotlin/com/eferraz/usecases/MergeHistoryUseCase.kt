@@ -2,6 +2,7 @@ package com.eferraz.usecases
 
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.rules.PositionProfitOrLoss
 import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.repositories.AssetHoldingRepository
@@ -26,17 +27,21 @@ public class MergeHistoryUseCase(
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<MergeHistoryUseCase.Param, List<HoldingHistoryResult>>(context) {
 
-    public data class Param(val referenceDate: YearMonth)
+    public data class Param(
+        val referenceDate: YearMonth,
+        val category: InvestmentCategory
+    )
 
     override suspend fun execute(param: Param): List<HoldingHistoryResult> {
 
-        val holdings = assetHoldingRepository.getAll()
+        val holdings = assetHoldingRepository.getByCategory(param.category)
 //            .filter { holding ->
 //                when (val asset = holding.asset) {
 //                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY || asset.issuer.isInLiquidation || asset.observations?.contains("FGTS") ?: false
 //                    else -> false
 //                }
 //            }
+
         val previos = mapByReferenceDate(param.referenceDate.minusMonth(), holdings)
         val current = mapByReferenceDate(param.referenceDate, holdings)
 
