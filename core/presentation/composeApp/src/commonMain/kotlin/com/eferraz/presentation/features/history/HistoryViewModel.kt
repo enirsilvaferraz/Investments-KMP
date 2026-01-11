@@ -16,6 +16,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
 import org.koin.android.annotation.KoinViewModel
@@ -33,19 +34,33 @@ internal class HistoryViewModel(
     private val _state = MutableStateFlow(HistoryState(selectedPeriod = dateProvider.getCurrentYearMonth()))
     internal val state: StateFlow<HistoryState> = _state.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(periods =  getDataPeriodUseCase(Unit).getOrNull() ?: emptyList())
+        }
+
+        processIntent(HistoryIntent.LoadInitialData)
+    }
+
     internal fun processIntent(intent: HistoryIntent) {
         when (intent) {
             is HistoryIntent.SelectPeriod -> selectPeriod(intent.period)
             is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entryId, intent.value)
             is HistoryIntent.SelectHolding -> selectHolding(intent.holding)
-            is HistoryIntent.LoadInitialData -> loadPeriodData(intent.category)
+            is HistoryIntent.LoadInitialData -> loadPeriodData()
             is HistoryIntent.Sync -> sync()
+            is HistoryIntent.SelectCategory -> selectCategory(intent.category)
         }
+    }
+
+    private fun selectCategory(category: InvestmentCategory) {
+        _state.update { it.copy(currentCategory = category) }
+        processIntent(HistoryIntent.LoadInitialData)
     }
 
     private fun selectPeriod(period: YearMonth) {
         _state.value = _state.value.copy(selectedPeriod = period)
-        processIntent(HistoryIntent.LoadInitialData(_state.value.currentCategory ?: return))
+        processIntent(HistoryIntent.LoadInitialData)
     }
 
     private fun selectHolding(holding: AssetHolding?) {
@@ -62,8 +77,7 @@ internal class HistoryViewModel(
                 updateFixedIncomeAndFundsHistoryValueUseCase(
                     UpdateFixedIncomeAndFundsHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
                 ).onSuccess {
-                    val category = _state.value.currentCategory ?: return@onSuccess
-                    processIntent(HistoryIntent.LoadInitialData(category))
+                    processIntent(HistoryIntent.LoadInitialData)
                 }
             }
         }
@@ -74,20 +88,18 @@ internal class HistoryViewModel(
             updateVariableIncomeValues(
                 SyncVariableIncomeValuesUseCase.Param(_state.value.selectedPeriod)
             ).onSuccess {
-                val category = _state.value.currentCategory ?: return@onSuccess
-                processIntent(HistoryIntent.LoadInitialData(category))
+                processIntent(HistoryIntent.LoadInitialData)
             }
         }
     }
 
-    internal fun loadPeriodData(category: InvestmentCategory) {
+    internal fun loadPeriodData() {
+
+        val category = _state.value.currentCategory
         val period = _state.value.selectedPeriod
 
         viewModelScope.launch {
 
-            val periods = async {
-                getDataPeriodUseCase(Unit).getOrNull() ?: emptyList()
-            }
             val tableData = async {
                 getHistoryTableDataUseCase(GetHistoryTableDataUseCase.Param(period, category)).getOrNull() ?: emptyList()
             }
@@ -104,9 +116,7 @@ internal class HistoryViewModel(
             val holdingMap = results.associate { it.holding.id to it.holding }
 
             _state.value = _state.value.copy(
-                periods = periods.await(),
                 tableData = tableData.await(),
-                currentCategory = category,
                 entryMap = entryMap,
                 holdingMap = holdingMap
             )
@@ -117,8 +127,9 @@ internal class HistoryViewModel(
         data class SelectPeriod(val period: YearMonth) : HistoryIntent
         data class UpdateEntryValue(val entryId: Long, val value: Double) : HistoryIntent
         data class SelectHolding(val holding: AssetHolding?) : HistoryIntent
-        data class LoadInitialData(val category: InvestmentCategory) : HistoryIntent
+        data object LoadInitialData : HistoryIntent
         data object Sync : HistoryIntent
+        data class SelectCategory(val category: InvestmentCategory) : HistoryIntent
     }
 
     internal data class HistoryState(
@@ -126,7 +137,7 @@ internal class HistoryViewModel(
         val tableData: List<HistoryTableData> = emptyList(),
         val periods: List<YearMonth> = emptyList(),
         val selectedHolding: AssetHolding? = null,
-        val currentCategory: InvestmentCategory? = null,
+        val currentCategory: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
         val entryMap: Map<Long, HoldingHistoryEntry> = emptyMap(),
         val holdingMap: Map<Long, AssetHolding> = emptyMap(),
     )

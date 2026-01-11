@@ -30,18 +30,18 @@ public class GetHistoryTableDataUseCase(
     )
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
-        // Buscar histórico de posições (já filtrado por categoria no MergeHistoryUseCase)
-        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, param.category))
-            .getOrNull() ?: emptyList()
 
-        // Converter cada resultado para o formato de tabela
+        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, param.category)).getOrNull() ?: emptyList()
+
         return results.map { result ->
+
             val asset = result.holding.asset
             val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity
             val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity
             val appreciation = result.profitOrLoss.roiPercentage
 
             when (asset) {
+
                 is FixedIncomeAsset -> FixedIncomeHistoryTableData(
                     holdingId = result.holding.id,
                     currentEntryId = result.currentEntry.id ?: 0L,
@@ -59,6 +59,7 @@ public class GetHistoryTableDataUseCase(
                     appreciation = appreciation,
                     editable = true
                 )
+
                 is VariableIncomeAsset -> VariableIncomeHistoryTableData(
                     holdingId = result.holding.id,
                     currentEntryId = result.currentEntry.id ?: 0L,
@@ -74,6 +75,7 @@ public class GetHistoryTableDataUseCase(
                     appreciation = appreciation,
                     editable = false
                 )
+
                 is InvestmentFundAsset -> InvestmentFundHistoryTableData(
                     holdingId = result.holding.id,
                     currentEntryId = result.currentEntry.id ?: 0L,
@@ -90,7 +92,6 @@ public class GetHistoryTableDataUseCase(
                     appreciation = appreciation,
                     editable = true
                 )
-                else -> throw IllegalArgumentException("Tipo de asset não suportado: ${asset::class.simpleName}")
             }
         }
     }

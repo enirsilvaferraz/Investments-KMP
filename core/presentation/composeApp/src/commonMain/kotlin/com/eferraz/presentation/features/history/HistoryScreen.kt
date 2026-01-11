@@ -36,18 +36,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.eferraz.entities.FixedIncomeAssetType
-import com.eferraz.entities.FixedIncomeSubType
 import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAssetType
-import com.eferraz.entities.Liquidity
-import com.eferraz.entities.VariableIncomeAssetType
 import com.eferraz.presentation.FixedIncomeHistoryRouting
 import com.eferraz.presentation.FundsHistoryRouting
 import com.eferraz.presentation.VariableIncomeHistoryRouting
@@ -57,7 +53,6 @@ import com.eferraz.presentation.design_system.components.SegmentedControl
 import com.eferraz.presentation.design_system.components.SegmentedOption
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.components.new_table.UiTable
-import com.eferraz.presentation.features.history.HistoryViewModel
 import com.eferraz.presentation.features.history.HistoryViewModel.HistoryIntent
 import com.eferraz.presentation.features.history.HistoryViewModel.HistoryState
 import com.eferraz.presentation.features.transactions.TransactionPanel
@@ -76,12 +71,39 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun HistoryRoute() {
 
-    val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
-    val scope = rememberCoroutineScope()
-    
-    // ViewModel compartilhado para gerenciar período e sincronização
     val sharedVm = koinViewModel<HistoryViewModel>()
     val sharedState by sharedVm.state.collectAsStateWithLifecycle()
+
+    val backStack = rememberNavBackStack(config, FixedIncomeHistoryRouting)
+
+    NavDisplay(
+        backStack = backStack,
+        entryProvider = entryProvider {
+
+            entry<FixedIncomeHistoryRouting> {
+                HistoryScreen(sharedState, sharedVm, backStack)
+            }
+
+            entry<VariableIncomeHistoryRouting> {
+                HistoryScreen(sharedState, sharedVm, backStack)
+            }
+
+            entry<FundsHistoryRouting> {
+                HistoryScreen(sharedState, sharedVm, backStack)
+            }
+        }
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun HistoryScreen(
+    sharedState: HistoryState,
+    sharedVm: HistoryViewModel,
+    backStack: NavBackStack<NavKey>,
+) {
+    val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
+    val scope = rememberCoroutineScope()
 
     AppScaffold(
         title = "Posicionamento no Período",
@@ -111,87 +133,65 @@ internal fun HistoryRoute() {
             }
         },
         mainPane = {
-            val backStack = rememberNavBackStack(config, FixedIncomeHistoryRouting)
 
             Box(modifier = Modifier.fillMaxSize()) {
-                NavDisplay(
-                    backStack = backStack,
-                    entryProvider = entryProvider {
-                        entry<FixedIncomeHistoryRouting> {
-                            val category = InvestmentCategory.FIXED_INCOME
-                            val historyVm = koinViewModel<HistoryViewModel>(key = category.name)
-                            val historyState by historyVm.state.collectAsStateWithLifecycle()
-                            historyVm.processIntent(HistoryIntent.LoadInitialData(category))
-                            
-                            HistoryScreenFixedIncome(
-                                state = historyState,
-                                category = category,
-                                viewModel = historyVm,
-                                scope = scope,
-                                navigator = navigator
-                            )
-                        }
 
-                        entry<VariableIncomeHistoryRouting> {
-                            val category = InvestmentCategory.VARIABLE_INCOME
-                            val historyVm = koinViewModel<HistoryViewModel>(key = category.name)
-                            val historyState by historyVm.state.collectAsStateWithLifecycle()
-                            historyVm.processIntent(HistoryIntent.LoadInitialData(category))
-                            
-                            HistoryScreenVariableIncome(
-                                state = historyState,
-                                category = category,
-                                viewModel = historyVm,
-                                scope = scope,
-                                navigator = navigator
-                            )
-                        }
+                when (sharedState.currentCategory) {
 
-                        entry<FundsHistoryRouting> {
-                            val category = InvestmentCategory.INVESTMENT_FUND
-                            val historyVm = koinViewModel<HistoryViewModel>(key = category.name)
-                            val historyState by historyVm.state.collectAsStateWithLifecycle()
-                            historyVm.processIntent(HistoryIntent.LoadInitialData(category))
-                            
-                            HistoryScreenFunds(
-                                state = historyState,
-                                category = category,
-                                viewModel = historyVm,
-                                scope = scope,
-                                navigator = navigator
-                            )
-                        }
-                    }
-                )
+                    InvestmentCategory.FIXED_INCOME -> HistoryScreenFixedIncome(
+                        state = sharedState,
+                        viewModel = sharedVm,
+                        scope = scope,
+                        navigator = navigator
+                    )
+
+                    InvestmentCategory.VARIABLE_INCOME -> HistoryScreenVariableIncome(
+                        state = sharedState,
+                        viewModel = sharedVm,
+                        scope = scope,
+                        navigator = navigator
+                    )
+
+                    InvestmentCategory.INVESTMENT_FUND -> HistoryScreenFunds(
+                        state = sharedState,
+                        viewModel = sharedVm,
+                        scope = scope,
+                        navigator = navigator
+                    )
+                }
 
                 SegmentedControl(
                     options = listOf(
+
                         SegmentedOption(
-                            value = FixedIncomeHistoryRouting,
+                            value = InvestmentCategory.FIXED_INCOME,
                             label = "Renda Fixa",
                             icon = Icons.Default.Savings,
                             contentDescription = "Renda Fixa"
                         ),
+
                         SegmentedOption(
-                            value = VariableIncomeHistoryRouting,
+                            value = InvestmentCategory.VARIABLE_INCOME,
                             label = "Renda Variável",
                             icon = Icons.AutoMirrored.Filled.TrendingUp,
                             contentDescription = "Renda Variável"
                         ),
+
                         SegmentedOption(
-                            value = FundsHistoryRouting,
+                            value = InvestmentCategory.INVESTMENT_FUND,
                             label = "Fundos",
                             icon = Icons.Default.AccountBalance,
                             contentDescription = "Fundos"
                         )
                     ),
-                    selectedValue = backStack.lastOrNull() ?: FixedIncomeHistoryRouting,
-                    onValueChange = { backStack[0] = it },
+                    selectedValue = sharedState.currentCategory,
+                    onValueChange = { sharedVm.processIntent(HistoryIntent.SelectCategory(it)) },
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     modifier = Modifier.padding(start = 16.dp, bottom = 8.dp).align(Alignment.BottomStart)
                 )
             }
         },
+
         extraPane = {
             if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
                 TransactionPanel(
@@ -261,13 +261,12 @@ private fun SyncButton(
 private fun HistoryScreenFixedIncome(
     modifier: Modifier = Modifier,
     state: HistoryState,
-    category: InvestmentCategory,
     viewModel: HistoryViewModel,
     scope: kotlinx.coroutines.CoroutineScope,
     navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
 ) {
     val fixedIncomeData = state.tableData.filterIsInstance<FixedIncomeHistoryTableData>()
-    
+
     UiTable(
         modifier = modifier,
         data = fixedIncomeData,
@@ -286,21 +285,21 @@ private fun HistoryScreenFixedIncome(
             weight = 1.1f,
             cellValue = { it.brokerageName }
         )
-        
+
         column(
             header = "SubCategoria",
             sortedBy = { it.subType },
             weight = 1.0f,
             cellValue = { it.subType.formated() }
         )
-        
+
         column(
             header = "Tipo",
             sortedBy = { it.type },
             weight = 1.0f,
             cellValue = { it.type.formated() }
         )
-        
+
         column(
             header = "Vencimento",
             alignment = Alignment.CenterHorizontally,
@@ -308,42 +307,42 @@ private fun HistoryScreenFixedIncome(
             weight = 1.0f,
             cellValue = { it.expirationDate.formated() }
         )
-        
+
         column(
             header = "Taxa",
             sortedBy = { it.contractedYield },
             weight = 0.9f,
             cellValue = { it.contractedYield.toString() }
         )
-        
+
         column(
             header = "% CDI",
             sortedBy = { it.cdiRelativeYield ?: 0.0 },
             weight = 0.9f,
             cellValue = { it.cdiRelativeYield?.toString() ?: "" }
         )
-        
+
         column(
             header = "Emissor",
             sortedBy = { it.issuerName },
             weight = 1.3f,
             cellValue = { it.issuerName }
         )
-        
+
         column(
             header = "Liquidez",
             sortedBy = { it.liquidity },
             weight = 1.1f,
             cellValue = { it.liquidity.formated() }
         )
-        
+
         column(
             header = "Observação",
             sortedBy = { it.observations },
             weight = 1.8f,
             cellValue = { it.observations }
         )
-        
+
         column(
             header = "Valor Anterior",
             alignment = Alignment.End,
@@ -352,7 +351,7 @@ private fun HistoryScreenFixedIncome(
             cellValue = { it.previousValue.currencyFormat() },
             footer = { data -> data.sumOf { it.previousValue }.currencyFormat() }
         )
-        
+
         column(
             header = "Valor Atual",
             alignment = Alignment.End,
@@ -369,7 +368,7 @@ private fun HistoryScreenFixedIncome(
             },
             footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
         )
-        
+
         column(
             header = "%",
             alignment = Alignment.CenterHorizontally,
@@ -390,13 +389,12 @@ private fun HistoryScreenFixedIncome(
 private fun HistoryScreenVariableIncome(
     modifier: Modifier = Modifier,
     state: HistoryState,
-    category: InvestmentCategory,
     viewModel: HistoryViewModel,
     scope: kotlinx.coroutines.CoroutineScope,
     navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
 ) {
     val variableIncomeData = state.tableData.filterIsInstance<VariableIncomeHistoryTableData>()
-    
+
     UiTable(
         modifier = modifier,
         data = variableIncomeData,
@@ -415,42 +413,42 @@ private fun HistoryScreenVariableIncome(
             weight = 1.1f,
             cellValue = { it.brokerageName }
         )
-        
+
         column(
             header = "Tipo",
             sortedBy = { it.type },
             weight = 1.0f,
             cellValue = { it.type.formated() }
         )
-        
+
         column(
             header = "Ticker",
             sortedBy = { it.ticker },
             weight = 0.8f,
             cellValue = { it.ticker }
         )
-        
+
         column(
             header = "CNPJ",
             sortedBy = { it.cnpj },
             weight = 0.9f,
             cellValue = { it.cnpj }
         )
-        
+
         column(
             header = "Nome",
             sortedBy = { it.name },
             weight = 2.2f,
             cellValue = { it.name }
         )
-        
+
         column(
             header = "Observação",
             sortedBy = { it.observations },
             weight = 1.0f,
             cellValue = { it.observations }
         )
-        
+
         column(
             header = "Valor Anterior",
             alignment = Alignment.End,
@@ -459,7 +457,7 @@ private fun HistoryScreenVariableIncome(
             cellValue = { it.previousValue.currencyFormat() },
             footer = { data -> data.sumOf { it.previousValue }.currencyFormat() }
         )
-        
+
         column(
             header = "Valor Atual",
             alignment = Alignment.End,
@@ -476,7 +474,7 @@ private fun HistoryScreenVariableIncome(
             },
             footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
         )
-        
+
         column(
             header = "%",
             alignment = Alignment.CenterHorizontally,
@@ -497,13 +495,12 @@ private fun HistoryScreenVariableIncome(
 private fun HistoryScreenFunds(
     modifier: Modifier = Modifier,
     state: HistoryState,
-    category: InvestmentCategory,
     viewModel: HistoryViewModel,
     scope: kotlinx.coroutines.CoroutineScope,
     navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
 ) {
     val fundsData = state.tableData.filterIsInstance<InvestmentFundHistoryTableData>()
-    
+
     UiTable(
         modifier = modifier,
         data = fundsData,
@@ -522,56 +519,56 @@ private fun HistoryScreenFunds(
             weight = 1.1f,
             cellValue = { it.brokerageName }
         )
-        
+
         column(
             header = "Tipo",
             sortedBy = { it.type },
             weight = 1.0f,
             cellValue = { it.type.formated() }
         )
-        
+
         column(
             header = "Nome",
             sortedBy = { it.name },
             weight = 2.1f,
             cellValue = { it.name }
         )
-        
+
         column(
             header = "Liquidez",
             sortedBy = { it.liquidity },
             weight = 1.1f,
             cellValue = { it.liquidity.formated(it.liquidityDays) }
         )
-        
+
         column(
             header = "Dias Liq.",
             sortedBy = { it.liquidityDays },
             weight = 0.9f,
             cellValue = { it.liquidityDays.toString() }
         )
-        
+
         column(
             header = "Vencimento",
             sortedBy = { it.expirationDate?.toString() ?: "" },
             weight = 1.0f,
             cellValue = { it.expirationDate?.formated() ?: "" }
         )
-        
+
         column(
             header = "Emissor",
             sortedBy = { it.issuerName },
             weight = 1.3f,
             cellValue = { it.issuerName }
         )
-        
+
         column(
             header = "Observação",
             sortedBy = { it.observations },
             weight = 1.0f,
             cellValue = { it.observations }
         )
-        
+
         column(
             header = "Valor Anterior",
             alignment = Alignment.End,
@@ -580,7 +577,7 @@ private fun HistoryScreenFunds(
             cellValue = { it.previousValue.currencyFormat() },
             footer = { data -> data.sumOf { it.previousValue }.currencyFormat() }
         )
-        
+
         column(
             header = "Valor Atual",
             alignment = Alignment.End,
@@ -597,7 +594,7 @@ private fun HistoryScreenFunds(
             },
             footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
         )
-        
+
         column(
             header = "%",
             weight = 0.7f,
