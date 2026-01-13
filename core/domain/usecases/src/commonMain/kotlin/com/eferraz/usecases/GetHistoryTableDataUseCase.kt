@@ -43,8 +43,7 @@ public class GetHistoryTableDataUseCase(
             when (asset) {
 
                 is FixedIncomeAsset -> FixedIncomeHistoryTableData(
-                    holdingId = result.holding.id,
-                    currentEntryId = result.currentEntry.id ?: 0L,
+                    currentEntry = result.currentEntry,
                     brokerageName = result.holding.brokerage.name,
                     subType = asset.subType,
                     type = asset.type,
@@ -61,8 +60,7 @@ public class GetHistoryTableDataUseCase(
                 )
 
                 is VariableIncomeAsset -> VariableIncomeHistoryTableData(
-                    holdingId = result.holding.id,
-                    currentEntryId = result.currentEntry.id ?: 0L,
+                    currentEntry = result.currentEntry,
                     brokerageName = result.holding.brokerage.name,
                     type = asset.type,
                     ticker = asset.ticker,
@@ -77,8 +75,7 @@ public class GetHistoryTableDataUseCase(
                 )
 
                 is InvestmentFundAsset -> InvestmentFundHistoryTableData(
-                    holdingId = result.holding.id,
-                    currentEntryId = result.currentEntry.id ?: 0L,
+                    currentEntry = result.currentEntry,
                     brokerageName = result.holding.brokerage.name,
                     type = asset.type,
                     name = asset.name,

@@ -272,10 +272,8 @@ private fun HistoryScreenFixedIncome(
         data = fixedIncomeData,
         onSelect = { row ->
             scope.launch {
-                state.holdingMap[row.holdingId]?.let { holding ->
-                    viewModel.processIntent(HistoryIntent.SelectHolding(holding))
-                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
-                }
+                viewModel.processIntent(HistoryIntent.SelectHolding(row.currentEntry.holding))
+                navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
             }
         }
     ) {
@@ -312,7 +310,7 @@ private fun HistoryScreenFixedIncome(
             header = "Taxa",
             sortedBy = { it.contractedYield },
             weight = 0.9f,
-            cellValue = { it.contractedYield.toString() }
+            cellValue = { it.contractedYield.toPercentage() }
         )
 
         column(
@@ -361,7 +359,7 @@ private fun HistoryScreenFixedIncome(
                 TableInputMoney(
                     value = row.currentValue,
                     onValueChange = { value ->
-                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntryId, value ?: 0.0))
+                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntry, value ?: 0.0))
                     },
                     enabled = row.editable
                 )
@@ -400,10 +398,8 @@ private fun HistoryScreenVariableIncome(
         data = variableIncomeData,
         onSelect = { row ->
             scope.launch {
-                state.holdingMap[row.holdingId]?.let { holding ->
-                    viewModel.processIntent(HistoryIntent.SelectHolding(holding))
-                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
-                }
+                viewModel.processIntent(HistoryIntent.SelectHolding(row.currentEntry.holding))
+                navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
             }
         }
     ) {
@@ -467,7 +463,7 @@ private fun HistoryScreenVariableIncome(
                 TableInputMoney(
                     value = row.currentValue,
                     onValueChange = { value ->
-                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntryId, value ?: 0.0))
+                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntry, value ?: 0.0))
                     },
                     enabled = row.editable
                 )
@@ -506,10 +502,8 @@ private fun HistoryScreenFunds(
         data = fundsData,
         onSelect = { row ->
             scope.launch {
-                state.holdingMap[row.holdingId]?.let { holding ->
-                    viewModel.processIntent(HistoryIntent.SelectHolding(holding))
-                    navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
-                }
+                viewModel.processIntent(HistoryIntent.SelectHolding(row.currentEntry.holding))
+                navigator.navigateTo(ThreePaneScaffoldRole.Tertiary)
             }
         }
     ) {
@@ -587,7 +581,7 @@ private fun HistoryScreenFunds(
                 TableInputMoney(
                     value = row.currentValue,
                     onValueChange = { value ->
-                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntryId, value ?: 0.0))
+                        viewModel.processIntent(HistoryIntent.UpdateEntryValue(row.currentEntry, value ?: 0.0))
                     },
                     enabled = row.editable
                 )

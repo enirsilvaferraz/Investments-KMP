@@ -4,26 +4,26 @@ import kotlinx.datetime.LocalDate
 
 /**
  * Representa a posse de um ativo por um proprietário em uma corretora.
- * A modelagem utiliza um sistema de "unidades" para ser universalmente compatível.
  *
  * @property id O identificador único desta posição.
  * @property asset A referência para o ativo intrínseco (o "quê").
  * @property owner O proprietário desta posição (o "quem").
  * @property brokerage A corretora onde esta posição está custodiada (o "onde").
- * @property quantity O número de unidades detidas (ações, cotas, ou 1 para um título de Renda Fixa).
- * @property averageCost O custo médio pago por cada unidade.
- * @property investedValue O valor total investido na posição (calculado como quantity * averageCost).
- * @property currentValue O valor de mercado atual da posição.
+ * @property goal A meta financeira à qual esta posição contribui (opcional).
+ * 
+ * Nota: Os valores de quantity, averageCost, investedValue e currentValue
+ * são calculados dinamicamente a partir das transações (AssetTransaction)
+ * quando necessário, não sendo armazenados nesta entidade.
+ * 
+ * Regra: Se a posição estiver associada a uma meta (goal), o Owner da posição
+ * deve ser o mesmo Owner da meta.
  */
 public data class AssetHolding(
     public val id: Long,
     public val asset: Asset,
     public val owner: Owner,
     public val brokerage: Brokerage,
-//    public val quantity: Double,
-//    public val averageCost: Double,
-//    public val investedValue: Double,
-//    public val currentValue: Double,
+    public val goal: FinancialGoal? = null
 ) {
     /**
      * Retorna uma nova instância de `AssetHolding` refletindo um novo aporte (compra).

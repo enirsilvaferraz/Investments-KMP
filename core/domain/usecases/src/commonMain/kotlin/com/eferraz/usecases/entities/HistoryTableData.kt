@@ -1,7 +1,9 @@
 package com.eferraz.usecases.entities
 
+import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.FixedIncomeAssetType
 import com.eferraz.entities.FixedIncomeSubType
+import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.InvestmentFundAssetType
 import com.eferraz.entities.Liquidity
 import com.eferraz.entities.VariableIncomeAssetType
@@ -12,15 +14,11 @@ import kotlinx.datetime.LocalDate
  * Cada implementação representa uma linha específica para um tipo de asset.
  */
 public sealed interface HistoryTableData {
-    /**
-     * ID do holding (necessário para operações de atualização).
-     */
-    public val holdingId: Long
 
     /**
      * ID da entrada de histórico atual (necessário para atualizações).
      */
-    public val currentEntryId: Long
+    public val currentEntry: HoldingHistoryEntry
 
     /**
      * Nome da corretora.
@@ -62,8 +60,7 @@ public sealed interface HistoryTableData {
  * Representa uma linha da tabela de histórico de Renda Fixa.
  */
 public data class FixedIncomeHistoryTableData(
-    override val holdingId: Long,
-    override val currentEntryId: Long,
+    override val currentEntry: HoldingHistoryEntry,
     override val brokerageName: String,
     /**
      * Subcategoria do ativo de renda fixa.
@@ -101,8 +98,7 @@ public data class FixedIncomeHistoryTableData(
  * Representa uma linha da tabela de histórico de Renda Variável.
  */
 public data class VariableIncomeHistoryTableData(
-    override val holdingId: Long,
-    override val currentEntryId: Long,
+    override val currentEntry: HoldingHistoryEntry,
     override val brokerageName: String,
     /**
      * Tipo de ativo de renda variável.
@@ -132,8 +128,7 @@ public data class VariableIncomeHistoryTableData(
  * Representa uma linha da tabela de histórico de Fundos de Investimento.
  */
 public data class InvestmentFundHistoryTableData(
-    override val holdingId: Long,
-    override val currentEntryId: Long,
+    override val currentEntry: HoldingHistoryEntry,
     override val brokerageName: String,
     /**
      * Categoria do fundo de investimento.
