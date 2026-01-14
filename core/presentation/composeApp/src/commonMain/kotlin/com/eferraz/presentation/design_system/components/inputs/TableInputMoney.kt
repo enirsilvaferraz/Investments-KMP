@@ -1,6 +1,7 @@
 package com.eferraz.presentation.design_system.components.inputs
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,12 +16,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eferraz.presentation.design_system.components.inputs.state.rememberMoneyInputState
 import com.eferraz.presentation.helpers.CurrencyVisualTransformation
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.drop
 
 @Composable
 internal fun TableInputMoney(
@@ -41,6 +48,7 @@ internal fun TableInputMoney(
     )
 }
 
+@OptIn(FlowPreview::class)
 @Composable
 private fun TableInputMoney(
     value: Double,
@@ -53,6 +61,22 @@ private fun TableInputMoney(
 ) {
 
     val state = rememberMoneyInputState(value)
+    val isFocusedState = interactionSource.collectIsFocusedAsState()
+
+    LaunchedEffect(Unit) {
+        // Observa mudanças no valor digitado e no estado de foco
+        snapshotFlow { Pair(state.currentAmount, isFocusedState.value) }
+            .drop(1) // Ignora o valor inicial para evitar disparos desnecessários ao montar
+            .debounce { (_, isFocused) ->
+                // Se estiver focado, espera 3000ms antes de emitir (Debounce)
+                // Se perder o foco, emite imediatamente (0ms)
+                if (isFocused) 3000L else 0L
+            }
+            .collect { (amount, _) ->
+                // Notifica a mudança apenas após o debounce ou perda de foco
+                onValueChange(amount)
+            }
+    }
 
     LaunchedEffect(value) {
         state.syncWithExternalValue(value)
@@ -72,7 +96,7 @@ private fun TableInputMoney(
         BasicTextField(
             value = state.textFieldValue,
             enabled = enabled,
-            onValueChange = { newValue -> state.onValueChange(newValue, onValueChange) },
+            onValueChange = { newValue -> state.onValueChange(newValue) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             interactionSource = interactionSource,
             singleLine = true,

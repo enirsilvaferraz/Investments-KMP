@@ -23,7 +23,14 @@ internal class MoneyInputState(
     )
         private set
 
-    fun onValueChange(newValue: TextFieldValue, onExternalChange: (Double?) -> Unit) {
+    var currentAmount by mutableStateOf<Double?>(null)
+        private set
+
+    init {
+        currentAmount = if ((initialValue * 100).toInt() == 0) null else initialValue
+    }
+
+    fun onValueChange(newValue: TextFieldValue) {
         val filteredText = newValue.text.filter { char -> char.isDigit() }
 
         val cursorOffset = if (filteredText.length < newValue.text.length) {
@@ -40,9 +47,9 @@ internal class MoneyInputState(
 
         val string = filteredText.trimStart { it == '0' }
         if (string.isEmpty()) {
-            onExternalChange(null)
+            currentAmount = null
         } else {
-            onExternalChange(string.toDouble() / 100)
+            currentAmount = string.toDouble() / 100
         }
     }
 
