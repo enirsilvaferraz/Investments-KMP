@@ -42,11 +42,21 @@ Este cálculo considera transações do tipo `PURCHASE` (compra/aporte) para apo
 ### Estruturas de Dados
 
 ```kotlin
-data class ContributionsBalance(
+class ContributionsBalance private constructor(
     val totalContributions: Double,
     val totalWithdrawals: Double,
     val balance: Double
-)
+) {
+    companion object {
+        /**
+         * Calcula o balanço de aportes e retiradas a partir de uma lista de transações.
+         *
+         * @param transactions Lista de transações a serem processadas.
+         * @return ContributionsBalance com os totais calculados.
+         */
+        fun calculate(transactions: List<AssetTransaction>): ContributionsBalance
+    }
+}
 ```
 
 **Onde:**
@@ -54,6 +64,11 @@ data class ContributionsBalance(
 - `totalContributions`: Soma de todos os aportes (transações PURCHASE)
 - `totalWithdrawals`: Soma de todas as retiradas (transações SALE)
 - `balance`: Balanço final (totalContributions - totalWithdrawals)
+
+**Padrão de Uso:**
+- Instâncias são criadas através do método estático `calculate()` no companion object
+- O construtor é privado, garantindo que a lógica de cálculo sempre seja executada
+- Segue o padrão Factory Method usado em outras classes do domínio (ex: `PositionProfitOrLoss`)
 
 ---
 
@@ -218,6 +233,26 @@ balance = totalContributions - totalWithdrawals
 - `Σ` representa a soma de todos os valores
 - `valor(transaction)` é calculado conforme regra 5.1 baseado no tipo de ativo
 
+### 5.3. Exemplo de Uso
+
+```kotlin
+// Dada uma lista de transações
+val transactions: List<AssetTransaction> = listOf(
+    variableIncomeTransaction1,  // PURCHASE
+    fixedIncomeTransaction,      // PURCHASE
+    fundsTransaction,            // PURCHASE
+    variableIncomeTransaction2   // SALE
+)
+
+// Calcula o balanço usando o método estático
+val balance = ContributionsBalance.calculate(transactions)
+
+// Acessa os valores calculados
+println("Total de Contribuições: R$ ${balance.totalContributions}")
+println("Total de Retiradas: R$ ${balance.totalWithdrawals}")
+println("Balanço: R$ ${balance.balance}")
+```
+
 ---
 
 ## 6. Exemplos Numéricos
@@ -240,13 +275,11 @@ balance = totalContributions - totalWithdrawals
 
 **Resultado:**
 
-```kotlin
-ContributionsBalance(
-    totalContributions = 7376.00,
-    totalWithdrawals = 600.00,
-    balance = 6776.00
-)
-```
+| Propriedade           | Valor       |
+|-----------------------|-------------|
+| `totalContributions`  | R$ 7.376,00 |
+| `totalWithdrawals`    | R$ 600,00   |
+| `balance`             | R$ 6.776,00 |
 
 ### 6.2. Exemplo: Renda Fixa (CDB)
 
@@ -266,13 +299,11 @@ ContributionsBalance(
 
 **Resultado:**
 
-```kotlin
-ContributionsBalance(
-    totalContributions = 10000.00,
-    totalWithdrawals = 11500.00,
-    balance = -1500.00
-)
-```
+| Propriedade           | Valor         |
+|-----------------------|---------------|
+| `totalContributions`  | R$ 10.000,00  |
+| `totalWithdrawals`    | R$ 11.500,00  |
+| `balance`             | -R$ 1.500,00  |
 
 **Interpretação:** O saldo negativo indica que o resgate (R$ 11.500,00) incluiu rendimentos acumulados (R$ 1.500,00) além do valor investido (R$ 10.000,00).
 
@@ -295,13 +326,11 @@ ContributionsBalance(
 
 **Resultado:**
 
-```kotlin
-ContributionsBalance(
-    totalContributions = 30000.00,
-    totalWithdrawals = 12000.00,
-    balance = 18000.00
-)
-```
+| Propriedade           | Valor        |
+|-----------------------|--------------|
+| `totalContributions`  | R$ 30.000,00 |
+| `totalWithdrawals`    | R$ 12.000,00 |
+| `balance`             | R$ 18.000,00 |
 
 **Interpretação:** O balanço positivo de R$ 18.000,00 representa o valor líquido ainda investido após o resgate parcial.
 
@@ -320,13 +349,11 @@ ContributionsBalance(
 
 **Resultado:**
 
-```kotlin
-ContributionsBalance(
-    totalContributions = 0.00,
-    totalWithdrawals = 5000.00,
-    balance = -5000.00
-)
-```
+| Propriedade           | Valor        |
+|-----------------------|--------------|
+| `totalContributions`  | R$ 0,00      |
+| `totalWithdrawals`    | R$ 5.000,00  |
+| `balance`             | -R$ 5.000,00 |
 
 **Interpretação:** Lista possui apenas retiradas. O saldo negativo indica que todo o valor foi retirado (possivelmente de uma posição anterior ou transferência).
 
@@ -336,13 +363,11 @@ ContributionsBalance(
 
 **Resultado:**
 
-```kotlin
-ContributionsBalance(
-    totalContributions = 0.00,
-    totalWithdrawals = 0.00,
-    balance = 0.00
-)
-```
+| Propriedade           | Valor   |
+|-----------------------|---------|
+| `totalContributions`  | R$ 0,00 |
+| `totalWithdrawals`    | R$ 0,00 |
+| `balance`             | R$ 0,00 |
 
 **Interpretação:** Sem transações, todos os valores são zero.
 
@@ -364,13 +389,11 @@ ContributionsBalance(
 
 **Resultado:**
 
-```kotlin
-ContributionsBalance(
-    totalContributions = 9000.00,
-    totalWithdrawals = 250.00,
-    balance = 8750.00
-)
-```
+| Propriedade           | Valor       |
+|-----------------------|-------------|
+| `totalContributions`  | R$ 9.000,00 |
+| `totalWithdrawals`    | R$ 250,00   |
+| `balance`             | R$ 8.750,00 |
 
 **Interpretação:** O cálculo funciona independentemente do tipo de ativo, aplicando a regra apropriada para cada um.
 
