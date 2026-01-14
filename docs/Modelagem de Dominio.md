@@ -125,7 +125,7 @@ erDiagram
 Esta camada define as propriedades imutáveis que caracterizam um ativo, independentemente de quem o possui.
 
 ```kotlin
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 /**
  * Contrato para as características intrínsecas de um ativo de investimento.
@@ -283,7 +283,7 @@ Esta entidade é um snapshot mensal de uma `AssetHolding`, armazenando dados de 
  * 
  * Nota: 
  * - Valores monetários são armazenados como `Double` (Kotlin KMP não possui BigDecimal nativo).
- * - `referenceDate` utiliza uma classe customizada `YearMonth` (formato YYYY-MM).
+ * - `referenceDate` utiliza `kotlinx.datetime.YearMonth` (formato YYYY-MM).
  * - Esta entidade não possui propriedade `earnings`; rendimentos não são rastreados no histórico mensal.
  */
 data class HoldingHistoryEntry(
@@ -326,11 +326,17 @@ enum class TransactionType {
 ### Estrutura Base
 
 ```kotlin
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 /**
  * Contrato base para todas as transações de ativos.
  * Cada categoria de ativo possui suas próprias subclasses com regras específicas.
+ * 
+ * Nota: Na implementação atual, a interface base também define `totalValue: Double`
+ * para facilitar o acesso ao valor total da transação de forma uniforme. Cada
+ * subclasse implementa este valor de acordo com suas regras específicas:
+ * - `FixedIncomeTransaction` e `FundsTransaction`: `totalValue` é uma propriedade direta
+ * - `VariableIncomeTransaction`: `totalValue` é calculado como `quantity * unitPrice`
  */
 sealed interface AssetTransaction {
     val id: Long
@@ -521,7 +527,7 @@ Os valores de `quantity`, `averageCost` e `investedValue` de uma `AssetHolding` 
 Esta entidade representa um objetivo financeiro a ser alcançado pelo investidor. Uma meta agrega um conjunto de posições (`AssetHolding`) que contribuem para atingir o valor objetivo definido. O progresso da meta é calculado dinamicamente a partir do histórico das posições associadas.
 
 ```kotlin
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 /**
  * Representa uma meta financeira a ser alcançada.
@@ -575,7 +581,7 @@ flowchart TD
 
 ### Valores Calculados Dinamicamente
 
-Os seguintes valores são derivados do histórico das posições associadas e **não são armazenados na entidade**. Eles são calculados sob demanda através de regras de negócio específicas (ver [RN - Calcular Progresso de Meta Financeira](RN%20-%20Calcular%20Progresso%20de%20Meta%20Financeira.md)):
+Os seguintes valores são derivados do histórico das posições associadas e **não são armazenados na entidade**. Eles são calculados sob demanda através de regras de negócio específicas (ver [RN - Calcular Histórico de Meta Financeira](RN%20-%20Calcular%20Histórico%20de%20Meta%20Financeira.md) e [RN - Calcular Projeção de Meta Financeira](RN%20-%20Calcular%20Projeção%20de%20Meta%20Financeira.md)):
 
 | Valor                     | Descrição                  | Fonte                                                   |
 |---------------------------|----------------------------|---------------------------------------------------------|
@@ -673,7 +679,7 @@ Representam conjuntos fixos e pré-definidos de opções para classificar os ati
 
 ```kotlin
 enum class FixedIncomeAssetType { POST_FIXED, PRE_FIXED, INFLATION_LINKED }
-enum class FixedIncomeSubType { CDB, LCI, LCA, CRA, CRI, DEBENTURE }
+enum class FixedIncomeSubType { CDB, LCI, LCA, CRA, CRI, DEBENTURE, SELIC, PRECATORIO }
 enum class VariableIncomeAssetType { NATIONAL_STOCK, INTERNATIONAL_STOCK, REAL_ESTATE_FUND, ETF }
 enum class InvestmentFundAssetType { PENSION, STOCK_FUND, MULTIMARKET_FUND }
 enum class TransactionType { PURCHASE, SALE }
