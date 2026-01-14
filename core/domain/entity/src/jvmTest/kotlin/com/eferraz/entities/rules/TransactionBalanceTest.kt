@@ -11,7 +11,7 @@ import kotlinx.datetime.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class ContributionsBalanceTest {
+class TransactionBalanceTest {
 
     // Mock holding
     private val holding = mockk<AssetHolding> {
@@ -26,7 +26,7 @@ class ContributionsBalanceTest {
         date: LocalDate = LocalDate(2025, 1, 15)
     ): VariableIncomeTransaction {
         return mockk {
-            every { holding } returns this@ContributionsBalanceTest.holding
+            every { holding } returns this@TransactionBalanceTest.holding
             every { this@mockk.type } returns type
             every { this@mockk.quantity } returns quantity
             every { this@mockk.unitPrice } returns unitPrice
@@ -43,7 +43,7 @@ class ContributionsBalanceTest {
         date: LocalDate = LocalDate(2025, 1, 10)
     ): FixedIncomeTransaction {
         return mockk {
-            every { holding } returns this@ContributionsBalanceTest.holding
+            every { holding } returns this@TransactionBalanceTest.holding
             every { this@mockk.type } returns type
             every { this@mockk.totalValue } returns totalValue
             every { this@mockk.date } returns date
@@ -58,7 +58,7 @@ class ContributionsBalanceTest {
         date: LocalDate = LocalDate(2025, 1, 5)
     ): FundsTransaction {
         return mockk {
-            every { holding } returns this@ContributionsBalanceTest.holding
+            every { holding } returns this@TransactionBalanceTest.holding
             every { this@mockk.type } returns type
             every { this@mockk.totalValue } returns totalValue
             every { this@mockk.date } returns date
@@ -75,7 +75,7 @@ class ContributionsBalanceTest {
         val transactions = emptyList<VariableIncomeTransaction>()
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(0.0, result.totalContributions, 0.001)
@@ -100,7 +100,7 @@ class ContributionsBalanceTest {
         )
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(7376.00, result.totalContributions, 0.01)
@@ -124,7 +124,7 @@ class ContributionsBalanceTest {
         )
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(7376.00, result.totalContributions, 0.01)
@@ -148,7 +148,7 @@ class ContributionsBalanceTest {
         )
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(10000.00, result.totalContributions, 0.01)
@@ -172,7 +172,7 @@ class ContributionsBalanceTest {
         )
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(10000.00, result.totalContributions, 0.01)
@@ -198,7 +198,7 @@ class ContributionsBalanceTest {
         )
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(30000.00, result.totalContributions, 0.01)
@@ -224,7 +224,7 @@ class ContributionsBalanceTest {
         )
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(30000.00, result.totalContributions, 0.01)
@@ -244,7 +244,7 @@ class ContributionsBalanceTest {
         )
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(0.0, result.totalContributions, 0.001)
@@ -268,7 +268,7 @@ class ContributionsBalanceTest {
         )
 
         // WHEN
-        val result = ContributionsBalance.calculate(transactions)
+        val result = TransactionBalance.calculate(transactions)
 
         // THEN
         assertEquals(9000.00, result.totalContributions, 0.01)

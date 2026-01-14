@@ -42,7 +42,7 @@ Este cálculo considera transações do tipo `PURCHASE` (compra/aporte) para apo
 ### Estruturas de Dados
 
 ```kotlin
-class ContributionsBalance private constructor(
+class TransactionBalance private constructor(
     val totalContributions: Double,
     val totalWithdrawals: Double,
     val balance: Double
@@ -52,9 +52,9 @@ class ContributionsBalance private constructor(
          * Calcula o balanço de aportes e retiradas a partir de uma lista de transações.
          *
          * @param transactions Lista de transações a serem processadas.
-         * @return ContributionsBalance com os totais calculados.
+         * @return TransactionBalance com os totais calculados.
          */
-        fun calculate(transactions: List<AssetTransaction>): ContributionsBalance
+        fun calculate(transactions: List<AssetTransaction>): TransactionBalance
     }
 }
 ```
@@ -77,7 +77,7 @@ class ContributionsBalance private constructor(
 ```mermaid
 flowchart TD
     Start([Receber lista de transações]) --> IsEmpty{Lista vazia?}
-    IsEmpty -->|Sim| ReturnZero[Retorna ContributionsBalance com zeros]
+    IsEmpty -->|Sim| ReturnZero[Retorna TransactionBalance com zeros]
     IsEmpty -->|Não| FilterPurchase[Filtra transações PURCHASE]
     FilterPurchase --> FilterSale[Filtra transações SALE]
     FilterSale --> CalcPurchaseValues[Calcula valor de cada PURCHASE baseado no tipo de ativo]
@@ -85,7 +85,7 @@ flowchart TD
     CalcSaleValues --> SumPurchases[Soma todos os valores PURCHASE]
     SumPurchases --> SumSales[Soma todos os valores SALE]
     SumSales --> CalcBalance[Calcula balance = totalContributions - totalWithdrawals]
-    CalcBalance --> Return([Retorna ContributionsBalance])
+    CalcBalance --> Return([Retorna TransactionBalance])
     ReturnZero --> Return
     style Start fill: #3b82f6
     style Return fill: #10b981
@@ -100,7 +100,7 @@ flowchart TD
 4. **Soma de Aportes**: Soma todos os valores das transações `PURCHASE`
 5. **Soma de Retiradas**: Soma todos os valores das transações `SALE`
 6. **Cálculo do Balanço**: Calcula `balance = totalContributions - totalWithdrawals`
-7. **Retorno**: Retorna `ContributionsBalance` com os três valores calculados
+7. **Retorno**: Retorna `TransactionBalance` com os três valores calculados
 
 ---
 
@@ -112,7 +112,7 @@ flowchart TD
 
 **Comportamento:**
 
-- Se lista vazia ou nula: retorna `ContributionsBalance(0.0, 0.0, 0.0)`
+- Se lista vazia ou nula: retorna `TransactionBalance(0.0, 0.0, 0.0)`
 - Se lista não vazia: prossegue com o cálculo
 
 ### 4.2. Filtro por Tipo de Transação
@@ -245,7 +245,7 @@ val transactions: List<AssetTransaction> = listOf(
 )
 
 // Calcula o balanço usando o método estático
-val balance = ContributionsBalance.calculate(transactions)
+val balance = TransactionBalance.calculate(transactions)
 
 // Acessa os valores calculados
 println("Total de Contribuições: R$ ${balance.totalContributions}")
@@ -402,5 +402,5 @@ println("Balanço: R$ ${balance.balance}")
 ## Referências
 
 - [AssetTransaction.kt](file:///Users/enirferraz/AndroidStudioProjects/Investments-KMP/core/domain/entity/src/commonMain/kotlin/com/eferraz/entities/AssetTransaction.kt) - Definição da interface base de transações
-- [RN - Calcular Aportes de Investimento.md](RN%20-%20Calcular%20Aportes%20de%20Investimento.md) - Documento que utiliza este cálculo para apurações mensais
-- [Modelagem de Dominio.md](Modelagem%20de%20Dominio.md) - Definição das entidades e subtipos de transações
+- [RN - Calcular Aportes de Investimento.md](../RN%20-%20Calcular%20Aportes%20de%20Investimento.md) - Documento que utiliza este cálculo para apurações mensais
+- [Modelagem de Dominio.md](../Modelagem%20de%20Dominio.md) - Definição das entidades e subtipos de transações

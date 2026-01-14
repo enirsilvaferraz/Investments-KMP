@@ -8,13 +8,13 @@ import com.eferraz.entities.VariableIncomeTransaction
 
 /**
  * Representa o balanço de aportes e retiradas de uma lista de transações.
- * Implements: [docs/RN - Calcular Balanço dos Aportes.md]
+ * Implements: [docs/rules/RN - Calcular Balanço de Transações.md]
  *
  * @property totalContributions Soma total de todos os aportes (transações PURCHASE).
  * @property totalWithdrawals Soma total de todas as retiradas (transações SALE).
  * @property balance Balanço final (totalContributions - totalWithdrawals).
  */
-public class ContributionsBalance private constructor(
+public class TransactionBalance private constructor(
     public val totalContributions: Double,
     public val totalWithdrawals: Double,
     public val balance: Double,
@@ -26,12 +26,13 @@ public class ContributionsBalance private constructor(
          * Calcula o balanço de aportes e retiradas a partir de uma lista de transações.
          *
          * @param transactions Lista de transações a serem processadas.
-         * @return ContributionsBalance com os totais calculados.
+         * @return TransactionBalance com os totais calculados.
          */
-        public fun calculate(transactions: List<AssetTransaction>): ContributionsBalance {
+        public fun calculate(transactions: List<AssetTransaction>): TransactionBalance {
+
             // 4.1. Validação da Lista
             if (transactions.isEmpty()) {
-                return ContributionsBalance(
+                return TransactionBalance(
                     totalContributions = 0.0,
                     totalWithdrawals = 0.0,
                     balance = 0.0
@@ -50,7 +51,7 @@ public class ContributionsBalance private constructor(
             // 4.4. Cálculo do Balanço
             val balance = totalContributions - totalWithdrawals
 
-            return ContributionsBalance(
+            return TransactionBalance(
                 totalContributions = totalContributions,
                 totalWithdrawals = totalWithdrawals,
                 balance = balance
