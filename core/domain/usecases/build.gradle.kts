@@ -11,13 +11,6 @@ kotlin {
     dependencies {
         api(projects.entity)
     }
-
-    sourceSets {
-        androidUnitTest.dependencies {
-            implementation(libs.mockk.android)
-            implementation(libs.mockk.agent)
-        }
-    }
 }
 
 kotlin.android {
