@@ -368,6 +368,24 @@ private fun HistoryScreenFixedIncome(
         )
 
         column(
+            header = "Aportes",
+            alignment = Alignment.End,
+            sortedBy = { it.totalContributions },
+            weight = 1.3f,
+            cellValue = { it.totalContributions.currencyFormat() },
+            footer = { data -> data.sumOf { it.totalContributions }.currencyFormat() }
+        )
+
+        column(
+            header = "Retiradas",
+            alignment = Alignment.End,
+            sortedBy = { it.totalWithdrawals },
+            weight = 1.3f,
+            cellValue = { it.totalWithdrawals.currencyFormat() },
+            footer = { data -> data.sumOf { it.totalWithdrawals }.currencyFormat() }
+        )
+
+        column(
             header = "%",
             alignment = Alignment.CenterHorizontally,
             sortedBy = { it.appreciation },
@@ -469,6 +487,24 @@ private fun HistoryScreenVariableIncome(
                 )
             },
             footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
+        )
+
+        column(
+            header = "Aportes",
+            alignment = Alignment.End,
+            sortedBy = { it.totalContributions },
+            weight = 1.3f,
+            cellValue = { it.totalContributions.currencyFormat() },
+            footer = { data -> data.sumOf { it.totalContributions }.currencyFormat() }
+        )
+
+        column(
+            header = "Retiradas",
+            alignment = Alignment.End,
+            sortedBy = { it.totalWithdrawals },
+            weight = 1.3f,
+            cellValue = { it.totalWithdrawals.currencyFormat() },
+            footer = { data -> data.sumOf { it.totalWithdrawals }.currencyFormat() }
         )
 
         column(
@@ -587,6 +623,24 @@ private fun HistoryScreenFunds(
                 )
             },
             footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
+        )
+
+        column(
+            header = "Aportes",
+            alignment = Alignment.End,
+            sortedBy = { it.totalContributions },
+            weight = 1.3f,
+            cellValue = { it.totalContributions.currencyFormat() },
+            footer = { data -> data.sumOf { it.totalContributions }.currencyFormat() }
+        )
+
+        column(
+            header = "Retiradas",
+            alignment = Alignment.End,
+            sortedBy = { it.totalWithdrawals },
+            weight = 1.3f,
+            cellValue = { it.totalWithdrawals.currencyFormat() },
+            footer = { data -> data.sumOf { it.totalWithdrawals }.currencyFormat() }
         )
 
         column(

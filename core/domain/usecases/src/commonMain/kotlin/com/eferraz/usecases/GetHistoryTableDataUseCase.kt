@@ -4,6 +4,7 @@ import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.InvestmentFundAsset
 import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.rules.TransactionBalance
 import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.entities.InvestmentFundHistoryTableData
@@ -21,12 +22,13 @@ import org.koin.core.annotation.Factory
 @Factory
 public class GetHistoryTableDataUseCase(
     private val mergeHistoryUseCase: MergeHistoryUseCase,
+    private val getTransactionsByHoldingUseCase: GetTransactionsByHoldingUseCase,
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<GetHistoryTableDataUseCase.Param, List<HistoryTableData>>(context) {
 
     public data class Param(
         val referenceDate: kotlinx.datetime.YearMonth,
-        val category: InvestmentCategory
+        val category: InvestmentCategory,
     )
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
@@ -39,6 +41,16 @@ public class GetHistoryTableDataUseCase(
             val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity
             val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity
             val appreciation = result.profitOrLoss.roiPercentage
+
+            // Obter transações do holding e calcular balanço
+            val transactions = getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(result.holding))
+                .getOrNull()
+                ?.filter { it.date.month == param.referenceDate.month && it.date.year == param.referenceDate.year }
+                ?: emptyList()
+
+            val transactionBalance = TransactionBalance.calculate(transactions)
+            val totalContributions = transactionBalance.totalContributions
+            val totalWithdrawals = transactionBalance.totalWithdrawals
 
             when (asset) {
 
@@ -56,7 +68,9 @@ public class GetHistoryTableDataUseCase(
                     previousValue = previousValue,
                     currentValue = currentValue,
                     appreciation = appreciation,
-                    editable = true
+                    editable = true,
+                    totalContributions = totalContributions,
+                    totalWithdrawals = totalWithdrawals
                 )
 
                 is VariableIncomeAsset -> VariableIncomeHistoryTableData(
@@ -71,7 +85,9 @@ public class GetHistoryTableDataUseCase(
                     previousValue = previousValue,
                     currentValue = currentValue,
                     appreciation = appreciation,
-                    editable = false
+                    editable = false,
+                    totalContributions = totalContributions,
+                    totalWithdrawals = totalWithdrawals
                 )
 
                 is InvestmentFundAsset -> InvestmentFundHistoryTableData(
@@ -87,7 +103,9 @@ public class GetHistoryTableDataUseCase(
                     previousValue = previousValue,
                     currentValue = currentValue,
                     appreciation = appreciation,
-                    editable = true
+                    editable = true,
+                    totalContributions = totalContributions,
+                    totalWithdrawals = totalWithdrawals
                 )
             }
         }

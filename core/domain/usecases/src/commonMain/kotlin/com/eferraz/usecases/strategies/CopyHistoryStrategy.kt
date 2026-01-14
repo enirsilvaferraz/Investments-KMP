@@ -61,7 +61,7 @@ public interface CopyHistoryStrategy {
             holding.asset is FixedIncomeAsset || holding.asset is InvestmentFundAsset
 
         override suspend fun create(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? =
-            holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate.minusMonth(), holding)
+            holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate.minusMonth(), holding)?.copy(id = null, referenceDate = referenceDate)
     }
 
     /**

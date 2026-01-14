@@ -54,6 +54,16 @@ public sealed interface HistoryTableData {
      * Indica se o valor pode ser editado.
      */
     public val editable: Boolean
+
+    /**
+     * Total de contribuições (aportes) no período.
+     */
+    public val totalContributions: Double
+
+    /**
+     * Total de retiradas no período.
+     */
+    public val totalWithdrawals: Double
 }
 
 /**
@@ -92,6 +102,8 @@ public data class FixedIncomeHistoryTableData(
     override val currentValue: Double,
     override val appreciation: Double,
     override val editable: Boolean,
+    override val totalContributions: Double,
+    override val totalWithdrawals: Double,
 ) : HistoryTableData
 
 /**
@@ -122,6 +134,8 @@ public data class VariableIncomeHistoryTableData(
     override val currentValue: Double,
     override val appreciation: Double,
     override val editable: Boolean,
+    override val totalContributions: Double,
+    override val totalWithdrawals: Double,
 ) : HistoryTableData
 
 /**
@@ -156,5 +170,7 @@ public data class InvestmentFundHistoryTableData(
     override val currentValue: Double,
     override val appreciation: Double,
     override val editable: Boolean,
+    override val totalContributions: Double,
+    override val totalWithdrawals: Double,
 ) : HistoryTableData
 
