@@ -4,13 +4,14 @@ Este documento descreve a modelagem do domínio para as entidades de ativos de i
 
 ## Arquitetura do Domínio
 
-A modelagem é dividida em cinco camadas conceituais para garantir clareza, flexibilidade e escalabilidade:
+A modelagem é dividida em seis camadas conceituais para garantir clareza, flexibilidade e escalabilidade:
 
 1.  **`Asset` (O Ativo):** Representa as características **intrínsecas** de um ativo negociável (ex: a ação PETR4, um CDB específico). Descreve "o quê" é o ativo.
 2.  **`AssetHolding` (A Posição):** Representa a **posse** de um `Asset` por um `Owner` em uma `Brokerage`. Armazena apenas os relacionamentos; os valores calculados (quantity, averageCost, investedValue) são obtidos dinamicamente a partir das transações. Pode estar opcionalmente associada a uma `FinancialGoal`.
 3.  **`AssetTransaction` (As Transações):** Representa cada operação individual (compra/venda, aporte/resgate) relacionada a uma `AssetHolding`. É a fonte de verdade para cálculo de posições e histórico completo de movimentações.
 4.  **`HoldingHistoryEntry` (O Histórico):** Representa um **snapshot mensal** do desempenho de uma `AssetHolding`, permitindo a análise da evolução da posição ao longo do tempo.
 5.  **`FinancialGoal` (A Meta):** Representa uma **meta financeira** a ser alcançada pelo investidor. Define um valor objetivo e agrega posições (`AssetHolding`) que contribuem para atingir essa meta.
+6.  **`GoalInvestmentPlan` (O Plano de Investimento):** Representa o **plano** para alcançar uma meta financeira. Encapsula os parâmetros de aportes mensais e rentabilidade esperada, permitindo tanto simulações hipotéticas quanto o acompanhamento de um plano oficial.
 
 ---
 
@@ -101,6 +102,13 @@ erDiagram
         LocalDate startDate
         String description
     }
+    GOAL_INVESTMENT_PLAN {
+        Long id PK
+        Long goalId FK
+        Double monthlyContribution
+        Double monthlyReturnRate
+        Double initialValue
+    }
 
     ASSET ||--o{ FIXED_INCOME_ASSET : "é um (herança)"
     ASSET ||--o{ VARIABLE_INCOME_ASSET : "é um (herança)"
@@ -116,6 +124,7 @@ erDiagram
     ASSET_TRANSACTION ||--o| FUNDS_TRANSACTION : "é um (herança)"
     HOLDING_HISTORY_ENTRY }o--|| ASSET_HOLDING : "é um snapshot de"
     FINANCIAL_GOAL }o--|| OWNER : "pertence a"
+    GOAL_INVESTMENT_PLAN }o--o| FINANCIAL_GOAL : "define plano para (opcional)"
 ```
 
 ---
@@ -552,6 +561,40 @@ data class FinancialGoal(
     val description: String? = null
 )
 ```
+
+### Planejamento de Meta (GoalInvestmentPlan)
+
+Para permitir o planejamento e acompanhamento de uma meta financeira, utilizamos um Value Object que encapsula os parâmetros do plano de investimento. Este plano pode ser usado tanto para simulações hipotéticas quanto para armazenar o plano oficial associado a uma meta:
+
+```kotlin
+/**
+ * Representa o plano de investimento de uma meta financeira.
+ *
+ * Este Value Object encapsula os parâmetros do plano de investimento, que podem ser
+ * utilizados tanto para simulações hipotéticas quanto para definir e acompanhar o
+ * plano oficial de uma meta. Permite ao usuário planejar quanto tempo levará para
+ * atingir seu objetivo com base em aportes mensais e taxa de retorno esperada.
+ *
+ * @property id O identificador único do plano (opcional, null para simulações ad-hoc).
+ * @property goal A meta financeira associada ao plano.
+ * @property monthlyContribution O valor de aporte mensal planejado.
+ * @property monthlyReturnRate A taxa de retorno mensal esperada (em percentual, ex: 0.80 para 0,80%).
+ * @property initialValue O valor inicial da meta (opcional, padrão é 0.0).
+ */
+data class GoalInvestmentPlan(
+    val id: Long? = null,
+    val goal: FinancialGoal,
+    val monthlyContribution: Double,
+    val monthlyReturnRate: Double,
+    val initialValue: Double = 0.0
+)
+```
+
+**Uso:** Este Value Object é utilizado para calcular projeções hipotéticas de metas. O cálculo é feito em duas etapas:
+1. [rules/RN - Calcular Valor Projetado de Meta Financeira.md](rules/RN%20-%20Calcular%20Valor%20Projetado%20de%20Meta%20Financeira.md) - Cálculo unitário de um único mês
+2. [rules/RN - Gerar Mapa de Projeção de Meta Financeira.md](rules/RN%20-%20Gerar%20Mapa%20de%20Projeção%20de%20Meta%20Financeira.md) - Geração do mapa completo mês a mês
+
+Para projeções baseadas em histórico real, ver [RN - Calcular Projeção de Meta Financeira.md](RN%20-%20Calcular%20Projeção%20de%20Meta%20Financeira.md).
 
 ### Relacionamento com AssetHolding
 
