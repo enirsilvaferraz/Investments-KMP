@@ -56,20 +56,20 @@ public class PositionProfitOrLoss private constructor(
             val previousValue = determinePreviousValue(previousHistory)
 
             // 4.3. Cálculo do Fluxo de Caixa (Net Flow)
-            val (purchases, _, netFlow) = calculateCashFlow(transactions)
+            val balance = TransactionBalance.calculate(transactions = transactions)
 
             // 4.4. Cálculo do Lucro/Prejuízo Financeiro
             val financialAppreciation = calculateFinancialAppreciation(
                 currentValue = currentHistory.endOfMonthValue,
                 previousValue = previousValue,
-                netFlow = netFlow
+                netFlow = balance.balance
             )
 
             // 4.5. Cálculo da Rentabilidade Percentual
             val percentageAppreciation = calculatePercentageAppreciation(
                 financialAppreciation = financialAppreciation,
                 previousValue = previousValue,
-                purchases = purchases
+                purchases = balance.totalContributions
             )
 
             return PositionProfitOrLoss(
@@ -108,24 +108,6 @@ public class PositionProfitOrLoss private constructor(
          */
         private fun determinePreviousValue(previousHistory: HoldingHistoryEntry?) =
             previousHistory?.endOfMonthValue ?: 0.0
-
-        /**
-         * Calcula o fluxo de caixa (compras - vendas) para o mês.
-         */
-        private fun calculateCashFlow(transactions: List<AssetTransaction>): Triple<Double, Double, Double> {
-
-            val purchases = transactions
-                .filter { it.type == TransactionType.PURCHASE }
-                .sumOf { it.totalValue }
-
-            val sales = transactions
-                .filter { it.type == TransactionType.SALE }
-                .sumOf { it.totalValue }
-
-            val netFlow = purchases - sales
-
-            return Triple(purchases, sales, netFlow)
-        }
 
         /**
          * Calcula o valor financeiro do lucro (se positivo) ou prejuízo (se negativo).

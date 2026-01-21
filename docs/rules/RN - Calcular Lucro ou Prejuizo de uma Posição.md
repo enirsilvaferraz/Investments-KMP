@@ -8,7 +8,7 @@ flowchart TD
     Start([Início]) --> Validate{Validar Holding IDs}
     Validate -- Inválido --> Error([Erro / Exceção])
     Validate -- Válido --> CalcPrev[Definir Valor Anterior]
-    CalcPrev --> CalcFlow[Calcular Fluxo de Caixa<br/>Purchases - Sales]
+    CalcPrev --> CalcFlow[Calcular Fluxo de Caixa<br/>via RN - Balanço de Transações]
     CalcFlow --> CalcFinResult[Calcular Resultado Financeiro<br/>Atual - Anterior - Fluxo]
     CalcFinResult --> CalcBase[Calcular Base<br/>Anterior + Compras]
     CalcBase --> CheckBase{Base > 0?}
@@ -34,10 +34,10 @@ Para realizar o cálculo, são necessários os seguintes dados:
 
 O cálculo resulta em um objeto contendo:
 
-| Campo | Tipo | Descrição |
-|---|---|---|
-| `financialAppreciation` | `Double` | O valor financeiro do lucro (se positivo) ou prejuízo (se negativo), em moeda corrente. Representa quanto o patrimônio variou exclusivamente devido à valorização/desvalorização do ativo. |
-| `percentageAppreciation` | `Double` | O percentual de retorno sobre o capital investido no período. |
+| Campo                    | Tipo     | Descrição                                                                                                                                                                                  |
+|--------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `financialAppreciation`  | `Double` | O valor financeiro do lucro (se positivo) ou prejuízo (se negativo), em moeda corrente. Representa quanto o patrimônio variou exclusivamente devido à valorização/desvalorização do ativo. |
+| `percentageAppreciation` | `Double` | O percentual de retorno sobre o capital investido no período.                                                                                                                              |
 
 ## 4. Regras de Cálculo
 
@@ -56,6 +56,7 @@ O valor da posição no início do mês é determinado pelo saldo final do mês 
 
 ### 4.3. Cálculo do Fluxo de Caixa (Net Flow)
 O fluxo de caixa representa a injeção ou retirada líquida de dinheiro novo na posição durante o mês.
+*   **Reuso de regra:** O fluxo é calculado aplicando a regra [RN - Calcular Balanço de Transações](RN%20-%20Calcular%20Balanço%20de%20Transações.md).
 *   **Compras (`purchases`):** Soma do `totalValue` de todas as transações do tipo `PURCHASE`.
 *   **Vendas (`sales`):** Soma do `totalValue` de todas as transações do tipo `SALE`.
 *   **Fluxo Líquido (`netFlow`):** `purchases - sales`.

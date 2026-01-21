@@ -56,8 +56,6 @@ public class FinancialGoalProjections private constructor(
                 }
             }
 
-            require(currentValue >= targetValue) { "Meta financeira inalcançável com os parâmetros informados após $maxMonths meses." }
-
             return FinancialGoalProjections(projections = projections)
         }
     }

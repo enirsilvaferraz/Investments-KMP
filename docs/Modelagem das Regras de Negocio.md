@@ -14,6 +14,7 @@ graph TB
     RN4["📄 RN - Calcular Lucro ou Prejuizo<br/>━━━━━━━━━━━━━━━━━━<br/>PositionProfitOrLoss.kt"]
     
     RN3 --> | Loop | RN2
+    RN4 --> | Utiliza | RN1
     
     style RN1 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
     style RN2 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
@@ -53,7 +54,7 @@ Gera um mapa completo de projeções mensais de uma meta financeira, calculando 
 ### RN - Calculo do Lucro ou Prejuizo de uma Posição
 **Implementação:** `PositionProfitOrLoss.kt`
 
-Calcula o resultado financeiro (lucro ou prejuízo) e a rentabilidade percentual de uma posição de investimento em um mês de referência. Isola o desempenho do ativo das movimentações de caixa (aportes e retiradas), retornando o valor financeiro da variação e o percentual de retorno sobre o capital investido.
+Calcula o resultado financeiro (lucro ou prejuízo) e a rentabilidade percentual de uma posição de investimento em um mês de referência. Isola o desempenho do ativo das movimentações de caixa (aportes e retiradas), retornando o valor financeiro da variação e o percentual de retorno sobre o capital investido. Para isso, reutiliza a regra "RN - Calcular Balanço de Transações" para obter o saldo de aportes/retiradas do período.
 
 ---
 
