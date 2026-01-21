@@ -14,7 +14,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.test.assertFailsWith
 
-class PositionProfitOrLossTest {
+class AppreciationTest {
 
     private val referenceDate = YearMonth(2025, Month.JANUARY)
 
@@ -51,7 +51,7 @@ class PositionProfitOrLossTest {
         return mockk {
             every { holding } returns mockHolding
             every { endOfMonthValue } returns endValue
-            every { referenceDate } returns this@PositionProfitOrLossTest.referenceDate
+            every { referenceDate } returns this@AppreciationTest.referenceDate
         }
     }
 
@@ -66,16 +66,14 @@ class PositionProfitOrLossTest {
         val transaction = createMockTransaction(holding, TransactionType.PURCHASE, 100.0)
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(
-            holding = holding,
-            referenceDate = referenceDate,
+        val result = Appreciation.calculate(
             currentHistory = currentHistory,
             previousHistory = previousHistory,
             transactions = listOf(transaction)
         )
 
         // THEN
-        assertTrue(result.profitOrLossValue.isFinite())
+        assertTrue(result.value.isFinite())
     }
 
     @Test
@@ -87,9 +85,7 @@ class PositionProfitOrLossTest {
 
         // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            PositionProfitOrLoss.calculate(
-                holding = holding,
-                referenceDate = referenceDate,
+            Appreciation.calculate(
                 currentHistory = currentHistory,
                 previousHistory = previousHistory,
                 transactions = emptyList()
@@ -106,9 +102,7 @@ class PositionProfitOrLossTest {
 
         // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            PositionProfitOrLoss.calculate(
-                holding = holding,
-                referenceDate = referenceDate,
+            Appreciation.calculate(
                 currentHistory = currentHistory,
                 previousHistory = previousHistory,
                 transactions = emptyList()
@@ -125,9 +119,7 @@ class PositionProfitOrLossTest {
 
         // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            PositionProfitOrLoss.calculate(
-                holding = holding,
-                referenceDate = referenceDate,
+            Appreciation.calculate(
                 currentHistory = currentHistory,
                 previousHistory = null,
                 transactions = listOf(transaction)
@@ -146,13 +138,13 @@ class PositionProfitOrLossTest {
         val current = createMockHistory(holding, 1100.0)
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previous, emptyList())
+        val result = Appreciation.calculate( current, previous, emptyList())
 
         // THEN
         // Resultado: 1100 - 1000 - 0 = 100
         // %: 100 / 1000 = 10%
-        assertEquals(100.0, result.profitOrLossValue, 0.001)
-        assertEquals(10.0, result.roiPercentage, 0.001)
+        assertEquals(100.0, result.value, 0.001)
+        assertEquals(10.0, result.percentage, 0.001)
     }
 
     @Test
@@ -167,14 +159,14 @@ class PositionProfitOrLossTest {
         )
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previous, transactions)
+        val result = Appreciation.calculate( current, previous, transactions)
 
         // THEN
         // Resultado: 1600 - 1000 - 500 = 100
         // Base: 1000 + 500 = 1500
         // %: 100 / 1500 = 6.666...%
-        assertEquals(100.0, result.profitOrLossValue, 0.001)
-        assertEquals(6.666, result.roiPercentage, 0.001)
+        assertEquals(100.0, result.value, 0.001)
+        assertEquals(6.666, result.percentage, 0.001)
     }
 
     @Test
@@ -189,14 +181,14 @@ class PositionProfitOrLossTest {
         )
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previous, transactions)
+        val result = Appreciation.calculate( current, previous, transactions)
 
         // THEN
         // Resultado: 900 - 1000 - (-200) = 100
         // Base: 1000
         // %: 100 / 1000 = 10%
-        assertEquals(100.0, result.profitOrLossValue, 0.001)
-        assertEquals(10.0, result.roiPercentage, 0.001)
+        assertEquals(100.0, result.value, 0.001)
+        assertEquals(10.0, result.percentage, 0.001)
     }
 
     @Test
@@ -211,14 +203,14 @@ class PositionProfitOrLossTest {
         )
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previousHistory = null, transactions)
+        val result = Appreciation.calculate( current, previousHistory = null, transactions)
 
         // THEN
         // Resultado: 0 - 0 - (-100) = 100
         // Base: 0 + 1000 = 1000
         // %: 100 / 1000 = 10%
-        assertEquals(100.0, result.profitOrLossValue, 0.001)
-        assertEquals(10.0, result.roiPercentage, 0.001)
+        assertEquals(100.0, result.value, 0.001)
+        assertEquals(10.0, result.percentage, 0.001)
     }
 
     @Test
@@ -230,13 +222,13 @@ class PositionProfitOrLossTest {
         val current = createMockHistory(holding, 900.0)
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previous, emptyList())
+        val result = Appreciation.calculate( current, previous, emptyList())
 
         // THEN
         // Resultado: 900 - 1000 - 0 = -100
         // %: -100 / 1000 = -10%
-        assertEquals(-100.0, result.profitOrLossValue, 0.001)
-        assertEquals(-10.0, result.roiPercentage, 0.001)
+        assertEquals(-100.0, result.value, 0.001)
+        assertEquals(-10.0, result.percentage, 0.001)
     }
 
     @Test
@@ -251,14 +243,14 @@ class PositionProfitOrLossTest {
         )
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previous, transactions)
+        val result = Appreciation.calculate( current, previous, transactions)
 
         // THEN
         // Resultado: 1300 - 1000 - 500 = -200
         // Base: 1000 + 500 = 1500
         // %: -200 / 1500 = -13.333%
-        assertEquals(-200.0, result.profitOrLossValue, 0.001)
-        assertEquals(-13.333, result.roiPercentage, 0.001)
+        assertEquals(-200.0, result.value, 0.001)
+        assertEquals(-13.333, result.percentage, 0.001)
     }
 
     @Test
@@ -273,14 +265,14 @@ class PositionProfitOrLossTest {
         )
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previous, transactions)
+        val result = Appreciation.calculate( current, previous, transactions)
 
         // THEN
         // Resultado: 700 - 1000 - (-200) = -100
         // Base: 1000
         // %: -100 / 1000 = -10%
-        assertEquals(-100.0, result.profitOrLossValue, 0.001)
-        assertEquals(-10.0, result.roiPercentage, 0.001)
+        assertEquals(-100.0, result.value, 0.001)
+        assertEquals(-10.0, result.percentage, 0.001)
     }
 
     // --- 3. Edge Cases Tests ---
@@ -296,14 +288,14 @@ class PositionProfitOrLossTest {
         )
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previousHistory = null, transactions)
+        val result = Appreciation.calculate( current, previousHistory = null, transactions)
 
         // THEN
         // Resultado: 550 - 0 - 500 = 50
         // Base: 0 + 500 = 500
         // %: 50 / 500 = 10%
-        assertEquals(50.0, result.profitOrLossValue, 0.001)
-        assertEquals(10.0, result.roiPercentage, 0.001)
+        assertEquals(50.0, result.value, 0.001)
+        assertEquals(10.0, result.percentage, 0.001)
     }
 
     @Test
@@ -314,14 +306,14 @@ class PositionProfitOrLossTest {
         val current = createMockHistory(holding, 0.0)
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previousHistory = null, emptyList())
+        val result = Appreciation.calculate( current, previousHistory = null, emptyList())
 
         // THEN
         // Resultado: 0
         // Base: 0
         // %: 0.0 (regra)
-        assertEquals(0.0, result.profitOrLossValue, 0.001)
-        assertEquals(0.0, result.roiPercentage, 0.001)
+        assertEquals(0.0, result.value, 0.001)
+        assertEquals(0.0, result.percentage, 0.001)
     }
 
     @Test
@@ -331,13 +323,13 @@ class PositionProfitOrLossTest {
         val current = createMockHistory(holding, 1000.0)
 
         // WHEN
-        val result = PositionProfitOrLoss.calculate(holding, referenceDate, current, previousHistory = null, emptyList())
+        val result = Appreciation.calculate( current, previousHistory = null, emptyList())
 
         // THEN
         // Não há histórico anterior e não há transações. Assume-se implantação de saldo.
         // Resultado: 0.0
         // %: 0.0
-        assertEquals(0.0, result.profitOrLossValue, 0.001)
-        assertEquals(0.0, result.roiPercentage, 0.001)
+        assertEquals(0.0, result.value, 0.001)
+        assertEquals(0.0, result.percentage, 0.001)
     }
 }

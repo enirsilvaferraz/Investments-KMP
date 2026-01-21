@@ -33,18 +33,18 @@ Este cálculo considera transações do tipo `PURCHASE` (compra/aporte) para apo
 
 ### Saídas
 
-| Campo                | Tipo   | Descrição                                             |
-|----------------------|--------|-------------------------------------------------------|
-| `totalContributions` | Double | Soma total de todos os aportes                        |
-| `totalWithdrawals`   | Double | Soma total de todas as retiradas                      |
-| `balance`            | Double | Balanço final (totalContributions - totalWithdrawals) |
+| Campo           | Tipo   | Descrição                                        |
+|-----------------|--------|--------------------------------------------------|
+| `contributions` | Double | Soma total de todos os aportes                   |
+| `withdrawals`   | Double | Soma total de todas as retiradas                 |
+| `balance`       | Double | Balanço final (contributions - withdrawals)      |
 
 ### Estruturas de Dados
 
 ```kotlin
-class TransactionBalance private constructor(
-    val totalContributions: Double,
-    val totalWithdrawals: Double,
+data class TransactionBalance private constructor(
+    val contributions: Double,
+    val withdrawals: Double,
     val balance: Double
 ) {
     companion object {
@@ -61,14 +61,15 @@ class TransactionBalance private constructor(
 
 **Onde:**
 
-- `totalContributions`: Soma de todos os aportes (transações PURCHASE)
-- `totalWithdrawals`: Soma de todas as retiradas (transações SALE)
-- `balance`: Balanço final (totalContributions - totalWithdrawals)
+- `contributions`: Soma de todos os aportes (transações PURCHASE)
+- `withdrawals`: Soma de todas as retiradas (transações SALE)
+- `balance`: Balanço final (contributions - withdrawals)
 
 **Padrão de Uso:**
 - Instâncias são criadas através do método estático `calculate()` no companion object
 - O construtor é privado, garantindo que a lógica de cálculo sempre seja executada
-- Segue o padrão Factory Method usado em outras classes do domínio (ex: `PositionProfitOrLoss`)
+- É uma `data class` para facilitar desestruturação e comparação
+- Segue o padrão Factory Method usado em outras classes do domínio (ex: `Appreciation`)
 
 ---
 
@@ -84,7 +85,7 @@ flowchart TD
     CalcPurchaseValues --> CalcSaleValues[Calcula valor de cada SALE baseado no tipo de ativo]
     CalcSaleValues --> SumPurchases[Soma todos os valores PURCHASE]
     SumPurchases --> SumSales[Soma todos os valores SALE]
-    SumSales --> CalcBalance[Calcula balance = totalContributions - totalWithdrawals]
+    SumSales --> CalcBalance[Calcula balance = contributions - withdrawals]
     CalcBalance --> Return([Retorna TransactionBalance])
     ReturnZero --> Return
     style Start fill: #3b82f6
@@ -99,7 +100,7 @@ flowchart TD
 3. **Cálculo de Valores**: Para cada transação, calcula o valor baseado no tipo de ativo
 4. **Soma de Aportes**: Soma todos os valores das transações `PURCHASE`
 5. **Soma de Retiradas**: Soma todos os valores das transações `SALE`
-6. **Cálculo do Balanço**: Calcula `balance = totalContributions - totalWithdrawals`
+6. **Cálculo do Balanço**: Calcula `balance = contributions - withdrawals`
 7. **Retorno**: Retorna `TransactionBalance` com os três valores calculados
 
 ---
@@ -123,8 +124,8 @@ flowchart TD
 
 - **Transações `PURCHASE`**: Consideradas como aportes (entradas de dinheiro)
 - **Transações `SALE`**: Consideradas como retiradas (saídas de dinheiro)
-- Se lista não tiver transações `PURCHASE`: `totalContributions = 0.0`
-- Se lista não tiver transações `SALE`: `totalWithdrawals = 0.0`
+- Se lista não tiver transações `PURCHASE`: `contributions = 0.0`
+- Se lista não tiver transações `SALE`: `withdrawals = 0.0`
 
 ### 4.3. Cálculo por Tipo de Ativo
 
@@ -176,7 +177,7 @@ flowchart TD
 
 **Regra:** O balanço é calculado como a diferença entre aportes e retiradas.
 
-**Fórmula:** `balance = totalContributions - totalWithdrawals`
+**Fórmula:** `balance = contributions - withdrawals`
 
 **Comportamento:**
 
@@ -220,13 +221,13 @@ valor = totalValue
 ### 5.2. Cálculo dos Totais
 
 ```
-totalContributions = Σ valor(transaction) 
-                     para todas as transações onde type = PURCHASE
+contributions = Σ valor(transaction) 
+                para todas as transações onde type = PURCHASE
 
-totalWithdrawals = Σ valor(transaction) 
-                   para todas as transações onde type = SALE
+withdrawals = Σ valor(transaction) 
+              para todas as transações onde type = SALE
 
-balance = totalContributions - totalWithdrawals
+balance = contributions - withdrawals
 ```
 
 **Onde:**
@@ -248,9 +249,15 @@ val transactions: List<AssetTransaction> = listOf(
 val balance = TransactionBalance.calculate(transactions)
 
 // Acessa os valores calculados
-println("Total de Contribuições: R$ ${balance.totalContributions}")
-println("Total de Retiradas: R$ ${balance.totalWithdrawals}")
+println("Total de Contribuições: R$ ${balance.contributions}")
+println("Total de Retiradas: R$ ${balance.withdrawals}")
 println("Balanço: R$ ${balance.balance}")
+
+// Ou usando desestruturação (data class)
+val (contributions, withdrawals, totalBalance) = balance
+println("Total de Contribuições: R$ $contributions")
+println("Total de Retiradas: R$ $withdrawals")
+println("Balanço: R$ $totalBalance")
 ```
 
 ---
@@ -275,11 +282,11 @@ println("Balanço: R$ ${balance.balance}")
 
 **Resultado:**
 
-| Propriedade           | Valor       |
-|-----------------------|-------------|
-| `totalContributions`  | R$ 7.376,00 |
-| `totalWithdrawals`    | R$ 600,00   |
-| `balance`             | R$ 6.776,00 |
+| Propriedade      | Valor       |
+|------------------|-------------|
+| `contributions`  | R$ 7.376,00 |
+| `withdrawals`    | R$ 600,00   |
+| `balance`        | R$ 6.776,00 |
 
 ### 6.2. Exemplo: Renda Fixa (CDB)
 
@@ -299,11 +306,11 @@ println("Balanço: R$ ${balance.balance}")
 
 **Resultado:**
 
-| Propriedade           | Valor         |
-|-----------------------|---------------|
-| `totalContributions`  | R$ 10.000,00  |
-| `totalWithdrawals`    | R$ 11.500,00  |
-| `balance`             | -R$ 1.500,00  |
+| Propriedade      | Valor         |
+|------------------|---------------|
+| `contributions`  | R$ 10.000,00  |
+| `withdrawals`    | R$ 11.500,00  |
+| `balance`        | -R$ 1.500,00  |
 
 **Interpretação:** O saldo negativo indica que o resgate (R$ 11.500,00) incluiu rendimentos acumulados (R$ 1.500,00) além do valor investido (R$ 10.000,00).
 
@@ -326,11 +333,11 @@ println("Balanço: R$ ${balance.balance}")
 
 **Resultado:**
 
-| Propriedade           | Valor        |
-|-----------------------|--------------|
-| `totalContributions`  | R$ 30.000,00 |
-| `totalWithdrawals`    | R$ 12.000,00 |
-| `balance`             | R$ 18.000,00 |
+| Propriedade      | Valor        |
+|------------------|--------------|
+| `contributions`  | R$ 30.000,00 |
+| `withdrawals`    | R$ 12.000,00 |
+| `balance`        | R$ 18.000,00 |
 
 **Interpretação:** O balanço positivo de R$ 18.000,00 representa o valor líquido ainda investido após o resgate parcial.
 
@@ -349,11 +356,11 @@ println("Balanço: R$ ${balance.balance}")
 
 **Resultado:**
 
-| Propriedade           | Valor        |
-|-----------------------|--------------|
-| `totalContributions`  | R$ 0,00      |
-| `totalWithdrawals`    | R$ 5.000,00  |
-| `balance`             | -R$ 5.000,00 |
+| Propriedade      | Valor        |
+|------------------|--------------|
+| `contributions`  | R$ 0,00      |
+| `withdrawals`    | R$ 5.000,00  |
+| `balance`        | -R$ 5.000,00 |
 
 **Interpretação:** Lista possui apenas retiradas. O saldo negativo indica que todo o valor foi retirado (possivelmente de uma posição anterior ou transferência).
 
@@ -363,11 +370,11 @@ println("Balanço: R$ ${balance.balance}")
 
 **Resultado:**
 
-| Propriedade           | Valor   |
-|-----------------------|---------|
-| `totalContributions`  | R$ 0,00 |
-| `totalWithdrawals`    | R$ 0,00 |
-| `balance`             | R$ 0,00 |
+| Propriedade      | Valor   |
+|------------------|---------|
+| `contributions`  | R$ 0,00 |
+| `withdrawals`    | R$ 0,00 |
+| `balance`        | R$ 0,00 |
 
 **Interpretação:** Sem transações, todos os valores são zero.
 
@@ -389,11 +396,11 @@ println("Balanço: R$ ${balance.balance}")
 
 **Resultado:**
 
-| Propriedade           | Valor       |
-|-----------------------|-------------|
-| `totalContributions`  | R$ 9.000,00 |
-| `totalWithdrawals`    | R$ 250,00   |
-| `balance`             | R$ 8.750,00 |
+| Propriedade      | Valor       |
+|------------------|-------------|
+| `contributions`  | R$ 9.000,00 |
+| `withdrawals`    | R$ 250,00   |
+| `balance`        | R$ 8.750,00 |
 
 **Interpretação:** O cálculo funciona independentemente do tipo de ativo, aplicando a regra apropriada para cada um.
 

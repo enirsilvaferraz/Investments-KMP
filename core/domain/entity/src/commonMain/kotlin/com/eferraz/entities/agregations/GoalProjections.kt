@@ -1,6 +1,7 @@
-package com.eferraz.entities.rules
+package com.eferraz.entities.agregations
 
 import com.eferraz.entities.GoalInvestmentPlan
+import com.eferraz.entities.rules.GoalProjectedValue
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.plusMonth
 import kotlinx.datetime.yearMonth
@@ -11,7 +12,7 @@ import kotlinx.datetime.yearMonth
  *
  * @property projections Mapa com o valor projetado por mês (YearMonth).
  */
-public class FinancialGoalProjections private constructor(
+public class GoalProjections private constructor(
     public val projections: Map<YearMonth, GoalProjectedValue>,
 ) {
 
@@ -29,7 +30,7 @@ public class FinancialGoalProjections private constructor(
         public fun calculate(
             params: GoalInvestmentPlan,
             maxMonths: Int = DEFAULT_MAX_MONTHS,
-        ): FinancialGoalProjections {
+        ): GoalProjections {
 
             require(maxMonths >= 1) { "maxMonths deve ser maior ou igual a 1. Valor recebido: $maxMonths" }
 
@@ -40,7 +41,7 @@ public class FinancialGoalProjections private constructor(
 
             for (monthOffset in 0 until maxMonths) {
 
-                val goalProjectedValue = GoalProjectedValue.calculate(
+                val goalProjectedValue = GoalProjectedValue.Companion.calculate(
                     currentValue = currentValue,
                     monthlyReturnRate = params.monthlyReturnRate,
                     monthlyContribution = params.monthlyContribution
@@ -56,7 +57,7 @@ public class FinancialGoalProjections private constructor(
                 }
             }
 
-            return FinancialGoalProjections(projections = projections)
+            return GoalProjections(projections = projections)
         }
     }
 }

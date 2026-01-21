@@ -11,7 +11,7 @@ graph TB
     RN1["📄 RN - Calcular Balanço de Transações<br/>━━━━━━━━━━━━━━━━━━<br/>TransactionBalance.kt"]
     RN2["📄 RN - Calcular Valor Projetado<br/>━━━━━━━━━━━━━━━━━━<br/>GoalProjectedValue.kt"]
     RN3["📄 RN - Gerar Mapa de Projeção<br/>━━━━━━━━━━━━━━━━━━<br/>FinancialGoalProjections.kt"]
-    RN4["📄 RN - Calcular Lucro ou Prejuizo<br/>━━━━━━━━━━━━━━━━━━<br/>PositionProfitOrLoss.kt"]
+    RN4["📄 RN - Calcular Apreciação<br/>━━━━━━━━━━━━━━━━━━<br/>Appreciation.kt"]
     
     RN3 --> | Loop | RN2
     RN4 --> | Utiliza | RN1
@@ -51,10 +51,13 @@ Gera um mapa completo de projeções mensais de uma meta financeira, calculando 
 
 ---
 
-### RN - Calculo do Lucro ou Prejuizo de uma Posição
-**Implementação:** `PositionProfitOrLoss.kt`
+### RN - Calcular Apreciação de uma Posição
+**Implementação:** `Appreciation.kt`
 
-Calcula o resultado financeiro (lucro ou prejuízo) e a rentabilidade percentual de uma posição de investimento em um mês de referência. Isola o desempenho do ativo das movimentações de caixa (aportes e retiradas), retornando o valor financeiro da variação e o percentual de retorno sobre o capital investido. Para isso, reutiliza a regra "RN - Calcular Balanço de Transações" para obter o saldo de aportes/retiradas do período.
+Calcula o resultado financeiro (apreciação ou depreciação) e a rentabilidade percentual de uma posição de investimento em um mês de referência. Isola o desempenho do ativo das movimentações de caixa (aportes e retiradas), retornando o valor financeiro da variação e o percentual de retorno sobre o capital investido.
+
+**Dependências:**
+- Utiliza a regra "RN - Calcular Balanço de Transações" para obter o balanço de aportes e retiradas do período. Para isso, reutiliza a regra "RN - Calcular Balanço de Transações" para obter o saldo de aportes/retiradas do período.
 
 ---
 
@@ -65,5 +68,5 @@ Calcula o resultado financeiro (lucro ou prejuízo) e a rentabilidade percentual
 - [RN - Calcular Balanço de Transações](rules/RN%20-%20Calcular%20Balanço%20de%20Transações.md)
 - [RN - Calcular Valor Projetado de Meta Financeira](rules/RN%20-%20Calcular%20Valor%20Projetado%20de%20Meta%20Financeira.md)
 - [RN - Gerar Mapa de Projeção de Meta Financeira](rules/RN%20-%20Gerar%20Mapa%20de%20Projeção%20de%20Meta%20Financeira.md)
-- [RN - Calculo do Lucro ou Prejuizo de uma Posição](rules/RN%20-%20Calcular%20Lucro%20ou%20Prejuizo%20de%20uma%20Posição.md)
+- [RN - Calcular Apreciação de uma Posição](rules/RN%20-%20Calcular%20Apreciação%20de%20uma%20Posição.md)
 

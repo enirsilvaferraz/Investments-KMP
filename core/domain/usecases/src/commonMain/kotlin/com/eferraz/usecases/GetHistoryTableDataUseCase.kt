@@ -40,7 +40,7 @@ public class GetHistoryTableDataUseCase(
             val asset = result.holding.asset
             val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity
             val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity
-            val appreciation = result.profitOrLoss.roiPercentage
+            val appreciation = result.profitOrLoss.percentage
 
             // Obter transações do holding e calcular balanço
             val transactions = getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(result.holding))
@@ -49,8 +49,8 @@ public class GetHistoryTableDataUseCase(
                 ?: emptyList()
 
             val transactionBalance = TransactionBalance.calculate(transactions)
-            val totalContributions = transactionBalance.totalContributions
-            val totalWithdrawals = transactionBalance.totalWithdrawals
+            val totalContributions = transactionBalance.contributions
+            val totalWithdrawals = transactionBalance.withdrawals
 
             when (asset) {
 

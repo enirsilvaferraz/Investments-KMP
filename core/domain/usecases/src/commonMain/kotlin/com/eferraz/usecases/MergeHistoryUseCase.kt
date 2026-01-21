@@ -3,7 +3,7 @@ package com.eferraz.usecases
 import com.eferraz.entities.AssetHolding
 import com.eferraz.entities.HoldingHistoryEntry
 import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.rules.PositionProfitOrLoss
+import com.eferraz.entities.rules.Appreciation
 import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetTransactionRepository
@@ -54,15 +54,13 @@ public class MergeHistoryUseCase(
             val endDate = startDate.plus(DatePeriod(months = 1)).minus(DatePeriod(days = 1))
             val transactions = assetTransactionRepository.getAllByHoldingAndDateRange(holding, startDate, endDate)
 
-            val profitOrLoss = PositionProfitOrLoss.calculate(
-                holding = holding,
-                referenceDate = param.referenceDate,
+            val appreciation = Appreciation.calculate(
                 currentHistory = currentEntry,
                 previousHistory = previousEntry,
                 transactions = transactions
             )
 
-            HoldingHistoryResult(holding, currentEntry, previousEntry, profitOrLoss)
+            HoldingHistoryResult(holding, currentEntry, previousEntry, appreciation)
         }
     }
 

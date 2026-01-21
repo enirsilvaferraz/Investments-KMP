@@ -78,8 +78,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(0.0, result.totalContributions, 0.001)
-        assertEquals(0.0, result.totalWithdrawals, 0.001)
+        assertEquals(0.0, result.contributions, 0.001)
+        assertEquals(0.0, result.withdrawals, 0.001)
         assertEquals(0.0, result.balance, 0.001)
     }
 
@@ -103,8 +103,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(7376.00, result.totalContributions, 0.01)
-        assertEquals(0.0, result.totalWithdrawals, 0.001)
+        assertEquals(7376.00, result.contributions, 0.01)
+        assertEquals(0.0, result.withdrawals, 0.001)
         assertEquals(7376.00, result.balance, 0.01)
     }
 
@@ -127,8 +127,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(7376.00, result.totalContributions, 0.01)
-        assertEquals(600.00, result.totalWithdrawals, 0.01)
+        assertEquals(7376.00, result.contributions, 0.01)
+        assertEquals(600.00, result.withdrawals, 0.01)
         assertEquals(6776.00, result.balance, 0.01)
     }
 
@@ -151,8 +151,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(10000.00, result.totalContributions, 0.01)
-        assertEquals(0.0, result.totalWithdrawals, 0.001)
+        assertEquals(10000.00, result.contributions, 0.01)
+        assertEquals(0.0, result.withdrawals, 0.001)
         assertEquals(10000.00, result.balance, 0.01)
     }
 
@@ -175,8 +175,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(10000.00, result.totalContributions, 0.01)
-        assertEquals(11500.00, result.totalWithdrawals, 0.01)
+        assertEquals(10000.00, result.contributions, 0.01)
+        assertEquals(11500.00, result.withdrawals, 0.01)
         assertEquals(-1500.00, result.balance, 0.01)
     }
 
@@ -201,8 +201,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(30000.00, result.totalContributions, 0.01)
-        assertEquals(0.0, result.totalWithdrawals, 0.001)
+        assertEquals(30000.00, result.contributions, 0.01)
+        assertEquals(0.0, result.withdrawals, 0.001)
         assertEquals(30000.00, result.balance, 0.01)
     }
 
@@ -227,8 +227,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(30000.00, result.totalContributions, 0.01)
-        assertEquals(12000.00, result.totalWithdrawals, 0.01)
+        assertEquals(30000.00, result.contributions, 0.01)
+        assertEquals(12000.00, result.withdrawals, 0.01)
         assertEquals(18000.00, result.balance, 0.01)
     }
 
@@ -247,8 +247,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(0.0, result.totalContributions, 0.001)
-        assertEquals(5000.00, result.totalWithdrawals, 0.01)
+        assertEquals(0.0, result.contributions, 0.001)
+        assertEquals(5000.00, result.withdrawals, 0.01)
         assertEquals(-5000.00, result.balance, 0.01)
     }
 
@@ -271,8 +271,8 @@ class TransactionBalanceTest {
         val result = TransactionBalance.calculate(transactions)
 
         // THEN
-        assertEquals(9000.00, result.totalContributions, 0.01)
-        assertEquals(250.00, result.totalWithdrawals, 0.01)
+        assertEquals(9000.00, result.contributions, 0.01)
+        assertEquals(250.00, result.withdrawals, 0.01)
         assertEquals(8750.00, result.balance, 0.01)
     }
 }

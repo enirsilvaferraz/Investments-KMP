@@ -1,21 +1,18 @@
-# RN - Calculo do Lucro ou Prejuizo de uma Posição
+# RN - Calcular Apreciação de uma Posição
 
 ## 1. Objetivo
 Padronizar o cálculo do resultado financeiro (lucro ou prejuízo) e da rentabilidade percentual de uma posição de investimento em um mês de referência. O objetivo é isolar o desempenho do ativo das movimentações de caixa (aportes e retiradas).
 
 ```mermaid
 flowchart TD
-    Start([Início]) --> Validate{Validar Holding IDs}
-    Validate -- Inválido --> Error([Erro / Exceção])
-    Validate -- Válido --> CalcPrev[Definir Valor Anterior]
-    CalcPrev --> CalcFlow[Calcular Fluxo de Caixa<br/>via RN - Balanço de Transações]
-    CalcFlow --> CalcFinResult[Calcular Resultado Financeiro<br/>Atual - Anterior - Fluxo]
-    CalcFinResult --> CalcBase[Calcular Base<br/>Anterior + Compras]
-    CalcBase --> CheckBase{Base > 0?}
-    CheckBase -- Sim --> CalcPerc[Calcular %<br/>Resultado / Base]
-    CheckBase -- Não --> ZeroPerc[Rentabilidade = 0%]
-    CalcPerc --> End([Fim])
-    ZeroPerc --> End
+    Start([Início]) --> CheckEmpty{previousHistory = null<br/>E transactions vazio?}
+    CheckEmpty -- Sim --> ReturnZero[Retorna Appreciation<br/>value=0, percentage=0]
+    CheckEmpty -- Não --> CalcPrev[Definir Valor Anterior]
+    CalcPrev --> CalcFlow[Calcular Balanço de Transações<br/>RN - Calcular Balanço]
+    CalcFlow --> CalcFinResult[Calcular Resultado Financeiro<br/>value = Atual - Anterior - balance]
+    CalcFinResult --> CalcPerc[Calcular percentage<br/>runCatching: value / base * 100]
+    CalcPerc --> End([Retorna Appreciation])
+    ReturnZero --> End
 ```
 
 ## 2. Entradas
@@ -24,57 +21,70 @@ Para realizar o cálculo, são necessários os seguintes dados:
 
 | Dado              | Tipo                     | Descrição                                                                       |
 |-------------------|--------------------------|---------------------------------------------------------------------------------|
-| `holding`         | `AssetHolding`           | A posição (ativo) para a qual o cálculo está sendo realizado.                   |
-| `referenceDate`   | `YearMonth`              | Mês de referência para o cálculo.                                               |
 | `currentHistory`  | `HoldingHistoryEntry`    | Registro do histórico da posição no mês de referência (contém o valor final).   |
 | `previousHistory` | `HoldingHistoryEntry?`   | Registro do histórico do mês anterior (pode ser nulo se for o primeiro mês).    |
 | `transactions`    | `List<AssetTransaction>` | Lista de transações (compras e vendas) ocorridas *dentro* do mês de referência. |
 
+**Ou, alternativamente:**
+
+| Dado              | Tipo                  | Descrição                                                                     |
+|-------------------|-----------------------|-------------------------------------------------------------------------------|
+| `currentHistory`  | `HoldingHistoryEntry` | Registro do histórico da posição no mês de referência (contém o valor final). |
+| `previousHistory` | `HoldingHistoryEntry?`| Registro do histórico do mês anterior (pode ser nulo se for o primeiro mês).  |
+| `balance`         | `TransactionBalance`  | Balanço de aportes e retiradas do mês (calculado pela RN de Balanço).         |
+
 ## 3. Saídas
 
-O cálculo resulta em um objeto contendo:
+O cálculo resulta em um objeto `Appreciation` contendo:
 
-| Campo                    | Tipo     | Descrição                                                                                                                                                                                  |
-|--------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `financialAppreciation`  | `Double` | O valor financeiro do lucro (se positivo) ou prejuízo (se negativo), em moeda corrente. Representa quanto o patrimônio variou exclusivamente devido à valorização/desvalorização do ativo. |
-| `percentageAppreciation` | `Double` | O percentual de retorno sobre o capital investido no período.                                                                                                                              |
+| Campo        | Tipo     | Descrição                                                                                                                                                                                  |
+|--------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `value`      | `Double` | O valor financeiro do lucro (se positivo) ou prejuízo (se negativo), em moeda corrente. Representa quanto o patrimônio variou exclusivamente devido à valorização/desvalorização do ativo. |
+| `percentage` | `Double` | O percentual de retorno sobre o capital investido no período.                                                                                                                              |
 
 ## 4. Regras de Cálculo
 
 As regras abaixo descrevem a lógica implementada para obter os resultados.
 
-### 4.1. Validação de Pertencimento (`holding`)
-Antes de iniciar os cálculos, deve-se validar se os dados informados pertencem à posição especificada.
-*   **Regra:** O `holdingId` presente em `currentHistory`, `previousHistory` (se existir) e em cada item da lista `transactions` deve ser igual a `holding.id`.
-*   Caso haja divergência, o cálculo não deve prosseguir (lançar exceção ou retornar erro).
-
-### 4.2. Determinação do Valor Anterior
+### 4.1. Determinação do Valor Anterior
 O valor da posição no início do mês é determinado pelo saldo final do mês anterior.
 *   **Regra:** Se `previousHistory` existe, utiliza-se `previousHistory.endOfMonthValue`.
 *   **Exceção:** Se `previousHistory` é nulo (indicando início do investimento ou falta de histórico), o valor anterior é considerado **0.0**.
 *   **Exceção 2:** Se `previousHistory` é nulo e **não há transações** (`transactions` vazia), assume-se que é apenas um saldo inicial implantado e não um ganho espontâneo. Neste caso, o Resultado Financeiro e a Rentabilidade devem ser **0.0**.
 
-### 4.3. Cálculo do Fluxo de Caixa (Net Flow)
+### 4.2. Cálculo do Fluxo de Caixa (Net Flow)
 O fluxo de caixa representa a injeção ou retirada líquida de dinheiro novo na posição durante o mês.
-*   **Reuso de regra:** O fluxo é calculado aplicando a regra [RN - Calcular Balanço de Transações](RN%20-%20Calcular%20Balanço%20de%20Transações.md).
-*   **Compras (`purchases`):** Soma do `totalValue` de todas as transações do tipo `PURCHASE`.
-*   **Vendas (`sales`):** Soma do `totalValue` de todas as transações do tipo `SALE`.
-*   **Fluxo Líquido (`netFlow`):** `purchases - sales`.
 
-### 4.4. Cálculo do Lucro/Prejuízo Financeiro (`financialAppreciation`)
+**Esta etapa utiliza a regra "RN - Calcular Balanço de Transações" (`TransactionBalance`):**
+*   **Compras (`contributions`):** Soma do valor de todas as transações do tipo `PURCHASE`.
+*   **Vendas (`withdrawals`):** Soma do valor de todas as transações do tipo `SALE`.
+*   **Fluxo Líquido (`balance`):** `contributions - withdrawals`.
+
+**Referência:** Ver [RN - Calcular Balanço de Transações](RN%20-%20Calcular%20Balanço%20de%20Transações.md)
+
+### 4.3. Cálculo do Lucro/Prejuízo Financeiro (`value`)
 O resultado financeiro é a variação total do patrimônio descontando o efeito do fluxo de caixa.
 *   **Fórmula:**
     ```
-    Resultado = Valor_Atual - Valor_Anterior - Fluxo_Líquido
+    value = Valor_Atual - Valor_Anterior - balance
     ```
-    Onde `Valor_Atual` é `currentHistory.endOfMonthValue`.
+    Onde:
+    - `Valor_Atual` é `currentHistory.endOfMonthValue`
+    - `balance` é o balanço calculado em 4.2 (do `TransactionBalance`)
 
-### 4.5. Cálculo da Rentabilidade Percentual (`percentageAppreciation`)
+### 4.4. Cálculo da Rentabilidade Percentual (`percentage`)
 A rentabilidade é calculada sobre o capital que estava exposto ao risco. Nesta implementação, considera-se como base o valor inicial mais os novos aportes.
-*   **Base de Cálculo (`balance`):** `Valor_Anterior + Compras`
-*   **Regra:**
-    *   Se `balance > 0`: `(Resultado / Base) * 100`
-    *   Se `balance <= 0`: `0.0` (Para evitar divisão por zero ou resultados inconsistentes em casos sem saldo inicial e apenas vendas).
+*   **Base de Cálculo:** `Valor_Anterior + contributions`
+*   **Fórmula:**
+    ```
+    percentage = (value / base) * 100
+    ```
+    Onde `base = Valor_Anterior + contributions`
+    
+*   **Tratamento de Exceções:** Utiliza `runCatching` para tratar automaticamente divisões por zero, retornando `0.0` em caso de exceção.
+*   **Comportamento:**
+    *   Se `base > 0`: Calcula normalmente
+    *   Se `base <= 0`: Retorna `0.0` (Para evitar divisão por zero ou resultados inconsistentes em casos sem saldo inicial e apenas vendas).
 
 ## 5. Casos de Uso e Exemplos
 
@@ -120,5 +130,4 @@ Isso é necessário para evitar inconsistências matemáticas conhecidas como "i
 2.  **Prejuízo sobre base negativa:** Um resultado negativo (prejuízo) dividido por uma base negativa resultaria em uma porcentagem **positiva**, indicando erroneamente um lucro.
 
 Portanto, para manter a consistência dos relatórios, nesses cenários excepcionais (comuns em posições vendidas/short ou alavancadas, ou erros de lançamento), a rentabilidade percentual é suprimida.
-
 

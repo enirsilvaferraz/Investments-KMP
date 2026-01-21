@@ -1,4 +1,4 @@
-package com.eferraz.entities.rules
+package com.eferraz.entities.agregations
 
 import com.eferraz.entities.FinancialGoal
 import com.eferraz.entities.GoalInvestmentPlan
@@ -13,7 +13,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.test.assertFailsWith
 
-class FinancialGoalProjectionsTest {
+class GoalProjectionsTest {
 
     @Test
     fun `GIVEN valid plan WHEN calculating THEN should generate projections until target is reached`() {
@@ -33,7 +33,7 @@ class FinancialGoalProjectionsTest {
         )
 
         // WHEN
-        val result = FinancialGoalProjections.calculate(plan)
+        val result = GoalProjections.calculate(plan)
 
         // THEN
         assertTrue(result.projections.size >= 4)
@@ -79,7 +79,7 @@ class FinancialGoalProjectionsTest {
         )
 
         // WHEN
-        val result = FinancialGoalProjections.calculate(plan, maxMonths = 12)
+        val result = GoalProjections.calculate(plan, maxMonths = 12)
 
         // THEN
         assertEquals(12, result.projections.size)
@@ -110,7 +110,7 @@ class FinancialGoalProjectionsTest {
                 initialValue = 0.0
             )
 
-            FinancialGoalProjections.calculate(plan)
+            GoalProjections.calculate(plan)
         }
 
         assertEquals("Meta inalcançável: sem aporte e sem rentabilidade", exception.message)
@@ -135,7 +135,7 @@ class FinancialGoalProjectionsTest {
 
         // WHEN / THEN
         val exception = assertFailsWith<IllegalArgumentException> {
-            FinancialGoalProjections.calculate(plan, maxMonths = 0)
+            GoalProjections.calculate(plan, maxMonths = 0)
         }
         assertEquals(
             "maxMonths deve ser maior ou igual a 1. Valor recebido: 0",

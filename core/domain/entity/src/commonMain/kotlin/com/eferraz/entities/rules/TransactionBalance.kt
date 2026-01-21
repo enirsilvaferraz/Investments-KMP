@@ -10,13 +10,14 @@ import com.eferraz.entities.VariableIncomeTransaction
  * Representa o balanço de aportes e retiradas de uma lista de transações.
  * Implements: [docs/rules/RN - Calcular Balanço de Transações.md]
  *
- * @property totalContributions Soma total de todos os aportes (transações PURCHASE).
- * @property totalWithdrawals Soma total de todas as retiradas (transações SALE).
+ * @property contributions Soma total de todos os aportes (transações PURCHASE).
+ * @property withdrawals Soma total de todas as retiradas (transações SALE).
  * @property balance Balanço final (totalContributions - totalWithdrawals).
  */
-public class TransactionBalance private constructor(
-    public val totalContributions: Double,
-    public val totalWithdrawals: Double,
+@ConsistentCopyVisibility
+public data class TransactionBalance private constructor(
+    public val contributions: Double,
+    public val withdrawals: Double,
     public val balance: Double,
 ) {
 
@@ -33,8 +34,8 @@ public class TransactionBalance private constructor(
             // 4.1. Validação da Lista
             if (transactions.isEmpty()) {
                 return TransactionBalance(
-                    totalContributions = 0.0,
-                    totalWithdrawals = 0.0,
+                    contributions = 0.0,
+                    withdrawals = 0.0,
                     balance = 0.0
                 )
             }
@@ -52,8 +53,8 @@ public class TransactionBalance private constructor(
             val balance = totalContributions - totalWithdrawals
 
             return TransactionBalance(
-                totalContributions = totalContributions,
-                totalWithdrawals = totalWithdrawals,
+                contributions = totalContributions,
+                withdrawals = totalWithdrawals,
                 balance = balance
             )
         }
