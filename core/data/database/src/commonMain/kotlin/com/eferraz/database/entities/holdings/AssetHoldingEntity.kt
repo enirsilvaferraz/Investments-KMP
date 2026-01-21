@@ -5,9 +5,10 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.eferraz.database.entities.assets.AssetEntity
+import com.eferraz.database.entities.goals.FinancialGoalEntity
 import com.eferraz.database.entities.supports.BrokerageEntity
 import com.eferraz.database.entities.supports.OwnerEntity
-import com.eferraz.database.entities.assets.AssetEntity
 
 /**
  * Entidade Room para a tabela asset_holdings.
@@ -33,12 +34,19 @@ import com.eferraz.database.entities.assets.AssetEntity
             parentColumns = ["id"],
             childColumns = ["brokerageId"],
             onDelete = ForeignKey.Companion.RESTRICT
+        ),
+        ForeignKey(
+            entity = FinancialGoalEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["goalId"],
+            onDelete = ForeignKey.Companion.RESTRICT
         )
     ],
     indices = [
         Index(value = ["ownerId"]),
         Index(value = ["brokerageId"]),
-        Index(value = ["assetId"])
+        Index(value = ["assetId"]),
+        Index(value = ["goalId"])
     ]
 )
 internal data class AssetHoldingEntity(
@@ -50,5 +58,7 @@ internal data class AssetHoldingEntity(
     @ColumnInfo(name = "ownerId")
     val ownerId: Long,
     @ColumnInfo(name = "brokerageId")
-    val brokerageId: Long
+    val brokerageId: Long,
+    @ColumnInfo(name = "goalId")
+    val goalId: Long? = null
 )

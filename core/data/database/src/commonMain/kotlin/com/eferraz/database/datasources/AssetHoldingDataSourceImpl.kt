@@ -17,6 +17,7 @@ internal class AssetHoldingDataSourceImpl(
     private val assetDataSource: AssetDataSource,
     private val ownerDao: OwnerDao,
     private val brokerageDao: BrokerageDao,
+    private val financialGoalDataSource: FinancialGoalDataSource,
 ) : AssetHoldingDataSource {
 
     override suspend fun save(assetHolding: AssetHolding): Long {
@@ -35,11 +36,15 @@ internal class AssetHoldingDataSourceImpl(
         val ownerEntity = ownerDao.getById(entity.ownerId) ?: return null
         val brokerageEntity = brokerageDao.getById(entity.brokerageId) ?: return null
 
+        // Buscar Goal se existir
+        val goal = entity.goalId?.let { financialGoalDataSource.getById(it) }
+
         return AssetHolding(
             id = entity.id,
             asset = asset,
             owner = Owner(id = ownerEntity.id, name = ownerEntity.name),
-            brokerage = Brokerage(id = brokerageEntity.id, name = brokerageEntity.name)
+            brokerage = Brokerage(id = brokerageEntity.id, name = brokerageEntity.name),
+            goal = goal
         )
     }
 
@@ -58,11 +63,15 @@ internal class AssetHoldingDataSourceImpl(
         val holdingsWithDetails = assetHoldingDao.getAllWithAssetByCategory(category)
 
         return holdingsWithDetails.mapNotNull { holdingWithDetails ->
+            val goal = holdingWithDetails.holding.goalId?.let { 
+                financialGoalDataSource.getById(it) 
+            }
             AssetHolding(
                 id = holdingWithDetails.holding.id,
                 asset = assetsMap[holdingWithDetails.asset.id] ?: return@mapNotNull null,
                 owner = Owner(id = holdingWithDetails.owner.id, name = holdingWithDetails.owner.name),
-                brokerage = Brokerage(id = holdingWithDetails.brokerage.id, name = holdingWithDetails.brokerage.name)
+                brokerage = Brokerage(id = holdingWithDetails.brokerage.id, name = holdingWithDetails.brokerage.name),
+                goal = goal
             )
         }
     }
@@ -71,11 +80,15 @@ internal class AssetHoldingDataSourceImpl(
         val holdingsWithDetails = assetHoldingDao.getAllWithAsset()
 
         return holdingsWithDetails.mapNotNull { holdingWithDetails ->
+            val goal = holdingWithDetails.holding.goalId?.let { 
+                financialGoalDataSource.getById(it) 
+            }
             AssetHolding(
                 id = holdingWithDetails.holding.id,
                 asset = assetsMap[holdingWithDetails.asset.id] ?: return@mapNotNull null,
                 owner = Owner(id = holdingWithDetails.owner.id, name = holdingWithDetails.owner.name),
-                brokerage = Brokerage(id = holdingWithDetails.brokerage.id, name = holdingWithDetails.brokerage.name)
+                brokerage = Brokerage(id = holdingWithDetails.brokerage.id, name = holdingWithDetails.brokerage.name),
+                goal = goal
             )
         }
     }
@@ -88,7 +101,8 @@ internal class AssetHoldingDataSourceImpl(
         id = id,
         assetId = asset.id,
         ownerId = owner.id,
-        brokerageId = brokerage.id
+        brokerageId = brokerage.id,
+        goalId = goal?.id
     )
 }
 

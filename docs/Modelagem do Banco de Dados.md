@@ -51,6 +51,22 @@ erDiagram
         INTEGER asset_id FK "NN"
         INTEGER owner_id FK "NN"
         INTEGER brokerage_id FK "NN"
+        INTEGER goal_id FK
+    }
+    FINANCIAL_GOALS {
+        INTEGER id PK "NN"
+        INTEGER owner_id FK "NN"
+        TEXT name "NN"
+        REAL target_value "NN"
+        TEXT start_date "NN"
+        TEXT description
+    }
+    GOAL_INVESTMENT_PLANS {
+        INTEGER id PK "NN"
+        INTEGER goal_id FK "NN"
+        REAL monthly_contribution "NN"
+        REAL monthly_return_rate "NN"
+        REAL initial_value "NN"
     }
     ASSET_TRANSACTIONS {
         INTEGER id PK "NN"
@@ -90,7 +106,10 @@ erDiagram
     ASSET_HOLDINGS }|--|| ASSETS : "é uma posição de"
     ASSET_HOLDINGS }|--|| OWNERS : "pertence a"
     ASSET_HOLDINGS }|--|| BROKERAGES : "está custodiado em"
+    ASSET_HOLDINGS }o--|| FINANCIAL_GOALS : "contribui para"
     ASSET_HOLDINGS ||--o{ ASSET_TRANSACTIONS : "possui"
+    FINANCIAL_GOALS }|--|| OWNERS : "pertence a"
+    FINANCIAL_GOALS ||--o| GOAL_INVESTMENT_PLANS : "possui"
     ASSET_TRANSACTIONS ||--o| FIXED_INCOME_TRANSACTIONS : "is a (1-to-1)"
     ASSET_TRANSACTIONS ||--o| VARIABLE_INCOME_TRANSACTIONS : "is a (1-to-1)"
     ASSET_TRANSACTIONS ||--o| FUNDS_TRANSACTIONS : "is a (1-to-1)"
@@ -223,14 +242,16 @@ CREATE TABLE asset_holdings (
     asset_id INTEGER NOT NULL,
     owner_id INTEGER NOT NULL,
     brokerage_id INTEGER NOT NULL,
+    goal_id INTEGER,
 
     FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
     FOREIGN KEY (owner_id) REFERENCES owners(id) ON DELETE RESTRICT,
-    FOREIGN KEY (brokerage_id) REFERENCES brokerages(id) ON DELETE RESTRICT
+    FOREIGN KEY (brokerage_id) REFERENCES brokerages(id) ON DELETE RESTRICT,
+    FOREIGN KEY (goal_id) REFERENCES financial_goals(id) ON DELETE RESTRICT
 );
 ```
 
-**Nota:** Os valores de `quantity`, `average_cost`, `invested_value` e `current_value` são calculados dinamicamente a partir das transações (`asset_transactions`) quando necessário, não sendo armazenados nesta tabela.
+**Nota:** Os valores de `quantity`, `average_cost`, `invested_value` e `current_value` são calculados dinamicamente a partir das transações (`asset_transactions`) quando necessário, não sendo armazenados nesta tabela. O campo `goal_id` é opcional e permite associar uma posição a uma meta financeira específica.
 
 ### `holding_history`
 ```sql
@@ -248,7 +269,40 @@ CREATE TABLE holding_history (
 );
 ```
 
-## 5. Tabelas de Transações (Estrutura Polimórfica)
+## 5. Tabelas de Metas Financeiras
+
+### `financial_goals`
+```sql
+CREATE TABLE financial_goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    target_value REAL NOT NULL,
+    start_date TEXT NOT NULL, -- Formato 'YYYY-MM-DD'
+    description TEXT,
+
+    FOREIGN KEY (owner_id) REFERENCES owners(id) ON DELETE RESTRICT
+);
+```
+
+**Nota:** Representa uma meta financeira a ser alcançada. O valor atual da meta, a data de conclusão estimada, a média de aportes e a rentabilidade média são calculados dinamicamente a partir do histórico das posições (`asset_holdings`) associadas a esta meta.
+
+### `goal_investment_plans`
+```sql
+CREATE TABLE goal_investment_plans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    goal_id INTEGER NOT NULL,
+    monthly_contribution REAL NOT NULL,
+    monthly_return_rate REAL NOT NULL,
+    initial_value REAL NOT NULL DEFAULT 0.0,
+
+    FOREIGN KEY (goal_id) REFERENCES financial_goals(id) ON DELETE CASCADE
+);
+```
+
+**Nota:** Representa o plano de investimento associado a uma meta financeira. Encapsula os parâmetros de aportes mensais e rentabilidade esperada, permitindo tanto simulações hipotéticas quanto o acompanhamento de um plano oficial. Uma meta pode ter no máximo um plano oficial associado (relacionamento 1:1 opcional).
+
+## 6. Tabelas de Transações (Estrutura Polimórfica)
 
 Adotamos a estratégia **Table per Subclass**, similar ao padrão utilizado para `assets`. Uma tabela base `asset_transactions` contém os campos comuns a todas as transações, e tabelas específicas armazenam os atributos de cada subclasse.
 
@@ -313,7 +367,7 @@ CREATE TABLE funds_transactions (
 );
 ```
 
-## 6. Índices Recomendados
+## 7. Índices Recomendados
 
 Os índices abaixo são recomendados para otimizar consultas frequentes no sistema. Eles melhoram significativamente a performance de buscas e joins, especialmente quando o volume de dados cresce.
 
@@ -328,6 +382,9 @@ CREATE INDEX idx_asset_holdings_brokerage_id ON asset_holdings(brokerage_id);
 
 -- Otimiza consultas por ativo (ex: encontrar todas as posições de um ativo específico)
 CREATE INDEX idx_asset_holdings_asset_id ON asset_holdings(asset_id);
+
+-- Otimiza consultas por meta financeira (ex: listar todas as posições de uma meta)
+CREATE INDEX idx_asset_holdings_goal_id ON asset_holdings(goal_id);
 ```
 
 ### Índices em `holding_history`
@@ -377,9 +434,23 @@ CREATE INDEX idx_asset_transactions_category ON asset_transactions(category);
 CREATE INDEX idx_asset_transactions_holding_date ON asset_transactions(holding_id, transaction_date);
 ```
 
+### Índices em `financial_goals`
+
+```sql
+-- Otimiza consultas por proprietário (ex: listar todas as metas de um owner)
+CREATE INDEX idx_financial_goals_owner_id ON financial_goals(owner_id);
+```
+
+### Índices em `goal_investment_plans`
+
+```sql
+-- Otimiza consultas por meta (ex: buscar o plano de uma meta específica)
+CREATE INDEX idx_goal_investment_plans_goal_id ON goal_investment_plans(goal_id);
+```
+
 **Nota**: A criação de índices deve ser balanceada com o impacto em operações de escrita (INSERT, UPDATE, DELETE), que podem ficar mais lentas. Em sistemas com alta frequência de escrita, avalie a necessidade de cada índice individualmente.
 
-## 7. Políticas de Integridade Referencial
+## 8. Políticas de Integridade Referencial
 
 As políticas de integridade referencial definem o comportamento do banco de dados quando registros referenciados são deletados. O modelo utiliza duas estratégias principais:
 
@@ -402,6 +473,9 @@ Remove automaticamente os registros dependentes quando o registro pai é deletad
   
 - `asset_holdings` → `holding_history`
   - **Justificativa**: O histórico mensal é um snapshot de uma posição específica. Se a posição é removida, seu histórico também deve ser removido.
+  
+- `financial_goals` → `goal_investment_plans`
+  - **Justificativa**: O plano de investimento é uma extensão da meta. Se uma meta é removida, seu plano também deve ser removido.
 
 ### `ON DELETE RESTRICT`
 
@@ -416,6 +490,12 @@ Impede a deleção do registro pai se existirem registros dependentes. Utilizado
   
 - `brokerages` → `asset_holdings`
   - **Justificativa**: Uma corretora não pode ser removida enquanto houver posições custodiadas nela. Isso mantém a integridade histórica dos dados de custódia.
+  
+- `owners` → `financial_goals`
+  - **Justificativa**: Um proprietário não pode ser removido enquanto possuir metas financeiras ativas. Isso previne a perda acidental de dados de planejamento e garante rastreabilidade.
+  
+- `financial_goals` → `asset_holdings`
+  - **Justificativa**: Uma meta financeira não pode ser removida enquanto houver posições associadas a ela. Isso mantém a integridade dos dados de planejamento e evita a perda de associações importantes.
 
 ### Resumo das Políticas
 
@@ -433,3 +513,6 @@ Impede a deleção do registro pai se existirem registros dependentes. Utilizado
 | `asset_transactions` | `variable_income_transactions` | CASCADE  | Extensão da transação                 |
 | `asset_transactions` | `funds_transactions`           | CASCADE  | Extensão da transação                 |
 | `asset_holdings`     | `holding_history`              | CASCADE  | Histórico sem posição não faz sentido |
+| `financial_goals`    | `goal_investment_plans`        | CASCADE  | Plano sem meta não faz sentido         |
+| `owners`             | `financial_goals`              | RESTRICT | Preservar dados de planejamento       |
+| `financial_goals`    | `asset_holdings`               | RESTRICT | Preservar associações de metas        |

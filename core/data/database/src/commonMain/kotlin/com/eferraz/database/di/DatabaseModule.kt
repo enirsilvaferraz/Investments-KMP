@@ -6,6 +6,8 @@ import com.eferraz.database.daos.AssetDao
 import com.eferraz.database.daos.AssetHoldingDao
 import com.eferraz.database.daos.AssetTransactionDao
 import com.eferraz.database.daos.BrokerageDao
+import com.eferraz.database.daos.FinancialGoalDao
+import com.eferraz.database.daos.GoalInvestmentPlanDao
 import com.eferraz.database.daos.HoldingHistoryDao
 import com.eferraz.database.daos.IssuerDao
 import com.eferraz.database.daos.OwnerDao
@@ -40,4 +42,10 @@ public class DatabaseModule {
 
     @Single
     internal fun provideAssetTransactionDao(database: AppDatabase): AssetTransactionDao = database.assetTransactionDao()
+
+    @Single
+    internal fun provideFinancialGoalDao(database: AppDatabase): FinancialGoalDao = database.financialGoalDao()
+
+    @Single
+    internal fun provideGoalInvestmentPlanDao(database: AppDatabase): GoalInvestmentPlanDao = database.goalInvestmentPlanDao()
 }

@@ -10,10 +10,14 @@ import com.eferraz.database.daos.AssetDao
 import com.eferraz.database.daos.AssetHoldingDao
 import com.eferraz.database.daos.AssetTransactionDao
 import com.eferraz.database.daos.BrokerageDao
+import com.eferraz.database.daos.FinancialGoalDao
+import com.eferraz.database.daos.GoalInvestmentPlanDao
 import com.eferraz.database.daos.HoldingHistoryDao
 import com.eferraz.database.daos.IssuerDao
 import com.eferraz.database.daos.OwnerDao
 import com.eferraz.database.entities.assets.AssetEntity
+import com.eferraz.database.entities.goals.FinancialGoalEntity
+import com.eferraz.database.entities.goals.GoalInvestmentPlanEntity
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.database.entities.transaction.AssetTransactionEntity
 import com.eferraz.database.entities.supports.BrokerageEntity
@@ -43,13 +47,16 @@ import com.eferraz.database.migrations.Migration3To4
         FixedIncomeTransactionEntity::class,
         VariableIncomeTransactionEntity::class,
         FundsTransactionEntity::class,
+        FinancialGoalEntity::class,
+        GoalInvestmentPlanEntity::class,
     ],
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
         AutoMigration(from = 3, to = 4, spec = Migration3To4::class),
+        AutoMigration(from = 4, to = 5),
     ],
-    version = 4
+    version = 5
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -61,4 +68,6 @@ internal abstract class AppDatabase : RoomDatabase() {
     abstract fun assetHoldingDao(): AssetHoldingDao
     abstract fun holdingHistoryDao(): HoldingHistoryDao
     abstract fun assetTransactionDao(): AssetTransactionDao
+    abstract fun financialGoalDao(): FinancialGoalDao
+    abstract fun goalInvestmentPlanDao(): GoalInvestmentPlanDao
 }
