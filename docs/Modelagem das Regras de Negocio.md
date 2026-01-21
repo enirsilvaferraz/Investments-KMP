@@ -10,14 +10,14 @@ Este documento apresenta o mapa de relacionamento entre os documentos de regras 
 graph TB
     RN1["📄 RN - Calcular Balanço de Transações<br/>━━━━━━━━━━━━━━━━━━<br/>TransactionBalance.kt"]
     RN2["📄 RN - Calcular Valor Projetado<br/>━━━━━━━━━━━━━━━━━━<br/>GoalProjectedValue.kt"]
-    RN3["📄 RN - Gerar Mapa de Projeção<br/>━━━━━━━━━━━━━━━━━━<br/><i>não implementado</i>"]
+    RN3["📄 RN - Gerar Mapa de Projeção<br/>━━━━━━━━━━━━━━━━━━<br/>FinancialGoalProjections.kt"]
     RN4["📄 RN - Calcular Lucro ou Prejuizo<br/>━━━━━━━━━━━━━━━━━━<br/>PositionProfitOrLoss.kt"]
     
     RN3 --> | Loop | RN2
     
     style RN1 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
     style RN2 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
-    style RN3 fill:#ffe1e1,stroke:#cc0000,stroke-width:3px,color:#000
+    style RN3 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
     style RN4 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
 ```
 
@@ -44,7 +44,7 @@ Calcula o valor projetado de uma meta financeira para um único mês, aplicando 
 ---
 
 ### RN - Gerar Mapa de Projeção de Meta Financeira
-**Implementação:** *não implementado*
+**Implementação:** `FinancialGoalProjections.kt`
 
 Gera um mapa completo de projeções mensais de uma meta financeira, calculando iterativamente os valores projetados desde o mês de início até atingir o objetivo ou completar o período máximo de projeção. Utiliza a regra "RN - Calcular Valor Projetado" repetidamente para cada mês em um loop.
 

@@ -213,5 +213,5 @@ valorProjetado = R$ 1.512,00
 
 ## Referências
 
-- [Modelagem de Dominio.md](../Modelagem%20de%20Dominio.md) - Definição da entidade `GoalProjectionParams`
+- [Modelagem de Dominio.md](../Modelagem%20de%20Dominio.md) - Definição da entidade `GoalInvestmentPlan`
 - [RN - Gerar Mapa de Projeção de Meta Financeira.md](RN%20-%20Gerar%20Mapa%20de%20Projeção%20de%20Meta%20Financeira.md) - Utiliza esta regra para gerar projeções mês a mês
