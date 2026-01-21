@@ -33,6 +33,8 @@ internal object VariableIncomeHistoryRouting : NavKey
 @Serializable
 internal object FundsHistoryRouting : NavKey
 
+@Serializable
+internal object GoalsMonitoringRouting : NavKey
 
 // Creates the required serializing configuration for open polymorphism
 internal val config = SavedStateConfiguration {
@@ -47,6 +49,7 @@ internal val config = SavedStateConfiguration {
             subclass(FixedIncomeHistoryRouting::class, FixedIncomeHistoryRouting.serializer())
             subclass(VariableIncomeHistoryRouting::class, VariableIncomeHistoryRouting.serializer())
             subclass(FundsHistoryRouting::class, FundsHistoryRouting.serializer())
+            subclass(GoalsMonitoringRouting::class, GoalsMonitoringRouting.serializer())
         }
     }
 }

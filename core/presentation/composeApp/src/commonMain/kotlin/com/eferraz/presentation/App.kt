@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -19,6 +20,7 @@ import com.eferraz.presentation.design_system.components.new_table.UITablePrevie
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
 import com.eferraz.presentation.features.history.HistoryRoute
+import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
 import org.koin.compose.KoinMultiplatformApplication
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.KoinConfiguration
@@ -66,6 +68,13 @@ private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Uni
         onClick = { backStack[0] = HistoryRouting }
     )
 
+    NavigationSuiteItem(
+        icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Metas") },
+        label = { Text("Metas") },
+        selected = backStack.lastOrNull() == GoalsMonitoringRouting,
+        onClick = { backStack[0] = GoalsMonitoringRouting }
+    )
+
 //    NavigationSuiteItem(
 //        icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Test") },
 //        label = { Text("Test") },
@@ -86,6 +95,10 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
 
             entry<HistoryRouting> {
                 HistoryRoute()
+            }
+
+            entry<GoalsMonitoringRouting> {
+                GoalsMonitoringRoute()
             }
 
             entry<TestRouting> {
