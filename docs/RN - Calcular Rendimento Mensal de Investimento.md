@@ -634,5 +634,6 @@ rendimentoPercentual = (2.000 / 20.000) × 100 = 10,00%
 - [Modelagem de Dominio.md](Modelagem%20de%20Dominio.md) - Definição das entidades `AssetHolding`, `AssetTransaction`, `HoldingHistoryEntry` e seus subtipos
 - [RN - Calcular Aportes de Investimento.md](RN%20-%20Calcular%20Aportes%20de%20Investimento.md) - Utiliza aportes mensais para calcular rendimento
 - [RN - Criar novo registro de histórico.md](RN%20-%20Criar%20novo%20registro%20de%20histórico.md) - Contexto sobre histórico mensal de posições e como os valores são obtidos
-- [RN - Calcular Progresso de Meta Financeira.md](RN%20-%20Calcular%20Progresso%20de%20Meta%20Financeira.md) - Pode utilizar rendimentos mensais para calcular progresso de metas
+- [RN - Calcular Histórico de Meta Financeira.md](RN%20-%20Calcular%20Histórico%20de%20Meta%20Financeira.md) - Pode utilizar rendimentos mensais para calcular histórico de metas
+- [RN - Calcular Projeção de Meta Financeira.md](RN%20-%20Calcular%20Projeção%20de%20Meta%20Financeira.md) - Pode utilizar rendimentos mensais para calcular projeções de metas
 

@@ -69,7 +69,7 @@ flowchart TD
     LoadPurchase --> LoadSale[Busca todas SALE]
     LoadSaleFiltered --> GroupByMonth[Agrupa transações por mês/ano]
     LoadSale --> GroupByMonth
-    GroupByMonth --> CalcMonthly[Para cada mês: Soma aportes, Soma retiradas, Calcula balanço]
+    GroupByMonth --> CalcMonthly[Para cada mês: Calcula balanço usando RN - Calcular Balanço dos Aportes]
     CalcMonthly --> BuildMap[Constrói Map\<YearMonth, MonthlySettlement\>]
     BuildMap --> Return([Retorna mapa de apurações])
     ErrorHolding --> Return
@@ -85,7 +85,7 @@ flowchart TD
 1. **Validação**: Verifica se a posição existe no sistema
 2. **Carregamento com Filtro**: Busca transações do tipo `PURCHASE` e `SALE` da posição, aplicando o filtro de período diretamente na query do banco de dados (se especificado)
 3. **Agrupamento**: Agrupa todas as transações retornadas por mês/ano (`YearMonth`)
-4. **Cálculo Mensal**: Para cada mês, calcula:
+4. **Cálculo Mensal**: Para cada mês, aplica o cálculo de balanço conforme documentado em [RN - Calcular Balanço dos Aportes.md](RN%20-%20Calcular%20Balanço%20dos%20Aportes.md):
    - Soma dos aportes (transações PURCHASE)
    - Soma das retiradas (transações SALE)
    - Balanço do mês (aportes - retiradas)
@@ -218,6 +218,11 @@ Resultado:
 ```
 
 ### 4.6. Cálculo do Balanço Mensal
+
+> [!NOTE]
+> O cálculo dos valores `totalContributions`, `totalWithdrawals` e `balance` para cada mês
+> segue as mesmas regras documentadas em [RN - Calcular Balanço dos Aportes.md](RN%20-%20Calcular%20Balanço%20dos%20Aportes.md).
+> A diferença é que este caso de uso agrupa as transações por mês antes de aplicar o cálculo.
 
 **Regra:** O balanço de cada mês é calculado como a diferença entre aportes e retiradas daquele mês.
 
@@ -465,7 +470,9 @@ Map()  // Map vazio
 
 ## Referências
 
+- [RN - Calcular Balanço dos Aportes.md](RN%20-%20Calcular%20Balanço%20dos%20Aportes.md) - Define o cálculo básico de balanço utilizado para cada mês
 - [Modelagem de Dominio.md](Modelagem%20de%20Dominio.md) - Definição das entidades `AssetHolding`, `AssetTransaction` e seus subtipos
-- [RN - Calcular Progresso de Meta Financeira.md](RN%20-%20Calcular%20Progresso%20de%20Meta%20Financeira.md) - Utiliza aportes mensais para calcular progresso de metas
+- [RN - Calcular Histórico de Meta Financeira.md](RN%20-%20Calcular%20Histórico%20de%20Meta%20Financeira.md) - Utiliza aportes mensais para calcular histórico de metas
+- [RN - Calcular Projeção de Meta Financeira.md](RN%20-%20Calcular%20Projeção%20de%20Meta%20Financeira.md) - Utiliza aportes mensais para calcular projeções de metas
 - [RN - Criar novo registro de histórico.md](RN%20-%20Criar%20novo%20registro%20de%20histórico.md) - Contexto sobre histórico mensal de posições
 

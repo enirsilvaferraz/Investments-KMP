@@ -161,4 +161,5 @@ Resultado: SUCESSO - Mesmo owner
 ## Referências
 
 - [Modelagem de Dominio.md](Modelagem%20de%20Dominio.md) - Definição das entidades FinancialGoal e AssetHolding
-- [RN - Calcular Progresso de Meta Financeira.md](RN%20-%20Calcular%20Progresso%20de%20Meta%20Financeira.md) - Como o progresso é calculado
+- [RN - Calcular Histórico de Meta Financeira.md](RN%20-%20Calcular%20Histórico%20de%20Meta%20Financeira.md) - Como o histórico é calculado
+- [RN - Calcular Projeção de Meta Financeira.md](RN%20-%20Calcular%20Projeção%20de%20Meta%20Financeira.md) - Como as projeções são calculadas
