@@ -24,6 +24,9 @@ internal interface FinancialGoalDao {
     @Query("SELECT * FROM financial_goals WHERE id = :id")
     suspend fun getById(id: Long): FinancialGoalEntity?
 
+    @Query("SELECT * FROM financial_goals WHERE name = :name LIMIT 1")
+    suspend fun getByName(name: String): FinancialGoalEntity?
+
     @Query("SELECT * FROM financial_goals WHERE ownerId = :ownerId")
     suspend fun getByOwnerId(ownerId: Long): List<FinancialGoalEntity>
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.Asset
 import com.eferraz.entities.Brokerage
+import com.eferraz.entities.FinancialGoal
 import com.eferraz.entities.FixedIncomeAsset
 import com.eferraz.entities.InvestmentCategory
 import com.eferraz.entities.InvestmentFundAsset
@@ -12,16 +13,21 @@ import com.eferraz.entities.VariableIncomeAsset
 import com.eferraz.usecases.GetAssetUseCase
 import com.eferraz.usecases.GetAssetsTableDataUseCase
 import com.eferraz.usecases.GetBrokeragesUseCase
+import com.eferraz.usecases.GetFinancialGoalsUseCase
 import com.eferraz.usecases.GetIssuersUseCase
 import com.eferraz.usecases.SaveAssetUseCase2
 import com.eferraz.usecases.SaveAssetUseCase2.Params
 import com.eferraz.usecases.SetBrokerageToHoldingUseCase
+import com.eferraz.usecases.SetGoalToHoldingUseCase
 import com.eferraz.usecases.entities.AssetsTableData
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.Provided
 
 @KoinViewModel
 internal class AssetsViewModel(
@@ -30,13 +36,20 @@ internal class AssetsViewModel(
     private val saveAssetUseCase: SaveAssetUseCase2,
     private val getIssuersUseCase: GetIssuersUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
+    private val getFinancialGoalsUseCase: GetFinancialGoalsUseCase,
     private val setBrokerageToHoldingUseCase: SetBrokerageToHoldingUseCase,
+    private val setGoalToHoldingUseCase: SetGoalToHoldingUseCase,
+   @Provided private val category: InvestmentCategory
 ) : ViewModel() {
 
-    internal val state: StateFlow<AssetsState>
-        get() = _state
+    private val _state = MutableStateFlow<AssetsState?>(null)
 
-    private val _state = MutableStateFlow(AssetsState())
+    internal val state: StateFlow<AssetsState?>
+        get() = _state.asStateFlow()
+
+    init {
+        loadAssets(category)
+    }
 
     internal fun onIntent(intent: AssetsIntent) = viewModelScope.launch {
 
@@ -53,26 +66,43 @@ internal class AssetsViewModel(
                 // Recarregar dados após atualização
                 loadAssets(intent.category)
             }
+
+            is AssetsIntent.UpdateGoal -> {
+                setGoalToHoldingUseCase(SetGoalToHoldingUseCase.Param(assetId = intent.assetId, goal = intent.goal))
+                // Recarregar dados após atualização
+                loadAssets(intent.category)
+            }
         }
     }
 
     internal fun loadAssets(category: InvestmentCategory) = viewModelScope.launch {
 
-        val tableData = async { 
+        val tableData =
             getAssetsTableDataUseCase(GetAssetsTableDataUseCase.Param(category)).getOrNull() ?: emptyList() 
-        }
-        val issuers = async { 
-            getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList() 
-        }
-        val brokerages = async { 
-            getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull() ?: emptyList() 
-        }
 
-        _state.value = AssetsState(
-            tableData = tableData.await(),
-            issuers = issuers.await(),
-            brokerages = brokerages.await(),
-        )
+        val issuers =
+            getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList() 
+
+        val brokerages =
+            getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull() ?: emptyList() 
+
+        val goals =
+            getFinancialGoalsUseCase(GetFinancialGoalsUseCase.All).getOrNull() ?: emptyList()
+
+
+//        val tableData1 = tableData.await()
+//        val issuers1 = issuers.await()
+//        val brokerages1 = brokerages.await()
+//        val goals1 = goals.await()
+        
+        _state.update {
+            AssetsState(
+                tableData = tableData,
+                issuers = issuers,
+                brokerages = brokerages,
+                goals = goals,
+            )
+        }
     }
 
     internal fun updateFixedIncomeAsset(
@@ -111,11 +141,13 @@ internal class AssetsViewModel(
     internal sealed interface AssetsIntent {
         data class UpdateAsset(val asset: Asset, val category: InvestmentCategory) : AssetsIntent
         data class UpdateBrokerage(val assetId: Long, val brokerage: Brokerage?, val category: InvestmentCategory) : AssetsIntent
+        data class UpdateGoal(val assetId: Long, val goal: FinancialGoal?, val category: InvestmentCategory) : AssetsIntent
     }
 
     internal data class AssetsState(
         val tableData: List<AssetsTableData> = emptyList(),
         val issuers: List<Issuer> = emptyList(),
         val brokerages: List<Brokerage> = emptyList(),
+        val goals: List<FinancialGoal> = emptyList(),
     )
 }

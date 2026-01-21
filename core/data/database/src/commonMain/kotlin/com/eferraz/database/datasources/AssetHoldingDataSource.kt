@@ -9,6 +9,7 @@ public interface AssetHoldingDataSource {
     public suspend fun getAll(): List<AssetHolding>
     public suspend fun getAllVariableIncomeAssets(): List<AssetHolding>
     public suspend fun getByCategory(category: InvestmentCategory): List<AssetHolding>
+    public suspend fun getByGoalId(goalId: Long): List<AssetHolding>
     public suspend fun delete(id: Long)
 }
 

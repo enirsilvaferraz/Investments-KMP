@@ -41,8 +41,8 @@ internal class GoalInvestmentPlanDataSourceImpl(
         return GoalInvestmentPlan(
             id = id,
             goal = goal,
-            monthlyContribution = monthlyContribution,
-            monthlyReturnRate = monthlyReturnRate,
+            contribution = monthlyContribution,
+            appreciationRate = monthlyReturnRate,
             initialValue = initialValue
         )
     }
@@ -50,8 +50,8 @@ internal class GoalInvestmentPlanDataSourceImpl(
     private fun GoalInvestmentPlan.toEntity() = GoalInvestmentPlanEntity(
         id = id ?: 0,
         goalId = goal.id,
-        monthlyContribution = monthlyContribution,
-        monthlyReturnRate = monthlyReturnRate,
+        monthlyContribution = contribution,
+        monthlyReturnRate = appreciationRate,
         initialValue = initialValue
     )
 }

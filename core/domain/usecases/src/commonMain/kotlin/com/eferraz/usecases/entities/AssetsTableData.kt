@@ -28,6 +28,16 @@ public sealed interface AssetsTableData {
     public val brokerageId: Long?
 
     /**
+     * Nome da meta financeira associada (String vazia se não houver meta).
+     */
+    public val goalName: String
+
+    /**
+     * ID da meta financeira vinculada (null se não houver meta).
+     */
+    public val goalId: Long?
+
+    /**
      * Observações sobre o asset (String vazia se não houver observações).
      */
     public val observations: String
@@ -40,6 +50,8 @@ public data class FixedIncomeAssetsTableData(
     override val assetId: Long,
     override val brokerageName: String,
     override val brokerageId: Long?,
+    override val goalName: String,
+    override val goalId: Long?,
     /**
      * Subcategoria do ativo de renda fixa.
      */
@@ -82,6 +94,8 @@ public data class VariableIncomeAssetsTableData(
     override val assetId: Long,
     override val brokerageName: String,
     override val brokerageId: Long?,
+    override val goalName: String,
+    override val goalId: Long?,
     /**
      * Tipo de ativo de renda variável.
      */
@@ -116,6 +130,8 @@ public data class InvestmentFundAssetsTableData(
     override val assetId: Long,
     override val brokerageName: String,
     override val brokerageId: Long?,
+    override val goalName: String,
+    override val goalId: Long?,
     /**
      * Categoria do fundo de investimento.
      */

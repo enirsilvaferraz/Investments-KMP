@@ -12,6 +12,7 @@ public sealed class AssetFormData {
     public abstract val issuerName: String?
     public abstract val observations: String?
     public abstract val brokerageName: String?
+    public abstract val goalName: String?
 
     public companion object {
 

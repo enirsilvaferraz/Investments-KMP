@@ -29,25 +29,30 @@ public class GetAssetsTableDataUseCase(
     public data class Param(val category: InvestmentCategory)
 
     override suspend fun execute(param: Param): List<AssetsTableData> {
-        // Buscar assets e mapeamento de corretoras
+        // Buscar assets e mapeamento de corretoras e metas
         val assets = getAssetsUseCase(GetAssetsUseCase.ByCategory(param.category))
             .getOrNull() ?: emptyList()
         
-        // Buscar todos os holdings de uma vez e criar mapa assetId -> brokerage
+        // Buscar todos os holdings de uma vez e criar mapas
         // Se um asset tiver múltiplos holdings, mantém o primeiro encontrado
-        val assetBrokeragesMap = assetHoldingRepository.getAll()
-            .associateBy { it.asset.id }
-            .mapValues { it.value.brokerage }
+        val holdings = assetHoldingRepository.getAll().associateBy { it.asset.id }
+        val assetBrokeragesMap = holdings.mapValues { it.value.brokerage }
+        val assetGoalsMap = holdings.mapValues { it.value.goal?.name ?: "" }
+        val assetGoalIdsMap = holdings.mapValues { it.value.goal?.id }
 
         // Converter cada asset para o formato de tabela
         return when (param.category) {
             InvestmentCategory.FIXED_INCOME -> {
                 assets.filterIsInstance<FixedIncomeAsset>().map { asset ->
                     val brokerage = assetBrokeragesMap[asset.id]
+                    val goalName = assetGoalsMap[asset.id] ?: ""
+                    val goalId = assetGoalIdsMap[asset.id]
                     FixedIncomeAssetsTableData(
                         assetId = asset.id,
                         brokerageName = brokerage?.name ?: "",
                         brokerageId = brokerage?.id,
+                        goalName = goalName,
+                        goalId = goalId,
                         subType = asset.subType,
                         type = asset.type,
                         expirationDate = asset.expirationDate,
@@ -63,10 +68,14 @@ public class GetAssetsTableDataUseCase(
             InvestmentCategory.VARIABLE_INCOME -> {
                 assets.filterIsInstance<VariableIncomeAsset>().map { asset ->
                     val brokerage = assetBrokeragesMap[asset.id]
+                    val goalName = assetGoalsMap[asset.id] ?: ""
+                    val goalId = assetGoalIdsMap[asset.id]
                     VariableIncomeAssetsTableData(
                         assetId = asset.id,
                         brokerageName = brokerage?.name ?: "",
                         brokerageId = brokerage?.id,
+                        goalName = goalName,
+                        goalId = goalId,
                         type = asset.type,
                         ticker = asset.ticker,
                         cnpj = asset.cnpj?.get() ?: "",
@@ -80,10 +89,14 @@ public class GetAssetsTableDataUseCase(
             InvestmentCategory.INVESTMENT_FUND -> {
                 assets.filterIsInstance<InvestmentFundAsset>().map { asset ->
                     val brokerage = assetBrokeragesMap[asset.id]
+                    val goalName = assetGoalsMap[asset.id] ?: ""
+                    val goalId = assetGoalIdsMap[asset.id]
                     InvestmentFundAssetsTableData(
                         assetId = asset.id,
                         brokerageName = brokerage?.name ?: "",
                         brokerageId = brokerage?.id,
+                        goalName = goalName,
+                        goalId = goalId,
                         type = asset.type,
                         name = asset.name,
                         liquidity = asset.liquidity,

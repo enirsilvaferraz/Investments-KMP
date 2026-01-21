@@ -30,6 +30,7 @@ A tabela principal deverá exibir os seguintes dados para cada `Asset` cadastrad
 | **Vencimento**   | A data de vencimento do ativo.                | `asset.expirationDate` para `FixedIncomeAsset` (obrigatório) e `InvestmentFundAsset` (opcional). Para `VariableIncomeAsset`, este campo não se aplica. |
 | **Emissor**      | A entidade que emitiu o ativo.                | `asset.issuer.name`                                                                                                                                    |
 | **Liquidez**     | A regra de liquidez que se aplica ao ativo.   | `asset.liquidity` formatado conforme o tipo (ver detalhes abaixo).                                                                                     |
+| **Objetivo**     | A meta financeira associada ao ativo (se houver). | `holding.goal.name` se existir um `AssetHolding` para o ativo e este holding tiver uma meta associada. Caso contrário, exibir "-".                      |
 | **Observação**   | Notas e observações adicionais sobre o ativo. | `asset.observations` (opcional).                                                                                                                       |
 
 ### 2.1. Formatação do Campo Descrição por Tipo de Ativo
@@ -84,16 +85,16 @@ A liquidez é formatada conforme o tipo de regra aplicada ao ativo:
 
 ### 3.1. Exemplo de Tabela de Consulta
 
-| Categoria      | Subcategoria | Nome/Descrição     | Vencimento | Emissor             | Liquidez      | Observação                   |
-|:---------------|:-------------|:-------------------|:-----------|:--------------------|:--------------|:-----------------------------|
-| Renda Fixa     | CDB          | CDB de 110% do CDI | 2028-01-01 | Banco Master        | Diária        | Aplicação inicial            |
-| Renda Fixa     | LCI          | LCI de 12.5% a.a.  | 2029-06-15 | Banco Inter         | No vencimento |                              |
-| Renda Fixa     | LCA          | LCA de IPCA + 6.5% | 2030-03-20 | Banco do Brasil     | Diária        | Isento de IR                 |
-| Renda Variável | Ação         | MGLU3              | -          | Magazine Luiza S.A. | D+2           |                              |
-| Renda Variável | ETF          | BOVA11             | -          | BlackRock           | D+2           | ETF de índice                |
-| Renda Variável | FII          | HGLG11             | -          | HGLG                | D+2           | FII de galpões logísticos    |
-| Fundos         | Multimercado | Verde AM           | -          | Verde Asset         | D+30          | Fundo multimercado           |
-| Fundos         | Previdência  | XP Previdência     | 2045-12-31 | XP Investimentos    | D+60          | Plano de previdência privada |
+| Categoria      | Subcategoria | Nome/Descrição     | Vencimento | Emissor             | Liquidez      | Objetivo        | Observação                   |
+|:---------------|:-------------|:-------------------|:-----------|:--------------------|:--------------|:----------------|:-----------------------------|
+| Renda Fixa     | CDB          | CDB de 110% do CDI | 2028-01-01 | Banco Master        | Diária        | Aposentadoria   | Aplicação inicial            |
+| Renda Fixa     | LCI          | LCI de 12.5% a.a.  | 2029-06-15 | Banco Inter         | No vencimento | -               |                              |
+| Renda Fixa     | LCA          | LCA de IPCA + 6.5% | 2030-03-20 | Banco do Brasil     | Diária        | Casa Própria    | Isento de IR                 |
+| Renda Variável | Ação         | MGLU3              | -          | Magazine Luiza S.A. | D+2           | -               |                              |
+| Renda Variável | ETF          | BOVA11             | -          | BlackRock           | D+2           | Aposentadoria   | ETF de índice                |
+| Renda Variável | FII          | HGLG11             | -          | HGLG                | D+2           | Renda Passiva   | FII de galpões logísticos    |
+| Fundos         | Multimercado | Verde AM           | -          | Verde Asset         | D+30          | -               | Fundo multimercado           |
+| Fundos         | Previdência  | XP Previdência     | 2045-12-31 | XP Investimentos    | D+60          | Aposentadoria   | Plano de previdência privada |
 
 ---
 

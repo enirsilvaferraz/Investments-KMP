@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.InvestmentCategory
 import com.eferraz.usecases.GetAssetUseCase
 import com.eferraz.usecases.GetBrokeragesUseCase
+import com.eferraz.usecases.GetFinancialGoalsUseCase
 import com.eferraz.usecases.GetIssuersUseCase
 import com.eferraz.usecases.SaveAssetUseCase
 import com.eferraz.usecases.exceptions.ValidateException
@@ -22,6 +23,7 @@ import org.koin.android.annotation.KoinViewModel
 internal class AssetFormViewModel(
     private val getIssuersUseCase: GetIssuersUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
+    private val getFinancialGoalsUseCase: GetFinancialGoalsUseCase,
     private val saveAssetUseCase: SaveAssetUseCase,
     private val getAssetUseCase: GetAssetUseCase,
     private val assetToFormDataMapper: AssetToFormDataMapper,
@@ -85,6 +87,14 @@ internal class AssetFormViewModel(
                     is VariableIncomeFormData -> it.copy(brokerageName = intent.name)
                 }
             }
+
+            is AssetFormIntent.UpdateGoalName -> updateCommon {
+                when (it) {
+                    is FixedIncomeFormData -> it.copy(goalName = intent.name)
+                    is InvestmentFundFormData -> it.copy(goalName = intent.name)
+                    is VariableIncomeFormData -> it.copy(goalName = intent.name)
+                }
+            }
         }
     }
 
@@ -125,10 +135,12 @@ internal class AssetFormViewModel(
         viewModelScope.launch {
             val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrElse { emptyList() }
             val brokerages = getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrElse { emptyList() }
+            val goals = getFinancialGoalsUseCase(GetFinancialGoalsUseCase.All).getOrElse { emptyList() }
             _state.update {
                 it.copy(
                     issuers = issuers.map { it.name },
-                    brokerages = brokerages.map { it.name }
+                    brokerages = brokerages.map { it.name },
+                    goals = goals.map { it.name }
                 )
             }
         }
@@ -159,7 +171,7 @@ internal class AssetFormViewModel(
 
         viewModelScope.launch {
 
-            if (_state.value.issuers.isEmpty() || _state.value.brokerages.isEmpty()) {
+            if (_state.value.issuers.isEmpty() || _state.value.brokerages.isEmpty() || _state.value.goals.isEmpty()) {
                 loadData()
             }
 
@@ -188,6 +200,7 @@ internal class AssetFormViewModel(
             AssetFormState(
                 issuers = state.issuers,
                 brokerages = state.brokerages,
+                goals = state.goals,
                 formData = newFormData,
                 isEditMode = false,
                 shouldCloseForm = false

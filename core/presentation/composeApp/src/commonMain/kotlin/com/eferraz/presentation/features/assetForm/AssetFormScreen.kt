@@ -245,6 +245,19 @@ internal fun AssetFormScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
+                item(span = { GridItemSpan(2) }) {
+                    EnumDropdown(
+                        label = "Objetivo",
+                        value = state.formData.goalName,
+                        options = listOf(null) + state.goals,
+                        optionLabel = { it ?: "" },
+                        onValueChange = { onIntent(AssetFormIntent.UpdateGoalName(it)) },
+                        onNullSelected = { onIntent(AssetFormIntent.UpdateGoalName("")) },
+                        enabled = !state.formData.brokerageName.isNullOrBlank(),
+                        errorMessage = state.validationErrors["goal"],
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             },
             actions = {
                 Button(onClick = { onIntent(AssetFormIntent.Save) }) {

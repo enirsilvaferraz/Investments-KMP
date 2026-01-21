@@ -13,6 +13,7 @@ import com.eferraz.usecases.exceptions.ValidateException
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.BrokerageRepository
+import com.eferraz.usecases.repositories.FinancialGoalRepository
 import com.eferraz.usecases.repositories.OwnerRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,7 @@ public class SaveAssetUseCase(
     private val brokerageRepository: BrokerageRepository,
     private val ownerRepository: OwnerRepository,
     private val assetHoldingRepository: AssetHoldingRepository,
+    private val financialGoalRepository: FinancialGoalRepository,
     context: CoroutineDispatcher = Dispatchers.Default
 ) : AppUseCase<SaveAssetUseCase.Param, Long>(context) {
 
@@ -121,15 +123,22 @@ public class SaveAssetUseCase(
                 if (brokerage != null && owner != null) {
                     val savedAsset = assetRepository.getById(assetId) ?: return assetId
 
+                    // Buscar meta se goalName foi informado
+                    val goal = if (!formData.goalName.isNullOrBlank()) {
+                        financialGoalRepository.getByName(formData.goalName!!.trim())
+                    } else null
+
                     // @Upsert cuida de inserir ou atualizar automaticamente
                     val holding = existingHolding?.copy(
                         brokerage = brokerage,
-                        owner = owner
+                        owner = owner,
+                        goal = goal
                     ) ?: AssetHolding(
                         id = 0,
                         asset = savedAsset,
                         owner = owner,
-                        brokerage = brokerage
+                        brokerage = brokerage,
+                        goal = goal
                     )
                     assetHoldingRepository.save(holding)
                 }

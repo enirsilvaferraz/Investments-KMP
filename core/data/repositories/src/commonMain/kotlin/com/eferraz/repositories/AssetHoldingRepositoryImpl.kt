@@ -21,6 +21,8 @@ internal class AssetHoldingRepositoryImpl(
 
     override suspend fun getByCategory(category: InvestmentCategory) = dataSource.getByCategory(category)
 
+    override suspend fun getByGoalId(goalId: Long) = dataSource.getByGoalId(goalId)
+
     override suspend fun delete(id: Long) = dataSource.delete(id)
 }
 

@@ -26,6 +26,10 @@ internal class FinancialGoalDataSourceImpl(
         return financialGoalDao.getById(id)?.toDomain()
     }
 
+    override suspend fun getByName(name: String): FinancialGoal? {
+        return financialGoalDao.getByName(name)?.toDomain()
+    }
+
     override suspend fun getByOwnerId(ownerId: Long): List<FinancialGoal> {
         return financialGoalDao.getByOwnerId(ownerId).mapNotNull { it.toDomain() }
     }

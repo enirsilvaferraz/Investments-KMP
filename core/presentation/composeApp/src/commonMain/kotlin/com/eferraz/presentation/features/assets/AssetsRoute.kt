@@ -52,6 +52,7 @@ import com.eferraz.presentation.features.assetForm.AssetFormIntent
 import com.eferraz.presentation.features.assetForm.AssetFormScreen
 import com.eferraz.presentation.features.assetForm.AssetFormViewModel
 import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsIntent.UpdateBrokerage
+import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsIntent.UpdateGoal
 import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsState
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.usecases.entities.FixedIncomeAssetsTableData
@@ -61,6 +62,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -83,15 +85,15 @@ internal fun AssetsRoute() {
                     entryProvider = entryProvider {
                         entry<FixedIncomeAssetRouting> {
                             val category = InvestmentCategory.FIXED_INCOME
-                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
+                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name) { parametersOf(category) }
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
                             
-                            LaunchedEffect(category) {
-                                tableVm.loadAssets(category)
-                            }
+//                            LaunchedEffect(category) {
+//                                tableVm.loadAssets(category)
+//                            }
 
-                            AssetsScreenFixedIncome(
-                                state = tableState,
+                            if (tableState!= null)    AssetsScreenFixedIncome(
+                                state = tableState!!,
                                 category = category,
                                 viewModel = tableVm
                             )
@@ -99,15 +101,15 @@ internal fun AssetsRoute() {
 
                         entry<VariableIncomeAssetRouting> {
                             val category = InvestmentCategory.VARIABLE_INCOME
-                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
+                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name){ parametersOf(category) }
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
                             
-                            LaunchedEffect(category) {
-                                tableVm.loadAssets(category)
-                            }
+//                            LaunchedEffect(category) {
+//                                tableVm.loadAssets(category)
+//                            }
 
-                            AssetsScreenVariableIncome(
-                                state = tableState,
+                         if (tableState!= null)   AssetsScreenVariableIncome(
+                                state = tableState!!,
                                 category = category,
                                 viewModel = tableVm
                             )
@@ -115,15 +117,15 @@ internal fun AssetsRoute() {
 
                         entry<FundsAssetRouting> {
                             val category = InvestmentCategory.INVESTMENT_FUND
-                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name)
+                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name){ parametersOf(category) }
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
                             
-                            LaunchedEffect(category) {
-                                tableVm.loadAssets(category)
-                            }
+//                            LaunchedEffect(category) {
+//                                tableVm.loadAssets(category)
+//                            }
 
-                            AssetsScreenFunds(
-                                state = tableState,
+                            if (tableState!= null)    AssetsScreenFunds(
+                                state = tableState!!,
                                 category = category,
                                 viewModel = tableVm
                             )
@@ -212,6 +214,9 @@ private fun AssetsScreenFixedIncome(
     viewModel: AssetsViewModel,
 ) {
     val fixedIncomeData = state.tableData.filterIsInstance<FixedIncomeAssetsTableData>()
+    
+    // Capturar goals em uma variável local para garantir recomposição
+    val goals = state.goals
 
     UiTable(
         modifier = modifier,
@@ -231,6 +236,27 @@ private fun AssetsScreenFixedIncome(
                     options = listOf(null) + state.brokerages,
                     format = { it?.name.orEmpty() },
                     placeholder = if (brokerage == null && row.brokerageName.isNotEmpty()) row.brokerageName else null
+                )
+            }
+        )
+
+        column(
+            header = "Objetivo",
+            sortedBy = { it.goalName },
+            cellContent = { row ->
+
+                // Usar variável local capturada
+                val goal = state.goals.find { it.id == row.goalId }
+                val options = listOf(null) + goals
+                
+                TableInputSelect(
+                    value = goal,
+                    onValueChange = { value ->
+                        viewModel.onIntent(UpdateGoal(row.assetId, value, category))
+                    },
+                    options = options,
+                    format = { it?.name.orEmpty() },
+                    placeholder = if (goal == null && row.goalName.isNotEmpty()) row.goalName else null
                 )
             }
         )
@@ -378,6 +404,9 @@ private fun AssetsScreenVariableIncome(
     viewModel: AssetsViewModel,
 ) {
     val variableIncomeData = state.tableData.filterIsInstance<VariableIncomeAssetsTableData>()
+    
+    // Capturar goals em uma variável local para garantir recomposição
+    val goals = state.goals
 
     UiTable(
         modifier = modifier,
@@ -398,6 +427,26 @@ private fun AssetsScreenVariableIncome(
                     options = listOf(null) + state.brokerages,
                     format = { it?.name.orEmpty() },
                     placeholder = if (brokerage == null && row.brokerageName.isNotEmpty()) row.brokerageName else null
+                )
+            }
+        )
+
+        column(
+            header = "Objetivo",
+            sortedBy = { it.goalName },
+            cellContent = { row ->
+                // Usar variável local capturada
+                val goal = goals.find { it.id == row.goalId }
+                val options = listOf(null) + goals
+                
+                TableInputSelect(
+                    value = goal,
+                    onValueChange = { value ->
+                        viewModel.onIntent(UpdateGoal(row.assetId, value, category))
+                    },
+                    options = options,
+                    format = { it?.name.orEmpty() },
+                    placeholder = if (goal == null && row.goalName.isNotEmpty()) row.goalName else null
                 )
             }
         )
@@ -498,6 +547,9 @@ private fun AssetsScreenFunds(
     viewModel: AssetsViewModel,
 ) {
     val fundsData = state.tableData.filterIsInstance<InvestmentFundAssetsTableData>()
+    
+    // Capturar goals em uma variável local para garantir recomposição
+    val goals = state.goals
 
     UiTable(
         modifier = modifier,
@@ -517,6 +569,26 @@ private fun AssetsScreenFunds(
                     options = listOf(null) + state.brokerages,
                     format = { it?.name.orEmpty() },
                     placeholder = if (brokerage == null && row.brokerageName.isNotEmpty()) row.brokerageName else null
+                )
+            }
+        )
+
+        column(
+            header = "Objetivo",
+            sortedBy = { it.goalName },
+            cellContent = { row ->
+                // Usar variável local capturada
+                val goal = goals.find { it.id == row.goalId }
+                val options = listOf(null) + goals
+                
+                TableInputSelect(
+                    value = goal,
+                    onValueChange = { value ->
+                        viewModel.onIntent(UpdateGoal(row.assetId, value, category))
+                    },
+                    options = options,
+                    format = { it?.name.orEmpty() },
+                    placeholder = if (goal == null && row.goalName.isNotEmpty()) row.goalName else null
                 )
             }
         )

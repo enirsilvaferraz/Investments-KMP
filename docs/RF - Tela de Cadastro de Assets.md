@@ -42,6 +42,7 @@ O formulário deve exibir:
     - Emissor
     - Observações (opcional)
     - Corretora (opcional)
+    - Objetivo (opcional, depende de Corretora)
 
 ### 2.2. Campo "Emissor" (Dropdown)
 
@@ -77,6 +78,28 @@ O campo "Corretora" é um dropdown opcional que permite:
   - O proprietário padrão do sistema (primeiro proprietário cadastrado)
   - Valores iniciais zerados para quantidade, custo médio, valor investido e valor atual
 
+### 2.4. Campo "Objetivo" (Dropdown)
+
+O campo "Objetivo" é um dropdown opcional que permite associar o ativo a uma meta financeira:
+
+- **Seleção de Meta Existente**: O usuário pode selecionar uma meta da lista de metas cadastradas
+- **Campo Opcional**: O campo não é obrigatório e pode ficar sem seleção
+- **Dependência**: Este campo só é habilitado quando o campo "Corretora" está preenchido
+
+**Comportamento:**
+
+- O componente exibe uma lista de metas financeiras cadastradas no sistema
+- O usuário pode selecionar uma meta ou deixar o campo vazio
+- O campo só fica habilitado se houver uma corretora selecionada
+- Se uma meta for selecionada, ao salvar o ativo, o `AssetHolding` será associado à meta escolhida
+- Se o campo estiver vazio, o `AssetHolding` será criado sem associação a meta
+
+**Lógica de Salvamento:**
+
+- **Corretora não preenchida**: Campo "Objetivo" permanece desabilitado, apenas o `Asset` é salvo
+- **Corretora preenchida + Objetivo vazio**: `AssetHolding` é criado sem meta (comportamento atual)
+- **Corretora preenchida + Objetivo selecionado**: `AssetHolding` é criado com associação à meta
+
 ---
 
 ## 3. Campos do Formulário
@@ -85,17 +108,18 @@ O campo "Corretora" é um dropdown opcional que permite:
 
 Quando o tipo selecionado for "Renda Fixa", o formulário deve exibir os seguintes campos:
 
-| Campo                             | Tipo      | UI           | Obrigatório | Descrição                                                                   | Valores Possíveis                                                                                          |
-|:----------------------------------|:----------|:-------------|:------------|:----------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------|
-| **Tipo de Rendimento**            | Enum      | DropDown     | Sim         | Define como o rendimento é calculado                                        | `POST_FIXED` (Pós-fixado), `PRE_FIXED` (Pré-fixado), `INFLATION_LINKED` (IPCA)                             |
-| **Subtipo**                       | Enum      | DropDown     | Sim         | O instrumento financeiro de renda fixa                                      | `CDB`, `LCI`, `LCA`, `CRA`, `CRI`, `DEBENTURE`                                                             |
-| **Data de Vencimento**            | LocalDate | InputText    | Sim         | Data de vencimento do título                                                | Data futura válida                                                                                         |
-| **Rentabilidade Contratada**      | Double    | InputText    | Sim         | Percentual de rentabilidade contratada                                      | Número decimal positivo (ex: 110.0, 12.5, 6.5)                                                             |
-| **Rentabilidade Relativa ao CDI** | Double?   | InputText    | Não         | Rentabilidade relativa ao CDI (opcional, geralmente usado para pós-fixados) | Número decimal positivo ou vazio                                                                           |
-| **Liquidez**                      | Enum      | DropDown     | Sim         | Regra de liquidez aplicável ao ativo                                        | `DAILY` (Diária), `AT_MATURITY` (No vencimento)                                                            |
-| **Emissor**                       | Issuer    | DropDown     | Sim         | Entidade que emitiu o ativo                                                 | Lista de emissores cadastrados no sistema                                                                    |
-| **Observações**                   | String?   | InputText    | Não         | Notas e observações adicionais sobre o ativo                                | Texto livre                                                                                                |
-| **Corretora**                     | Brokerage | DropDown     | Não         | Instituição financeira onde o ativo está custodiado                        | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding                |
+| Campo                             | Tipo      | UI        | Obrigatório | Descrição                                                                   | Valores Possíveis                                                                               |
+|:----------------------------------|:----------|:----------|:------------|:----------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------|
+| **Tipo de Rendimento**            | Enum      | DropDown  | Sim         | Define como o rendimento é calculado                                        | `POST_FIXED` (Pós-fixado), `PRE_FIXED` (Pré-fixado), `INFLATION_LINKED` (IPCA)                  |
+| **Subtipo**                       | Enum      | DropDown  | Sim         | O instrumento financeiro de renda fixa                                      | `CDB`, `LCI`, `LCA`, `CRA`, `CRI`, `DEBENTURE`                                                  |
+| **Data de Vencimento**            | LocalDate | InputText | Sim         | Data de vencimento do título                                                | Data futura válida                                                                              |
+| **Rentabilidade Contratada**      | Double    | InputText | Sim         | Percentual de rentabilidade contratada                                      | Número decimal positivo (ex: 110.0, 12.5, 6.5)                                                  |
+| **Rentabilidade Relativa ao CDI** | Double?   | InputText | Não         | Rentabilidade relativa ao CDI (opcional, geralmente usado para pós-fixados) | Número decimal positivo ou vazio                                                                |
+| **Liquidez**                      | Enum      | DropDown  | Sim         | Regra de liquidez aplicável ao ativo                                        | `DAILY` (Diária), `AT_MATURITY` (No vencimento)                                                 |
+| **Emissor**                       | Issuer    | DropDown  | Sim         | Entidade que emitiu o ativo                                                 | Lista de emissores cadastrados no sistema                                                       |
+| **Observações**                   | String?   | InputText | Não         | Notas e observações adicionais sobre o ativo                                | Texto livre                                                                                     |
+| **Corretora**                     | Brokerage | DropDown  | Não         | Instituição financeira onde o ativo está custodiado                         | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding |
+| **Objetivo**                      | Goal      | DropDown  | Não         | Meta financeira associada ao ativo                                          | Lista de metas cadastradas no sistema. Só habilitado se Corretora estiver preenchida           |
 
 **Validações Específicas para Renda Fixa:**
 
@@ -107,13 +131,14 @@ Quando o tipo selecionado for "Renda Fixa", o formulário deve exibir os seguint
 
 Quando o tipo selecionado for "Renda Variável", o formulário deve exibir os seguintes campos:
 
-| Campo           | Tipo    | UI           | Obrigatório | Descrição                                                      | Valores Possíveis                                                                                          |
-|:----------------|:--------|:-------------|:------------|:---------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------|
-| **Tipo**        | Enum    | DropDown     | Sim         | O tipo de ativo de renda variável                              | `NATIONAL_STOCK` (Ação), `INTERNATIONAL_STOCK` (Ações Internacionais), `REAL_ESTATE_FUND` (FII), `ETF`     |
-| **Nome/Ticker** | String  | InputText    | Sim         | O nome ou código de negociação do ativo (ex: "PETR4", "B3SA3") | Texto alfanumérico (geralmente 4-6 caracteres)                                                             |
-| **Emissor**     | Issuer  | DropDown     | Sim         | Entidade que emitiu o ativo                                    | Lista de emissores cadastrados no sistema                                                                    |
-| **Observações** | String? | InputText    | Não         | Notas e observações adicionais sobre o ativo                   | Texto livre                                                                                                |
-| **Corretora**   | Brokerage | DropDown   | Não         | Instituição financeira onde o ativo está custodiado            | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding                |
+| Campo           | Tipo      | UI        | Obrigatório | Descrição                                                      | Valores Possíveis                                                                                      |
+|:----------------|:----------|:----------|:------------|:---------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| **Tipo**        | Enum      | DropDown  | Sim         | O tipo de ativo de renda variável                              | `NATIONAL_STOCK` (Ação), `INTERNATIONAL_STOCK` (Ações Internacionais), `REAL_ESTATE_FUND` (FII), `ETF` |
+| **Nome/Ticker** | String    | InputText | Sim         | O nome ou código de negociação do ativo (ex: "PETR4", "B3SA3") | Texto alfanumérico (geralmente 4-6 caracteres)                                                         |
+| **Emissor**     | Issuer    | DropDown  | Sim         | Entidade que emitiu o ativo                                    | Lista de emissores cadastrados no sistema                                                              |
+| **Observações** | String?   | InputText | Não         | Notas e observações adicionais sobre o ativo                   | Texto livre                                                                                            |
+| **Corretora**   | Brokerage | DropDown  | Não         | Instituição financeira onde o ativo está custodiado            | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding        |
+| **Objetivo**    | Goal      | DropDown  | Não         | Meta financeira associada ao ativo                             | Lista de metas cadastradas no sistema. Só habilitado se Corretora estiver preenchida                  |
 
 **Validações Específicas para Renda Variável:**
 
@@ -124,16 +149,17 @@ Quando o tipo selecionado for "Renda Variável", o formulário deve exibir os se
 
 Quando o tipo selecionado for "Fundos", o formulário deve exibir os seguintes campos:
 
-| Campo                  | Tipo       | UI           | Obrigatório | Descrição                                                                                 | Valores Possíveis                                                                                          |
-|:-----------------------|:-----------|:-------------|:------------|:------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------|
-| **Tipo de Fundo**      | Enum       | DropDown     | Sim         | A categoria do fundo de investimento                                                      | `PENSION` (Previdência), `STOCK_FUND` (Fundos de Ação), `MULTIMARKET_FUND` (Multimercado)                  |
-| **Nome**               | String     | InputText    | Sim         | O nome do fundo de investimento                                                           | Texto livre (ex: "Verde AM", "XP Previdência")                                                             |
-| **Liquidez**           | Enum       | DropDown     | Sim         | Regra de liquidez aplicável ao fundo                                                      | `D_PLUS_DAYS` (Dias após venda)                                                                            |
-| **Dias para Resgate**  | Int        | InputText    | Sim         | Número de dias para o resgate ser efetivado (obrigatório quando liquidez é `D_PLUS_DAYS`) | Número inteiro positivo (ex: 2, 30, 60)                                                                    |
-| **Data de Vencimento** | LocalDate? | InputText    | Não         | Data de vencimento do fundo (opcional, apenas para fundos com prazo definido)             | Data futura válida ou vazio                                                                                |
-| **Emissor**            | Issuer     | DropDown     | Sim         | Entidade que emitiu o fundo                                                               | Lista de emissores cadastrados no sistema                                                                    |
-| **Observações**        | String?    | InputText    | Não         | Notas e observações adicionais sobre o fundo                                              | Texto livre                                                                                                |
-| **Corretora**          | Brokerage  | DropDown     | Não         | Instituição financeira onde o fundo está custodiado                                       | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding                |
+| Campo                  | Tipo       | UI        | Obrigatório | Descrição                                                                                 | Valores Possíveis                                                                               |
+|:-----------------------|:-----------|:----------|:------------|:------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------|
+| **Tipo de Fundo**      | Enum       | DropDown  | Sim         | A categoria do fundo de investimento                                                      | `PENSION` (Previdência), `STOCK_FUND` (Fundos de Ação), `MULTIMARKET_FUND` (Multimercado)       |
+| **Nome**               | String     | InputText | Sim         | O nome do fundo de investimento                                                           | Texto livre (ex: "Verde AM", "XP Previdência")                                                  |
+| **Liquidez**           | Enum       | DropDown  | Sim         | Regra de liquidez aplicável ao fundo                                                      | `D_PLUS_DAYS` (Dias após venda)                                                                 |
+| **Dias para Resgate**  | Int        | InputText | Sim         | Número de dias para o resgate ser efetivado (obrigatório quando liquidez é `D_PLUS_DAYS`) | Número inteiro positivo (ex: 2, 30, 60)                                                         |
+| **Data de Vencimento** | LocalDate? | InputText | Não         | Data de vencimento do fundo (opcional, apenas para fundos com prazo definido)             | Data futura válida ou vazio                                                                     |
+| **Emissor**            | Issuer     | DropDown  | Sim         | Entidade que emitiu o fundo                                                               | Lista de emissores cadastrados no sistema                                                       |
+| **Observações**        | String?    | InputText | Não         | Notas e observações adicionais sobre o fundo                                              | Texto livre                                                                                     |
+| **Corretora**          | Brokerage  | DropDown  | Não         | Instituição financeira onde o fundo está custodiado                                       | Lista de corretoras cadastradas no sistema. Se preenchido, cria automaticamente um AssetHolding |
+| **Objetivo**           | Goal       | DropDown  | Não         | Meta financeira associada ao ativo                                                        | Lista de metas cadastradas no sistema. Só habilitado se Corretora estiver preenchida           |
 
 **Validações Específicas para Fundos:**
 

@@ -15,6 +15,8 @@ internal class FinancialGoalRepositoryImpl(
 
     override suspend fun getById(id: Long) = dataSource.getById(id)
 
+    override suspend fun getByName(name: String) = dataSource.getByName(name)
+
     override suspend fun getByOwnerId(ownerId: Long) = dataSource.getByOwnerId(ownerId)
 
     override suspend fun delete(id: Long) = dataSource.delete(id)

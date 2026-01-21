@@ -31,6 +31,7 @@ internal sealed class AssetFormIntent {
     data class UpdateIssuerName(val name: String) : AssetFormIntent()
     data class UpdateObservations(val observations: String) : AssetFormIntent()
     data class UpdateBrokerageName(val name: String) : AssetFormIntent()
+    data class UpdateGoalName(val name: String) : AssetFormIntent()
 
     // Actions
     data object LoadInitialData : AssetFormIntent()

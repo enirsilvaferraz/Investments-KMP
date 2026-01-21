@@ -76,6 +76,24 @@ internal class AssetHoldingDataSourceImpl(
         }
     }
 
+    override suspend fun getByGoalId(goalId: Long): List<AssetHolding> {
+        val assetsMap = assetDataSource.getAll().associateBy { asset -> asset.id }
+        val holdingsWithDetails = assetHoldingDao.getAllWithAssetByGoalId(goalId)
+
+        return holdingsWithDetails.mapNotNull { holdingWithDetails ->
+            val goal = holdingWithDetails.holding.goalId?.let { 
+                financialGoalDataSource.getById(it) 
+            }
+            AssetHolding(
+                id = holdingWithDetails.holding.id,
+                asset = assetsMap[holdingWithDetails.asset.id] ?: return@mapNotNull null,
+                owner = Owner(id = holdingWithDetails.owner.id, name = holdingWithDetails.owner.name),
+                brokerage = Brokerage(id = holdingWithDetails.brokerage.id, name = holdingWithDetails.brokerage.name),
+                goal = goal
+            )
+        }
+    }
+
     private suspend fun getHoldingsByAssets(assetsMap: Map<Long, Asset>): List<AssetHolding> {
         val holdingsWithDetails = assetHoldingDao.getAllWithAsset()
 
