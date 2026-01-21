@@ -11,12 +11,14 @@ graph TB
     RN1["📄 RN - Calcular Balanço de Transações<br/>━━━━━━━━━━━━━━━━━━<br/>TransactionBalance.kt"]
     RN2["📄 RN - Calcular Valor Projetado<br/>━━━━━━━━━━━━━━━━━━<br/>GoalProjectedValue.kt"]
     RN3["📄 RN - Gerar Mapa de Projeção<br/>━━━━━━━━━━━━━━━━━━<br/><i>não implementado</i>"]
+    RN4["📄 RN - Calcular Lucro ou Prejuizo<br/>━━━━━━━━━━━━━━━━━━<br/>PositionProfitOrLoss.kt"]
     
     RN3 --> | Loop | RN2
     
     style RN1 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
     style RN2 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
     style RN3 fill:#ffe1e1,stroke:#cc0000,stroke-width:3px,color:#000
+    style RN4 fill:#d0f0d0,stroke:#00cc00,stroke-width:3px,color:#000
 ```
 
 **Legenda:**
@@ -48,6 +50,13 @@ Gera um mapa completo de projeções mensais de uma meta financeira, calculando 
 
 ---
 
+### RN - Calculo do Lucro ou Prejuizo de uma Posição
+**Implementação:** `PositionProfitOrLoss.kt`
+
+Calcula o resultado financeiro (lucro ou prejuízo) e a rentabilidade percentual de uma posição de investimento em um mês de referência. Isola o desempenho do ativo das movimentações de caixa (aportes e retiradas), retornando o valor financeiro da variação e o percentual de retorno sobre o capital investido.
+
+---
+
 
 ## Referências
 
@@ -55,4 +64,5 @@ Gera um mapa completo de projeções mensais de uma meta financeira, calculando 
 - [RN - Calcular Balanço de Transações](rules/RN%20-%20Calcular%20Balanço%20de%20Transações.md)
 - [RN - Calcular Valor Projetado de Meta Financeira](rules/RN%20-%20Calcular%20Valor%20Projetado%20de%20Meta%20Financeira.md)
 - [RN - Gerar Mapa de Projeção de Meta Financeira](rules/RN%20-%20Gerar%20Mapa%20de%20Projeção%20de%20Meta%20Financeira.md)
+- [RN - Calculo do Lucro ou Prejuizo de uma Posição](rules/RN%20-%20Calcular%20Lucro%20ou%20Prejuizo%20de%20uma%20Posição.md)
 
