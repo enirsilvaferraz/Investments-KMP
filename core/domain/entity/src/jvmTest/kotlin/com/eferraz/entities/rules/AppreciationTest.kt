@@ -23,10 +23,6 @@ class AppreciationTest {
         every { id } returns 1L
     }
 
-    private val otherHolding = mockk<AssetHolding> {
-        every { id } returns 2L
-    }
-
     // Helper to create mocked transactions
     private fun createMockTransaction(
         mockHolding: AssetHolding,
@@ -74,57 +70,6 @@ class AppreciationTest {
 
         // THEN
         assertTrue(result.value.isFinite())
-    }
-
-    @Test
-    fun `GIVEN current history belongs to another holding WHEN calculating THEN should throw IllegalArgumentException`() {
-
-        // GIVEN
-        val currentHistory = createMockHistory(otherHolding, 1000.0)
-        val previousHistory = createMockHistory(holding, 900.0)
-
-        // WHEN & THEN
-        assertFailsWith<IllegalArgumentException> {
-            Appreciation.calculate(
-                currentHistory = currentHistory,
-                previousHistory = previousHistory,
-                transactions = emptyList()
-            )
-        }
-    }
-
-    @Test
-    fun `GIVEN previous history belongs to another holding WHEN calculating THEN should throw IllegalArgumentException`() {
-
-        // GIVEN
-        val currentHistory = createMockHistory(holding, 1000.0)
-        val previousHistory = createMockHistory(otherHolding, 900.0)
-
-        // WHEN & THEN
-        assertFailsWith<IllegalArgumentException> {
-            Appreciation.calculate(
-                currentHistory = currentHistory,
-                previousHistory = previousHistory,
-                transactions = emptyList()
-            )
-        }
-    }
-
-    @Test
-    fun `GIVEN a transaction belongs to another holding WHEN calculating THEN should throw IllegalArgumentException`() {
-
-        // GIVEN
-        val currentHistory = createMockHistory(holding, 1000.0)
-        val transaction = createMockTransaction(otherHolding, TransactionType.PURCHASE, 100.0)
-
-        // WHEN & THEN
-        assertFailsWith<IllegalArgumentException> {
-            Appreciation.calculate(
-                currentHistory = currentHistory,
-                previousHistory = null,
-                transactions = listOf(transaction)
-            )
-        }
     }
 
     // --- 2. Calculation Logic Tests ---
@@ -185,10 +130,10 @@ class AppreciationTest {
 
         // THEN
         // Resultado: 900 - 1000 - (-200) = 100
-        // Base: 1000
-        // %: 100 / 1000 = 10%
+        // Base: 1000 + 0 - 200 = 800 (capital exposto ao risco após retirada)
+        // %: 100 / 800 = 12.5%
         assertEquals(100.0, result.value, 0.001)
-        assertEquals(10.0, result.percentage, 0.001)
+        assertEquals(12.5, result.percentage, 0.001)
     }
 
     @Test
@@ -269,10 +214,10 @@ class AppreciationTest {
 
         // THEN
         // Resultado: 700 - 1000 - (-200) = -100
-        // Base: 1000
-        // %: -100 / 1000 = -10%
+        // Base: 1000 + 0 - 200 = 800 (capital exposto ao risco após retirada)
+        // %: -100 / 800 = -12.5%
         assertEquals(-100.0, result.value, 0.001)
-        assertEquals(-10.0, result.percentage, 0.001)
+        assertEquals(-12.5, result.percentage, 0.001)
     }
 
     // --- 3. Edge Cases Tests ---

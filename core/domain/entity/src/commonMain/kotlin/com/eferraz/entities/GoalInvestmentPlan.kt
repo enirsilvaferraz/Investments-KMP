@@ -10,20 +10,20 @@ package com.eferraz.entities
  *
  * @property id O identificador único do plano (opcional, null para simulações ad-hoc).
  * @property goal A meta financeira associada ao plano (opcional, null para simulações).
- * @property monthlyContribution O valor de aporte mensal planejado.
- * @property monthlyReturnRate A taxa de retorno mensal esperada (em percentual, ex: 0.80 para 0,80%).
+ * @property contribution O valor de aporte mensal planejado.
+ * @property appreciationRate A taxa de retorno mensal esperada (em percentual, ex: 0.80 para 0,80%).
  * @property initialValue O valor inicial da meta (opcional, padrão é 0.0).
  */
 public data class GoalInvestmentPlan(
     public val id: Long? = null,
     public val goal: FinancialGoal,
-    public val monthlyContribution: Double,
-    public val monthlyReturnRate: Double,
+    public val contribution: Double,
+    public val appreciationRate: Double,
     public val initialValue: Double = 0.0
 ) {
 
     init {
-        require(monthlyContribution != 0.0 || monthlyReturnRate != 0.0 ) {
+        require(contribution != 0.0 || appreciationRate != 0.0 ) {
             "Meta inalcançável: sem aporte e sem rentabilidade"
         }
     }

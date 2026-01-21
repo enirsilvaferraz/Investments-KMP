@@ -22,8 +22,8 @@ class GoalProjectedValueTest {
         // WHEN
         val result = GoalProjectedValue.calculate(
             currentValue = currentValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN
@@ -44,8 +44,8 @@ class GoalProjectedValueTest {
         // WHEN
         val result = GoalProjectedValue.calculate(
             currentValue = currentValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN
@@ -66,8 +66,8 @@ class GoalProjectedValueTest {
         // WHEN
         val result = GoalProjectedValue.calculate(
             currentValue = currentValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN
@@ -88,8 +88,8 @@ class GoalProjectedValueTest {
         // WHEN
         val result = GoalProjectedValue.calculate(
             currentValue = currentValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN
@@ -106,8 +106,8 @@ class GoalProjectedValueTest {
         // WHEN - Month 1
         val month1 = GoalProjectedValue.calculate(
             currentValue = 0.0,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN - Month 1
@@ -116,8 +116,8 @@ class GoalProjectedValueTest {
         // WHEN - Month 2: (1.512 + 1.500) × 1,008 = R$ 3.036,10
         val month2 = GoalProjectedValue.calculate(
             currentValue = month1.projectedValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN - Month 2
@@ -126,8 +126,8 @@ class GoalProjectedValueTest {
         // WHEN - Month 3: (3.036,10 + 1.500) × 1,008 = R$ 4.572,39
         val month3 = GoalProjectedValue.calculate(
             currentValue = month2.projectedValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN - Month 3
@@ -136,8 +136,8 @@ class GoalProjectedValueTest {
         // WHEN - Month 4: (4.572,39 + 1.500) × 1,008 = R$ 6.120,97
         val month4 = GoalProjectedValue.calculate(
             currentValue = month3.projectedValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN - Month 4
@@ -156,8 +156,8 @@ class GoalProjectedValueTest {
         // WHEN
         val result = GoalProjectedValue.calculate(
             currentValue = currentValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN
@@ -178,8 +178,8 @@ class GoalProjectedValueTest {
         // WHEN
         val result = GoalProjectedValue.calculate(
             currentValue = currentValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN
@@ -200,8 +200,8 @@ class GoalProjectedValueTest {
         // WHEN
         val result = GoalProjectedValue.calculate(
             currentValue = currentValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN
@@ -221,8 +221,8 @@ class GoalProjectedValueTest {
         val exception = assertFailsWith<IllegalArgumentException> {
             GoalProjectedValue.calculate(
                 currentValue = currentValue,
-                monthlyReturnRate = monthlyReturnRate,
-                monthlyContribution = monthlyContribution
+                appreciationRate = monthlyReturnRate,
+                contribution = monthlyContribution
             )
         }
 
@@ -243,8 +243,8 @@ class GoalProjectedValueTest {
         val exception = assertFailsWith<IllegalArgumentException> {
             GoalProjectedValue.calculate(
                 currentValue = currentValue,
-                monthlyReturnRate = monthlyReturnRate,
-                monthlyContribution = monthlyContribution
+                appreciationRate = monthlyReturnRate,
+                contribution = monthlyContribution
             )
         }
 
@@ -265,8 +265,8 @@ class GoalProjectedValueTest {
         val exception = assertFailsWith<IllegalArgumentException> {
             GoalProjectedValue.calculate(
                 currentValue = currentValue,
-                monthlyReturnRate = monthlyReturnRate,
-                monthlyContribution = monthlyContribution
+                appreciationRate = monthlyReturnRate,
+                contribution = monthlyContribution
             )
         }
 
@@ -287,8 +287,8 @@ class GoalProjectedValueTest {
         val exception = assertFailsWith<IllegalArgumentException> {
             GoalProjectedValue.calculate(
                 currentValue = currentValue,
-                monthlyReturnRate = monthlyReturnRate,
-                monthlyContribution = monthlyContribution
+                appreciationRate = monthlyReturnRate,
+                contribution = monthlyContribution
             )
         }
 
@@ -320,8 +320,8 @@ class GoalProjectedValueTest {
         // WHEN
         val result = GoalProjectedValue.calculate(
             currentValue = currentValue,
-            monthlyReturnRate = monthlyReturnRate,
-            monthlyContribution = monthlyContribution
+            appreciationRate = monthlyReturnRate,
+            contribution = monthlyContribution
         )
 
         // THEN - deve usar a ordem correta (aporte primeiro)

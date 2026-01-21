@@ -23,34 +23,34 @@ public class GoalProjectedValue private constructor(
          * Fórmula: valorProjetado = (currentValue + monthlyContribution) × (1 + monthlyReturnRate/100)
          *
          * @param currentValue O valor atual (do mês anterior ou valor inicial). Deve ser ≥ 0.
-         * @param monthlyReturnRate A taxa de retorno mensal esperada (em percentual, ex: 0.80 para 0,80%). Deve ser ≥ 0.
-         * @param monthlyContribution O valor de aporte mensal. Deve ser ≥ 0.
+         * @param appreciationRate A taxa de retorno mensal esperada (em percentual, ex: 0.80 para 0,80%). Deve ser ≥ 0.
+         * @param contribution O valor de aporte mensal. Deve ser ≥ 0.
          * @return GoalProjectedValue com o valor projetado calculado.
          * @throws IllegalArgumentException se qualquer valor de entrada for negativo.
          */
         public fun calculate(
             currentValue: Double,
-            monthlyReturnRate: Double,
-            monthlyContribution: Double,
+            appreciationRate: Double,
+            contribution: Double,
         ): GoalProjectedValue {
 
             // 4.1. Validação das Entradas
             require(currentValue >= 0) {
                 "currentValue deve ser não-negativo. Valor recebido: $currentValue"
             }
-            require(monthlyReturnRate >= 0) {
-                "monthlyReturnRate deve ser não-negativo. Valor recebido: $monthlyReturnRate"
+            require(appreciationRate >= 0) {
+                "monthlyReturnRate deve ser não-negativo. Valor recebido: $appreciationRate"
             }
-            require(monthlyContribution >= 0) {
-                "monthlyContribution deve ser não-negativo. Valor recebido: $monthlyContribution"
+            require(contribution >= 0) {
+                "monthlyContribution deve ser não-negativo. Valor recebido: $contribution"
             }
 
             // 4.2. Ordem de Aplicação
             // 1. Adiciona o aporte ao valor atual
-            val valueWithContribution = currentValue + monthlyContribution
+            val valueWithContribution = currentValue + contribution
 
             // 2. Aplica a rentabilidade sobre o total
-            val projectedValue = valueWithContribution * (1 + monthlyReturnRate / 100)
+            val projectedValue = valueWithContribution * (1 + appreciationRate / 100)
 
             return GoalProjectedValue(
                 projectedValue = projectedValue

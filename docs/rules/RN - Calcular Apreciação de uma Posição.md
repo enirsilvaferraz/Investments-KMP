@@ -73,18 +73,22 @@ O resultado financeiro é a variação total do patrimônio descontando o efeito
     - `balance` é o balanço calculado em 4.2 (do `TransactionBalance`)
 
 ### 4.4. Cálculo da Rentabilidade Percentual (`percentage`)
-A rentabilidade é calculada sobre o capital que estava exposto ao risco. Nesta implementação, considera-se como base o valor inicial mais os novos aportes.
-*   **Base de Cálculo:** `Valor_Anterior + contributions`
+A rentabilidade é calculada sobre o capital que estava exposto ao risco. A base considera o valor inicial, os novos aportes e as retiradas realizadas.
+*   **Base de Cálculo:** `Valor_Anterior + contributions - withdrawals`
 *   **Fórmula:**
     ```
     percentage = (value / base) * 100
     ```
-    Onde `base = Valor_Anterior + contributions`
+    Onde `base = Valor_Anterior + contributions - withdrawals`
     
-*   **Tratamento de Exceções:** Utiliza `runCatching` para tratar automaticamente divisões por zero, retornando `0.0` em caso de exceção.
+*   **Tratamento de Exceções:** 
+    *   Se `base > 0`: Calcula normalmente usando `base`
+    *   Se `base <= 0` e `contributions > 0`: Usa `contributions` como base (casos de day trade ou quando retiradas excedem o valor anterior + aportes)
+    *   Se `base <= 0` e `contributions = 0`: Retorna `0.0` (Para evitar divisão por zero)
+    
 *   **Comportamento:**
-    *   Se `base > 0`: Calcula normalmente
-    *   Se `base <= 0`: Retorna `0.0` (Para evitar divisão por zero ou resultados inconsistentes em casos sem saldo inicial e apenas vendas).
+    *   Em casos normais: `base = Valor_Anterior + contributions - withdrawals`
+    *   Em day trade ou quando a base fica negativa: usa `contributions` como base para garantir que o capital investido seja considerado
 
 ## 5. Casos de Uso e Exemplos
 
@@ -108,8 +112,8 @@ A rentabilidade é calculada sobre o capital que estava exposto ao risco. Nesta 
 *   Venda: 200
 *   Fim: 900 (1000 - 200 + 100 ganho)
 *   Resultado: 900 - 1000 - (-200) = 900 - 1000 + 200 = **100**
-*   Base: 1000 (Vendas não deduzem da base nesta regra simplificada)
-*   %: 100 / 1000 = **10%**
+*   Base: 1000 + 0 - 200 = 800 (capital exposto ao risco após a retirada)
+*   %: 100 / 800 = **12.5%**
 
 ### Exemplo 4: Encerramento com Lucro (Zeragem)
 *   Início: 0 (Supondo compra no mês)

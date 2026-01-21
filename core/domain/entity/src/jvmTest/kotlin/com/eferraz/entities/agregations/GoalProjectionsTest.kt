@@ -27,8 +27,8 @@ class GoalProjectionsTest {
         )
         val plan = GoalInvestmentPlan(
             goal = goal,
-            monthlyContribution = 1500.0,
-            monthlyReturnRate = 0.80,
+            contribution = 1500.0,
+            appreciationRate = 0.80,
             initialValue = 0.0
         )
 
@@ -73,8 +73,8 @@ class GoalProjectionsTest {
         )
         val plan = GoalInvestmentPlan(
             goal = goal,
-            monthlyContribution = 500.0,
-            monthlyReturnRate = 0.50,
+            contribution = 500.0,
+            appreciationRate = 0.50,
             initialValue = 0.0
         )
 
@@ -105,8 +105,8 @@ class GoalProjectionsTest {
 
             val plan = GoalInvestmentPlan(
                 goal = goal,
-                monthlyContribution = 0.0,
-                monthlyReturnRate = 0.0,
+                contribution = 0.0,
+                appreciationRate = 0.0,
                 initialValue = 0.0
             )
 
@@ -128,8 +128,8 @@ class GoalProjectionsTest {
         )
         val plan = GoalInvestmentPlan(
             goal = goal,
-            monthlyContribution = 100.0,
-            monthlyReturnRate = 1.0,
+            contribution = 100.0,
+            appreciationRate = 1.0,
             initialValue = 0.0
         )
 

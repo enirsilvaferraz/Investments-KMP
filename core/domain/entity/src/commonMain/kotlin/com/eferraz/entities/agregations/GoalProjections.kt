@@ -22,29 +22,29 @@ public class GoalProjections private constructor(
         /**
          * Gera o mapa de projeções mensais de uma meta financeira com base em um plano.
          *
-         * @param params Parâmetros do plano de investimento.
+         * @param plan Parâmetros do plano de investimento.
          * @param maxMonths Número máximo de meses a projetar (padrão 120).
          * @return FinancialGoalProjections com o mapa ordenado cronologicamente.
          * @throws IllegalArgumentException se a meta for inalcançável com os parâmetros informados.
          */
         public fun calculate(
-            params: GoalInvestmentPlan,
+            plan: GoalInvestmentPlan,
             maxMonths: Int = DEFAULT_MAX_MONTHS,
         ): GoalProjections {
 
             require(maxMonths >= 1) { "maxMonths deve ser maior ou igual a 1. Valor recebido: $maxMonths" }
 
             val projections = linkedMapOf<YearMonth, GoalProjectedValue>()
-            var currentValue = params.initialValue
-            var currentMonth = params.goal.startDate.yearMonth
-            val targetValue = params.goal.targetValue
+
+            var currentValue = plan.initialValue
+            var currentMonth = plan.goal.startDate.yearMonth
 
             for (monthOffset in 0 until maxMonths) {
 
-                val goalProjectedValue = GoalProjectedValue.Companion.calculate(
+                val goalProjectedValue = GoalProjectedValue.calculate(
                     currentValue = currentValue,
-                    monthlyReturnRate = params.monthlyReturnRate,
-                    monthlyContribution = params.monthlyContribution
+                    appreciationRate = plan.appreciationRate,
+                    contribution = plan.contribution
                 )
 
                 projections[currentMonth] = goalProjectedValue
@@ -52,9 +52,7 @@ public class GoalProjections private constructor(
                 currentValue = goalProjectedValue.projectedValue
                 currentMonth = currentMonth.plusMonth()
 
-                if (currentValue >= targetValue) {
-                    break
-                }
+                if (currentValue >= plan.goal.targetValue) break
             }
 
             return GoalProjections(projections = projections)

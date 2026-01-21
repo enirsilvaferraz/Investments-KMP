@@ -37,7 +37,7 @@ public class Appreciation private constructor(
             return calculate(
                 currentHistory = currentHistory,
                 previousHistory = previousHistory,
-                balance = TransactionBalance.calculate(transactions = transactions)
+                transactionsBalance = TransactionBalance.calculate(transactions = transactions)
             )
         }
 
@@ -46,30 +46,34 @@ public class Appreciation private constructor(
          *
          * @param currentHistory Histórico atual.
          * @param previousHistory Histórico anterior (opcional).
-         * @param balance balanço do mes.
+         * @param transactionsBalance balanço do mes.
          */
         public fun calculate(
             currentHistory: HoldingHistoryEntry,
             previousHistory: HoldingHistoryEntry?,
-            balance: TransactionBalance,
+            transactionsBalance: TransactionBalance,
         ): Appreciation {
 
             val currentValue = currentHistory.endOfMonthValue
             val previousValue = previousHistory?.endOfMonthValue ?: 0.0
 
             // 4.3. Cálculo do balanço
-            val (contributions, _, transactionsBalance) = balance
+            val (contributions, _, balance) = transactionsBalance
 
             // 4.4. Cálculo do Lucro/Prejuízo Financeiro
-            val appreciation = currentValue - previousValue - transactionsBalance
+            val appreciation = currentValue - previousValue - balance
 
             // 4.5. Cálculo da Rentabilidade Percentual
-            val percentage = runCatching { appreciation / (previousValue + contributions) * 100 }.getOrElse { 0.0 }
+            val base = previousValue + balance
 
-            return Appreciation(
-                value = appreciation,
-                percentage = percentage
-            )
+            val effectiveBase =
+                if (base > 0) base
+                else if (contributions > 0) contributions
+                else 0.0
+
+            val percentage = if (effectiveBase > 0) appreciation / effectiveBase * 100 else 0.0
+
+            return Appreciation(value = appreciation, percentage = percentage)
         }
     }
 }

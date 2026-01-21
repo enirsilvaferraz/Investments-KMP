@@ -41,34 +41,15 @@ Este cálculo considera transações do tipo `PURCHASE` (compra/aporte) para apo
 
 ### Estruturas de Dados
 
-```kotlin
-data class TransactionBalance private constructor(
-    val contributions: Double,
-    val withdrawals: Double,
-    val balance: Double
-) {
-    companion object {
-        /**
-         * Calcula o balanço de aportes e retiradas a partir de uma lista de transações.
-         *
-         * @param transactions Lista de transações a serem processadas.
-         * @return TransactionBalance com os totais calculados.
-         */
-        fun calculate(transactions: List<AssetTransaction>): TransactionBalance
-    }
-}
-```
-
-**Onde:**
+A estrutura retornada contém:
 
 - `contributions`: Soma de todos os aportes (transações PURCHASE)
 - `withdrawals`: Soma de todas as retiradas (transações SALE)
 - `balance`: Balanço final (contributions - withdrawals)
 
 **Padrão de Uso:**
-- Instâncias são criadas através do método estático `calculate()` no companion object
+- Instâncias são criadas através do método estático `calculate()`
 - O construtor é privado, garantindo que a lógica de cálculo sempre seja executada
-- É uma `data class` para facilitar desestruturação e comparação
 - Segue o padrão Factory Method usado em outras classes do domínio (ex: `Appreciation`)
 
 ---
@@ -236,29 +217,10 @@ balance = contributions - withdrawals
 
 ### 5.3. Exemplo de Uso
 
-```kotlin
-// Dada uma lista de transações
-val transactions: List<AssetTransaction> = listOf(
-    variableIncomeTransaction1,  // PURCHASE
-    fixedIncomeTransaction,      // PURCHASE
-    fundsTransaction,            // PURCHASE
-    variableIncomeTransaction2   // SALE
-)
-
-// Calcula o balanço usando o método estático
-val balance = TransactionBalance.calculate(transactions)
-
-// Acessa os valores calculados
-println("Total de Contribuições: R$ ${balance.contributions}")
-println("Total de Retiradas: R$ ${balance.withdrawals}")
-println("Balanço: R$ ${balance.balance}")
-
-// Ou usando desestruturação (data class)
-val (contributions, withdrawals, totalBalance) = balance
-println("Total de Contribuições: R$ $contributions")
-println("Total de Retiradas: R$ $withdrawals")
-println("Balanço: R$ $totalBalance")
-```
+Dada uma lista de transações contendo compras e vendas, o método `calculate()` processa todas as transações e retorna um objeto contendo:
+- Total de contribuições (soma de todas as compras)
+- Total de retiradas (soma de todas as vendas)
+- Balanço final (diferença entre contribuições e retiradas)
 
 ---
 
