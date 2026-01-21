@@ -23,7 +23,7 @@ public interface UiTableContentScope<T> {
         weight: Float = 1.0f,
         alignment: Alignment.Horizontal = Alignment.Start,
         cellContent: @Composable BoxScope.(T) -> Unit,
-        footer: (List<T>) -> String = { "" },
+        footer: ((List<T>) -> String)? = null,
     )
 
     public fun column(
@@ -32,7 +32,7 @@ public interface UiTableContentScope<T> {
         weight: Float = 1.0f,
         alignment: Alignment.Horizontal = Alignment.Start,
         cellValue: @Composable (T) -> String,
-        footer: (List<T>) -> String = { "" },
+        footer: ((List<T>) -> String)? = null,
     )
 }
 
@@ -51,7 +51,7 @@ internal class UiTableScope<T> : UiTableContentScope<T> {
         weight: Float,
         alignment: Alignment.Horizontal,
         cellContent: @Composable BoxScope.(T) -> Unit,
-        footer: (List<T>) -> String,
+        footer: ((List<T>) -> String)?,
     ) {
         columns.add(ColumnData(header, sortedBy, weight, alignment, cellContent, footer))
     }
@@ -62,7 +62,7 @@ internal class UiTableScope<T> : UiTableContentScope<T> {
         weight: Float,
         alignment: Alignment.Horizontal,
         cellValue: @Composable (T) -> String,
-        footer: (List<T>) -> String,
+        footer: ((List<T>) -> String)?,
     ) {
 
         val textAlign = when (alignment) {
@@ -71,7 +71,7 @@ internal class UiTableScope<T> : UiTableContentScope<T> {
             Alignment.End -> TextAlign.End
             else -> TextAlign.Start
         }
-        
+
         columns.add(
             ColumnData(
                 header = header,
@@ -101,8 +101,11 @@ internal data class ColumnData<T>(
     val weight: Float,
     val alignment: Alignment.Horizontal,
     val cell: @Composable BoxScope.(T) -> Unit,
-    val footer: (List<T>) -> String,
+    val footer: ((List<T>) -> String)?,
 ) {
+
     fun isSortable() = sortedBy != null
+
+    fun hasFooter() = footer != null
 }
 

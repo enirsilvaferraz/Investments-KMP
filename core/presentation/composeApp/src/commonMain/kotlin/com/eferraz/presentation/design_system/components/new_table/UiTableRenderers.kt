@@ -28,6 +28,7 @@ private val HEADER_HEIGHT = 54.dp
 private val CELL_HEIGHT = 45.dp
 private val FOOTER_HEIGHT = 70.dp
 private val CELL_PADDING = 8.dp
+private val FOOTER_PADDING = 16.dp
 
 @Composable
 private fun headerFooterTextStyle() = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
@@ -135,15 +136,18 @@ internal class DefaultCellRenderer<T> : CellRenderer<T> {
 
     @Composable
     override fun renderFooter(column: ColumnData<T>, data: List<T>) {
+
+        if (column.footer == null) return
+
         val textAlign = when (column.alignment) {
             Alignment.Start -> androidx.compose.ui.text.style.TextAlign.Start
             Alignment.CenterHorizontally -> androidx.compose.ui.text.style.TextAlign.Center
             Alignment.End -> androidx.compose.ui.text.style.TextAlign.End
             else -> androidx.compose.ui.text.style.TextAlign.Start
         }
-        
+
         Box(
-            modifier = Modifier.fillMaxWidth().height(FOOTER_HEIGHT).padding(CELL_PADDING),
+            modifier = Modifier.fillMaxWidth().height(FOOTER_HEIGHT).padding(FOOTER_PADDING),
             contentAlignment = column.alignment.toBoxAlignment()
         ) {
             Text(

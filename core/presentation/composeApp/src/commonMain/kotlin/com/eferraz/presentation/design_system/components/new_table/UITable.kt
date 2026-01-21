@@ -11,12 +11,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eferraz.presentation.design_system.theme.AppTheme
+import com.eferraz.presentation.design_system.utils.thenIf
 
 // ============================================================================
 // API PÚBLICA
@@ -51,10 +54,12 @@ internal fun <T> UiTable(
     val onSort = remember { { index: Int -> sortState.sort(index) } }
     val onSelectUpdated = rememberUpdatedState(onSelect)
 
+    val hasFooter by remember(columns) { derivedStateOf { columns.any { it.hasFooter() } } }
+
     Column {
 
         LazyColumn(
-            modifier = modifier.fillMaxWidth().weight(1f),
+            modifier = modifier.fillMaxWidth().thenIf(hasFooter, { Modifier.weight(1f) }),
             contentPadding = contentPadding
         ) {
 
@@ -92,7 +97,7 @@ internal fun <T> UiTable(
             }
         }
 
-        TableFooter(
+        if (hasFooter) TableFooter(
             data = data,
             columns = columns,
             responsiveState = responsiveState,
