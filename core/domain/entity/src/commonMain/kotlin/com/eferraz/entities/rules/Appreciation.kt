@@ -19,10 +19,10 @@ public data class Appreciation private constructor(
     public companion object {
 
         /**
-         * Calcula o lucro ou prejuízo da posição com base no histórico e transações.
+         * Calcula o lucro ou prejuízo com base no histórico e transações.
          *
-         * @param previousValue Valor anterior da posição.
-         * @param currentValue Valor atual da posição.
+         * @param previousValue Valor anterior.
+         * @param currentValue Valor atual.
          * @param contributions Total de contribuições.
          * @param withdrawals Total de retiradas.
          */
