@@ -1,7 +1,7 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.Asset
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.usecases.repositories.AssetRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

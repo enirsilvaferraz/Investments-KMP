@@ -1,8 +1,8 @@
 package com.eferraz.repositories
 
 import com.eferraz.database.datasources.AssetHoldingDataSource
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import org.koin.core.annotation.Factory
 

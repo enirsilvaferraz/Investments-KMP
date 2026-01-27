@@ -1,7 +1,7 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.Asset
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.InvestmentCategory
 
 public interface AssetDataSource {
     public suspend fun getAll(): List<Asset>

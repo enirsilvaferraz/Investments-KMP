@@ -1,7 +1,7 @@
 package com.eferraz.presentation.features.history
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.HoldingHistoryEntry
 import kotlinx.datetime.YearMonth
 
 internal sealed class HistoryIntent {

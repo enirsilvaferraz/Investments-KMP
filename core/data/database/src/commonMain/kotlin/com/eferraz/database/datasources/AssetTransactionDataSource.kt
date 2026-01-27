@@ -1,7 +1,7 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.AssetTransaction
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.transactions.AssetTransaction
 import kotlinx.datetime.LocalDate
 
 public interface AssetTransactionDataSource {

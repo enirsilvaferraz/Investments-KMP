@@ -1,7 +1,7 @@
 package com.eferraz.usecases.entities
 
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.VariableIncomeAssetType
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.VariableIncomeAssetType
 
 /**
  * Dados do formulário de renda variável para validação.

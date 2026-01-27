@@ -1,7 +1,7 @@
 package com.eferraz.usecases.entities
 
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAssetType
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAssetType
 
 /**
  * Dados do formulário de fundos de investimento para validação.

@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
-import com.eferraz.entities.TransactionType
+import com.eferraz.entities.transactions.TransactionType
 import kotlinx.datetime.LocalDate
 
 /**

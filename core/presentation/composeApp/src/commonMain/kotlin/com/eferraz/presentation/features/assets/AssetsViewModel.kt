@@ -2,14 +2,14 @@ package com.eferraz.presentation.features.assets
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.Asset
-import com.eferraz.entities.Brokerage
-import com.eferraz.entities.FinancialGoal
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.Issuer
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.entities.goals.FinancialGoal
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.Issuer
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.usecases.GetAssetUseCase
 import com.eferraz.usecases.GetAssetsTableDataUseCase
 import com.eferraz.usecases.GetBrokeragesUseCase
@@ -20,7 +20,6 @@ import com.eferraz.usecases.SaveAssetUseCase2.Params
 import com.eferraz.usecases.SetBrokerageToHoldingUseCase
 import com.eferraz.usecases.SetGoalToHoldingUseCase
 import com.eferraz.usecases.entities.AssetsTableData
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

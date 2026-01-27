@@ -1,6 +1,6 @@
 package com.eferraz.usecases.entities
 
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentCategory
 
 /**
  * Classe base sealed para dados de formulário de assets.

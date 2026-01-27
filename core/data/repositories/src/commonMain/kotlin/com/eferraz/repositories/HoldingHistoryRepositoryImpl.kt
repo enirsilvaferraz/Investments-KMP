@@ -1,8 +1,8 @@
 package com.eferraz.repositories
 
 import com.eferraz.database.datasources.HoldingHistoryDataSource
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.Factory

@@ -43,7 +43,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.presentation.FixedIncomeHistoryRouting
 import com.eferraz.presentation.FundsHistoryRouting
 import com.eferraz.presentation.VariableIncomeHistoryRouting
@@ -313,12 +313,12 @@ private fun HistoryScreenFixedIncome(
             cellValue = { it.contractedYield.toPercentage() }
         )
 
-        column(
-            header = "% CDI",
-            sortedBy = { it.cdiRelativeYield ?: 0.0 },
-            weight = 0.9f,
-            cellValue = { it.cdiRelativeYield?.toString() ?: "" }
-        )
+//        column(
+//            header = "% CDI",
+//            sortedBy = { it.cdiRelativeYield ?: 0.0 },
+//            weight = 0.9f,
+//            cellValue = { it.cdiRelativeYield?.toString() ?: "" }
+//        )
 
         column(
             header = "Emissor",

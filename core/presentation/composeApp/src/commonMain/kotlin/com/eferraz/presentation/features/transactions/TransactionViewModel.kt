@@ -2,15 +2,15 @@ package com.eferraz.presentation.features.transactions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.AssetTransaction
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.FixedIncomeTransaction
-import com.eferraz.entities.FundsTransaction
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.TransactionType
-import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.entities.VariableIncomeTransaction
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.transactions.FixedIncomeTransaction
+import com.eferraz.entities.transactions.FundsTransaction
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.transactions.TransactionType
+import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.transactions.VariableIncomeTransaction
 import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.SaveTransactionUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.koin.android.annotation.KoinViewModel
-import kotlin.time.Clock
 
 @KoinViewModel
 internal class TransactionViewModel(

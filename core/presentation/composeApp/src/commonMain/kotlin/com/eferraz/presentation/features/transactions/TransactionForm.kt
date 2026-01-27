@@ -15,16 +15,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.eferraz.entities.Asset
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.TransactionType
-import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.presentation.design_system.components.DateTransformation
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.transactions.TransactionType
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.presentation.design_system.components.EnumDropdown
 import com.eferraz.presentation.design_system.components.FormTextField
 import com.eferraz.presentation.helpers.currencyFormat
-import com.eferraz.presentation.helpers.currencyToDouble
 
 @Composable
 internal fun TransactionForm(

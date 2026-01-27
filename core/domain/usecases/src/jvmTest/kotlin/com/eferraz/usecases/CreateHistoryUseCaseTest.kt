@@ -1,6 +1,5 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.AssetHolding
 import com.eferraz.usecases.TestDataFactory.createAssetHolding
 import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
 import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry

@@ -1,7 +1,7 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

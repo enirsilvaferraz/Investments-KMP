@@ -1,6 +1,6 @@
 package com.eferraz.usecases.repositories
 
-import com.eferraz.entities.Issuer
+import com.eferraz.entities.assets.Issuer
 
 public interface IssuerRepository {
     public suspend fun getAll(): List<Issuer>

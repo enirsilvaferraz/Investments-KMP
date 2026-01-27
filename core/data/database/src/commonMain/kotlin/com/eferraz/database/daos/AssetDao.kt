@@ -9,7 +9,7 @@ import com.eferraz.database.entities.assets.FixedIncomeAssetEntity
 import com.eferraz.database.entities.assets.InvestmentFundAssetEntity
 import com.eferraz.database.entities.assets.VariableIncomeAssetEntity
 import com.eferraz.database.entities.assets.AssetWithDetails
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentCategory
 
 /**
  * DAO para operações CRUD na tabela assets e suas subclasses.

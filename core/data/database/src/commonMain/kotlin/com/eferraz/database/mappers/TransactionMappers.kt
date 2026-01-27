@@ -5,11 +5,11 @@ import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.FundsTransactionEntity
 import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.TransactionWithDetails
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.AssetTransaction
-import com.eferraz.entities.FixedIncomeTransaction
-import com.eferraz.entities.FundsTransaction
-import com.eferraz.entities.VariableIncomeTransaction
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.entities.transactions.FixedIncomeTransaction
+import com.eferraz.entities.transactions.FundsTransaction
+import com.eferraz.entities.transactions.VariableIncomeTransaction
 
 /**
  * Mappers para conversão entre entidades de domínio e entidades de banco de dados de transações.

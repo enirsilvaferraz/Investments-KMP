@@ -1,7 +1,7 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.assets.InvestmentCategory
 
 public interface AssetHoldingDataSource {
     public suspend fun save(assetHolding: AssetHolding): Long

@@ -6,11 +6,11 @@ import com.eferraz.database.entities.assets.AssetWithDetails
 import com.eferraz.database.entities.assets.FixedIncomeAssetEntity
 import com.eferraz.database.entities.assets.InvestmentFundAssetEntity
 import com.eferraz.database.entities.assets.VariableIncomeAssetEntity
-import com.eferraz.entities.Asset
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.Issuer
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.Issuer
+import com.eferraz.entities.assets.VariableIncomeAsset
 
 /**
  * Mappers para conversão entre entidades de domínio e entidades de banco de dados de ativos.

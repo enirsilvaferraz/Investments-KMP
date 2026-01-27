@@ -1,10 +1,10 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.Liquidity
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.usecases.entities.AssetFormData
 import com.eferraz.usecases.entities.FixedIncomeFormData
 import com.eferraz.usecases.entities.InvestmentFundFormData

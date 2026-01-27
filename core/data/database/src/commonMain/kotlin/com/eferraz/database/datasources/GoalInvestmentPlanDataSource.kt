@@ -1,6 +1,6 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.GoalInvestmentPlan
+import com.eferraz.entities.goals.GoalInvestmentPlan
 
 public interface GoalInvestmentPlanDataSource {
     public suspend fun save(plan: GoalInvestmentPlan): Long

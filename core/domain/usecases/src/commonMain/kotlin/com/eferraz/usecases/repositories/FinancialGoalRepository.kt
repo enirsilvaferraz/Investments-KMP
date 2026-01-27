@@ -1,6 +1,6 @@
 package com.eferraz.usecases.repositories
 
-import com.eferraz.entities.FinancialGoal
+import com.eferraz.entities.goals.FinancialGoal
 
 public interface FinancialGoalRepository {
     public suspend fun save(goal: FinancialGoal): Long

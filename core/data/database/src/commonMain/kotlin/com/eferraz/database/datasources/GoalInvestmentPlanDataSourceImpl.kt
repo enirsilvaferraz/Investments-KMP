@@ -2,7 +2,7 @@ package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.GoalInvestmentPlanDao
 import com.eferraz.database.entities.goals.GoalInvestmentPlanEntity
-import com.eferraz.entities.GoalInvestmentPlan
+import com.eferraz.entities.goals.GoalInvestmentPlan
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [GoalInvestmentPlanDataSource::class])

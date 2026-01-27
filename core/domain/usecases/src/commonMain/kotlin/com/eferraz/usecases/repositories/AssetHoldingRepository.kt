@@ -1,7 +1,7 @@
 package com.eferraz.usecases.repositories
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.assets.InvestmentCategory
 
 public interface AssetHoldingRepository {
     public suspend fun save(assetHolding: AssetHolding): Long

@@ -2,9 +2,9 @@ package com.eferraz.presentation.features.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.GetHistoryTableDataUseCase
 import com.eferraz.usecases.SyncVariableIncomeValuesUseCase

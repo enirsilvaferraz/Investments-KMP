@@ -1,8 +1,8 @@
 package com.eferraz.repositories
 
 import com.eferraz.database.datasources.AssetTransactionDataSource
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.AssetTransaction
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.usecases.repositories.AssetTransactionRepository
 import kotlinx.datetime.LocalDate
 import org.koin.core.annotation.Factory

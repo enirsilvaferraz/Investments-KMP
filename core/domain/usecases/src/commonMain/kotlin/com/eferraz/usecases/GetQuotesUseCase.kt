@@ -1,6 +1,6 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.StockQuoteHistory
+import com.eferraz.entities.holdings.StockQuoteHistory
 import com.eferraz.usecases.repositories.StockQuoteHistoryRepository
 import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.Factory

@@ -1,9 +1,10 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.rules.Appreciation
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.holdings.Appreciation
+import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetTransactionRepository
@@ -54,14 +55,17 @@ public class MergeHistoryUseCase(
             val endDate = startDate.plus(DatePeriod(months = 1)).minus(DatePeriod(days = 1))
             val transactions = assetTransactionRepository.getAllByHoldingAndDateRange(holding, startDate, endDate)
 
+            val balance = TransactionBalance.calculate(transactions)
+
             val appreciation = Appreciation.calculate(
-                currentHistory = currentEntry,
-                previousHistory = previousEntry,
-                transactions = transactions
+                previousValue = previousEntry.endOfMonthValue,
+                currentValue = currentEntry.endOfMonthValue,
+                contributions = balance.contributions,
+                withdrawals = balance.withdrawals
             )
 
             HoldingHistoryResult(holding, currentEntry, previousEntry, appreciation)
-        }
+        }.also { println("Enir: ${it.size}") }
     }
 
     private suspend fun create(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry =

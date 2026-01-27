@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.eferraz.entities.FixedIncomeAssetType
-import com.eferraz.entities.FixedIncomeSubType
+import com.eferraz.entities.assets.FixedIncomeAssetType
+import com.eferraz.entities.assets.FixedIncomeSubType
 import kotlinx.datetime.LocalDate
 
 /**

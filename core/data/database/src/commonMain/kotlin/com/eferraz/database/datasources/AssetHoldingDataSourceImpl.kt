@@ -4,11 +4,11 @@ import com.eferraz.database.daos.AssetHoldingDao
 import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.OwnerDao
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
-import com.eferraz.entities.Asset
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.Brokerage
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.Owner
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.holdings.Owner
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [AssetHoldingDataSource::class])

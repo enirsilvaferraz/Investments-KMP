@@ -2,7 +2,7 @@ package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.IssuerDao
 import com.eferraz.database.entities.supports.IssuerEntity
-import com.eferraz.entities.Issuer
+import com.eferraz.entities.assets.Issuer
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [IssuerDataSource::class])

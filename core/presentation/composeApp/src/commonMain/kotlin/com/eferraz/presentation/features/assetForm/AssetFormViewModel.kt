@@ -2,7 +2,7 @@ package com.eferraz.presentation.features.assetForm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.usecases.GetAssetUseCase
 import com.eferraz.usecases.GetBrokeragesUseCase
 import com.eferraz.usecases.GetFinancialGoalsUseCase

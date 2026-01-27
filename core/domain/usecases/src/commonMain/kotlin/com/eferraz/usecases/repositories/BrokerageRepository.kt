@@ -1,6 +1,6 @@
 package com.eferraz.usecases.repositories
 
-import com.eferraz.entities.Brokerage
+import com.eferraz.entities.holdings.Brokerage
 
 public interface BrokerageRepository {
     public suspend fun getAll(): List<Brokerage>

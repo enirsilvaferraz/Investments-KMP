@@ -1,6 +1,5 @@
 package com.eferraz.presentation.features.transactions
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -9,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eferraz.entities.Asset
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.TableColumn
 

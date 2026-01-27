@@ -1,11 +1,11 @@
 package com.eferraz.presentation.features.assetForm
 
-import com.eferraz.entities.FixedIncomeAssetType
-import com.eferraz.entities.FixedIncomeSubType
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAssetType
-import com.eferraz.entities.Liquidity
-import com.eferraz.entities.VariableIncomeAssetType
+import com.eferraz.entities.assets.FixedIncomeAssetType
+import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAssetType
+import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.assets.VariableIncomeAssetType
 
 internal sealed class AssetFormIntent {
 

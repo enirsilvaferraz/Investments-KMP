@@ -1,7 +1,7 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.StockQuoteHistory
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.holdings.StockQuoteHistory
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository

@@ -2,7 +2,7 @@ package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.entities.supports.BrokerageEntity
-import com.eferraz.entities.Brokerage
+import com.eferraz.entities.holdings.Brokerage
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [BrokerageDataSource::class])

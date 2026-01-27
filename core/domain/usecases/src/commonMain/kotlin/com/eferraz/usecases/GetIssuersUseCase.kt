@@ -1,6 +1,6 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.Issuer
+import com.eferraz.entities.assets.Issuer
 import com.eferraz.usecases.repositories.IssuerRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

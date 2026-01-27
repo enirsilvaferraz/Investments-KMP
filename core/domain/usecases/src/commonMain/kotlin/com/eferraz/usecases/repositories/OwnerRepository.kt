@@ -1,6 +1,6 @@
 package com.eferraz.usecases.repositories
 
-import com.eferraz.entities.Owner
+import com.eferraz.entities.holdings.Owner
 
 public interface OwnerRepository {
     public suspend fun getAll(): List<Owner>

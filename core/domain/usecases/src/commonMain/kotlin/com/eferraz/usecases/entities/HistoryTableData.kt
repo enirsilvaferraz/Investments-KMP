@@ -1,12 +1,11 @@
 package com.eferraz.usecases.entities
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.FixedIncomeAssetType
-import com.eferraz.entities.FixedIncomeSubType
-import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.InvestmentFundAssetType
-import com.eferraz.entities.Liquidity
-import com.eferraz.entities.VariableIncomeAssetType
+import com.eferraz.entities.assets.FixedIncomeAssetType
+import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.entities.assets.InvestmentFundAssetType
+import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.assets.VariableIncomeAssetType
 import kotlinx.datetime.LocalDate
 
 /**

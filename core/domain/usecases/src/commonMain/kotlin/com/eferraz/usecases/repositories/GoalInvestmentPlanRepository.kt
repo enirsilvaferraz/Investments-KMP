@@ -1,6 +1,6 @@
 package com.eferraz.usecases.repositories
 
-import com.eferraz.entities.GoalInvestmentPlan
+import com.eferraz.entities.goals.GoalInvestmentPlan
 
 public interface GoalInvestmentPlanRepository {
     public suspend fun save(plan: GoalInvestmentPlan): Long

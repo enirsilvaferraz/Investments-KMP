@@ -1,9 +1,9 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.usecases.entities.AssetsTableData
 import com.eferraz.usecases.entities.FixedIncomeAssetsTableData
 import com.eferraz.usecases.entities.InvestmentFundAssetsTableData

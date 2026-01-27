@@ -1,10 +1,10 @@
 package com.eferraz.presentation.features.assetForm
 
-import com.eferraz.entities.Asset
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.usecases.entities.AssetFormData
 import com.eferraz.usecases.entities.FixedIncomeFormData
 import com.eferraz.usecases.entities.InvestmentFundFormData

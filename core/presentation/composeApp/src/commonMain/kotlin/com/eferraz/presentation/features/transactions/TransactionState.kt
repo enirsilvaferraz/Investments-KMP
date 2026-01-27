@@ -1,8 +1,8 @@
 package com.eferraz.presentation.features.transactions
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.AssetTransaction
-import com.eferraz.entities.TransactionType
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.entities.transactions.TransactionType
 
 internal data class TransactionState(
     val selectedHolding: AssetHolding? = null,

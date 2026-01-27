@@ -2,7 +2,7 @@ package com.eferraz.database.datasources
 
 import com.eferraz.database.daos.OwnerDao
 import com.eferraz.database.entities.supports.OwnerEntity
-import com.eferraz.entities.Owner
+import com.eferraz.entities.holdings.Owner
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [OwnerDataSource::class])

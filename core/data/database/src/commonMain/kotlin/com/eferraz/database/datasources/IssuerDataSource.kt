@@ -1,6 +1,6 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.Issuer
+import com.eferraz.entities.assets.Issuer
 
 public interface IssuerDataSource {
     public suspend fun getAll(): List<Issuer>

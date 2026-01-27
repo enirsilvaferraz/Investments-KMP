@@ -1,11 +1,11 @@
 package com.eferraz.presentation.features.history
 
-import com.eferraz.entities.Asset
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.FixedIncomeAssetType
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.FixedIncomeAssetType
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.presentation.helpers.Formatters.formated
 
 // Presentation Extensions for Assets

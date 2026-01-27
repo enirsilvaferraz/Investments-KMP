@@ -1,7 +1,7 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.Brokerage
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.OwnerRepository

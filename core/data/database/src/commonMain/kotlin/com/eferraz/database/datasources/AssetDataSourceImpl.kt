@@ -3,8 +3,8 @@ package com.eferraz.database.datasources
 import com.eferraz.database.daos.AssetDao
 import com.eferraz.database.mappers.toDomain
 import com.eferraz.database.mappers.toEntity
-import com.eferraz.entities.Asset
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.InvestmentCategory
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [AssetDataSource::class])

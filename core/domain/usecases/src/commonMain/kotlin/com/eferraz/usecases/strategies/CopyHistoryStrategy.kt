@@ -1,10 +1,10 @@
 package com.eferraz.usecases.strategies
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.usecases.GetQuotesUseCase
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository

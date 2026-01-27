@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eferraz.database.entities.supports.IssuerEntity
-import com.eferraz.entities.Liquidity
+import com.eferraz.entities.assets.Liquidity
 
 /**
  * Entidade Room para a tabela base assets.

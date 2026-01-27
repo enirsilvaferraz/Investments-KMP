@@ -1,6 +1,7 @@
 package com.eferraz.repositories
 
 import com.eferraz.database.datasources.FinancialGoalDataSource
+import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.usecases.repositories.FinancialGoalRepository
 import org.koin.core.annotation.Factory
 
@@ -9,7 +10,7 @@ internal class FinancialGoalRepositoryImpl(
     private val dataSource: FinancialGoalDataSource,
 ) : FinancialGoalRepository {
 
-    override suspend fun save(goal: com.eferraz.entities.FinancialGoal): Long = dataSource.save(goal)
+    override suspend fun save(goal: FinancialGoal): Long = dataSource.save(goal)
 
     override suspend fun getAll() = dataSource.getAll()
 

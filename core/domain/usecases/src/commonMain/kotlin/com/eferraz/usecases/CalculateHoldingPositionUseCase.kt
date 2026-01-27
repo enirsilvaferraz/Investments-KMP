@@ -1,13 +1,14 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.FixedIncomeTransaction
-import com.eferraz.entities.FundsTransaction
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.TransactionType
-import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.entities.VariableIncomeTransaction
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.transactions.FixedIncomeTransaction
+import com.eferraz.entities.transactions.FundsTransaction
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.transactions.TransactionType
+import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.entities.transactions.VariableIncomeTransaction
 import com.eferraz.usecases.repositories.AssetTransactionRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +68,7 @@ public class CalculateHoldingPositionUseCase(
      * - investedValue: Soma dos valores totais de todas as compras
      */
     private fun calculateVariableIncomePosition(
-        transactions: List<com.eferraz.entities.AssetTransaction>
+        transactions: List<AssetTransaction>
     ): Result {
         val variableIncomeTransactions = transactions.filterIsInstance<VariableIncomeTransaction>()
 
@@ -119,7 +120,7 @@ public class CalculateHoldingPositionUseCase(
      * - investedValue: Igual ao averageCost
      */
     private fun calculateFixedIncomeOrFundsPosition(
-        transactions: List<com.eferraz.entities.AssetTransaction>
+        transactions: List<AssetTransaction>
     ): Result {
         val fixedIncomeTransactions = transactions.filterIsInstance<FixedIncomeTransaction>()
         val fundsTransactions = transactions.filterIsInstance<FundsTransaction>()

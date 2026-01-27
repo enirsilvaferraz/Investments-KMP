@@ -1,6 +1,6 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.Owner
+import com.eferraz.entities.holdings.Owner
 
 public interface OwnerDataSource {
     public suspend fun getAll(): List<Owner>

@@ -1,10 +1,10 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.entities.rules.TransactionBalance
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.entities.InvestmentFundHistoryTableData
@@ -33,7 +33,9 @@ public class GetHistoryTableDataUseCase(
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
 
-        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, param.category)).getOrNull() ?: emptyList()
+        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, param.category))
+            .onFailure { println("Error: ${it.message}") }
+            .getOrNull() ?: emptyList()
 
         return results.map { result ->
 

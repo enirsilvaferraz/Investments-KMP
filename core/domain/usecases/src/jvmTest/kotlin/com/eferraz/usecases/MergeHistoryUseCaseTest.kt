@@ -1,8 +1,7 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.usecases.TestDataFactory.createAssetHolding
 import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
 import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry

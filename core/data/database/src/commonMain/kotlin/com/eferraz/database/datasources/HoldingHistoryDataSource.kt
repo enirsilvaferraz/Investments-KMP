@@ -1,7 +1,7 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.HoldingHistoryEntry
 import kotlinx.datetime.YearMonth
 
 public interface HoldingHistoryDataSource {

@@ -1,6 +1,6 @@
 package com.eferraz.repositories
 
-import com.eferraz.entities.StockQuoteHistory
+import com.eferraz.entities.holdings.StockQuoteHistory
 import com.eferraz.network.datasources.BrApiQuoteDataSource
 import com.eferraz.usecases.repositories.StockQuoteHistoryRepository
 import kotlinx.datetime.YearMonth

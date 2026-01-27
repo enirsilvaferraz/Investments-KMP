@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.eferraz.entities.VariableIncomeAssetType
+import com.eferraz.entities.assets.VariableIncomeAssetType
 
 /**
  * Entidade Room para a tabela variable_income_assets.

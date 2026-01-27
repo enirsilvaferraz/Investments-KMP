@@ -1,11 +1,10 @@
 package com.eferraz.presentation.features.transactions
 
-import com.eferraz.entities.AssetTransaction
-import com.eferraz.entities.FixedIncomeTransaction
-import com.eferraz.entities.FundsTransaction
-import com.eferraz.entities.TransactionType
-import com.eferraz.entities.VariableIncomeTransaction
-import com.eferraz.presentation.helpers.Formatters.formated
+import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.entities.transactions.FixedIncomeTransaction
+import com.eferraz.entities.transactions.FundsTransaction
+import com.eferraz.entities.transactions.TransactionType
+import com.eferraz.entities.transactions.VariableIncomeTransaction
 import com.eferraz.presentation.helpers.currencyFormat
 import kotlinx.datetime.LocalDate
 

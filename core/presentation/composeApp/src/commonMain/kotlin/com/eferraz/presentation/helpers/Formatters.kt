@@ -1,16 +1,16 @@
 package com.eferraz.presentation.helpers
 
-import com.eferraz.entities.Asset
-import com.eferraz.entities.FixedIncomeAsset
-import com.eferraz.entities.FixedIncomeAssetType
-import com.eferraz.entities.FixedIncomeSubType
-import com.eferraz.entities.InvestmentCategory
-import com.eferraz.entities.InvestmentFundAsset
-import com.eferraz.entities.InvestmentFundAssetType
-import com.eferraz.entities.Liquidity
-import com.eferraz.entities.TransactionType
-import com.eferraz.entities.VariableIncomeAsset
-import com.eferraz.entities.VariableIncomeAssetType
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.FixedIncomeAssetType
+import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.InvestmentFundAssetType
+import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.transactions.TransactionType
+import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.assets.VariableIncomeAssetType
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.format

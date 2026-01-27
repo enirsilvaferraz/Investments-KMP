@@ -1,6 +1,6 @@
 package com.eferraz.network.datasources
 
-import com.eferraz.entities.StockQuoteHistory
+import com.eferraz.entities.holdings.StockQuoteHistory
 import com.eferraz.network.TokenConfig
 import com.eferraz.network.core.ClientConfig
 import com.eferraz.network.responses.BrApiQuoteResponse

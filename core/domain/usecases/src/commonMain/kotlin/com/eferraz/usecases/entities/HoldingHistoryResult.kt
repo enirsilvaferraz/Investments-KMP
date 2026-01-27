@@ -1,8 +1,8 @@
 package com.eferraz.usecases.entities
 
-import com.eferraz.entities.AssetHolding
-import com.eferraz.entities.HoldingHistoryEntry
-import com.eferraz.entities.rules.Appreciation
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.entities.holdings.Appreciation
 
 /**
  * Representa o resultado do histórico de uma posição de ativo.

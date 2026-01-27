@@ -1,7 +1,7 @@
 package com.eferraz.usecases.repositories
 
-import com.eferraz.entities.Asset
-import com.eferraz.entities.InvestmentCategory
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.InvestmentCategory
 
 public interface AssetRepository {
     public suspend fun getAll(): List<Asset>
