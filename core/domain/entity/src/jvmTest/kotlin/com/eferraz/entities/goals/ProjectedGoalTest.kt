@@ -7,115 +7,73 @@ import kotlin.test.assertFailsWith
 class ProjectedGoalTest {
 
     @Test
-    fun `GIVEN current value, monthly contribution and return rate WHEN calculating THEN should return correct projected value`() {
+    fun `deve calcular valor projetado corretamente com valor atual, aporte e rentabilidade`() {
 
-        // GIVEN
-        val currentValue = 10000.0
-        val monthlyReturnRate = 0.80
-        val monthlyContribution = 1500.0
-
-        // WHEN
         val result = ProjectedGoal.calculate(
-            currentValue = currentValue,
-            appreciationRate = monthlyReturnRate,
-            contribution = monthlyContribution
+            currentValue = 10000.0,
+            appreciationRate = 0.80,
+            contribution = 1500.0
         )
 
-        // THEN
         Assert.assertEquals(11592.0, result.value, 0.01)
     }
 
     @Test
-    fun `GIVEN only return rate without contribution WHEN calculating THEN should return correct projected value`() {
+    fun `deve calcular valor projetado corretamente apenas com rentabilidade`() {
 
-        // GIVEN
-        val currentValue = 50000.0
-        val monthlyReturnRate = 1.0
-        val monthlyContribution = 0.0
-
-        // WHEN
         val result = ProjectedGoal.calculate(
-            currentValue = currentValue,
-            appreciationRate = monthlyReturnRate,
-            contribution = monthlyContribution
+            currentValue = 50000.0,
+            appreciationRate = 1.0,
+            contribution = 0.0
         )
 
-        // THEN
         Assert.assertEquals(50500.0, result.value, 0.01)
     }
 
     @Test
-    fun `GIVEN only contribution without return rate WHEN calculating THEN should return correct projected value`() {
+    fun `deve calcular valor projetado corretamente apenas com aporte`() {
 
-        // GIVEN
-        val currentValue = 5000.0
-        val monthlyReturnRate = 0.0
-        val monthlyContribution = 2000.0
-
-        // WHEN
         val result = ProjectedGoal.calculate(
-            currentValue = currentValue,
-            appreciationRate = monthlyReturnRate,
-            contribution = monthlyContribution
+            currentValue = 5000.0,
+            appreciationRate = 0.0,
+            contribution = 2000.0
         )
 
-        // THEN
         Assert.assertEquals(7000.0, result.value, 0.01)
     }
 
     @Test
-    fun `GIVEN zero current value with contribution and return rate WHEN calculating THEN should return correct projected value`() {
+    fun `deve calcular valor projetado corretamente com valor atual zero`() {
 
-        // GIVEN
-        val currentValue = 0.0
-        val monthlyReturnRate = 0.80
-        val monthlyContribution = 1500.0
-
-        // WHEN
         val result = ProjectedGoal.calculate(
-            currentValue = currentValue,
-            appreciationRate = monthlyReturnRate,
-            contribution = monthlyContribution
+            currentValue = 0.0,
+            appreciationRate = 0.80,
+            contribution = 1500.0
         )
 
-        // THEN
         Assert.assertEquals(1512.0, result.value, 0.01)
     }
 
-
     @Test
-    fun `GIVEN all zero values WHEN calculating THEN should return zero`() {
+    fun `deve retornar zero quando todos os valores forem zero`() {
 
-        // GIVEN
-        val currentValue = 0.0
-        val monthlyReturnRate = 0.0
-        val monthlyContribution = 0.0
-
-        // WHEN
         val result = ProjectedGoal.calculate(
-            currentValue = currentValue,
-            appreciationRate = monthlyReturnRate,
-            contribution = monthlyContribution
+            currentValue = 0.0,
+            appreciationRate = 0.0,
+            contribution = 0.0
         )
 
-        // THEN
         Assert.assertEquals(0.0, result.value, 0.001)
     }
 
     @Test
-    fun `GIVEN negative current value WHEN calculating THEN should throw IllegalArgumentException`() {
+    fun `deve lancar excecao quando valor atual for negativo`() {
 
-        // GIVEN
-        val currentValue = -1000.0
-        val monthlyReturnRate = 0.80
-        val monthlyContribution = 1500.0
-
-        // WHEN / THEN
         val exception = assertFailsWith<IllegalArgumentException> {
             ProjectedGoal.calculate(
-                currentValue = currentValue,
-                appreciationRate = monthlyReturnRate,
-                contribution = monthlyContribution
+                currentValue = -1000.0,
+                appreciationRate = 0.80,
+                contribution = 1500.0
             )
         }
 
@@ -123,19 +81,13 @@ class ProjectedGoalTest {
     }
 
     @Test
-    fun `GIVEN negative monthly return rate WHEN calculating THEN should throw IllegalArgumentException`() {
+    fun `deve lancar excecao quando taxa de rentabilidade for negativa`() {
 
-        // GIVEN
-        val currentValue = 10000.0
-        val monthlyReturnRate = -0.80
-        val monthlyContribution = 1500.0
-
-        // WHEN / THEN
         val exception = assertFailsWith<IllegalArgumentException> {
             ProjectedGoal.calculate(
-                currentValue = currentValue,
-                appreciationRate = monthlyReturnRate,
-                contribution = monthlyContribution
+                currentValue = 10000.0,
+                appreciationRate = -0.80,
+                contribution = 1500.0
             )
         }
 
@@ -143,19 +95,13 @@ class ProjectedGoalTest {
     }
 
     @Test
-    fun `GIVEN negative monthly contribution WHEN calculating THEN should throw IllegalArgumentException`() {
+    fun `deve lancar excecao quando aporte mensal for negativo`() {
 
-        // GIVEN
-        val currentValue = 10000.0
-        val monthlyReturnRate = 0.80
-        val monthlyContribution = -1500.0
-
-        // WHEN / THEN
         val exception = assertFailsWith<IllegalArgumentException> {
             ProjectedGoal.calculate(
-                currentValue = currentValue,
-                appreciationRate = monthlyReturnRate,
-                contribution = monthlyContribution
+                currentValue = 10000.0,
+                appreciationRate = 0.80,
+                contribution = -1500.0
             )
         }
 
@@ -163,23 +109,17 @@ class ProjectedGoalTest {
     }
 
     @Test
-    fun `GIVEN all negative values WHEN calculating THEN should throw IllegalArgumentException for currentValue`() {
+    fun `deve lancar excecao para valor atual quando todos os valores forem negativos`() {
 
-        // GIVEN - deve falhar na primeira validação (currentValue)
-        val currentValue = -10000.0
-        val monthlyReturnRate = -0.80
-        val monthlyContribution = -1500.0
-
-        // WHEN / THEN
+        // Deve falhar na primeira validação (currentValue)
         val exception = assertFailsWith<IllegalArgumentException> {
             ProjectedGoal.calculate(
-                currentValue = currentValue,
-                appreciationRate = monthlyReturnRate,
-                contribution = monthlyContribution
+                currentValue = -10000.0,
+                appreciationRate = -0.80,
+                contribution = -1500.0
             )
         }
 
-        // Deve falhar na primeira validação (currentValue)
         Assert.assertEquals("O valor atual deve ser maior que zero. Valor recebido: -10000.0", exception.message)
     }
 }

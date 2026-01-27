@@ -7,153 +7,107 @@ import kotlin.test.assertFailsWith
 
 class CNPJTest {
 
-    // --- Casos Válidos ---
-
     @Test
-    fun `GIVEN valid CNPJ with mask WHEN creating CNPJ THEN should create successfully`() {
-        // GIVEN
-        val cnpjWithMask = "12.345.678/0001-90"
+    fun `deve criar CNPJ com mascara valida`() {
 
-        // WHEN
-        val cnpj = CNPJ(cnpjWithMask)
+        val cnpj = CNPJ("12.345.678/0001-90")
 
-        // THEN
-        assertEquals(cnpjWithMask, cnpj.get())
+        assertEquals("12.345.678/0001-90", cnpj.get())
     }
 
     @Test
-    fun `GIVEN valid CNPJ without mask WHEN creating CNPJ THEN should create successfully`() {
-        // GIVEN
-        val cnpjWithoutMask = "12345678000190"
+    fun `deve criar CNPJ sem mascara valida`() {
 
-        // WHEN
-        val cnpj = CNPJ(cnpjWithoutMask)
+        val cnpj = CNPJ("12345678000190")
 
-        // THEN
-        assertEquals(cnpjWithoutMask, cnpj.get())
+        assertEquals("12345678000190", cnpj.get())
     }
 
     @Test
-    fun `GIVEN valid CNPJ with mask different digits WHEN creating CNPJ THEN should create successfully`() {
-        // GIVEN
-        val cnpjWithMask = "11.222.333/4444-55"
+    fun `deve criar CNPJ com mascara e digitos diferentes`() {
 
-        // WHEN
-        val cnpj = CNPJ(cnpjWithMask)
+        val cnpj = CNPJ("11.222.333/4444-55")
 
-        // THEN
-        assertEquals(cnpjWithMask, cnpj.get())
+        assertEquals("11.222.333/4444-55", cnpj.get())
     }
 
-    // --- Casos Inválidos ---
-
     @Test
-    fun `GIVEN empty string WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val emptyString = ""
+    fun `deve lancar excecao para string vazia`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(emptyString)
+            CNPJ("")
         }
     }
 
     @Test
-    fun `GIVEN CNPJ with less than 14 digits WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val shortCnpj = "1234567890123" // 13 dígitos
+    fun `deve lancar excecao para CNPJ com menos de 14 digitos`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(shortCnpj)
+            CNPJ("1234567890123") // 13 dígitos
         }
     }
 
     @Test
-    fun `GIVEN CNPJ with more than 14 digits WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val longCnpj = "123456789012345" // 15 dígitos
+    fun `deve lancar excecao para CNPJ com mais de 14 digitos`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(longCnpj)
+            CNPJ("123456789012345") // 15 dígitos
         }
     }
 
     @Test
-    fun `GIVEN CNPJ with incorrect mask format WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val incorrectMask = "12-345-678/0001.90" // máscara incorreta
+    fun `deve lancar excecao para mascara incorreta`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(incorrectMask)
+            CNPJ("12-345-678/0001.90") // máscara incorreta
         }
     }
 
     @Test
-    fun `GIVEN CNPJ with partial mask WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val partialMask = "12.345.678/0001" // máscara incompleta
+    fun `deve lancar excecao para mascara incompleta`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(partialMask)
+            CNPJ("12.345.678/0001") // máscara incompleta
         }
     }
 
     @Test
-    fun `GIVEN CNPJ with non-numeric characters WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val cnpjWithLetters = "12.345.678/0001-AB" // contém letras
+    fun `deve lancar excecao para CNPJ com caracteres nao numericos`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(cnpjWithLetters)
+            CNPJ("12.345.678/0001-AB") // contém letras
         }
     }
 
     @Test
-    fun `GIVEN CNPJ with spaces WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val cnpjWithSpaces = "12.345.678/0001 90" // contém espaço
+    fun `deve lancar excecao para CNPJ com espacos`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(cnpjWithSpaces)
+            CNPJ("12.345.678/0001 90") // contém espaço
         }
     }
 
     @Test
-    fun `GIVEN CNPJ with wrong separator positions WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val wrongSeparators = "123.45678/0001-90" // separadores em posições erradas
+    fun `deve lancar excecao para separadores em posicoes erradas`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(wrongSeparators)
+            CNPJ("123.45678/0001-90") // separadores em posições erradas
         }
     }
 
     @Test
-    fun `GIVEN CNPJ with mask but wrong number of digits WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val wrongDigits = "12.345.678/000-90" // número incorreto de dígitos na máscara
+    fun `deve lancar excecao para mascara com numero incorreto de digitos`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(wrongDigits)
+            CNPJ("12.345.678/000-90") // número incorreto de dígitos na máscara
         }
     }
 
     @Test
-    fun `GIVEN string with only special characters WHEN creating CNPJ THEN should throw IllegalArgumentException`() {
-        // GIVEN
-        val onlySpecialChars = "..//--"
+    fun `deve lancar excecao para string com apenas caracteres especiais`() {
 
-        // WHEN & THEN
         assertFailsWith<IllegalArgumentException> {
-            CNPJ(onlySpecialChars)
+            CNPJ("..//--")
         }
     }
 }

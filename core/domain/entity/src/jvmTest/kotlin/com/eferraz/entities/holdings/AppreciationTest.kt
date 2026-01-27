@@ -6,9 +6,8 @@ import org.junit.Test
 class AppreciationTest {
 
     @Test
-    fun `GIVEN holding appreciation without transactions WHEN calculating THEN should return correct profit and percentage`() {
+    fun `deve calcular valorizacao corretamente sem transacoes`() {
 
-        // WHEN
         val result = Appreciation.calculate(
             previousValue = 1000.0,
             currentValue = 1100.0,
@@ -16,15 +15,13 @@ class AppreciationTest {
             withdrawals = 0.0
         )
 
-        // THEN
         assertEquals(100.0, result.value, 0.001)
         assertEquals(10.0, result.percentage, 0.001)
     }
 
     @Test
-    fun `GIVEN holding appreciation with purchase transaction WHEN calculating THEN should return correct profit and percentage`() {
+    fun `deve calcular valorizacao corretamente com transacao de compra`() {
 
-        // WHEN
         val result = Appreciation.calculate(
             previousValue = 1000.0,
             currentValue = 1600.0,
@@ -32,15 +29,13 @@ class AppreciationTest {
             withdrawals = 0.0
         )
 
-        // THEN
         assertEquals(100.0, result.value, 0.001)
         assertEquals(10.0, result.percentage, 0.001)
     }
 
     @Test
-    fun `GIVEN holding appreciation with sale transaction WHEN calculating THEN should return correct profit and percentage`() {
+    fun `deve calcular valorizacao corretamente com transacao de venda`() {
 
-        // WHEN
         val result = Appreciation.calculate(
             previousValue = 1000.0,
             currentValue = 900.0,
@@ -48,15 +43,13 @@ class AppreciationTest {
             withdrawals = 200.0
         )
 
-        // THEN
         assertEquals(100.0, result.value, 0.001)
         assertEquals(10.0, result.percentage, 0.001)
     }
 
     @Test
-    fun `GIVEN day trade transaction resulting in profit WHEN calculating THEN should return correct profit and percentage`() {
+    fun `deve calcular valorizacao corretamente em day trade com lucro`() {
 
-        // WHEN
         val result = Appreciation.calculate(
             previousValue = 0.0,
             currentValue = 0.0,
@@ -64,15 +57,13 @@ class AppreciationTest {
             withdrawals = 1100.0
         )
 
-        // THEN
         assertEquals(100.0, result.value, 0.001)
         assertEquals(10.0, result.percentage, 0.001)
     }
 
     @Test
-    fun `GIVEN holding depreciation without transactions WHEN calculating THEN should return correct loss and negative percentage`() {
+    fun `deve calcular desvalorizacao corretamente sem transacoes`() {
 
-        // WHEN
         val result = Appreciation.calculate(
             previousValue = 1000.0,
             currentValue = 900.0,
@@ -80,15 +71,13 @@ class AppreciationTest {
             withdrawals = 0.0
         )
 
-        // THEN
         assertEquals(-100.0, result.value, 0.001)
         assertEquals(-10.0, result.percentage, 0.001)
     }
 
     @Test
-    fun `GIVEN holding depreciation with purchase transaction WHEN calculating THEN should return correct loss and negative percentage`() {
+    fun `deve calcular desvalorizacao corretamente com transacao de compra`() {
 
-        // WHEN
         val result = Appreciation.calculate(
             previousValue = 1000.0,
             currentValue = 1400.0,
@@ -96,15 +85,13 @@ class AppreciationTest {
             withdrawals = 0.0
         )
 
-        // THEN
         assertEquals(-100.0, result.value, 0.001)
         assertEquals(-10.0, result.percentage, 0.001)
     }
 
     @Test
-    fun `GIVEN holding depreciation with sale transaction WHEN calculating THEN should return correct loss and negative percentage`() {
+    fun `deve calcular desvalorizacao corretamente com transacao de venda`() {
 
-        // WHEN
         val result = Appreciation.calculate(
             previousValue = 1000.0,
             currentValue = 700.0,
@@ -112,18 +99,13 @@ class AppreciationTest {
             withdrawals = 200.0
         )
 
-        // THEN
         assertEquals(-100.0, result.value, 0.001)
         assertEquals(-10.0, result.percentage, 0.001)
     }
 
-    // --- 3. Edge Cases Tests ---
-
-
     @Test
-    fun `GIVEN previous value zero and no transactions WHEN calculating THEN should return zero`() {
+    fun `deve retornar zero quando valor anterior for zero e sem transacoes`() {
 
-        // WHEN
         val result = Appreciation.calculate(
             previousValue = 0.0,
             currentValue = 0.0,
@@ -131,7 +113,6 @@ class AppreciationTest {
             withdrawals = 0.0
         )
 
-        // THEN
         assertEquals(0.0, result.value, 0.001)
         assertEquals(0.0, result.percentage, 0.001)
     }
