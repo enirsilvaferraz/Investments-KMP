@@ -1,0 +1,211 @@
+---
+description: Padrões de testes automatizados do projeto Investments-KMP
+globs: **/*Test.kt
+alwaysApply: false
+---
+
+# Padrões de Testes Automatizados
+
+## Estrutura e Organização
+
+### Nomenclatura de Classes
+- Classes de teste devem terminar com `Test` (ex: `ProjectedGoalTest`, `AppreciationTest`)
+- Nome deve refletir a classe ou funcionalidade sendo testada
+
+### Nomenclatura de Métodos
+Use backticks com descrição em português no formato `deve [ação] quando/corretamente/para [contexto]`:
+
+```kotlin
+@Test
+fun `deve calcular valor projetado corretamente com valor atual, aporte e rentabilidade`() { }
+
+@Test
+fun `deve lancar excecao quando valor atual for negativo`() { }
+
+@Test
+fun `deve retornar zero quando todos os valores forem zero`() { }
+```
+
+## Bibliotecas e Imports
+
+### JUnit + Kotlin Test
+```kotlin
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import kotlin.test.assertFailsWith
+```
+
+### MockK (quando necessário)
+```kotlin
+import io.mockk.every
+import io.mockk.mockk
+```
+
+## Padrões de Asserções
+
+### Comparação de Valores Decimais
+Sempre use delta/epsilon para comparar valores `Double`:
+
+```kotlin
+// ✅ CORRETO - com delta
+assertEquals(100.0, result.value, 0.001)
+assertEquals(10.0, result.percentage, 0.01)
+
+// ❌ INCORRETO - sem delta
+assertEquals(100.0, result.value)
+```
+
+### Valores Múltiplos
+Verifique todas as propriedades relevantes:
+
+```kotlin
+assertEquals(100.0, result.value, 0.001)
+assertEquals(10.0, result.percentage, 0.001)
+```
+
+### Teste de Exceções
+Use `assertFailsWith` do kotlin.test e verifique a mensagem:
+
+```kotlin
+val exception = assertFailsWith<IllegalArgumentException> {
+    ProjectedGoal.calculate(
+        currentValue = -1000.0,
+        appreciationRate = 0.80,
+        contribution = 1500.0
+    )
+}
+
+assertEquals("O valor atual deve ser maior que zero. Valor recebido: -1000.0", exception.message)
+```
+
+## Documentação em Testes
+
+### Comentários Explicativos
+Adicione comentários para cálculos complexos:
+
+```kotlin
+@Test
+fun `deve calcular contribuicoes corretamente para compras de renda variavel`() {
+    // Compra 1: 50 ações × R$ 56,36 = R$ 2.818,00
+    // Compra 2: 50 ações × R$ 56,36 = R$ 2.818,00
+    // Compra 3: 30 ações × R$ 58,00 = R$ 1.740,00
+    // Total: R$ 7.376,00
+    val result = TransactionBalance.calculate(
+        listOf(
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 30.0, 58.0)
+        )
+    )
+
+    assertEquals(7376.00, result.contributions, 0.01)
+}
+```
+
+## Helpers e Mocks
+
+### Funções Helper
+Crie funções privadas para simplificar a criação de objetos complexos:
+
+```kotlin
+private fun createVariableIncomeTransaction(
+    type: TransactionType,
+    quantity: Double,
+    unitPrice: Double,
+    date: LocalDate = LocalDate(2025, 1, 15)
+): VariableIncomeTransaction {
+    return mockk {
+        every { holding } returns this@TransactionBalanceTest.holding
+        every { this@mockk.type } returns type
+        every { this@mockk.quantity } returns quantity
+        every { this@mockk.unitPrice } returns unitPrice
+        every { totalValue } returns quantity * unitPrice
+        every { this@mockk.date } returns date
+        every { id } returns 0L
+    }
+}
+```
+
+### Mocks Compartilhados
+Declare mocks reutilizáveis como propriedades da classe:
+
+```kotlin
+private val holding = mockk<AssetHolding> {
+    every { id } returns 1L
+}
+```
+
+## Cobertura de Cenários
+
+### Casos Obrigatórios
+Sempre teste:
+
+1. **Caso Normal**: Cenário típico de uso
+```kotlin
+@Test
+fun `deve calcular crescimento corretamente com valorizacao pura sem contribuicoes`() { }
+```
+
+2. **Casos de Borda**: Valores zero, limites
+```kotlin
+@Test
+fun `deve retornar zero quando todos os valores forem zero`() { }
+
+@Test
+fun `deve calcular valor projetado corretamente com valor atual zero`() { }
+```
+
+3. **Casos de Exceção**: Validações e erros
+```kotlin
+@Test
+fun `deve lancar excecao quando valor atual for negativo`() { }
+
+@Test
+fun `deve lancar excecao para string vazia`() { }
+```
+
+4. **Combinações**: Diferentes combinações de entradas
+```kotlin
+@Test
+fun `deve calcular crescimento corretamente com valorizacao e contribuicao`() { }
+
+@Test
+fun `deve calcular crescimento corretamente com valorizacao e resgate`() { }
+```
+
+### Ordem dos Testes
+Organize na sequência:
+1. Casos normais/típicos
+2. Variações com diferentes parâmetros
+3. Casos de borda (zeros, limites)
+4. Casos de exceção/erro
+
+## Estrutura Arrange-Act-Assert
+
+Mantenha a estrutura implícita (sem comentários):
+
+```kotlin
+@Test
+fun `deve calcular valor projetado corretamente`() {
+    // Arrange (implícito)
+    val result = ProjectedGoal.calculate(  // Act
+        currentValue = 10000.0,
+        appreciationRate = 0.80,
+        contribution = 1500.0
+    )
+
+    // Assert
+    assertEquals(11592.0, result.value, 0.01)
+}
+```
+
+## Precisão de Delta
+
+Use deltas apropriados para o contexto:
+- `0.001` para valores precisos (percentuais, pequenos valores)
+- `0.01` para valores monetários (centavos)
+
+```kotlin
+assertEquals(100.0, result.value, 0.001)      // Valor preciso
+assertEquals(7376.00, result.balance, 0.01)   // Valor monetário
+```
