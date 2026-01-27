@@ -35,8 +35,8 @@ public data class Appreciation private constructor(
 
             val balance = contributions - withdrawals
 
-            require(previousValue > 0 || balance != 0.0) {
-                "Se valor anterior menor ou igual a zero, deve haver balanço positivo"
+            if (previousValue == 0.0 && balance == 0.0) {
+                return Appreciation(value = 0.0, percentage = 0.0)
             }
 
             val appreciation = currentValue - previousValue - balance

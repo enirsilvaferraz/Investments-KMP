@@ -53,8 +53,10 @@ public class Growth private constructor(
             withdrawals: Double,
         ): Growth {
 
-            require(previousValue > 0 || contributions > 0) {
-                "Se valor anterior menor ou igual a zero, deve haver balanço positivo"
+            val balance = contributions - withdrawals
+
+            if (previousValue == 0.0 && balance == 0.0) {
+                return Growth(value = 0.0, percentage = 0.0)
             }
 
             // Define qual é o valor anterior para o cálculo:
