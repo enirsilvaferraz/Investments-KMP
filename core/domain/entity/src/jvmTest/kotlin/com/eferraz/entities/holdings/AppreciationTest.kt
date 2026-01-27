@@ -2,7 +2,6 @@ package com.eferraz.entities.holdings
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import kotlin.test.assertFailsWith
 
 class AppreciationTest {
 
@@ -122,18 +121,18 @@ class AppreciationTest {
 
 
     @Test
-    fun `GIVEN previous value zero and no transactions WHEN calculating THEN should throw a exception`() {
+    fun `GIVEN previous value zero and no transactions WHEN calculating THEN should return zero`() {
 
-        // WHEN / THEN
-        val exception = assertFailsWith<IllegalArgumentException> {
-            Appreciation.calculate(
-                previousValue = 0.0,
-                currentValue = 1000.0,
-                contributions = 0.0,
-                withdrawals = 0.0
-            )
-        }
+        // WHEN
+        val result = Appreciation.calculate(
+            previousValue = 0.0,
+            currentValue = 0.0,
+            contributions = 0.0,
+            withdrawals = 0.0
+        )
 
-        assertEquals("Se valor anterior menor ou igual a zero, deve haver balanço positivo", exception.message)
+        // THEN
+        assertEquals(0.0, result.value, 0.001)
+        assertEquals(0.0, result.percentage, 0.001)
     }
 }

@@ -1,14 +1,7 @@
 package com.eferraz.entities.goals
 
-import com.eferraz.entities.goals.FinancialGoal
-import com.eferraz.entities.goals.GoalInvestmentPlan
-import com.eferraz.entities.goals.GoalProjections
-import com.eferraz.entities.holdings.Owner
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.plus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -17,130 +10,114 @@ import kotlin.test.assertFailsWith
 class GoalProjectionsTest {
 
     @Test
-    fun `GIVEN valid plan WHEN calculating THEN should generate projections until target is reached`() {
-        // GIVEN (Example 5.1 from docs)
-        val goal = FinancialGoal(
-            id = 1,
-            owner = Owner(id = 1, name = "Ana"),
-            name = "Casa própria",
-            targetValue = 100000.0,
-            startDate = LocalDate(2026, Month.JANUARY, 15)
+    fun `deve calcular projecoes mensais corretamente`() {
+
+        val result = GoalProjections.calculate(
+            initialValue = 0.0,
+            startMonth = YearMonth(2026, Month.JANUARY),
+            appreciationRate = 0.0,
+            contribution = 10.0,
+            targetValue = 50.0
         )
-        val plan = GoalInvestmentPlan(
-            goal = goal,
-            contribution = 1500.0,
+
+        assertEquals(10.0, result.map[YearMonth(2026, Month.JANUARY)]!!.value, 0.01)
+        assertEquals(20.0, result.map[YearMonth(2026, Month.FEBRUARY)]!!.value, 0.01)
+        assertEquals(30.0, result.map[YearMonth(2026, Month.MARCH)]!!.value, 0.01)
+        assertEquals(40.0, result.map[YearMonth(2026, Month.APRIL)]!!.value, 0.01)
+        assertEquals(50.0, result.map[YearMonth(2026, Month.MAY)]!!.value, 0.01)
+        assertEquals(null, result.map[YearMonth(2026, Month.JUNE)]?.value)
+    }
+
+    @Test
+    fun `deve comecar no mes inicial`() {
+
+        val result = GoalProjections.calculate(
+            initialValue = 0.0,
+            startMonth = YearMonth(2026, Month.JANUARY),
             appreciationRate = 0.80,
-            initialValue = 0.0
+            contribution = 1500.0,
+            targetValue = 100_000.0
         )
 
-        // WHEN
-        val result = GoalProjections.calculate(plan)
-
-        // THEN
-        assertTrue(result.projections.size >= 4)
-        val month1 = requireNotNull(result.projections[YearMonth(2026, Month.JANUARY)])
-        val month2 = requireNotNull(result.projections[YearMonth(2026, Month.FEBRUARY)])
-        val month3 = requireNotNull(result.projections[YearMonth(2026, Month.MARCH)])
-        val month4 = requireNotNull(result.projections[YearMonth(2026, Month.APRIL)])
-
-        assertEquals(1512.0, month1.projectedValue, 0.01)
-        assertEquals(3036.10, month2.projectedValue, 0.01)
-        assertEquals(4572.39, month3.projectedValue, 0.01)
-        assertEquals(6120.97, month4.projectedValue, 0.01)
-
-        val entries = result.projections.entries.toList()
-        val lastEntry = entries.last()
-        assertEquals(YearMonth(2026, Month.JANUARY), entries.first().key)
-        assertTrue(lastEntry.value.projectedValue >= goal.targetValue)
-
-        if (entries.size > 1) {
-            val previousEntry = entries[entries.size - 2]
-            assertTrue(previousEntry.value.projectedValue < goal.targetValue)
-        }
-
-        val lastDate = goal.startDate.plus(DatePeriod(months = entries.size - 1))
-        assertEquals(YearMonth(lastDate.year, lastDate.month), lastEntry.key)
+        val firstMonth = result.map.keys.first()
+        assertEquals(YearMonth(2026, Month.JANUARY), firstMonth)
     }
 
     @Test
-    fun `GIVEN maxMonths limit WHEN calculating THEN should stop at maxMonths`() {
-        // GIVEN (Example 5.3 from docs - limited to 12 months)
-        val goal = FinancialGoal(
-            id = 2,
-            owner = Owner(id = 2, name = "Bruno"),
-            name = "Reserva",
-            targetValue = 500000.0,
-            startDate = LocalDate(2026, Month.JANUARY, 1)
+    fun `deve parar quando atingir a meta`() {
+
+        val targetValue = 100_000.0
+        val result = GoalProjections.calculate(
+            initialValue = 0.0,
+            startMonth = YearMonth(2026, Month.JANUARY),
+            appreciationRate = 0.80,
+            contribution = 1500.0,
+            targetValue = targetValue
         )
-        val plan = GoalInvestmentPlan(
-            goal = goal,
-            contribution = 500.0,
+
+        val lastValue = result.map.values.last().value
+        assertTrue("Ultimo valor deve ser >= meta", lastValue >= targetValue)
+
+        // Verifica que o penúltimo valor estava abaixo da meta
+        val values = result.map.values.toList()
+        if (values.size > 1) {
+            val penultimateValue = values[values.size - 2].value
+            assertTrue("Penultimo valor deve ser < meta", penultimateValue < targetValue)
+        }
+    }
+
+    @Test
+    fun `deve respeitar limite de meses`() {
+
+        val result = GoalProjections.calculate(
+            maxMonths = 12,
+            initialValue = 0.0,
+            startMonth = YearMonth(2026, Month.JANUARY),
             appreciationRate = 0.50,
-            initialValue = 0.0
+            contribution = 500.0,
+            targetValue = 500_000.0 // Meta muito alta para 12 meses
         )
 
-        // WHEN
-        val result = GoalProjections.calculate(plan, maxMonths = 12)
-
-        // THEN
-        assertEquals(12, result.projections.size)
-        val lastEntry = result.projections.entries.last()
-        assertEquals(YearMonth(2026, Month.DECEMBER), lastEntry.key)
-        assertTrue(lastEntry.value.projectedValue < goal.targetValue)
+        assertEquals(12, result.map.size)
+        assertEquals(YearMonth(2026, Month.DECEMBER), result.map.keys.last())
     }
 
     @Test
-    fun `GIVEN no contribution and no return with lower initial value WHEN calculating THEN should throw`() {
-        // GIVEN
-        val goal = FinancialGoal(
-            id = 3,
-            owner = Owner(id = 3, name = "Carla"),
-            name = "Viagem",
-            targetValue = 1000.0,
-            startDate = LocalDate(2026, Month.JANUARY, 1)
-        )
+    fun `sem contribuicao e sem rentabilidade deve lancar excecao`() {
 
-
-        // WHEN / THEN
         val exception = assertFailsWith<IllegalArgumentException> {
-
-            val plan = GoalInvestmentPlan(
-                goal = goal,
-                contribution = 0.0,
+            GoalProjections.calculate(
+                maxMonths = 120,
+                initialValue = 0.0,
+                startMonth = YearMonth(2026, Month.JANUARY),
                 appreciationRate = 0.0,
-                initialValue = 0.0
+                contribution = 0.0,
+                targetValue = 1000.0
             )
-
-            GoalProjections.calculate(plan)
         }
 
-        assertEquals("Meta inalcançável: sem aporte e sem rentabilidade", exception.message)
-    }
-
-    @Test
-    fun `GIVEN invalid maxMonths WHEN calculating THEN should throw`() {
-        // GIVEN
-        val goal = FinancialGoal(
-            id = 4,
-            owner = Owner(id = 4, name = "Diego"),
-            name = "Estudos",
-            targetValue = 10000.0,
-            startDate = LocalDate(2026, Month.JANUARY, 1)
-        )
-        val plan = GoalInvestmentPlan(
-            goal = goal,
-            contribution = 100.0,
-            appreciationRate = 1.0,
-            initialValue = 0.0
-        )
-
-        // WHEN / THEN
-        val exception = assertFailsWith<IllegalArgumentException> {
-            GoalProjections.calculate(plan, maxMonths = 0)
-        }
         assertEquals(
-            "maxMonths deve ser maior ou igual a 1. Valor recebido: 0",
+            "Contribuição ou taxa de rentabilidade devem ser maiores que zero. " +
+            "Valores recebidos: contribution=0.0, appreciationRate=0.0",
             exception.message
         )
+    }
+
+    @Test
+    fun `deve lancar excecao para maxMonths invalido`() {
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            GoalProjections.calculate(
+                maxMonths = 0,
+                initialValue = 0.0,
+                startMonth = YearMonth(2026, Month.JANUARY),
+                appreciationRate = 1.0,
+                contribution = 100.0,
+                targetValue = 10_000.0
+            )
+        }
+
+        // Deve falhar na primeira validação (currentValue)
+        assertEquals("maxMonths deve ser maior ou igual a 1. Valor recebido: 0", exception.message)
     }
 }

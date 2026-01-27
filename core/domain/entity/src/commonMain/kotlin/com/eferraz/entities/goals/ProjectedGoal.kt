@@ -4,10 +4,10 @@ package com.eferraz.entities.goals
  * Representa o valor projetado de uma meta financeira para um único mês.
  * Implements: [docs/rules/RN - Calcular Valor Projetado de Meta Financeira.md]
  *
- * @property projectedValue O valor projetado após aplicar rentabilidade e aporte.
+ * @property value O valor projetado após aplicar rentabilidade e aporte.
  */
-public class GoalProjectedValue private constructor(
-    public val projectedValue: Double,
+public class ProjectedGoal private constructor(
+    public val value: Double,
 ) {
 
     public companion object {
@@ -32,28 +32,24 @@ public class GoalProjectedValue private constructor(
             currentValue: Double,
             appreciationRate: Double,
             contribution: Double,
-        ): GoalProjectedValue {
+        ): ProjectedGoal {
 
-            // 4.1. Validação das Entradas
             require(currentValue >= 0) {
-                "currentValue deve ser não-negativo. Valor recebido: $currentValue"
+                "O valor atual deve ser maior que zero. Valor recebido: $currentValue"
             }
+
             require(appreciationRate >= 0) {
-                "monthlyReturnRate deve ser não-negativo. Valor recebido: $appreciationRate"
+                "A taxa de rentabilidade deve ser maior que zero. Valor recebido: $appreciationRate"
             }
+
             require(contribution >= 0) {
-                "monthlyContribution deve ser não-negativo. Valor recebido: $contribution"
+                "O aporte deve ser maior que zero. Valor recebido: $contribution"
             }
 
-            // 4.2. Ordem de Aplicação
-            // 1. Adiciona o aporte ao valor atual
-            val valueWithContribution = currentValue + contribution
+            val projectedValue = (currentValue + contribution) * (1 + appreciationRate / 100)
 
-            // 2. Aplica a rentabilidade sobre o total
-            val projectedValue = valueWithContribution * (1 + appreciationRate / 100)
-
-            return GoalProjectedValue(
-                projectedValue = projectedValue
+            return ProjectedGoal(
+                value = projectedValue
             )
         }
     }

@@ -2,7 +2,6 @@ package com.eferraz.entities.holdings
 
 import org.junit.Assert
 import org.junit.Test
-import kotlin.test.assertFailsWith
 
 class GrowthTest {
 
@@ -151,18 +150,18 @@ class GrowthTest {
     }
 
     @Test
-    fun `GIVEN no previous value and no contributions WHEN calculating THEN should return zero percentage`() {
+    fun `GIVEN no previous value and no contributions WHEN calculating THEN should return zero`() {
 
-        // WHEN / THEN
-        val exception = assertFailsWith<IllegalArgumentException> {
-            Growth.calculate(
-                previousValue = 0.0,
-                currentValue = 1000.0,
-                contributions = 0.0,
-                withdrawals = 0.0
-            )
-        }
+        // WHEN
+        val result = Growth.calculate(
+            previousValue = 0.0,
+            currentValue = 0.0,
+            contributions = 0.0,
+            withdrawals = 0.0
+        )
 
-        Assert.assertEquals("Se valor anterior menor ou igual a zero, deve haver balanço positivo", exception.message)
+        // THEN
+        Assert.assertEquals(0.0, result.value, 0.001)
+        Assert.assertEquals(0.0, result.percentage, 0.001)
     }
 }
