@@ -1,5 +1,6 @@
 package com.eferraz.entities.value
 
+import com.eferraz.entities.assets.CNPJ
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.test.assertFailsWith
