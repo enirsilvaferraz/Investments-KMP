@@ -27,6 +27,7 @@ import kotlinx.datetime.LocalDate
     ]
 )
 internal data class FinancialGoalEntity(
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long = 0,

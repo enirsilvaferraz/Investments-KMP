@@ -6,6 +6,7 @@ import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry
 import com.eferraz.usecases.TestDataFactory.createInvestmentFundAsset
 import com.eferraz.usecases.TestDataFactory.createStockQuoteHistory
 import com.eferraz.usecases.TestDataFactory.createVariableIncomeAsset
+import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import com.eferraz.usecases.strategies.CopyHistoryStrategy
 import io.mockk.coEvery
@@ -27,16 +28,18 @@ class CreateHistoryUseCaseTest {
 
     private lateinit var mockHoldingHistoryRepository: HoldingHistoryRepository
     private lateinit var mockGetQuotesUseCase: GetQuotesUseCase
+    private lateinit var mockAssetRepository: AssetRepository
     private lateinit var createHistoryUseCase: CreateHistoryUseCase
 
     @BeforeTest
     fun setup() {
         mockHoldingHistoryRepository = mockk<HoldingHistoryRepository>(relaxed = true)
         mockGetQuotesUseCase = mockk<GetQuotesUseCase>(relaxed = true)
+        mockAssetRepository = mockk<AssetRepository>(relaxed = true)
 
         val strategies = listOf(
             CopyHistoryStrategy.FixedIncomeHistoryStrategy(mockHoldingHistoryRepository),
-            CopyHistoryStrategy.VariableIncomeHistoryStrategy(mockHoldingHistoryRepository, mockGetQuotesUseCase)
+            CopyHistoryStrategy.VariableIncomeHistoryStrategy(mockHoldingHistoryRepository, mockGetQuotesUseCase, mockAssetRepository)
         )
 
         createHistoryUseCase = CreateHistoryUseCase(

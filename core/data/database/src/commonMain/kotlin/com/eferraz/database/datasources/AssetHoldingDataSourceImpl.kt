@@ -75,7 +75,7 @@ internal class AssetHoldingDataSourceImpl(
             )
         }
     }
-
+// TODO evitar chamadas ao banco de dados
     override suspend fun getByGoalId(goalId: Long): List<AssetHolding> {
         val assetsMap = assetDataSource.getAll().associateBy { asset -> asset.id }
         val holdingsWithDetails = assetHoldingDao.getAllWithAssetByGoalId(goalId)

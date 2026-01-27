@@ -7,6 +7,7 @@ import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
 import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry
 import com.eferraz.usecases.TestDataFactory.createInvestmentFundAsset
 import com.eferraz.usecases.repositories.AssetHoldingRepository
+import com.eferraz.usecases.repositories.AssetTransactionRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,6 +30,7 @@ class MergeHistoryUseCaseTest {
     private lateinit var mockAssetHoldingRepository: AssetHoldingRepository
     private lateinit var mockHoldingHistoryRepository: HoldingHistoryRepository
     private lateinit var mockCreateHistoryUseCase: CreateHistoryUseCase
+    private lateinit var mockAssetTransactionRepository: AssetTransactionRepository
     private lateinit var mergeHistoryUseCase: MergeHistoryUseCase
 
     @BeforeTest
@@ -36,11 +38,13 @@ class MergeHistoryUseCaseTest {
         mockAssetHoldingRepository = mockk<AssetHoldingRepository>(relaxed = true)
         mockHoldingHistoryRepository = mockk<HoldingHistoryRepository>(relaxed = true)
         mockCreateHistoryUseCase = mockk<CreateHistoryUseCase>(relaxed = true)
+        mockAssetTransactionRepository = mockk<AssetTransactionRepository>(relaxed = true)
 
         mergeHistoryUseCase = MergeHistoryUseCase(
             holdingHistoryRepository = mockHoldingHistoryRepository,
             assetHoldingRepository = mockAssetHoldingRepository,
             createHistoryUseCase = mockCreateHistoryUseCase,
+            assetTransactionRepository = mockAssetTransactionRepository,
             context = Dispatchers.Unconfined // Para testes síncronos
         )
     }
