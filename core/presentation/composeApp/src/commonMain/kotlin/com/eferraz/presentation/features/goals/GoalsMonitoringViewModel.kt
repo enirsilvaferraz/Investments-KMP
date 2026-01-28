@@ -62,14 +62,18 @@ internal class GoalsMonitoringViewModel(
         viewModelScope.launch {
             getGoalsMonitoringTableDataUseCase(
                 GetGoalsMonitoringTableDataUseCase.Param(goal = goal, periodType = periodType)
-            ).onSuccess { tableData ->
-                _state.update {
-                    it.copy(
-                        historyData = tableData,
-                        goalDetails = buildGoalDetails(goal, tableData)
-                    )
+            )
+                .onFailure {
+                    println(it)
                 }
-            }
+                .onSuccess { tableData ->
+                    _state.update {
+                        it.copy(
+                            historyData = tableData,
+                            goalDetails = buildGoalDetails(goal, tableData)
+                        )
+                    }
+                }
         }
     }
 
@@ -110,5 +114,5 @@ internal data class GoalDetails(
     val startDate: String,
     val expectedMonthlyContribution: Double,
     val expectedAnnualReturn: Double,
-    val linkedAssets: List<String>
+    val linkedAssets: List<String>,
 )

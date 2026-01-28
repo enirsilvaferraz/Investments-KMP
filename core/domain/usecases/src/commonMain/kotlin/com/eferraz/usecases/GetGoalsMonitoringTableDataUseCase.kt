@@ -87,6 +87,6 @@ public class GetGoalsMonitoringTableDataUseCase(
             growthPercent = growthRate,
             profitValue = appreciation,
             profitPercent = appreciationRate,
-            balance = value - goalValue
+            balance = if (value != 0.0) value - goalValue else 0.0
         )
 }

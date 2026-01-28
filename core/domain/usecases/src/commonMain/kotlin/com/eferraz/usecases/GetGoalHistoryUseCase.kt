@@ -4,6 +4,7 @@ import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.goals.GoalMonthlyData
 import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Growth
+import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.providers.DateProvider
 import com.eferraz.usecases.repositories.AssetTransactionRepository
@@ -40,6 +41,7 @@ public class GetGoalHistoryUseCase(
     override suspend fun execute(param: Param): Map<YearMonth, GoalMonthlyData> {
 
         val months = SequenceMonths.build(param.previousDate, dateProvider.getCurrentYearMonth())
+        var previous = emptyList<HoldingHistoryEntry>()
 
         return months.entries.associateWith { month ->
 
@@ -50,7 +52,7 @@ public class GetGoalHistoryUseCase(
                 transactions = transactionRepository.getByGoalAndReferenceDate(month, param.goal)
             )
 
-            if (month == param.previousDate) {
+            val data = if (month == param.previousDate) {
                 GoalMonthlyData(
                     value = currentValue,
                     contributions = balance.contributions,
@@ -62,7 +64,7 @@ public class GetGoalHistoryUseCase(
                 )
             } else {
 
-                val previousValue = current[month.minusMonth()]?.sumOf { it.endOfMonthValue } ?: 0.0
+                val previousValue = previous.sumOf { it.endOfMonthValue }
 
                 val appreciation = Appreciation.calculate(
                     previousValue = previousValue,
@@ -88,6 +90,10 @@ public class GetGoalHistoryUseCase(
                     appreciationRate = appreciation.percentage
                 )
             }
+
+            previous = current[month] ?: emptyList()
+
+            data
         }
     }
 }

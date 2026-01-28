@@ -111,6 +111,8 @@ private fun GoalsMonitoringScreen(
 @Composable
 private fun GoalsHistoryTable(data: List<GoalsMonitoringTableData>) {
 
+    fun Double.getValid() = takeIf { it != 0.0 }
+
     UiTable(data = data) {
 
         column(
@@ -122,59 +124,59 @@ private fun GoalsHistoryTable(data: List<GoalsMonitoringTableData>) {
 
         column(
             header = "Meta",
-            alignment = Alignment.Start,
+            alignment = Alignment.End,
             cellValue = { it.goalValue.currencyFormat() }
         )
 
         column(
             header = "Valor Total",
-            alignment = Alignment.Start,
-            cellValue = { it.totalValue.currencyFormat() }
+            alignment = Alignment.End,
+            cellValue = { it.totalValue.getValid()?.currencyFormat().orEmpty() }
         )
 
         column(
             header = "Aportes",
             alignment = Alignment.End,
-            cellValue = { it.contributions.currencyFormat() },
+            cellValue = { it.contributions.getValid()?.currencyFormat().orEmpty() },
             footer = { list -> list.sumOf { it.contributions }.currencyFormat() }
         )
 
         column(
             header = "Retiradas",
             alignment = Alignment.End,
-            cellValue = { it.withdrawals.currencyFormat() },
+            cellValue = { it.withdrawals.getValid()?.currencyFormat().orEmpty() },
             footer = { list -> list.sumOf { it.withdrawals }.currencyFormat() }
         )
 
         column(
             header = "Crescimento (R$)",
             alignment = Alignment.End,
-            cellValue = { it.growthValue.currencyFormat() },
+            cellValue = { it.growthValue.getValid()?.currencyFormat().orEmpty() },
             footer = { list -> list.sumOf { it.growthValue }.currencyFormat() }
         )
 
         column(
             header = "Crescimento (%)",
             alignment = Alignment.End,
-            cellValue = { it.growthPercent.toPercentage() }
+            cellValue = { it.growthPercent.getValid()?.toPercentage().orEmpty() }
         )
 
-        column(
-            header = "Lucro (R$)",
-            alignment = Alignment.End,
-            cellValue = { it.profitValue.currencyFormat() }
-        )
-
-        column(
-            header = "Lucro (%)",
-            alignment = Alignment.End,
-            cellValue = { it.profitPercent.toPercentage() }
-        )
+//        column(
+//            header = "Lucro (R$)",
+//            alignment = Alignment.End,
+//            cellValue = { it.profitValue.currencyFormat() }
+//        )
+//
+//        column(
+//            header = "Lucro (%)",
+//            alignment = Alignment.End,
+//            cellValue = { it.profitPercent.toPercentage() }
+//        )
 
         column(
             header = "Saldo",
-            alignment = Alignment.Start,
-            cellValue = { it.balance.currencyFormat() }
+            alignment = Alignment.End,
+            cellValue = { it.balance.getValid()?.currencyFormat().orEmpty()  }
         )
     }
 }

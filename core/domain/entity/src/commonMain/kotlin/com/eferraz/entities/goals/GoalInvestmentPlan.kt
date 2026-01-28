@@ -19,7 +19,7 @@ public data class GoalInvestmentPlan(
     public val goal: FinancialGoal,
     public val contribution: Double,
     public val appreciationRate: Double,
-    public val initialValue: Double = 0.0
+    @Deprecated("O valor inicial virá do total do mes anterior") public val initialValue: Double = 0.0
 ) {
 
     init {
