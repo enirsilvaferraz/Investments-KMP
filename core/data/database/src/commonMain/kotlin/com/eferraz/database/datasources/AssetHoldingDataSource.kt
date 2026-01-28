@@ -4,6 +4,7 @@ import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.assets.InvestmentCategory
 
 public interface AssetHoldingDataSource {
+    public suspend fun getById(holdingId: Long): AssetHolding
     public suspend fun save(assetHolding: AssetHolding): Long
     public suspend fun getByAssetId(assetId: Long): AssetHolding?
     public suspend fun getAll(): List<AssetHolding>

@@ -16,7 +16,7 @@ internal class GoalInvestmentPlanRepositoryImpl(
 
     override suspend fun getById(id: Long) = dataSource.getById(id)
 
-    override suspend fun getByGoalId(goalId: Long) = dataSource.getByGoalId(goalId)
+    override suspend fun getByGoal(goalId: Long) = dataSource.getByGoalId(goalId)
 
     override suspend fun delete(id: Long) = dataSource.delete(id)
 

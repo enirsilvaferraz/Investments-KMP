@@ -65,4 +65,17 @@ internal interface AssetTransactionDao {
         endDate: LocalDate,
     ): List<TransactionWithDetails>
 
+    @Transaction
+    @Query(
+        """
+        SELECT asset_transactions.* 
+        FROM asset_transactions 
+        INNER JOIN asset_holdings ON asset_transactions.holdingId = asset_holdings.id
+        WHERE asset_holdings.goalId = :goalId 
+        AND asset_transactions.transactionDate >= :startDate 
+        AND asset_transactions.transactionDate <= :endDate
+        ORDER BY asset_transactions.transactionDate DESC
+    """
+    )
+    suspend fun getByGoalAndDateRange(goalId: Long, startDate: LocalDate, endDate: LocalDate): List<TransactionWithDetails>
 }

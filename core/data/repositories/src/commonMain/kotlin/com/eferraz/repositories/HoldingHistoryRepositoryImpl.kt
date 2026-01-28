@@ -1,6 +1,7 @@
 package com.eferraz.repositories
 
 import com.eferraz.database.datasources.HoldingHistoryDataSource
+import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
@@ -17,6 +18,9 @@ internal class HoldingHistoryRepositoryImpl(
 
     override suspend fun getByReferenceDate(referenceDate: YearMonth): List<HoldingHistoryEntry> =
         dataSource.getByReferenceDate(referenceDate)
+
+    override suspend fun getByGoalAndReferenceDate(referenceDate: YearMonth, goal: FinancialGoal): List<HoldingHistoryEntry> =
+        dataSource.getByGoalAndReferenceDate(referenceDate, goal.id)
 
     override suspend fun getByHoldingAndReferenceDate(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? =
         dataSource.getByHoldingAndReferenceDate(referenceDate, holding)

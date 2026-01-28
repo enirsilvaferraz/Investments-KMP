@@ -65,4 +65,20 @@ internal interface HoldingHistoryDao {
     """
     )
     suspend fun getByHoldingAndReferenceDate(referenceDate: YearMonth, holdingId: Long): HoldingHistoryWithDetails?
+
+    @Transaction
+    @Query(
+        """
+        SELECT 
+            holding_history.*,
+            asset_holdings.id AS holding_id,
+            asset_holdings.assetId AS holding_assetId,
+            asset_holdings.ownerId AS holding_ownerId,
+            asset_holdings.brokerageId AS holding_brokerageId
+        FROM holding_history
+        INNER JOIN asset_holdings ON holding_history.holdingId = asset_holdings.id
+        WHERE asset_holdings.goalId = :goalId AND holding_history.referenceDate = :referenceDate
+    """
+    )
+    suspend fun getByGoalAndReferenceDate(referenceDate: YearMonth, goalId: Long): List<HoldingHistoryWithDetails>
 }

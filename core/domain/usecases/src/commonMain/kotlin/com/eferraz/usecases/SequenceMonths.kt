@@ -15,7 +15,7 @@ import kotlinx.datetime.plusMonth
  */
 @ConsistentCopyVisibility
 internal data class SequenceMonths private constructor(
-    private val entries: List<YearMonth>,
+    val entries: List<YearMonth>,
 ) : List<YearMonth> by entries {
 
     companion object {

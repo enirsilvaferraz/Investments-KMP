@@ -17,20 +17,16 @@ internal class HoldingHistoryDataSourceImpl(
         return assetHoldingDataSource.getAll()
     }
 
-    override suspend fun getByReferenceDate(referenceDate: YearMonth): List<HoldingHistoryEntry> {
-        val holdingsMap = assetHoldingDataSource.getAll().associateBy { holding -> holding.id }
-        val historyWithDetails = holdingHistoryDao.getByReferenceDate(referenceDate)
-
-        return historyWithDetails.mapNotNull {
-            val holding = holdingsMap[it.holding.id] ?: return@mapNotNull null
-            it.history.toModel(holding)
-        }
-    }
+    override suspend fun getByReferenceDate(referenceDate: YearMonth) =
+        holdingHistoryDao.getByReferenceDate(referenceDate).map { it.history.toModel() }
 
     override suspend fun getByHoldingAndReferenceDate(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? {
         val historyWithDetails = holdingHistoryDao.getByHoldingAndReferenceDate(referenceDate, holding.id) ?: return null
-        return historyWithDetails.history.toModel(holding)
+        return historyWithDetails.history.toModel()
     }
+
+    override suspend fun getByGoalAndReferenceDate(referenceDate: YearMonth, goalID: Long) =
+        holdingHistoryDao.getByGoalAndReferenceDate(referenceDate, goalID).map { it.history.toModel() }
 
     override suspend fun upsert(entry: HoldingHistoryEntry): Long =
         holdingHistoryDao.upsert(entry.toEntity())
@@ -46,10 +42,10 @@ internal class HoldingHistoryDataSourceImpl(
             totalInvested = totalInvested
         )
 
-    private fun HoldingHistoryEntryEntity.toModel(holding: AssetHolding) =
+    private suspend fun HoldingHistoryEntryEntity.toModel() =
         HoldingHistoryEntry(
             id = id ?: 0,
-            holding = holding,
+            holding = assetHoldingDataSource.getById(holdingId),
             referenceDate = referenceDate,
             endOfMonthValue = endOfMonthValue,
             endOfMonthQuantity = endOfMonthQuantity,

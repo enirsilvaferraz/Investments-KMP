@@ -11,6 +11,7 @@ import org.koin.core.annotation.Factory
 @Factory(binds = [AssetTransactionDataSource::class])
 internal class AssetTransactionDataSourceImpl(
     private val assetTransactionDao: AssetTransactionDao,
+    private val assetHoldingDataSource: AssetHoldingDataSource,
 ) : AssetTransactionDataSource {
 
     override suspend fun save(transaction: AssetTransaction): Long =
@@ -29,7 +30,7 @@ internal class AssetTransactionDataSourceImpl(
     override suspend fun getAllByHoldingAndDateRange(
         holding: AssetHolding,
         startDate: LocalDate,
-        endDate: LocalDate
+        endDate: LocalDate,
     ): List<AssetTransaction> {
         val transactionsWithDetails = assetTransactionDao.getAllByHoldingIdAndDateRange(
             holdingId = holding.id,
@@ -38,6 +39,15 @@ internal class AssetTransactionDataSourceImpl(
         )
         return transactionsWithDetails.map { it.toDomain(holding) }
     }
+
+    override suspend fun getByGoalAndReferenceDate(goalId: Long, startDate: LocalDate, endDate: LocalDate) =
+        assetTransactionDao.getByGoalAndDateRange(
+            goalId = goalId,
+            startDate = startDate,
+            endDate = endDate
+        ).map {
+            it.toDomain(assetHoldingDataSource.getById(it.transaction.holdingId))
+        }
 
     override suspend fun delete(id: Long) {
         assetTransactionDao.deleteById(id)

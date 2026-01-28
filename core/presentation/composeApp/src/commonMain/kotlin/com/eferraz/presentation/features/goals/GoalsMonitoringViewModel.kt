@@ -61,7 +61,7 @@ internal class GoalsMonitoringViewModel(
     private fun loadTableData(goal: FinancialGoal, periodType: PeriodType) {
         viewModelScope.launch {
             getGoalsMonitoringTableDataUseCase(
-                GetGoalsMonitoringTableDataUseCase.Param(goalId = goal.id, periodType = periodType)
+                GetGoalsMonitoringTableDataUseCase.Param(goal = goal, periodType = periodType)
             ).onSuccess { tableData ->
                 _state.update {
                     it.copy(

@@ -5,9 +5,9 @@ import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.OwnerDao
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.holdings.Owner
 import org.koin.core.annotation.Factory
 
@@ -19,6 +19,21 @@ internal class AssetHoldingDataSourceImpl(
     private val brokerageDao: BrokerageDao,
     private val financialGoalDataSource: FinancialGoalDataSource,
 ) : AssetHoldingDataSource {
+
+    override suspend fun getById(holdingId: Long): AssetHolding = assetHoldingDao.getById(holdingId)?.let {
+
+        val owner = ownerDao.getById(it.ownerId) ?: throw IllegalArgumentException("Owner not found")
+        val brokerage = brokerageDao.getById(it.brokerageId) ?: throw IllegalArgumentException("Brokerage not found")
+
+        AssetHolding(
+            id = it.id,
+            asset = assetDataSource.getByID(it.assetId) ?: throw IllegalArgumentException("Asset not found"),
+            owner = Owner(id = owner.id, name = owner.name),
+            brokerage = Brokerage(id = brokerage.id, name = brokerage.name),
+            goal = it.goalId?.let { financialGoalDataSource.getById(it) }
+        )
+
+    } ?: throw IllegalArgumentException("Holding not found")
 
     override suspend fun save(assetHolding: AssetHolding): Long {
         val entity = assetHolding.toEntity()
@@ -63,8 +78,8 @@ internal class AssetHoldingDataSourceImpl(
         val holdingsWithDetails = assetHoldingDao.getAllWithAssetByCategory(category)
 
         return holdingsWithDetails.mapNotNull { holdingWithDetails ->
-            val goal = holdingWithDetails.holding.goalId?.let { 
-                financialGoalDataSource.getById(it) 
+            val goal = holdingWithDetails.holding.goalId?.let {
+                financialGoalDataSource.getById(it)
             }
             AssetHolding(
                 id = holdingWithDetails.holding.id,
@@ -75,14 +90,15 @@ internal class AssetHoldingDataSourceImpl(
             )
         }
     }
-// TODO evitar chamadas ao banco de dados
+
+    // TODO evitar chamadas ao banco de dados
     override suspend fun getByGoalId(goalId: Long): List<AssetHolding> {
         val assetsMap = assetDataSource.getAll().associateBy { asset -> asset.id }
         val holdingsWithDetails = assetHoldingDao.getAllWithAssetByGoalId(goalId)
 
         return holdingsWithDetails.mapNotNull { holdingWithDetails ->
-            val goal = holdingWithDetails.holding.goalId?.let { 
-                financialGoalDataSource.getById(it) 
+            val goal = holdingWithDetails.holding.goalId?.let {
+                financialGoalDataSource.getById(it)
             }
             AssetHolding(
                 id = holdingWithDetails.holding.id,
@@ -98,8 +114,8 @@ internal class AssetHoldingDataSourceImpl(
         val holdingsWithDetails = assetHoldingDao.getAllWithAsset()
 
         return holdingsWithDetails.mapNotNull { holdingWithDetails ->
-            val goal = holdingWithDetails.holding.goalId?.let { 
-                financialGoalDataSource.getById(it) 
+            val goal = holdingWithDetails.holding.goalId?.let {
+                financialGoalDataSource.getById(it)
             }
             AssetHolding(
                 id = holdingWithDetails.holding.id,
