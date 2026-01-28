@@ -14,11 +14,11 @@ public data class GoalsMonitoringTableData(
     val monthYear: YearMonth,
     val goalValue: Double,
     val totalValue: Double,
-    val balance: Double,
     val contributions: Double,
     val withdrawals: Double,
     val growthValue: Double,
     val growthPercent: Double,
     val profitValue: Double,
     val profitPercent: Double,
+    val balance: Double
 )

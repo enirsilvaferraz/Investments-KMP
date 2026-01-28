@@ -39,44 +39,55 @@ public class GetGoalHistoryUseCase(
 
     override suspend fun execute(param: Param): Map<YearMonth, GoalMonthlyData> {
 
-        val months = SequenceMonths.build(param.startDate, dateProvider.getCurrentYearMonth())
-
-        val previous = historyRepository.getByGoalAndReferenceDate(param.previousDate, param.goal).groupBy { it.referenceDate }
+        val months = SequenceMonths.build(param.previousDate, dateProvider.getCurrentYearMonth())
 
         return months.entries.associateWith { month ->
 
             val current = historyRepository.getByGoalAndReferenceDate(month, param.goal).groupBy { it.referenceDate }
-
             val currentValue = current[month]?.sumOf { it.endOfMonthValue } ?: 0.0
-            val previousValue = (current[month.minusMonth()] ?: previous[month.minusMonth()])?.sumOf { it.endOfMonthValue } ?: 0.0
 
             val balance = TransactionBalance.calculate(
                 transactions = transactionRepository.getByGoalAndReferenceDate(month, param.goal)
             )
 
-            val appreciation = Appreciation.calculate(
-                previousValue = previousValue,
-                currentValue = currentValue,
-                contributions = balance.contributions,
-                withdrawals = balance.withdrawals
-            )
+            if (month == param.previousDate) {
+                GoalMonthlyData(
+                    value = currentValue,
+                    contributions = balance.contributions,
+                    withdrawals = balance.withdrawals,
+                    growth = 0.0,
+                    growthRate = 0.0,
+                    appreciation = 0.0,
+                    appreciationRate = 0.0
+                )
+            } else {
 
-            val growth = Growth.calculate(
-                previousValue = previousValue,
-                currentValue = currentValue,
-                contributions = balance.contributions,
-                withdrawals = balance.withdrawals
-            )
+                val previousValue = current[month.minusMonth()]?.sumOf { it.endOfMonthValue } ?: 0.0
 
-            GoalMonthlyData(
-                value = currentValue,
-                contributions = balance.contributions,
-                withdrawals = balance.withdrawals,
-                growth = growth.value,
-                growthRate = growth.percentage,
-                appreciation = appreciation.value,
-                appreciationRate = appreciation.percentage
-            )
+                val appreciation = Appreciation.calculate(
+                    previousValue = previousValue,
+                    currentValue = currentValue,
+                    contributions = balance.contributions,
+                    withdrawals = balance.withdrawals
+                )
+
+                val growth = Growth.calculate(
+                    previousValue = previousValue,
+                    currentValue = currentValue,
+                    contributions = balance.contributions,
+                    withdrawals = balance.withdrawals
+                )
+
+                GoalMonthlyData(
+                    value = currentValue,
+                    contributions = balance.contributions,
+                    withdrawals = balance.withdrawals,
+                    growth = growth.value,
+                    growthRate = growth.percentage,
+                    appreciation = appreciation.value,
+                    appreciationRate = appreciation.percentage
+                )
+            }
         }
     }
 }

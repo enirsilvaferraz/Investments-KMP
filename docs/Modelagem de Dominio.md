@@ -596,6 +596,65 @@ data class GoalInvestmentPlan(
 
 Para projeções baseadas em histórico real, ver [RN - Calcular Projeção de Meta Financeira.md](RN%20-%20Calcular%20Projeção%20de%20Meta%20Financeira.md).
 
+### Cálculo de Taxa de Crescimento (GrowthRate)
+
+Para calcular a taxa de crescimento média baseada em valores históricos reais, utilizamos um Value Object que implementa o cálculo de CAGR (Compound Annual Growth Rate):
+
+```kotlin
+/**
+ * Calcula a taxa de crescimento composta (CAGR) entre dois valores.
+ *
+ * Esta classe utiliza a fórmula:
+ * Taxa = (Valor Final / Valor Inicial)^(1/n) - 1
+ *
+ * Onde n é o número de períodos entre o valor inicial e final.
+ *
+ * @property percentValue Taxa de crescimento em formato percentual (ex: 18.32 para 18,32%)
+ * @property decimalValue Taxa de crescimento em formato decimal (ex: 0.1832 para 18,32%)
+ */
+data class GrowthRate(
+    val percentValue: Double
+) {
+    val decimalValue: Double = percentValue / 100.0
+    
+    companion object {
+        /**
+         * Calcula a taxa de crescimento composta entre dois valores.
+         *
+         * @param initialValue Valor inicial da série. Deve ser maior que 0.
+         * @param finalValue Valor final da série. Deve ser maior que 0.
+         * @param periods Quantidade de períodos entre o valor inicial e final.
+         *                Deve ser maior ou igual a 1.
+         *
+         * @return GrowthRate contendo a taxa calculada em formato percentual e decimal.
+         */
+        fun calculate(
+            initialValue: Double,
+            finalValue: Double,
+            periods: Int
+        ): GrowthRate
+    }
+}
+```
+
+**Exemplo:**
+```kotlin
+// De Jan/2026 (R$ 1.000) para Mar/2026 (R$ 1.400) = 2 períodos
+val rate = GrowthRate.calculate(
+    initialValue = 1000.0,
+    finalValue = 1400.0,
+    periods = 2
+)
+// rate.percentValue = 18.32%
+// rate.decimalValue = 0.1832
+```
+
+**Uso:** Esta classe é utilizada para calcular a taxa de crescimento média a partir de dados históricos reais de uma meta financeira. A taxa calculada pode então ser usada para projetar valores futuros, considerando o desempenho histórico real em vez de valores hipotéticos. Este cálculo é essencial para:
+
+- Análise de desempenho histórico de metas financeiras
+- Projeções baseadas em rentabilidade real observada
+- Comparação entre desempenho esperado (plano) e realizado (histórico)
+
 ### Relacionamento com AssetHolding
 
 Uma `FinancialGoal` pode ter várias posições (`AssetHolding`) associadas a ela, mas cada posição só pode estar associada a uma meta (ou a nenhuma). O relacionamento é 1:N (um para muitos).

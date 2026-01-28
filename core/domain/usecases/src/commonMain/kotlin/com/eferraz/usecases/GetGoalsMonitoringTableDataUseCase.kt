@@ -3,13 +3,16 @@ package com.eferraz.usecases
 import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.goals.GoalMonthlyData
 import com.eferraz.entities.goals.GoalProjections
-import com.eferraz.entities.goals.ProjectedGoal
+import com.eferraz.entities.goals.GrowthRate
 import com.eferraz.usecases.entities.GoalsMonitoringTableData
 import com.eferraz.usecases.entities.PeriodType
 import com.eferraz.usecases.repositories.GoalInvestmentPlanRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.minusMonth
+import kotlinx.datetime.until
 import kotlinx.datetime.yearMonth
 import org.koin.core.annotation.Factory
 
@@ -35,80 +38,55 @@ public class GetGoalsMonitoringTableDataUseCase(
 
         val history = getGoalHistoryUseCase(GetGoalHistoryUseCase.Param(param.goal)).getOrNull() ?: emptyMap()
 
-        val projections = GoalProjections.calculate(
+        val planedProjections = GoalProjections.calculate(
             startMonth = plan.goal.startDate.yearMonth,
-            initialValue = history[plan.goal.startDate.yearMonth]?.value ?: 0.0,
+            initialValue = history[plan.goal.startDate.yearMonth.minusMonth()]?.value ?: 0.0,
             appreciationRate = plan.appreciationRate,
             contribution = plan.contribution,
             targetValue = plan.goal.targetValue
         ).map
 
-        // 3. Determinar último mês do histórico
-        val lastHistoryMonth = history.keys.maxOrNull()
+        val growthRate = GrowthRate.calculate(
+            initialValue = history.values.first().value,
+            finalValue = history.values.last().value,
+            periods = history.keys.first().until(history.keys.last(), DateTimeUnit.MONTH).toInt()
+        )
 
-        // 4. Combinar mapas e gerar linhas da tabela
-        val allMonths = (history.keys + projections.keys).sorted()
+        val calculatedProjections = GoalProjections.calculate(
+            initialValue = history.values.first().value,
+            startMonth = history.keys.last(),
+            appreciationRate = growthRate.percentValue,
+            contribution = 0.0,
+            targetValue = plan.goal.targetValue
+        ).map
 
-        return allMonths.map { month ->
-            val historicalData = history[month]
-            val projectionData = projections[month]
-            val isHistorical = lastHistoryMonth != null && month <= lastHistoryMonth
+        return planedProjections.keys.map { month ->
 
-            if (isHistorical && historicalData != null) {
-                // Mês histórico: usar dados reais
-                historicalData.toTableData(
-                    monthYear = month,
-                    goalValue = projectionData?.value ?: 0.0
-                )
-            } else if (projectionData != null) {
-                // Mês projetado: usar apenas goalValue
-                projectionData.toTableData(monthYear = month)
-            } else {
-                // Fallback (não deveria acontecer)
-                GoalsMonitoringTableData(
-                    monthYear = month,
-                    goalValue = 0.0,
-                    totalValue = 0.0,
-                    balance = 0.0,
-                    contributions = 0.0,
-                    withdrawals = 0.0,
-                    growthValue = 0.0,
-                    growthPercent = 0.0,
-                    profitValue = 0.0,
-                    profitPercent = 0.0
-                )
-            }
+            val historicalData = history[month] ?: GoalMonthlyData(
+                value = calculatedProjections[month]?.value ?: 0.0,
+                contributions = 0.0,
+                withdrawals = 0.0,
+                growth = 0.0,
+                growthRate = 0.0,
+                appreciation = 0.0,
+                appreciationRate = 0.0
+            )
+
+            historicalData.toTableData(monthYear = month, goalValue = planedProjections[month]?.value ?: 0.0)
         }
     }
 
-    private fun GoalMonthlyData.toTableData(
-        monthYear: YearMonth,
-        goalValue: Double,
-    ): GoalsMonitoringTableData =
+    private fun GoalMonthlyData.toTableData(monthYear: YearMonth, goalValue: Double): GoalsMonitoringTableData =
         GoalsMonitoringTableData(
             monthYear = monthYear,
             goalValue = goalValue,
             totalValue = value,
-            balance = contributions - withdrawals,
             contributions = contributions,
             withdrawals = withdrawals,
             growthValue = growth,
             growthPercent = growthRate,
             profitValue = appreciation,
-            profitPercent = appreciationRate
-        )
-
-    private fun ProjectedGoal.toTableData(monthYear: YearMonth): GoalsMonitoringTableData =
-        GoalsMonitoringTableData(
-            monthYear = monthYear,
-            goalValue = value,
-            totalValue = 0.0,
-            balance = 0.0,
-            contributions = 0.0,
-            withdrawals = 0.0,
-            growthValue = 0.0,
-            growthPercent = 0.0,
-            profitValue = 0.0,
-            profitPercent = 0.0
+            profitPercent = appreciationRate,
+            balance = value - goalValue
         )
 }
