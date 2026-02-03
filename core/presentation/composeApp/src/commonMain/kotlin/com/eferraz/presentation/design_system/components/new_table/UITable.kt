@@ -22,6 +22,39 @@ import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.design_system.utils.thenIf
 
 // ============================================================================
+// ESTRUTURA DE DADOS PARA AGRUPAMENTO
+// ============================================================================
+
+internal sealed class TableItem<out T> {
+
+    data class GroupHeader<T>(
+        val key: Any,
+        val displayValue: String,
+        val items: List<T>,
+    ) : TableItem<T>()
+
+    data class DataRow<T>(
+        val item: T,
+        val groupKey: Any?,
+    ) : TableItem<T>()
+}
+
+internal fun <T> groupData(
+    data: List<T>,
+    groupBy: ((T) -> Any)?,
+    groupDisplay: ((Any) -> String)?,
+): List<TableItem<T>> {
+    if (groupBy == null || groupDisplay == null) {
+        return data.map { TableItem.DataRow(it, null) }
+    }
+    val grouped = data.groupBy(groupBy)
+    return grouped.entries.flatMap { (key, items) ->
+        listOf(TableItem.GroupHeader(key, groupDisplay(key), items)) +
+            items.map { TableItem.DataRow(it, key) }
+    }
+}
+
+// ============================================================================
 // API PÚBLICA
 // ============================================================================
 
@@ -31,6 +64,8 @@ internal fun <T> UiTable(
     data: List<T>,
     contentPadding: PaddingValues = PaddingValues(),
     onSelect: ((T) -> Unit)? = null,
+    groupBy: ((T) -> Any)? = null,
+    groupDisplay: ((Any) -> String)? = null,
     content: UiTableContentScope<T>.() -> Unit,
 ) {
     // PERFORMANCE: Cria scope apenas uma vez usando remember com chave estável
@@ -56,6 +91,12 @@ internal fun <T> UiTable(
 
     val hasFooter by remember(columns) { derivedStateOf { columns.any { it.hasFooter() } } }
 
+    val tableItems by remember(groupBy, groupDisplay) {
+        derivedStateOf {
+            groupData(sortState.sortedData, groupBy, groupDisplay)
+        }
+    }
+
     Column {
 
         LazyColumn(
@@ -75,25 +116,38 @@ internal fun <T> UiTable(
             }
 
             itemsIndexed(
-                items = sortState.sortedData,
-                key = { index, item -> item.hashCode() }
-            ) { index, item ->
+                items = tableItems,
+                key = { _, item ->
+                    when (item) {
+                        is TableItem.GroupHeader -> "group_${item.key.hashCode()}"
+                        is TableItem.DataRow -> item.item.hashCode()
+                    }
+                }
+            ) { _, tableItem ->
 
-                TableRow(
-                    item = item,
-                    index = index,
-                    totalItems = sortState.sortedData.size,
-                    columns = columns,
-                    responsiveState = responsiveState,
-                    cellRenderer = cellRenderer,
-                    onSelect = onSelectUpdated
-                )
+                when (tableItem) {
 
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    thickness = 1.dp
-                )
+                    is TableItem.GroupHeader -> {
+                        GroupHeaderRow(displayValue = tableItem.displayValue)
+                    }
+
+                    is TableItem.DataRow -> {
+                        TableRow(
+                            item = tableItem.item,
+                            index = 0,
+                            totalItems = sortState.sortedData.size,
+                            columns = columns,
+                            responsiveState = responsiveState,
+                            cellRenderer = cellRenderer,
+                            onSelect = onSelectUpdated
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            thickness = 1.dp
+                        )
+                    }
+                }
             }
         }
 

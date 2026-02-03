@@ -270,6 +270,8 @@ private fun HistoryScreenFixedIncome(
     UiTable(
         modifier = modifier,
         data = fixedIncomeData,
+        groupBy = { it.brokerageName },
+        groupDisplay = { it.toString() },
         onSelect = { row ->
             scope.launch {
                 viewModel.processIntent(HistoryIntent.SelectHolding(row.currentEntry.holding))
@@ -277,12 +279,13 @@ private fun HistoryScreenFixedIncome(
             }
         }
     ) {
-        column(
-            header = "Corretora",
-            sortedBy = { it.brokerageName },
-            weight = 1.1f,
-            cellValue = { it.brokerageName }
-        )
+
+//        column(
+//            header = "Corretora",
+//            sortedBy = { it.brokerageName },
+//            weight = 1.1f,
+//            cellValue = { it.brokerageName }
+//        )
 
         column(
             header = "SubCategoria",
@@ -414,6 +417,8 @@ private fun HistoryScreenVariableIncome(
     UiTable(
         modifier = modifier,
         data = variableIncomeData,
+        groupBy = { it.brokerageName },
+        groupDisplay = { it.toString() },
         onSelect = { row ->
             scope.launch {
                 viewModel.processIntent(HistoryIntent.SelectHolding(row.currentEntry.holding))
@@ -421,12 +426,13 @@ private fun HistoryScreenVariableIncome(
             }
         }
     ) {
-        column(
-            header = "Corretora",
-            sortedBy = { it.brokerageName },
-            weight = 1.1f,
-            cellValue = { it.brokerageName }
-        )
+
+//        column(
+//            header = "Corretora",
+//            sortedBy = { it.brokerageName },
+//            weight = 1.1f,
+//            cellValue = { it.brokerageName }
+//        )
 
         column(
             header = "Tipo",
@@ -536,6 +542,8 @@ private fun HistoryScreenFunds(
     UiTable(
         modifier = modifier,
         data = fundsData,
+        groupBy = { it.brokerageName },
+        groupDisplay = { it.toString() },
         onSelect = { row ->
             scope.launch {
                 viewModel.processIntent(HistoryIntent.SelectHolding(row.currentEntry.holding))
@@ -543,12 +551,13 @@ private fun HistoryScreenFunds(
             }
         }
     ) {
-        column(
-            header = "Corretora",
-            sortedBy = { it.brokerageName },
-            weight = 1.1f,
-            cellValue = { it.brokerageName }
-        )
+
+//        column(
+//            header = "Corretora",
+//            sortedBy = { it.brokerageName },
+//            weight = 1.1f,
+//            cellValue = { it.brokerageName }
+//        )
 
         column(
             header = "Tipo",
