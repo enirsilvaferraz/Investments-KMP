@@ -1,6 +1,7 @@
 package com.eferraz.usecases
 
 import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.VariableIncomeAsset
@@ -73,7 +74,7 @@ public class GetHistoryTableDataUseCase(
                     editable = true,
                     totalContributions = totalContributions,
                     totalWithdrawals = totalWithdrawals,
-                    displayName = asset.displayName
+                    displayName = asset.formated()
                 )
 
                 is VariableIncomeAsset -> VariableIncomeHistoryTableData(
@@ -91,7 +92,7 @@ public class GetHistoryTableDataUseCase(
                     editable = false,
                     totalContributions = totalContributions,
                     totalWithdrawals = totalWithdrawals,
-                    displayName = asset.displayName
+                    displayName = asset.formated()
                 )
 
                 is InvestmentFundAsset -> InvestmentFundHistoryTableData(
@@ -110,10 +111,20 @@ public class GetHistoryTableDataUseCase(
                     editable = true,
                     totalContributions = totalContributions,
                     totalWithdrawals = totalWithdrawals,
-                    displayName = asset.displayName
+                    displayName = asset.formated()
                 )
             }
         }
     }
+
+    internal fun FixedIncomeAsset.formated(): String = when (type) {
+        FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI (venc: $expirationDate)"
+        FixedIncomeAssetType.PRE_FIXED -> "${subType.name} de $contractedYield% a.a. (venc: $expirationDate)"
+        FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield% (venc: $expirationDate)"
+    }
+
+    internal fun VariableIncomeAsset.formated(): String = "${type.name} - $ticker"
+
+    internal fun InvestmentFundAsset.formated(): String = type.name
 }
 

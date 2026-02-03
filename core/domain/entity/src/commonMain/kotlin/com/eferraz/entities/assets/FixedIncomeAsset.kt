@@ -25,14 +25,4 @@ public data class FixedIncomeAsset(
     public val cdiRelativeYield: Double? = null,
     public val liquidity: Liquidity,
     override val observations: String? = null,
-) : Asset {
-
-    override val displayName: String
-        get() {
-            return when (type) {
-                FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI (venc: $expirationDate)"
-                FixedIncomeAssetType.PRE_FIXED -> "${subType.name} de $contractedYield% a.a. (venc: $expirationDate)"
-                FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield% (venc: $expirationDate)"
-            }
-        }
-}
+) : Asset

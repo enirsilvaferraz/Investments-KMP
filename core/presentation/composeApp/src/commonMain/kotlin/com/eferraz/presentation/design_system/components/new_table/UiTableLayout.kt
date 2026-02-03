@@ -142,8 +142,8 @@ internal fun GroupHeaderRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-//            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .height(56.dp)
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+            .height(86.dp)
             .padding(16.dp),
         verticalAlignment = Alignment.Bottom
     ) {

@@ -22,8 +22,4 @@ public data class InvestmentFundAsset(
     public val liquidityDays: Int,
     public val expirationDate: LocalDate?,
     override val observations: String? = null
-) : Asset {
-
-    override val displayName: String
-        get() = "${type.name} - $observations"
-}
+) : Asset

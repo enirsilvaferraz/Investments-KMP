@@ -42,7 +42,7 @@ public fun InternalApp(config: KoinConfiguration) {
 @Composable
 private fun AppNavigationHost() {
 
-    val backStack = rememberNavBackStack(config, HistoryRouting)
+    val backStack = rememberNavBackStack(config, GoalsMonitoringRouting)
 
     NavigationSuiteScaffold(
         navigationItems = navRailMenus(backStack),

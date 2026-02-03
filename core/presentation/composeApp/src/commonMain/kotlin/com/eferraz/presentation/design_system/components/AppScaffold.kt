@@ -1,5 +1,6 @@
 package com.eferraz.presentation.design_system.components
 
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,30 +46,34 @@ internal fun AppScaffold(
 
             Surface {
 
-                SupportingPaneScaffold(
-                    modifier = Modifier.padding(it).padding(end = 32.dp, bottom = 32.dp),
-                    directive = navigator.scaffoldDirective.copy(horizontalPartitionSpacerSize = 24.dp, defaultPanePreferredWidth = 400.dp),
-                    value = navigator.scaffoldValue,
-                    mainPane = {
-                        Pane {
-                            Section(Modifier.weight(1f), mainPane)
-                        }
-                    },
-                    supportingPane = {
-                        supportingPane?.let { panel ->
+                BoxWithConstraints {
+                    val paneWidth = maxWidth * 0.20f
+
+                    SupportingPaneScaffold(
+                        modifier = Modifier.padding(it).padding(end = 32.dp, bottom = 32.dp),
+                        directive = navigator.scaffoldDirective.copy(horizontalPartitionSpacerSize = 24.dp, defaultPanePreferredWidth = paneWidth),
+                        value = navigator.scaffoldValue,
+                        mainPane = {
                             Pane {
-                                Section(Modifier.fillMaxSize(), panel)
+                                Section(Modifier.weight(1f), mainPane)
                             }
-                        }
-                    },
-                    extraPane = {
-                        extraPane?.let { panel ->
-                            Pane {
-                                Section(Modifier.fillMaxSize(), panel)
+                        },
+                        supportingPane = {
+                            supportingPane?.let { panel ->
+                                Pane {
+                                    Section(Modifier.fillMaxSize(), panel)
+                                }
                             }
-                        }
-                    },
-                )
+                        },
+                        extraPane = {
+                            extraPane?.let { panel ->
+                                Pane {
+                                    Section(Modifier.fillMaxSize(), panel)
+                                }
+                            }
+                        },
+                    )
+                }
             }
         }
     }

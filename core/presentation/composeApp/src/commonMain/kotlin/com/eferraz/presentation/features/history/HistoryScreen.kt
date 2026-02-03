@@ -287,12 +287,12 @@ private fun HistoryScreenFixedIncome(
 //            cellValue = { it.brokerageName }
 //        )
 
-        column(
-            header = "SubCategoria",
-            sortedBy = { it.subType },
-            weight = 1.0f,
-            cellValue = { it.subType.formated() }
-        )
+//        column(
+//            header = "SubCategoria",
+//            sortedBy = { it.subType },
+//            weight = 1.0f,
+//            cellValue = { it.subType.formated() }
+//        )
 
         column(
             header = "Display Name",

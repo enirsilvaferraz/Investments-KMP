@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.presentation.design_system.components.FormTextField
+import com.eferraz.presentation.helpers.Formatters.formated
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -59,7 +60,7 @@ internal fun TransactionPanel(
         // Campo Descrição do Ativo (somente leitura)
         FormTextField(
             label = "Descrição",
-            value = asset.displayName,
+            value = asset.formated(),
             onValueChange = { },
             enabled = false,
             modifier = Modifier.fillMaxWidth()

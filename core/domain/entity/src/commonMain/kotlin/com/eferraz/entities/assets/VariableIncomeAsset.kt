@@ -39,7 +39,4 @@ public data class VariableIncomeAsset(
      * Para ativos de renda variável, este valor é sempre `2` (hardcoded).
      */
     public val liquidityDays: Int = 2
-
-    override val displayName: String
-        get() = "${type.name} - $ticker"
 }

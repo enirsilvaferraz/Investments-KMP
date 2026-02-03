@@ -8,9 +8,9 @@ import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
-import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.transactions.TransactionType
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.format
