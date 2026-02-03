@@ -59,7 +59,7 @@ internal fun TransactionPanel(
         // Campo Descrição do Ativo (somente leitura)
         FormTextField(
             label = "Descrição",
-            value = asset.name,
+            value = asset.displayName,
             onValueChange = { },
             enabled = false,
             modifier = Modifier.fillMaxWidth()

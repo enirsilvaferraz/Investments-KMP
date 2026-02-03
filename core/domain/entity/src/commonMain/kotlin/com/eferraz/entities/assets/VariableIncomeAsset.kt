@@ -20,7 +20,7 @@ import com.eferraz.entities.assets.CNPJ
  */
 public data class VariableIncomeAsset(
     override val id: Long = 0,
-    override val name: String,
+    public val name: String,
     override val issuer: Issuer,
     public val type: VariableIncomeAssetType,
     public val ticker: String,
@@ -39,4 +39,7 @@ public data class VariableIncomeAsset(
      * Para ativos de renda variável, este valor é sempre `2` (hardcoded).
      */
     public val liquidityDays: Int = 2
+
+    override val displayName: String
+        get() = "${type.name} - $ticker"
 }

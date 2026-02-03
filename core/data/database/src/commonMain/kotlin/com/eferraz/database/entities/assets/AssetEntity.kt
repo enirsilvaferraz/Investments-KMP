@@ -35,6 +35,7 @@ internal data class AssetEntity(
     @ColumnInfo(name = "id")
     val id: Long = 0,
 
+    @Deprecated("Esse name nao faz sentido")
     @ColumnInfo(name = "name")
     val name: String,
 

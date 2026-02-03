@@ -27,7 +27,7 @@ public data class FixedIncomeAsset(
     override val observations: String? = null,
 ) : Asset {
 
-    override val name: String
+    override val displayName: String
         get() {
             return when (type) {
                 FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI (venc: $expirationDate)"

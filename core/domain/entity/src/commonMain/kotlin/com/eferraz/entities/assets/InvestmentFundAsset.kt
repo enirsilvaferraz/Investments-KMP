@@ -15,11 +15,15 @@ import kotlinx.datetime.LocalDate
  */
 public data class InvestmentFundAsset(
     override val id: Long = 0,
-    override val name: String,
+    public val name: String,
     override val issuer: Issuer,
     public val type: InvestmentFundAssetType,
     public val liquidity: Liquidity,
     public val liquidityDays: Int,
     public val expirationDate: LocalDate?,
     override val observations: String? = null
-) : Asset
+) : Asset {
+
+    override val displayName: String
+        get() = "${type.name} - $observations"
+}

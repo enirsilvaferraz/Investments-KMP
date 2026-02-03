@@ -63,6 +63,8 @@ public sealed interface HistoryTableData {
      * Total de retiradas no período.
      */
     public val totalWithdrawals: Double
+
+    public val displayName: String
 }
 
 /**
@@ -103,6 +105,7 @@ public data class FixedIncomeHistoryTableData(
     override val editable: Boolean,
     override val totalContributions: Double,
     override val totalWithdrawals: Double,
+    override val displayName: String
 ) : HistoryTableData
 
 /**
@@ -135,6 +138,7 @@ public data class VariableIncomeHistoryTableData(
     override val editable: Boolean,
     override val totalContributions: Double,
     override val totalWithdrawals: Double,
+    override val displayName: String
 ) : HistoryTableData
 
 /**
@@ -171,5 +175,6 @@ public data class InvestmentFundHistoryTableData(
     override val editable: Boolean,
     override val totalContributions: Double,
     override val totalWithdrawals: Double,
+    override val displayName: String
 ) : HistoryTableData
 

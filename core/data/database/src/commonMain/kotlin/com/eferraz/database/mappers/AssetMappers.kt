@@ -74,7 +74,7 @@ internal fun Asset.toEntity(): AssetWithDetails {
 
     val assetEntity = AssetEntity(
         id = id,
-        name = name,
+        name = "",
         issuerId = issuer.id,
         category = category,
         liquidity = liquidity,

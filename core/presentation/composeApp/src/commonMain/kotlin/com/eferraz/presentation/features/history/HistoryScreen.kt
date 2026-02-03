@@ -295,26 +295,33 @@ private fun HistoryScreenFixedIncome(
         )
 
         column(
-            header = "Tipo",
-            sortedBy = { it.type },
-            weight = 1.0f,
-            cellValue = { it.type.formated() }
+            header = "Display Name",
+            sortedBy = { it.displayName },
+            weight = 3.0f,
+            cellValue = { it.displayName }
         )
 
-        column(
-            header = "Vencimento",
-            alignment = Alignment.CenterHorizontally,
-            sortedBy = { it.expirationDate.toString() },
-            weight = 1.0f,
-            cellValue = { it.expirationDate.formated() }
-        )
-
-        column(
-            header = "Taxa",
-            sortedBy = { it.contractedYield },
-            weight = 0.9f,
-            cellValue = { it.contractedYield.toPercentage() }
-        )
+//        column(
+//            header = "Tipo",
+//            sortedBy = { it.type },
+//            weight = 1.0f,
+//            cellValue = { it.type.formated() }
+//        )
+//
+//        column(
+//            header = "Vencimento",
+//            alignment = Alignment.CenterHorizontally,
+//            sortedBy = { it.expirationDate.toString() },
+//            weight = 1.0f,
+//            cellValue = { it.expirationDate.formated() }
+//        )
+//
+//        column(
+//            header = "Taxa",
+//            sortedBy = { it.contractedYield },
+//            weight = 0.9f,
+//            cellValue = { it.contractedYield.toPercentage() }
+//        )
 
 //        column(
 //            header = "% CDI",
@@ -441,6 +448,13 @@ private fun HistoryScreenVariableIncome(
             cellValue = { it.type.formated() }
         )
 
+//        column(
+//            header = "Display Name",
+//            sortedBy = { it.displayName },
+//            weight = 3.0f,
+//            cellValue = { it.displayName }
+//        )
+
         column(
             header = "Ticker",
             sortedBy = { it.ticker },
@@ -565,6 +579,13 @@ private fun HistoryScreenFunds(
             weight = 1.0f,
             cellValue = { it.type.formated() }
         )
+
+//        column(
+//            header = "Display Name",
+//            sortedBy = { it.displayName },
+//            weight = 3.0f,
+//            cellValue = { it.displayName }
+//        )
 
         column(
             header = "Nome",

@@ -72,7 +72,8 @@ public class GetHistoryTableDataUseCase(
                     appreciation = appreciation,
                     editable = true,
                     totalContributions = totalContributions,
-                    totalWithdrawals = totalWithdrawals
+                    totalWithdrawals = totalWithdrawals,
+                    displayName = asset.displayName
                 )
 
                 is VariableIncomeAsset -> VariableIncomeHistoryTableData(
@@ -89,7 +90,8 @@ public class GetHistoryTableDataUseCase(
                     appreciation = appreciation,
                     editable = false,
                     totalContributions = totalContributions,
-                    totalWithdrawals = totalWithdrawals
+                    totalWithdrawals = totalWithdrawals,
+                    displayName = asset.displayName
                 )
 
                 is InvestmentFundAsset -> InvestmentFundHistoryTableData(
@@ -107,7 +109,8 @@ public class GetHistoryTableDataUseCase(
                     appreciation = appreciation,
                     editable = true,
                     totalContributions = totalContributions,
-                    totalWithdrawals = totalWithdrawals
+                    totalWithdrawals = totalWithdrawals,
+                    displayName = asset.displayName
                 )
             }
         }
