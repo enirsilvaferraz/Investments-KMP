@@ -42,8 +42,8 @@ internal fun TransactionTable(
 
     UiTableV3(
         modifier = modifier.fillMaxWidth(),
-        header = columns.map { UiTableDataColumn(it.title, width = TableColumnWidth.MaxIntrinsic) },
-        data = transactions.map {
+        columns = columns.map { UiTableDataColumn(it.title, width = TableColumnWidth.MaxIntrinsic) },
+        rows = transactions.map {
             if (isVariableIncome) listOf(
                 it.formatted.type,
                 it.formatted.date,

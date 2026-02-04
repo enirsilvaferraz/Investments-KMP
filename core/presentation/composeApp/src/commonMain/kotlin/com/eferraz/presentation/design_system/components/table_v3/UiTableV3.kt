@@ -1,13 +1,22 @@
 package com.eferraz.presentation.design_system.components.table_v3
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
@@ -35,105 +44,103 @@ import com.seanproctor.datatable.DataTableState
 import com.seanproctor.datatable.TableColumnWidth
 import com.seanproctor.datatable.rememberDataTableState
 
-internal interface UiTableContentProvider {
-
-    @Composable
-    fun DefaultHeader(text: String)
-
-    @Composable
-    fun DefaultCell(text: String)
-
-    @Composable
-    fun DefaultFooter(text: String)
-}
-
-internal object UiTableContentProviderImpl : UiTableContentProvider {
-
-    @Composable
-    override fun DefaultHeader(
-        text: String,
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(8.dp)
-        )
-    }
-
-    @Composable
-    override fun DefaultCell(text: String) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(8.dp)
-        )
-    }
-
-    @Composable
-    override fun DefaultFooter(text: String) {
-        Text(
-            text = "Footer",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-    }
-}
+internal data class UiTableDataColumn(
+    val text: String,
+    val alignment: Alignment = Alignment.CenterStart,
+    val width: TableColumnWidth = TableColumnWidth.Flex(1f),
+)
 
 @Composable
 internal fun UiTableV3(
     modifier: Modifier = Modifier,
-    contentProvider: UiTableContentProvider = UiTableContentProviderImpl,
-    header: List<UiTableDataColumn>,
-    data: List<List<Any>>,
-    footer: @Composable () -> Unit = {},
+    header: String? = null,
+    columns: List<UiTableDataColumn>,
+    rows: List<List<Any>>,
+    subFooter: List<Any>? = null,
+    footer: (@Composable () -> Unit)? = null,
+    provider: UiTableContentProvider = UiTableContentProviderImpl,
+    headerBackgroundColor: Color = Color.LightGray,
+    footerBackgroundColor: Color = headerBackgroundColor,
 ) {
 
     val state = rememberDataTableState()
 
     var sortConfig by remember { mutableStateOf<Pair<Int?, Boolean>>(Pair(null, true)) }
 
-    val sortedData = remember(data, sortConfig) {
+    val sortedRows = remember(rows, sortConfig) {
         when {
-            sortConfig.first == null -> data
-            sortConfig.second -> data.sortedBy { it.getOrNull(sortConfig.first!!)?.toString().orEmpty() }
-            else -> data.sortedByDescending { it.getOrNull(sortConfig.first!!)?.toString().orEmpty() }
+            sortConfig.first == null -> rows
+            sortConfig.second -> rows.sortedBy { it.getOrNull(sortConfig.first!!)?.toString().orEmpty() }
+            else -> rows.sortedByDescending { it.getOrNull(sortConfig.first!!)?.toString().orEmpty() }
         }
     }
 
-    val columns = header.map { columnHeader ->
+    val columns = columns.map { columnHeader ->
         DataColumn(
             width = columnHeader.width,
             alignment = columnHeader.alignment,
             onSort = { columnIndex: Int, ascending: Boolean -> sortConfig = columnIndex to ascending },
-            header = { contentProvider.DefaultHeader(columnHeader.text) }
+            header = { provider.Column(columnHeader.text) }
         )
     }
 
     val content: DataTableScope.() -> Unit = {
-        sortedData.forEach { rowData ->
+
+        sortedRows.forEachIndexed { index, rowData ->
             row {
                 rowData.forEach { cellData ->
                     cell {
-                        contentProvider.DefaultCell(cellData.toString())
+                        provider.Cell(cellData.toString())
+                    }
+                }
+            }
+        }
+
+        if (subFooter != null) {
+
+            row {
+
+                isFooter = true
+                backgroundColor = footerBackgroundColor
+
+                subFooter.forEach { cellData ->
+                    cell {
+                        provider.SubFooter(cellData.toString())
                     }
                 }
             }
         }
     }
 
-    val headerBackgroundColor = Color.LightGray
-    val footerBackgroundColor = Color.Blue.copy(alpha = 0.2f)
+    val footerWrapped = @Composable {
+        if (footer != null) Box(
+            modifier = Modifier.fillMaxWidth().height(40.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            footer()
+        }
+    }
 
-    DataTable(
-        modifier = modifier,
-        state = state,
-        sortAscending = sortConfig.second,
-        sortColumnIndex = sortConfig.first,
-        headerBackgroundColor = headerBackgroundColor,
-        footerBackgroundColor = footerBackgroundColor,
-        columns = columns,
-        content = content,
-        footer = footer
-    )
+    Card(
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors()
+    ) {
+
+        if (header != null)
+            provider.Header(header, headerBackgroundColor)
+
+        DataTable(
+            modifier = modifier,
+            state = state,
+            sortAscending = sortConfig.second,
+            sortColumnIndex = sortConfig.first,
+            headerBackgroundColor = headerBackgroundColor,
+            footerBackgroundColor = footerBackgroundColor,
+            columns = columns,
+            content = content,
+            footer = footerWrapped
+        )
+    }
 }
 
 @Composable
@@ -154,25 +161,23 @@ private fun DataTable(
     content: DataTableScope.() -> Unit,
 ) {
 
-    Surface {
-        BasicDataTable(
-            columns = columns,
-            modifier = modifier,
-            state = state,
-            separator = separator,
-            headerHeight = headerHeight,
-            rowHeight = rowHeight,
-            contentPadding = contentPadding,
-            headerBackgroundColor = headerBackgroundColor,
-            footerBackgroundColor = footerBackgroundColor,
-            footer = footer,
-            cellContentProvider = Material3CellContentProvider,
-            sortColumnIndex = sortColumnIndex,
-            sortAscending = sortAscending,
-            logger = logger,
-            content = content
-        )
-    }
+    BasicDataTable(
+        columns = columns,
+        modifier = modifier,
+        state = state,
+        separator = separator,
+        headerHeight = headerHeight,
+        rowHeight = rowHeight,
+        contentPadding = contentPadding,
+        headerBackgroundColor = headerBackgroundColor,
+        footerBackgroundColor = footerBackgroundColor,
+        footer = footer,
+        cellContentProvider = Material3CellContentProvider,
+        sortColumnIndex = sortColumnIndex,
+        sortAscending = sortAscending,
+        logger = logger,
+        content = content
+    )
 }
 
 private object Material3CellContentProvider : CellContentProvider {
@@ -216,12 +221,6 @@ private object Material3CellContentProvider : CellContentProvider {
     }
 }
 
-internal data class UiTableDataColumn(
-    val text: String,
-    val alignment: Alignment = Alignment.CenterStart,
-    val width: TableColumnWidth = TableColumnWidth.Flex(1f),
-)
-
 @Preview(widthDp = 700)
 @Composable
 internal fun UiTableV3Preview() {
@@ -234,27 +233,46 @@ internal fun UiTableV3Preview() {
             val previewData = listOf(
                 listOf(5, "Zebra", "Item Z", 100),
                 listOf(2, "Apple", "Item A", 50),
-                listOf(8, "Mango", "Item M", 75),
                 listOf(1, "Banana", "Item B", 25),
                 listOf(3, "Cherry", "Item C", 90),
                 listOf(6, "Orange", "Item O", 60),
             )
 
-            UiTableV3(
-                header = listOf(
-                    UiTableDataColumn("ID", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
-                    UiTableDataColumn("Nome", width = TableColumnWidth.MaxIntrinsic),
-                    UiTableDataColumn("Descrição", width = TableColumnWidth.Flex(1f)),
-                    UiTableDataColumn("Valor", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
-                ),
-                data = previewData,
-                footer = {
-                    Text(
-                        text = "Total: ${previewData.size} itens",
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                }
-            )
+            Column(
+                Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+
+                UiTableV3(
+                    modifier = Modifier.fillMaxWidth(),
+                    header = "Nubank",
+                    columns = listOf(
+                        UiTableDataColumn("ID", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
+                        UiTableDataColumn("Nome", width = TableColumnWidth.MaxIntrinsic),
+                        UiTableDataColumn("Descrição", width = TableColumnWidth.Flex(1f)),
+                        UiTableDataColumn("Valor", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
+                    ),
+                    rows = previewData,
+                    footer = {
+                        Text(
+                            text = "Total: ${previewData.size} itens",
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                    }
+                )
+
+                UiTableV3(
+                    modifier = Modifier.fillMaxWidth(),
+                    columns = listOf(
+                        UiTableDataColumn("ID", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
+                        UiTableDataColumn("Nome", width = TableColumnWidth.MaxIntrinsic),
+                        UiTableDataColumn("Descrição", width = TableColumnWidth.Flex(1f)),
+                        UiTableDataColumn("Valor", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
+                    ),
+                    rows = previewData,
+                    subFooter = listOf("", "Sub calc Orange", "", 600),
+                )
+            }
         }
     }
 }
