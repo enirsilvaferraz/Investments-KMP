@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 // ============================================================================
 
 @Composable
-private fun headerFooterModifier() = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
+private fun headerFooterModifier() = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest).padding(horizontal = 8.dp)
 
 @Composable
 internal fun <T> TableHeader(
@@ -144,7 +144,7 @@ internal fun GroupHeaderRow(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .height(70.dp)
-            .padding(16.dp),
+            .padding(vertical = 16.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.Bottom
     ) {
         Text(

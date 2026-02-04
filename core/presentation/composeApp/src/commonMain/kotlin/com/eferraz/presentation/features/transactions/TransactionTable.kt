@@ -10,8 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.VariableIncomeAsset
-import com.eferraz.presentation.design_system.components.table.DataTable
 import com.eferraz.presentation.design_system.components.table.TableColumn
+import com.eferraz.presentation.design_system.components.table_v3.UiTableDataColumn
+import com.eferraz.presentation.design_system.components.table_v3.UiTableV3
+import com.seanproctor.datatable.TableColumnWidth
 
 @Composable
 internal fun TransactionTable(
@@ -38,10 +40,23 @@ internal fun TransactionTable(
         buildFixedIncomeOrFundsColumns()
     }
 
-    DataTable(
+    UiTableV3(
         modifier = modifier.fillMaxWidth(),
-        columns = columns,
-        data = transactions,
+        header = columns.map { UiTableDataColumn(it.title, width = TableColumnWidth.MaxIntrinsic) },
+        data = transactions.map {
+            if (isVariableIncome) listOf(
+                it.formatted.type,
+                it.formatted.date,
+                it.formatted.quantity.orEmpty(),
+                it.formatted.unitPrice.orEmpty(),
+                it.formatted.totalValue
+            )
+            else listOf(
+                it.formatted.type,
+                it.formatted.date,
+                it.formatted.totalValue
+            )
+        },
     )
 }
 
@@ -49,7 +64,7 @@ internal fun TransactionTable(
 private fun buildVariableIncomeColumns(): List<TableColumn<TransactionRow>> {
     return listOf(
         TableColumn(
-            title = "Tipo de Transação",
+            title = "Transação",
             data = { viewData.type },
             formated = { formatted.type }
         ),
@@ -84,7 +99,7 @@ private fun buildVariableIncomeColumns(): List<TableColumn<TransactionRow>> {
 private fun buildFixedIncomeOrFundsColumns(): List<TableColumn<TransactionRow>> {
     return listOf(
         TableColumn(
-            title = "Tipo de Transação",
+            title = "Transação",
             data = { viewData.type },
             formated = { formatted.type }
         ),

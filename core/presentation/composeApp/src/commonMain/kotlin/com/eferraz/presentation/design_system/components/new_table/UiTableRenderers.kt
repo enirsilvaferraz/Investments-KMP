@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 private val HEADER_HEIGHT = 54.dp
 private val CELL_HEIGHT = 45.dp
 private val FOOTER_HEIGHT = 70.dp
-private val CELL_PADDING = 8.dp
-private val FOOTER_PADDING = 16.dp
+private val CELL_PADDING = 0.dp
+private val FOOTER_PADDING = 4.dp
 
 @Composable
 private fun headerFooterTextStyle() = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
