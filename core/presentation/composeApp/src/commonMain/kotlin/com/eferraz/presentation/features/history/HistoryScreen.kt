@@ -16,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,10 +26,15 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +43,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
@@ -44,6 +54,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.Liquidity
 import com.eferraz.presentation.FixedIncomeHistoryRouting
 import com.eferraz.presentation.FundsHistoryRouting
 import com.eferraz.presentation.VariableIncomeHistoryRouting
@@ -256,7 +267,7 @@ private fun SyncButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun HistoryScreenFixedIncome(
     modifier: Modifier = Modifier,
@@ -279,6 +290,14 @@ private fun HistoryScreenFixedIncome(
             }
         }
     ) {
+
+        column(
+            header = "Emissor",
+            sortedBy = { it.issuerName },
+            weight = 1.3f,
+            cellValue = { it.issuerName }
+        )
+
 
 //        column(
 //            header = "Corretora",
@@ -331,17 +350,41 @@ private fun HistoryScreenFixedIncome(
 //        )
 
         column(
-            header = "Emissor",
-            sortedBy = { it.issuerName },
-            weight = 1.3f,
-            cellValue = { it.issuerName }
-        )
-
-        column(
             header = "Liquidez",
             sortedBy = { it.liquidity },
-            weight = 1.1f,
-            cellValue = { it.liquidity.formated() }
+            weight = 0.8f,
+            alignment = Alignment.CenterHorizontally,
+            cellContent = {
+
+                val icon = when (it.liquidity) {
+                    Liquidity.DAILY -> Icons.Default.EventAvailable
+                    else -> Icons.Default.EventBusy
+                }
+
+                val color = when (it.liquidity) {
+                    Liquidity.DAILY -> Color.Green
+                    else -> Color.Red
+                }
+
+                val tooltipText = it.liquidity.formated()
+
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.End),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(tooltipText)
+                        }
+                    },
+                    state = rememberTooltipState()
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = it.liquidity.formated(),
+                        modifier = Modifier.alpha(0.5f),//.size(18.dp),
+                        tint = color
+                    )
+                }
+            }
         )
 
         column(
@@ -377,22 +420,41 @@ private fun HistoryScreenFixedIncome(
             footer = { data -> data.sumOf { it.currentValue }.currencyFormat() }
         )
 
-        column(
-            header = "Aportes",
-            alignment = Alignment.End,
-            sortedBy = { it.totalContributions },
-            weight = 1.3f,
-            cellValue = { it.totalContributions.currencyFormat() },
-            footer = { data -> data.sumOf { it.totalContributions }.currencyFormat() }
-        )
+//        column(
+//            header = "Aportes",
+//            alignment = Alignment.End,
+//            sortedBy = { it.totalContributions },
+//            weight = 1.3f,
+//            cellValue = { it.totalContributions.currencyFormat() },
+//            footer = { data -> data.sumOf { it.totalContributions }.currencyFormat() }
+//        )
+//
+//        column(
+//            header = "Retiradas",
+//            alignment = Alignment.End,
+//            sortedBy = { it.totalWithdrawals },
+//            weight = 1.3f,
+//            cellValue = { it.totalWithdrawals.currencyFormat() },
+//            footer = { data -> data.sumOf { it.totalWithdrawals }.currencyFormat() }
+//        )
 
         column(
-            header = "Retiradas",
+            header = "Movimentação",
             alignment = Alignment.End,
-            sortedBy = { it.totalWithdrawals },
+            sortedBy = { it.totalBalance },
             weight = 1.3f,
-            cellValue = { it.totalWithdrawals.currencyFormat() },
-            footer = { data -> data.sumOf { it.totalWithdrawals }.currencyFormat() }
+//            cellValue = { it.totalBalance.currencyFormat() },
+            cellContent = {
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = it.totalBalance.currencyFormat(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (it.totalBalance != 0.0) 1.0f else 0.5f),
+                    textAlign = TextAlign.End,
+                    softWrap = false
+                )
+            },
+            footer = { data -> data.sumOf { it.totalBalance }.currencyFormat() }
         )
 
         column(
@@ -400,7 +462,24 @@ private fun HistoryScreenFixedIncome(
             alignment = Alignment.CenterHorizontally,
             sortedBy = { it.appreciation },
             weight = 0.7f,
-            cellValue = { it.appreciation.toPercentage() },
+//            cellValue = { it.appreciation.toPercentage() },
+            cellContent = {
+
+                val color = when {
+                    it.appreciation > 0.0 -> Color.Green
+                    it.appreciation < 0.0 -> Color.Red
+                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                }
+
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = it.appreciation.toPercentage(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = color,
+//                    textAlign = TextAlign.End,
+                    softWrap = false
+                )
+            },
             footer = { data ->
                 val vf = data.sumOf { it.currentValue }
                 val vi = data.sumOf { it.previousValue }
@@ -594,19 +673,19 @@ private fun HistoryScreenFunds(
             cellValue = { it.name }
         )
 
-        column(
-            header = "Liquidez",
-            sortedBy = { it.liquidity },
-            weight = 1.1f,
-            cellValue = { it.liquidity.formated(it.liquidityDays) }
-        )
-
-        column(
-            header = "Dias Liq.",
-            sortedBy = { it.liquidityDays },
-            weight = 0.9f,
-            cellValue = { it.liquidityDays.toString() }
-        )
+//        column(
+//            header = "Liquidez",
+//            sortedBy = { it.liquidity },
+//            weight = 1.1f,
+//            cellValue = { it.liquidity.formated(it.liquidityDays) }
+//        )
+//
+//        column(
+//            header = "Dias Liq.",
+//            sortedBy = { it.liquidityDays },
+//            weight = 0.9f,
+//            cellValue = { it.liquidityDays.toString() }
+//        )
 
         column(
             header = "Vencimento",

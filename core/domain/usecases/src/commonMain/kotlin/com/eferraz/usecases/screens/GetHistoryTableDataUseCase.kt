@@ -55,9 +55,10 @@ public class GetHistoryTableDataUseCase(
                 ?.filter { it.date.month == param.referenceDate.month && it.date.year == param.referenceDate.year }
                 ?: emptyList()
 
-            val transactionBalance = TransactionBalance.Companion.calculate(transactions)
+            val transactionBalance = TransactionBalance.calculate(transactions)
             val totalContributions = transactionBalance.contributions
             val totalWithdrawals = transactionBalance.withdrawals
+            val totalBalance = transactionBalance.balance
 
             when (asset) {
 
@@ -78,6 +79,7 @@ public class GetHistoryTableDataUseCase(
                     editable = true,
                     totalContributions = totalContributions,
                     totalWithdrawals = totalWithdrawals,
+                    totalBalance = totalBalance,
                     displayName = asset.formated()
                 )
 
@@ -96,6 +98,7 @@ public class GetHistoryTableDataUseCase(
                     editable = false,
                     totalContributions = totalContributions,
                     totalWithdrawals = totalWithdrawals,
+                    totalBalance = totalBalance,
                     displayName = asset.formated()
                 )
 
@@ -115,6 +118,7 @@ public class GetHistoryTableDataUseCase(
                     editable = true,
                     totalContributions = totalContributions,
                     totalWithdrawals = totalWithdrawals,
+                    totalBalance = totalBalance,
                     displayName = asset.formated()
                 )
             }
