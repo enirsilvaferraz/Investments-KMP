@@ -10,7 +10,7 @@ internal class GoalInvestmentPlanRepositoryImpl(
     private val dataSource: GoalInvestmentPlanDataSource,
 ) : GoalInvestmentPlanRepository {
 
-    override suspend fun save(plan: GoalInvestmentPlan): Long = dataSource.save(plan)
+    override suspend fun upsert(plan: GoalInvestmentPlan): Long = dataSource.save(plan)
 
     override suspend fun getAll() = dataSource.getAll()
 

@@ -25,7 +25,7 @@ public class SetGoalToHoldingUseCase(
         // (porque o holding precisa de corretora, que é obrigatória)
         if (existingHolding != null) {
             val updatedHolding = existingHolding.copy(goal = param.goal)
-            assetHoldingRepository.save(updatedHolding)
+            assetHoldingRepository.upsert(updatedHolding)
         }
     }
 }

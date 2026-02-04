@@ -3,10 +3,10 @@ package com.eferraz.presentation.features.assetForm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.assets.InvestmentCategory
-import com.eferraz.usecases.GetAssetUseCase
-import com.eferraz.usecases.GetBrokeragesUseCase
+import com.eferraz.usecases.cruds.GetAssetUseCase
+import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.GetFinancialGoalsUseCase
-import com.eferraz.usecases.GetIssuersUseCase
+import com.eferraz.usecases.cruds.GetIssuersUseCase
 import com.eferraz.usecases.SaveAssetUseCase
 import com.eferraz.usecases.exceptions.ValidateException
 import com.eferraz.usecases.entities.AssetFormData

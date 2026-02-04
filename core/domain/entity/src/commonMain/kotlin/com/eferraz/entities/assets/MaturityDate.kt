@@ -14,5 +14,5 @@ public value class MaturityDate(private val value: String) {
         value.toDate()
 
     private fun String.toDate() =
-        LocalDate.Companion.Format { year(); monthNumber(); day() }.parse(this)
+        LocalDate.Format { year(); monthNumber(); day() }.parse(this)
 }

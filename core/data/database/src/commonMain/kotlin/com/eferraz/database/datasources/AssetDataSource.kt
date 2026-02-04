@@ -10,4 +10,5 @@ public interface AssetDataSource {
     public suspend fun getByID(id: Long): Asset?
     public suspend fun getByTicker(ticker: String): Asset?
     public suspend fun save(asset: Asset): Long
+    public suspend fun delete(id: Long)
 }

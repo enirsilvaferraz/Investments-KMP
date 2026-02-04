@@ -50,7 +50,7 @@ public class SetBrokerageToHoldingUseCase(
             val holding = existingHolding?.copy(brokerage = brokerage, owner = owner)
                 ?: AssetHolding(id = 0, asset = asset, owner = owner, brokerage = brokerage)
 
-            assetHoldingRepository.save(holding)
+            assetHoldingRepository.upsert(holding)
         }
     }
 

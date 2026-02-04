@@ -5,6 +5,8 @@ import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.Factory
 
@@ -14,7 +16,8 @@ public class SyncVariableIncomeValuesUseCase(
     private val getQuotesUseCase: GetQuotesUseCase,
     private val holdingHistoryRepository: HoldingHistoryRepository,
     private val assetRepository: AssetRepository,
-) : AppUseCase<SyncVariableIncomeValuesUseCase.Param, Unit>() {
+    context: CoroutineDispatcher = Dispatchers.Default
+) : AppUseCase<SyncVariableIncomeValuesUseCase.Param, Unit>(context) {
 
     public data class Param(val referenceDate: YearMonth)
 
@@ -63,7 +66,7 @@ public class SyncVariableIncomeValuesUseCase(
             // Verifica se o nome está vazio ou é igual ao ticker (indicando que não foi preenchido)
             if (asset.name.isBlank() || asset.name == asset.ticker) {
                 val updatedAsset = asset.copy(name = companyName)
-                assetRepository.save(updatedAsset)
+                assetRepository.upsert(updatedAsset)
             }
         }
     }

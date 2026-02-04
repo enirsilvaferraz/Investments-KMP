@@ -1,7 +1,5 @@
 package com.eferraz.entities.assets
 
-import com.eferraz.entities.assets.Issuer
-
 /**
  * Contrato para as características intrínsecas de um ativo de investimento.
  *

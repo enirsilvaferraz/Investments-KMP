@@ -1,6 +1,7 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.cruds
 
 import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.usecases.AppUseCase
 import com.eferraz.usecases.repositories.BrokerageRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -17,4 +18,3 @@ public class GetBrokeragesUseCase(
     override suspend fun execute(param: Param): List<Brokerage> =
         brokerageRepository.getAll()
 }
-

@@ -80,7 +80,7 @@ public class SaveAssetUseCase(
                     liquidity = formData.liquidity!!,
                     observations = formData.observations
                 )
-                assetRepository.save(asset)
+                assetRepository.upsert(asset)
             }
 
             is InvestmentFundFormData -> {
@@ -94,7 +94,7 @@ public class SaveAssetUseCase(
                     expirationDate = formData.expirationDate?.let { LocalDate.parse(it) },
                     observations = formData.observations
                 )
-                assetRepository.save(asset)
+                assetRepository.upsert(asset)
             }
 
             is VariableIncomeFormData -> {
@@ -106,7 +106,7 @@ public class SaveAssetUseCase(
                     ticker = formData.ticker!!,
                     observations = formData.observations
                 )
-                assetRepository.save(asset)
+                assetRepository.upsert(asset)
             }
         }
 
@@ -140,7 +140,7 @@ public class SaveAssetUseCase(
                         brokerage = brokerage,
                         goal = goal
                     )
-                    assetHoldingRepository.save(holding)
+                    assetHoldingRepository.upsert(holding)
                 }
             }
             // Caso 2: Corretora foi removida (campo vazio) e existe AssetHolding

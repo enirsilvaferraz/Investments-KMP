@@ -141,13 +141,14 @@ internal fun <T> UiTable(
                             cellRenderer = cellRenderer,
                             onSelect = onSelectUpdated
                         )
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            thickness = 1.dp
-                        )
                     }
                 }
+
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    thickness = 1.dp
+                )
             }
         }
 

@@ -10,7 +10,7 @@ internal class FinancialGoalRepositoryImpl(
     private val dataSource: FinancialGoalDataSource,
 ) : FinancialGoalRepository {
 
-    override suspend fun save(goal: FinancialGoal): Long = dataSource.save(goal)
+    override suspend fun upsert(goal: FinancialGoal): Long = dataSource.save(goal)
 
     override suspend fun getAll() = dataSource.getAll()
 

@@ -4,6 +4,7 @@ import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.usecases.cruds.GetAssetsUseCase
 import com.eferraz.usecases.entities.AssetsTableData
 import com.eferraz.usecases.entities.FixedIncomeAssetsTableData
 import com.eferraz.usecases.entities.InvestmentFundAssetsTableData

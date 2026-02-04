@@ -15,6 +15,6 @@ public class SaveAssetUseCase2(
     public data class Params(val model: Asset)
 
     override suspend fun execute(param: Params) {
-        repository.save(param.model)
+        repository.upsert(param.model)
     }
 }

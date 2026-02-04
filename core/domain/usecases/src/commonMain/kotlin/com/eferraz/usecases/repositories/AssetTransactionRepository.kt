@@ -7,7 +7,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 
 public interface AssetTransactionRepository {
-    public suspend fun save(transaction: AssetTransaction): Long
+    public suspend fun upsert(model: AssetTransaction): Long
     public suspend fun delete(id: Long)
     public suspend fun getById(id: Long, holding: AssetHolding): AssetTransaction?
     public suspend fun getAllByHolding(holding: AssetHolding): List<AssetTransaction>

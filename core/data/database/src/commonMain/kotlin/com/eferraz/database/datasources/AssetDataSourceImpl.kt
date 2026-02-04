@@ -29,4 +29,8 @@ internal class AssetDataSourceImpl(
 
     override suspend fun save(asset: Asset): Long =
         assetDao.save(asset.toEntity())
+
+    override suspend fun delete(id: Long) {
+        TODO("Not yet implemented")
+    }
 }

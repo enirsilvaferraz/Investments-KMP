@@ -13,11 +13,13 @@ internal class AssetRepositoryImpl(
 
     override suspend fun getAll() = dataSource.getAll()
 
+    override suspend fun delete(id: Long) = dataSource.delete(id)
+
     override suspend fun getByType(category: InvestmentCategory) = dataSource.getByType(category)
 
     override suspend fun getById(id: Long) = dataSource.getByID(id)
 
     override suspend fun getByTicker(ticker: String) = dataSource.getByTicker(ticker)
 
-    override suspend fun save(asset: Asset) = dataSource.save(asset)
+    override suspend fun upsert(model: Asset) = dataSource.save(model)
 }

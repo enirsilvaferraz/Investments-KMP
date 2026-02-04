@@ -1,6 +1,7 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.cruds
 
 import com.eferraz.entities.assets.Asset
+import com.eferraz.usecases.AppUseCase
 import com.eferraz.usecases.repositories.AssetRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -19,4 +20,3 @@ public class GetAssetUseCase(
         is ById -> assetRepository.getById(param.id) ?: throw Exception("Asset not found")
     }
 }
-

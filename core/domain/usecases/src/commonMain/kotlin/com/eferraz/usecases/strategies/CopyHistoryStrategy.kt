@@ -119,7 +119,7 @@ public interface CopyHistoryStrategy {
                     // Verifica se o nome está vazio ou é igual ao ticker (indicando que não foi preenchido)
                     if (asset.name.isBlank() || asset.name == asset.ticker) {
                         val updatedAsset = asset.copy(name = companyName)
-                        assetRepository.save(updatedAsset)
+                        assetRepository.upsert(updatedAsset)
                     }
                 }
 

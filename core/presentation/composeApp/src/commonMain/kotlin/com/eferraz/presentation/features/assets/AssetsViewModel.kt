@@ -10,11 +10,11 @@ import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.VariableIncomeAsset
-import com.eferraz.usecases.GetAssetUseCase
+import com.eferraz.usecases.cruds.GetAssetUseCase
 import com.eferraz.usecases.GetAssetsTableDataUseCase
-import com.eferraz.usecases.GetBrokeragesUseCase
+import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.GetFinancialGoalsUseCase
-import com.eferraz.usecases.GetIssuersUseCase
+import com.eferraz.usecases.cruds.GetIssuersUseCase
 import com.eferraz.usecases.SaveAssetUseCase2
 import com.eferraz.usecases.SaveAssetUseCase2.Params
 import com.eferraz.usecases.SetBrokerageToHoldingUseCase

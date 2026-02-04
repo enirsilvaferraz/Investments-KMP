@@ -11,11 +11,13 @@ internal class AssetHoldingRepositoryImpl(
     private val dataSource: AssetHoldingDataSource,
 ) : AssetHoldingRepository {
 
-    override suspend fun save(assetHolding: AssetHolding) = dataSource.save(assetHolding)
+    override suspend fun upsert(model: AssetHolding) = dataSource.save(model)
 
-    override suspend fun getByAssetId(assetId: Long) = dataSource.getByAssetId(assetId)
+    override suspend fun getById(id: Long): AssetHolding = dataSource.getById(id)
 
     override suspend fun getAll() = dataSource.getAll()
+
+    override suspend fun getByAssetId(assetId: Long) = dataSource.getByAssetId(assetId)
 
     override suspend fun getAllVariableIncomeAssets() = dataSource.getAllVariableIncomeAssets()
 

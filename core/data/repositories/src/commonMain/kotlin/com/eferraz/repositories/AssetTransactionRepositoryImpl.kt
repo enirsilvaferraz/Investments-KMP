@@ -17,8 +17,8 @@ internal class AssetTransactionRepositoryImpl(
     private val dataSource: AssetTransactionDataSource,
 ) : AssetTransactionRepository {
 
-    override suspend fun save(transaction: AssetTransaction): Long =
-        dataSource.save(transaction)
+    override suspend fun upsert(model: AssetTransaction): Long =
+        dataSource.save(model)
 
     override suspend fun getById(id: Long, holding: AssetHolding): AssetTransaction? =
         dataSource.find(id, holding)
