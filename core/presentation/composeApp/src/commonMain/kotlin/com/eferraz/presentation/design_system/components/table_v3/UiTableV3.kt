@@ -25,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,11 +45,14 @@ import com.seanproctor.datatable.DataTableState
 import com.seanproctor.datatable.TableColumnWidth
 import com.seanproctor.datatable.rememberDataTableState
 
+@Immutable
 internal data class UiTableDataColumn(
     val text: String,
     val alignment: Alignment = Alignment.CenterStart,
     val width: TableColumnWidth = TableColumnWidth.Flex(1f),
 )
+
+private val FooterBoxModifier = Modifier.fillMaxWidth().height(40.dp)
 
 @Composable
 internal fun UiTableV3(
@@ -65,7 +69,9 @@ internal fun UiTableV3(
 
     val state = rememberDataTableState()
 
-    var sortConfig by remember { mutableStateOf<Pair<Int?, Boolean>>(Pair(null, true)) }
+    var sortConfig by remember {
+        mutableStateOf<Pair<Int?, Boolean>>(Pair(null, true))
+    }
 
     val sortedRows = remember(rows, sortConfig) {
         when {
@@ -75,49 +81,56 @@ internal fun UiTableV3(
         }
     }
 
-    val columns = columns.map { columnHeader ->
-        DataColumn(
-            width = columnHeader.width,
-            alignment = columnHeader.alignment,
-            onSort = { columnIndex: Int, ascending: Boolean -> sortConfig = columnIndex to ascending },
-            header = { provider.Column(columnHeader.text) }
-        )
+    val dataColumns = remember(columns, provider) {
+        columns.map { columnHeader ->
+            DataColumn(
+                width = columnHeader.width,
+                alignment = columnHeader.alignment,
+                onSort = { columnIndex: Int, ascending: Boolean -> sortConfig = columnIndex to ascending },
+                header = { provider.Column(columnHeader.text) }
+            )
+        }
     }
 
-    val content: DataTableScope.() -> Unit = {
+    val content: DataTableScope.() -> Unit = remember(sortedRows, subFooter, footerBackgroundColor, provider) {
 
-        sortedRows.forEachIndexed { index, rowData ->
-            row {
-                rowData.forEach { cellData ->
-                    cell {
-                        provider.Cell(cellData.toString())
+        {
+
+            sortedRows.forEachIndexed { index, rowData ->
+                row {
+                    rowData.forEach { cellData ->
+                        cell {
+                            provider.Cell(cellData.toString())
+                        }
+                    }
+                }
+            }
+
+            if (subFooter != null) {
+
+                row {
+
+                    isFooter = true
+                    backgroundColor = footerBackgroundColor
+
+                    subFooter.forEach { cellData ->
+                        cell {
+                            provider.SubFooter(cellData.toString())
+                        }
                     }
                 }
             }
         }
-
-        if (subFooter != null) {
-
-            row {
-
-                isFooter = true
-                backgroundColor = footerBackgroundColor
-
-                subFooter.forEach { cellData ->
-                    cell {
-                        provider.SubFooter(cellData.toString())
-                    }
-                }
-            }
-        }
     }
 
-    val footerWrapped = @Composable {
-        if (footer != null) Box(
-            modifier = Modifier.fillMaxWidth().height(40.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            footer()
+    val footerWrapped = remember(footer) {
+        @Composable {
+            if (footer != null) Box(
+                modifier = FooterBoxModifier,
+                contentAlignment = Alignment.Center
+            ) {
+                footer()
+            }
         }
     }
 
@@ -136,7 +149,7 @@ internal fun UiTableV3(
             sortColumnIndex = sortConfig.first,
             headerBackgroundColor = headerBackgroundColor,
             footerBackgroundColor = footerBackgroundColor,
-            columns = columns,
+            columns = dataColumns,
             content = content,
             footer = footerWrapped
         )
