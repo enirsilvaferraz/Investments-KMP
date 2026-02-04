@@ -1,8 +1,11 @@
-package com.eferraz.database.datasources
+package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.AssetHoldingDao
 import com.eferraz.database.daos.BrokerageDao
 import com.eferraz.database.daos.OwnerDao
+import com.eferraz.database.datasources.AssetDataSource
+import com.eferraz.database.datasources.AssetHoldingDataSource
+import com.eferraz.database.datasources.FinancialGoalDataSource
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.InvestmentCategory

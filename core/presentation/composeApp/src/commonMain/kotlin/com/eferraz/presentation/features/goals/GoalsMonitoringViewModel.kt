@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.presentation.helpers.Formatters.formated
-import com.eferraz.usecases.GetFinancialGoalsUseCase
-import com.eferraz.usecases.GetGoalsMonitoringTableDataUseCase
+import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
+import com.eferraz.usecases.screens.GetGoalsMonitoringTableDataUseCase
 import com.eferraz.usecases.entities.GoalsMonitoringTableData
 import com.eferraz.usecases.entities.PeriodType
 import kotlinx.coroutines.flow.MutableStateFlow

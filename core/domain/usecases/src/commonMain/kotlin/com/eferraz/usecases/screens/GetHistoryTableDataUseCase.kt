@@ -1,4 +1,4 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.screens
 
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
@@ -6,18 +6,22 @@ import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.transactions.TransactionBalance
+import com.eferraz.usecases.AppUseCase
+import com.eferraz.usecases.GetTransactionsByHoldingUseCase
+import com.eferraz.usecases.MergeHistoryUseCase
 import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.entities.InvestmentFundHistoryTableData
 import com.eferraz.usecases.entities.VariableIncomeHistoryTableData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.Factory
 
 /**
  * Use case responsável por obter os dados da tabela de histórico de posições para exibição na tela.
- * 
- * Retorna uma lista de [HistoryTableData], onde cada item representa uma linha da tabela
+ *
+ * Retorna uma lista de [com.eferraz.usecases.entities.HistoryTableData], onde cada item representa uma linha da tabela
  * com dados primitivos, enums e LocalDate para formatação na view.
  */
 @Factory
@@ -28,7 +32,7 @@ public class GetHistoryTableDataUseCase(
 ) : AppUseCase<GetHistoryTableDataUseCase.Param, List<HistoryTableData>>(context) {
 
     public data class Param(
-        val referenceDate: kotlinx.datetime.YearMonth,
+        val referenceDate: YearMonth,
         val category: InvestmentCategory,
     )
 
@@ -51,7 +55,7 @@ public class GetHistoryTableDataUseCase(
                 ?.filter { it.date.month == param.referenceDate.month && it.date.year == param.referenceDate.year }
                 ?: emptyList()
 
-            val transactionBalance = TransactionBalance.calculate(transactions)
+            val transactionBalance = TransactionBalance.Companion.calculate(transactions)
             val totalContributions = transactionBalance.contributions
             val totalWithdrawals = transactionBalance.withdrawals
 
@@ -127,4 +131,3 @@ public class GetHistoryTableDataUseCase(
 
     internal fun InvestmentFundAsset.formated(): String = type.name
 }
-

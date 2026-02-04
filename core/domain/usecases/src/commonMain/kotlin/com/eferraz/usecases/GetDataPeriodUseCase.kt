@@ -14,7 +14,9 @@ public class GetDataPeriodUseCase(
 ) : AppUseCase<Unit, List<YearMonth>>(context) {
 
     override suspend fun execute(param: Unit): List<YearMonth> {
+
         val currentMonth = dateProvider.getCurrentYearMonth()
+
         return generateSequence(start) { it.plusMonth() }
             .takeWhile { it <= currentMonth }
             .toList()

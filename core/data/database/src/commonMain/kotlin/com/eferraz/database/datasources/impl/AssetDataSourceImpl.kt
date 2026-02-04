@@ -1,6 +1,7 @@
-package com.eferraz.database.datasources
+package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.AssetDao
+import com.eferraz.database.datasources.AssetDataSource
 import com.eferraz.database.mappers.toDomain
 import com.eferraz.database.mappers.toEntity
 import com.eferraz.entities.assets.Asset

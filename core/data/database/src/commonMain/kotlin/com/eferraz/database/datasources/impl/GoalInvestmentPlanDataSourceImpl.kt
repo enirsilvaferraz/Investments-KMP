@@ -1,6 +1,8 @@
-package com.eferraz.database.datasources
+package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.GoalInvestmentPlanDao
+import com.eferraz.database.datasources.FinancialGoalDataSource
+import com.eferraz.database.datasources.GoalInvestmentPlanDataSource
 import com.eferraz.database.entities.goals.GoalInvestmentPlanEntity
 import com.eferraz.entities.goals.GoalInvestmentPlan
 import org.koin.core.annotation.Factory

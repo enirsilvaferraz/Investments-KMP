@@ -6,6 +6,7 @@ import com.eferraz.usecases.TestDataFactory.createAssetHolding
 import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
 import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry
 import com.eferraz.usecases.TestDataFactory.createInvestmentFundAsset
+import com.eferraz.usecases.holdings.CreateHistoryUseCase
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetTransactionRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository

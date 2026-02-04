@@ -1,9 +1,11 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.screens
 
 import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.goals.GoalMonthlyData
 import com.eferraz.entities.goals.GoalProjections
 import com.eferraz.entities.goals.GrowthRate
+import com.eferraz.usecases.AppUseCase
+import com.eferraz.usecases.GetGoalHistoryUseCase
 import com.eferraz.usecases.entities.GoalsMonitoringTableData
 import com.eferraz.usecases.entities.PeriodType
 import com.eferraz.usecases.repositories.GoalInvestmentPlanRepository
@@ -38,7 +40,7 @@ public class GetGoalsMonitoringTableDataUseCase(
 
         val history = getGoalHistoryUseCase(GetGoalHistoryUseCase.Param(param.goal)).getOrNull() ?: emptyMap()
 
-        val planedProjections = GoalProjections.calculate(
+        val planedProjections = GoalProjections.Companion.calculate(
             startMonth = plan.goal.startDate.yearMonth,
             initialValue = history[plan.goal.startDate.yearMonth.minusMonth()]?.value ?: 0.0,
             appreciationRate = plan.appreciationRate,
@@ -46,13 +48,13 @@ public class GetGoalsMonitoringTableDataUseCase(
             targetValue = plan.goal.targetValue
         ).map
 
-        val growthRate = GrowthRate.calculate(
+        val growthRate = GrowthRate.Companion.calculate(
             initialValue = history.values.first().value,
             finalValue = history.values.last().value,
-            periods = history.keys.first().until(history.keys.last(), DateTimeUnit.MONTH).toInt()
+            periods = history.keys.first().until(history.keys.last(), DateTimeUnit.Companion.MONTH).toInt()
         )
 
-        val calculatedProjections = GoalProjections.calculate(
+        val calculatedProjections = GoalProjections.Companion.calculate(
             initialValue = history.values.first().value,
             startMonth = history.keys.last(),
             appreciationRate = growthRate.percentValue,

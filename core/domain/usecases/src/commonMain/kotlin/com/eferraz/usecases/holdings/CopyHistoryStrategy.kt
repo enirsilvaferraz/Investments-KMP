@@ -1,10 +1,10 @@
-package com.eferraz.usecases.strategies
+package com.eferraz.usecases.holdings
 
-import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.assets.FixedIncomeAsset
-import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.GetQuotesUseCase
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
@@ -16,7 +16,6 @@ import org.koin.core.annotation.Factory
  * Interface para estratégias de criação de histórico de posições de ativos.
  *
  * Cada estratégia implementa uma lógica específica baseada no tipo de ativo,
- * conforme descrito em [Regras de Negócio - Criar novo registro de histórico](../../../../../../../../../docs/RN%20-%20Criar%20novo%20registro%20de%20histórico.md#3-estratégias-por-tipo-de-ativo).
  */
 public interface CopyHistoryStrategy {
 
@@ -41,7 +40,6 @@ public interface CopyHistoryStrategy {
      * Estratégia para criação de histórico de ativos de Renda Fixa e Fundos de Investimento.
      *
      * Esta estratégia copia todos os dados do histórico do mês anterior, conforme
-     * [Regras de Negócio - Renda Fixa e Fundos](../../../../../../../../../docs/RN%20-%20Criar%20novo%20registro%20de%20histórico.md#31-renda-fixa-e-fundos).
      *
      * **Comportamento:**
      * - Busca o histórico do mês anterior
@@ -49,8 +47,8 @@ public interface CopyHistoryStrategy {
      * - Se não encontrado, retorna null (use case cria registro vazio)
      *
      * **Aplicável a:**
-     * - [FixedIncomeAsset]
-     * - [InvestmentFundAsset]
+     * - [com.eferraz.entities.assets.FixedIncomeAsset]
+     * - [com.eferraz.entities.assets.InvestmentFundAsset]
      */
     @Factory(binds = [CopyHistoryStrategy::class])
     public class FixedIncomeHistoryStrategy(
@@ -68,7 +66,6 @@ public interface CopyHistoryStrategy {
      * Estratégia para criação de histórico de ativos de Renda Variável.
      *
      * Esta estratégia implementa a lógica de criação de histórico conforme
-     * [Regras de Negócio - Renda Variável](../../../../../../../../../docs/RN%20-%20Criar%20novo%20registro%20de%20histórico.md#32-renda-variável).
      *
      * **Comportamento:**
      * - Se histórico existe para o mês: retorna o histórico existente (sem alterações)
@@ -77,7 +74,7 @@ public interface CopyHistoryStrategy {
      * - Se não há cotação disponível: retorna null (use case cria registro vazio)
      *
      * **Aplicável a:**
-     * - [VariableIncomeAsset] (ações, ETFs, etc.)
+     * - [com.eferraz.entities.assets.VariableIncomeAsset] (ações, ETFs, etc.)
      */
     @Factory(binds = [CopyHistoryStrategy::class])
     public class VariableIncomeHistoryStrategy(

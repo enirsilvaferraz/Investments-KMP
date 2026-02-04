@@ -1,6 +1,7 @@
-package com.eferraz.database.datasources
+package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.BrokerageDao
+import com.eferraz.database.datasources.BrokerageDataSource
 import com.eferraz.database.entities.supports.BrokerageEntity
 import com.eferraz.entities.holdings.Brokerage
 import org.koin.core.annotation.Factory

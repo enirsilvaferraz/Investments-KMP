@@ -6,8 +6,8 @@ import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.usecases.GetDataPeriodUseCase
-import com.eferraz.usecases.GetHistoryTableDataUseCase
-import com.eferraz.usecases.SyncVariableIncomeValuesUseCase
+import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
+import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.providers.DateProvider

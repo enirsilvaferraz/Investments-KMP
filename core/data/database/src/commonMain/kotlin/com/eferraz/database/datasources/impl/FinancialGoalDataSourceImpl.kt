@@ -1,7 +1,8 @@
-package com.eferraz.database.datasources
+package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.FinancialGoalDao
 import com.eferraz.database.daos.OwnerDao
+import com.eferraz.database.datasources.FinancialGoalDataSource
 import com.eferraz.database.entities.goals.FinancialGoalEntity
 import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.Owner

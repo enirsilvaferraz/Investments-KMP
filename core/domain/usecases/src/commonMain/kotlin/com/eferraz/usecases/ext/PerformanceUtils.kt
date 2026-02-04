@@ -1,4 +1,4 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.ext
 
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime

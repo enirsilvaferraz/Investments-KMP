@@ -1,7 +1,7 @@
 package com.eferraz.usecases
 
+import com.eferraz.usecases.ext.measureTimeMillisSuspend
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 public abstract class AppUseCase<in P, out R>(

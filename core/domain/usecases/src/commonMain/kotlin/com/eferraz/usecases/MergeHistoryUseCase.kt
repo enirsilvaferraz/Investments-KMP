@@ -6,6 +6,7 @@ import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.entities.HoldingHistoryResult
+import com.eferraz.usecases.holdings.CreateHistoryUseCase
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetTransactionRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository

@@ -1,9 +1,10 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.holdings
 
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.usecases.AppUseCase
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
-import com.eferraz.usecases.strategies.CopyHistoryStrategy
+import com.eferraz.usecases.holdings.CopyHistoryStrategy
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.YearMonth
@@ -29,7 +30,7 @@ import org.koin.core.annotation.Factory
  * @param context Dispatcher de corrotinas para execução (padrão: Dispatchers.Default)
  *
  * @see CopyHistoryStrategy Para entender as estratégias disponíveis
- * @see HoldingHistoryRepository Para operações de persistência
+ * @see com.eferraz.usecases.repositories.HoldingHistoryRepository Para operações de persistência
  */
 @Factory
 public class CreateHistoryUseCase(
@@ -64,14 +65,14 @@ public class CreateHistoryUseCase(
 
         // Busca estratégia apropriada para o tipo de ativo
         val strategy = findStrategyForHolding(param.holding)
-        
+
         // Executa estratégia para criar histórico
         val historyEntry = strategy?.create(param.referenceDate, param.holding)
             ?: createEmptyHistoryEntry(param.holding, param.referenceDate)
 
         // Persiste o registro (conforme regra de negócio: cada histórico criado é salvo automaticamente)
         repository.upsert(historyEntry)
-        
+
         return historyEntry
     }
 
@@ -139,4 +140,3 @@ public class CreateHistoryUseCase(
         private val HISTORY_LIMIT_DATE = YearMonth(2025, 10)
     }
 }
-

@@ -1,6 +1,7 @@
-package com.eferraz.database.datasources
+package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.IssuerDao
+import com.eferraz.database.datasources.IssuerDataSource
 import com.eferraz.database.entities.supports.IssuerEntity
 import com.eferraz.entities.assets.Issuer
 import org.koin.core.annotation.Factory

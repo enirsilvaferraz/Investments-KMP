@@ -1,6 +1,7 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.cruds
 
 import com.eferraz.entities.goals.FinancialGoal
+import com.eferraz.usecases.AppUseCase
 import com.eferraz.usecases.repositories.FinancialGoalRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

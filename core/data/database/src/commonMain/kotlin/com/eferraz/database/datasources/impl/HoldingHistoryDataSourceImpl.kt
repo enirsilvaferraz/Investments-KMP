@@ -1,6 +1,8 @@
-package com.eferraz.database.datasources
+package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.HoldingHistoryDao
+import com.eferraz.database.datasources.AssetHoldingDataSource
+import com.eferraz.database.datasources.HoldingHistoryDataSource
 import com.eferraz.database.entities.histories.HoldingHistoryEntryEntity
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry

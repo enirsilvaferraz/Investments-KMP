@@ -6,9 +6,10 @@ import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry
 import com.eferraz.usecases.TestDataFactory.createInvestmentFundAsset
 import com.eferraz.usecases.TestDataFactory.createStockQuoteHistory
 import com.eferraz.usecases.TestDataFactory.createVariableIncomeAsset
+import com.eferraz.usecases.holdings.CreateHistoryUseCase
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
-import com.eferraz.usecases.strategies.CopyHistoryStrategy
+import com.eferraz.usecases.holdings.CopyHistoryStrategy
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

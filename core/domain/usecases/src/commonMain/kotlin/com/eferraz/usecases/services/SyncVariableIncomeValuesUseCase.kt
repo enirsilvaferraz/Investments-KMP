@@ -1,7 +1,9 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.services
 
-import com.eferraz.entities.holdings.StockQuoteHistory
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.holdings.StockQuoteHistory
+import com.eferraz.usecases.AppUseCase
+import com.eferraz.usecases.GetQuotesUseCase
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
@@ -42,7 +44,7 @@ public class SyncVariableIncomeValuesUseCase(
                 val endOfMonthValue = quoteHistory.close ?: quoteHistory.adjustedClose
                 ?: throw IllegalStateException("Cotação não possui valor de fechamento disponível")
 
-                // Criar/atualizar HoldingHistoryEntry
+                // Atualizar HoldingHistoryEntry
                 val historyEntry = existingHistory.copy(endOfMonthValue = endOfMonthValue)
 
                 // Fazer upsert no repositório

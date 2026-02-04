@@ -1,9 +1,10 @@
-package com.eferraz.usecases
+package com.eferraz.usecases.screens
 
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.usecases.AppUseCase
 import com.eferraz.usecases.cruds.GetAssetsUseCase
 import com.eferraz.usecases.entities.AssetsTableData
 import com.eferraz.usecases.entities.FixedIncomeAssetsTableData
@@ -16,8 +17,8 @@ import org.koin.core.annotation.Factory
 
 /**
  * Use case responsável por obter os dados da tabela de assets para exibição na tela.
- * 
- * Retorna uma lista de [AssetsTableData], onde cada item representa uma linha da tabela
+ *
+ * Retorna uma lista de [com.eferraz.usecases.entities.AssetsTableData], onde cada item representa uma linha da tabela
  * com dados primitivos, enums e LocalDate para formatação na view.
  */
 @Factory
@@ -33,7 +34,7 @@ public class GetAssetsTableDataUseCase(
         // Buscar assets e mapeamento de corretoras e metas
         val assets = getAssetsUseCase(GetAssetsUseCase.ByCategory(param.category))
             .getOrNull() ?: emptyList()
-        
+
         // Buscar todos os holdings de uma vez e criar mapas
         // Se um asset tiver múltiplos holdings, mantém o primeiro encontrado
         val holdings = assetHoldingRepository.getAll().associateBy { it.asset.id }
@@ -112,4 +113,3 @@ public class GetAssetsTableDataUseCase(
         }
     }
 }
-
