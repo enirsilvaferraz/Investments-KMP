@@ -19,22 +19,14 @@ import androidx.navigation3.ui.NavDisplay
 import com.eferraz.presentation.design_system.components.new_table.UITablePreview
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
-import com.eferraz.presentation.features.history.HistoryRoute
 import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
-import org.koin.compose.KoinMultiplatformApplication
-import org.koin.core.annotation.KoinExperimentalAPI
-import org.koin.dsl.KoinConfiguration
+import com.eferraz.presentation.features.history.HistoryRoute
 
 @Composable
-public fun InternalApp(config: KoinConfiguration) {
+public fun InternalApp() {
 
     AppTheme {
-
-        @OptIn(KoinExperimentalAPI::class)
-        KoinMultiplatformApplication(config = config) {
-
-            AppNavigationHost()
-        }
+        AppNavigationHost()
     }
 }
 

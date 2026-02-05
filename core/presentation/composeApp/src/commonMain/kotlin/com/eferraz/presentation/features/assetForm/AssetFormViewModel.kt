@@ -3,21 +3,21 @@ package com.eferraz.presentation.features.assetForm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.usecases.SaveAssetUseCase
 import com.eferraz.usecases.cruds.GetAssetUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
 import com.eferraz.usecases.cruds.GetIssuersUseCase
-import com.eferraz.usecases.SaveAssetUseCase
-import com.eferraz.usecases.exceptions.ValidateException
 import com.eferraz.usecases.entities.AssetFormData
 import com.eferraz.usecases.entities.FixedIncomeFormData
 import com.eferraz.usecases.entities.InvestmentFundFormData
 import com.eferraz.usecases.entities.VariableIncomeFormData
+import com.eferraz.usecases.exceptions.ValidateException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class AssetFormViewModel(

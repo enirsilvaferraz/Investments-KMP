@@ -3,29 +3,29 @@ package com.eferraz.presentation.features.assets
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.assets.Asset
-import com.eferraz.entities.holdings.Brokerage
-import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.VariableIncomeAsset
-import com.eferraz.usecases.cruds.GetAssetUseCase
-import com.eferraz.usecases.screens.GetAssetsTableDataUseCase
-import com.eferraz.usecases.cruds.GetBrokeragesUseCase
-import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
-import com.eferraz.usecases.cruds.GetIssuersUseCase
+import com.eferraz.entities.goals.FinancialGoal
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.usecases.SaveAssetUseCase2
 import com.eferraz.usecases.SaveAssetUseCase2.Params
 import com.eferraz.usecases.SetBrokerageToHoldingUseCase
 import com.eferraz.usecases.SetGoalToHoldingUseCase
+import com.eferraz.usecases.cruds.GetAssetUseCase
+import com.eferraz.usecases.cruds.GetBrokeragesUseCase
+import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
+import com.eferraz.usecases.cruds.GetIssuersUseCase
 import com.eferraz.usecases.entities.AssetsTableData
+import com.eferraz.usecases.screens.GetAssetsTableDataUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 import org.koin.core.annotation.Provided
 
 @KoinViewModel
@@ -38,7 +38,7 @@ internal class AssetsViewModel(
     private val getFinancialGoalsUseCase: GetFinancialGoalsUseCase,
     private val setBrokerageToHoldingUseCase: SetBrokerageToHoldingUseCase,
     private val setGoalToHoldingUseCase: SetGoalToHoldingUseCase,
-   @Provided private val category: InvestmentCategory
+    @Provided private val category: InvestmentCategory,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<AssetsState?>(null)
@@ -77,13 +77,13 @@ internal class AssetsViewModel(
     internal fun loadAssets(category: InvestmentCategory) = viewModelScope.launch {
 
         val tableData =
-            getAssetsTableDataUseCase(GetAssetsTableDataUseCase.Param(category)).getOrNull() ?: emptyList() 
+            getAssetsTableDataUseCase(GetAssetsTableDataUseCase.Param(category)).getOrNull() ?: emptyList()
 
         val issuers =
-            getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList() 
+            getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList()
 
         val brokerages =
-            getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull() ?: emptyList() 
+            getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull() ?: emptyList()
 
         val goals =
             getFinancialGoalsUseCase(GetFinancialGoalsUseCase.All).getOrNull() ?: emptyList()
@@ -93,7 +93,7 @@ internal class AssetsViewModel(
 //        val issuers1 = issuers.await()
 //        val brokerages1 = brokerages.await()
 //        val goals1 = goals.await()
-        
+
         _state.update {
             AssetsState(
                 tableData = tableData,
@@ -107,7 +107,7 @@ internal class AssetsViewModel(
     internal fun updateFixedIncomeAsset(
         assetId: Long,
         category: InvestmentCategory,
-        update: (FixedIncomeAsset) -> FixedIncomeAsset
+        update: (FixedIncomeAsset) -> FixedIncomeAsset,
     ) = viewModelScope.launch {
         val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? FixedIncomeAsset
         asset?.let { updatedAsset ->
@@ -118,7 +118,7 @@ internal class AssetsViewModel(
     internal fun updateVariableIncomeAsset(
         assetId: Long,
         category: InvestmentCategory,
-        update: (VariableIncomeAsset) -> VariableIncomeAsset
+        update: (VariableIncomeAsset) -> VariableIncomeAsset,
     ) = viewModelScope.launch {
         val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? VariableIncomeAsset
         asset?.let { updatedAsset ->
@@ -129,7 +129,7 @@ internal class AssetsViewModel(
     internal fun updateInvestmentFundAsset(
         assetId: Long,
         category: InvestmentCategory,
-        update: (InvestmentFundAsset) -> InvestmentFundAsset
+        update: (InvestmentFundAsset) -> InvestmentFundAsset,
     ) = viewModelScope.launch {
         val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? InvestmentFundAsset
         asset?.let { updatedAsset ->

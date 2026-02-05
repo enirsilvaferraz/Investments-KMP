@@ -5,15 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
-import com.eferraz.usecases.screens.GetGoalsMonitoringTableDataUseCase
 import com.eferraz.usecases.entities.GoalsMonitoringTableData
 import com.eferraz.usecases.entities.PeriodType
+import com.eferraz.usecases.screens.GetGoalsMonitoringTableDataUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class GoalsMonitoringViewModel(

@@ -2,22 +2,22 @@ package com.eferraz.presentation.features.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.usecases.GetDataPeriodUseCase
-import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
-import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.providers.DateProvider
+import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
+import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class HistoryViewModel(

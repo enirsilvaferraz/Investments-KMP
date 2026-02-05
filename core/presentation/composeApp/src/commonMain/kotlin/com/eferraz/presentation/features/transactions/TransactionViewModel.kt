@@ -2,14 +2,14 @@ package com.eferraz.presentation.features.transactions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.transactions.AssetTransaction
-import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.transactions.FixedIncomeTransaction
 import com.eferraz.entities.transactions.FundsTransaction
-import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.transactions.TransactionType
-import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.transactions.VariableIncomeTransaction
 import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.SaveTransactionUseCase
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class TransactionViewModel(
@@ -160,10 +160,10 @@ internal class TransactionViewModel(
 
     private fun createTransaction(
         holding: AssetHolding,
-        formData: TransactionFormData
+        formData: TransactionFormData,
     ): AssetTransaction {
 
-        val date =LocalDate.parse(formData.date) //parseDate(formData.date) ?: throw IllegalArgumentException("Data inválida")
+        val date = LocalDate.parse(formData.date) //parseDate(formData.date) ?: throw IllegalArgumentException("Data inválida")
         val type = formData.type ?: throw IllegalArgumentException("Tipo de transação obrigatório")
 
         return when (holding.asset) {
@@ -213,7 +213,7 @@ internal class TransactionViewModel(
 
     private fun validateFormData(
         formData: TransactionFormData,
-        holding: AssetHolding?
+        holding: AssetHolding?,
     ): Map<String, String> {
         val errors = mutableMapOf<String, String>()
 
