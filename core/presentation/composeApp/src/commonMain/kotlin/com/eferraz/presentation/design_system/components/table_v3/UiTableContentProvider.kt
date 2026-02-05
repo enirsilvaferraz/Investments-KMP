@@ -3,35 +3,38 @@ package com.eferraz.presentation.design_system.components.table_v3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 internal interface UiTableContentProvider {
 
     @Composable
-    fun Column(text: String)
+    fun Header(text: String, color: Color)
 
     @Composable
-    fun Cell(text: String)
+    fun Column(index: Int, text: String)
 
     @Composable
-    fun DefaultFooter(text: String)
+    fun Cell(index: Int, data: Any)
 
     @Composable
-    fun Header(text: String, color: androidx.compose.ui.graphics.Color)
+    fun SubFooter(index: Int, data: Any)
 
     @Composable
-    fun SubFooter(text: String)
+    fun Footer(footer: @Composable () -> Unit)
 }
 
-internal object UiTableContentProviderImpl : UiTableContentProvider {
+internal open class UiTableContentProviderImpl : UiTableContentProvider {
 
     @Composable
-    override fun Header(text: String, color: androidx.compose.ui.graphics.Color) {
+    override fun Header(text: String, color: Color) {
         Box(Modifier.fillMaxWidth().background(color)) {
             Text(
                 text = text,
@@ -41,9 +44,7 @@ internal object UiTableContentProviderImpl : UiTableContentProvider {
     }
 
     @Composable
-    override fun Column(
-        text: String,
-    ) {
+    override fun Column(index: Int, text: String) {
         Text(
             text = text,
             style = MaterialTheme.typography.titleSmall,
@@ -52,27 +53,28 @@ internal object UiTableContentProviderImpl : UiTableContentProvider {
     }
 
     @Composable
-    override fun Cell(text: String) {
+    override fun Cell(index: Int, data: Any) {
         Text(
-            text = text,
+            text = data.toString(),
             modifier = Modifier.padding(8.dp)
         )
     }
 
     @Composable
-    override fun DefaultFooter(text: String) {
+    override fun SubFooter(index: Int, data: Any) {
         Text(
-            text = text,
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(vertical = 8.dp)
+            text = data.toString(),
+            modifier = Modifier.padding(8.dp)
         )
     }
 
     @Composable
-    override fun SubFooter(text: String) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(8.dp)
-        )
+    override fun Footer(footer: @Composable () -> Unit) {
+        Box(
+            modifier = Modifier.fillMaxWidth().height(40.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            footer()
+        }
     }
 }

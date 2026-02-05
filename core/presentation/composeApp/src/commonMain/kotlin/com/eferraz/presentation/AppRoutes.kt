@@ -13,6 +13,9 @@ internal object TestRouting : NavKey
 internal object HistoryRouting : NavKey
 
 @Serializable
+internal object HistoryRoutingV2 : NavKey
+
+@Serializable
 internal object AssetsRouting : NavKey
 
 @Serializable
@@ -43,6 +46,7 @@ internal val config = SavedStateConfiguration {
             subclass(TestRouting::class, TestRouting.serializer())
             subclass(AssetsRouting::class, AssetsRouting.serializer())
             subclass(HistoryRouting::class, HistoryRouting.serializer())
+            subclass(HistoryRoutingV2::class, HistoryRoutingV2.serializer())
             subclass(FixedIncomeAssetRouting::class, FixedIncomeAssetRouting.serializer())
             subclass(VariableIncomeAssetRouting::class, VariableIncomeAssetRouting.serializer())
             subclass(FundsAssetRouting::class, FundsAssetRouting.serializer())

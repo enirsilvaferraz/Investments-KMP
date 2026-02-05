@@ -2,12 +2,10 @@ package com.eferraz.presentation.design_system.components.table_v3
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -52,8 +50,6 @@ internal data class UiTableDataColumn(
     val width: TableColumnWidth = TableColumnWidth.Flex(1f),
 )
 
-private val FooterBoxModifier = Modifier.fillMaxWidth().height(40.dp)
-
 @Composable
 internal fun UiTableV3(
     modifier: Modifier = Modifier,
@@ -62,10 +58,12 @@ internal fun UiTableV3(
     rows: List<List<Any>>,
     subFooter: List<Any>? = null,
     footer: (@Composable () -> Unit)? = null,
-    provider: UiTableContentProvider = UiTableContentProviderImpl,
-    headerBackgroundColor: Color = Color.LightGray,
+    provider: UiTableContentProvider = UiTableContentProviderImpl(),
+    headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     footerBackgroundColor: Color = headerBackgroundColor,
 ) {
+
+    if(rows.isEmpty()) return
 
     val state = rememberDataTableState()
 
@@ -82,12 +80,12 @@ internal fun UiTableV3(
     }
 
     val dataColumns = remember(columns, provider) {
-        columns.map { columnHeader ->
+        columns.mapIndexed { index, column ->
             DataColumn(
-                width = columnHeader.width,
-                alignment = columnHeader.alignment,
+                width = column.width,
+                alignment = column.alignment,
                 onSort = { columnIndex: Int, ascending: Boolean -> sortConfig = columnIndex to ascending },
-                header = { provider.Column(columnHeader.text) }
+                header = { provider.Column(index, column.text) }
             )
         }
     }
@@ -96,26 +94,23 @@ internal fun UiTableV3(
 
         {
 
-            sortedRows.forEachIndexed { index, rowData ->
+            sortedRows.forEachIndexed { _, rowData ->
                 row {
-                    rowData.forEach { cellData ->
+                    rowData.forEachIndexed { index, cellData ->
                         cell {
-                            provider.Cell(cellData.toString())
+                            provider.Cell(index, cellData)
                         }
                     }
                 }
             }
 
             if (subFooter != null) {
-
                 row {
-
                     isFooter = true
                     backgroundColor = footerBackgroundColor
-
-                    subFooter.forEach { cellData ->
+                    subFooter.forEachIndexed { index, cellData ->
                         cell {
-                            provider.SubFooter(cellData.toString())
+                            provider.SubFooter(index, cellData)
                         }
                     }
                 }
@@ -125,25 +120,23 @@ internal fun UiTableV3(
 
     val footerWrapped = remember(footer) {
         @Composable {
-            if (footer != null) Box(
-                modifier = FooterBoxModifier,
-                contentAlignment = Alignment.Center
-            ) {
-                footer()
-            }
+            if (footer != null) provider.Footer(footer)
         }
     }
 
     Card(
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors()
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        )
     ) {
 
-        if (header != null)
-            provider.Header(header, headerBackgroundColor)
+        if (header != null) provider.Header(header, headerBackgroundColor)
 
         DataTable(
-            modifier = modifier,
+            modifier = Modifier.fillMaxWidth(),
             state = state,
             sortAscending = sortConfig.second,
             sortColumnIndex = sortConfig.first,
@@ -164,13 +157,13 @@ private fun DataTable(
     separator: @Composable () -> Unit = { HorizontalDivider() },
     headerHeight: Dp = 56.dp,
     rowHeight: Dp = 52.dp,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 4.dp),
     headerBackgroundColor: Color = Color.Unspecified,
     footerBackgroundColor: Color = Color.Unspecified,
     footer: @Composable () -> Unit = { },
     sortColumnIndex: Int? = null,
     sortAscending: Boolean = true,
-    logger: ((String) -> Unit)? = { println("Table: $it") },
+    logger: ((String) -> Unit)? = null,
     content: DataTableScope.() -> Unit,
 ) {
 
@@ -257,7 +250,6 @@ internal fun UiTableV3Preview() {
             ) {
 
                 UiTableV3(
-                    modifier = Modifier.fillMaxWidth(),
                     header = "Nubank",
                     columns = listOf(
                         UiTableDataColumn("ID", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
@@ -275,7 +267,6 @@ internal fun UiTableV3Preview() {
                 )
 
                 UiTableV3(
-                    modifier = Modifier.fillMaxWidth(),
                     columns = listOf(
                         UiTableDataColumn("ID", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
                         UiTableDataColumn("Nome", width = TableColumnWidth.MaxIntrinsic),

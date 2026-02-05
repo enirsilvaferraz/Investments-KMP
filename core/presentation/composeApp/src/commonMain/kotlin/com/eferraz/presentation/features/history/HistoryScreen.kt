@@ -5,7 +5,9 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +35,7 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
@@ -64,6 +67,9 @@ import com.eferraz.presentation.design_system.components.SegmentedControl
 import com.eferraz.presentation.design_system.components.SegmentedOption
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.components.new_table.UiTable
+import com.eferraz.presentation.design_system.components.table_v3.UiTableContentProviderImpl
+import com.eferraz.presentation.design_system.components.table_v3.UiTableDataColumn
+import com.eferraz.presentation.design_system.components.table_v3.UiTableV3
 import com.eferraz.presentation.features.history.HistoryViewModel.HistoryIntent
 import com.eferraz.presentation.features.history.HistoryViewModel.HistoryState
 import com.eferraz.presentation.features.transactions.TransactionPanel
@@ -73,6 +79,8 @@ import com.eferraz.presentation.helpers.toPercentage
 import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.InvestmentFundHistoryTableData
 import com.eferraz.usecases.entities.VariableIncomeHistoryTableData
+import com.seanproctor.datatable.TableColumnWidth
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
@@ -80,7 +88,9 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-internal fun HistoryRoute() {
+internal fun HistoryRoute(
+    enableV2: Boolean = false
+) {
 
     val sharedVm = koinViewModel<HistoryViewModel>()
     val sharedState by sharedVm.state.collectAsStateWithLifecycle()
@@ -92,15 +102,15 @@ internal fun HistoryRoute() {
         entryProvider = entryProvider {
 
             entry<FixedIncomeHistoryRouting> {
-                HistoryScreen(sharedState, sharedVm, backStack)
+                HistoryScreen(sharedState, sharedVm, backStack, enableV2)
             }
 
             entry<VariableIncomeHistoryRouting> {
-                HistoryScreen(sharedState, sharedVm, backStack)
+                HistoryScreen(sharedState, sharedVm, backStack, enableV2)
             }
 
             entry<FundsHistoryRouting> {
-                HistoryScreen(sharedState, sharedVm, backStack)
+                HistoryScreen(sharedState, sharedVm, backStack, enableV2)
             }
         }
     )
@@ -112,6 +122,7 @@ private fun HistoryScreen(
     sharedState: HistoryState,
     sharedVm: HistoryViewModel,
     backStack: NavBackStack<NavKey>,
+    enableV2: Boolean,
 ) {
     val navigator = rememberSupportingPaneScaffoldNavigator<Nothing>()
     val scope = rememberCoroutineScope()
@@ -153,7 +164,8 @@ private fun HistoryScreen(
                         state = sharedState,
                         viewModel = sharedVm,
                         scope = scope,
-                        navigator = navigator
+                        navigator = navigator,
+                        enableV2 = enableV2
                     )
 
                     InvestmentCategory.VARIABLE_INCOME -> HistoryScreenVariableIncome(
@@ -273,12 +285,102 @@ private fun HistoryScreenFixedIncome(
     modifier: Modifier = Modifier,
     state: HistoryState,
     viewModel: HistoryViewModel,
-    scope: kotlinx.coroutines.CoroutineScope,
-    navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
+    scope: CoroutineScope,
+    navigator: ThreePaneScaffoldNavigator<Nothing>,
+    enableV2: Boolean,
 ) {
     val fixedIncomeData = state.tableData.filterIsInstance<FixedIncomeHistoryTableData>()
 
-    UiTable(
+    // Dados para demonstrar ordenação
+
+    val data = fixedIncomeData.groupBy { it.brokerageName }
+
+
+    if (enableV2) Column(
+//        Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+
+//        data.forEach { (brokerageName, data) ->
+
+            UiTableV3(
+//                header = brokerageName,
+                columns = listOf(
+                    UiTableDataColumn("Emissor", width = TableColumnWidth.MaxIntrinsic),
+                    UiTableDataColumn("Display Name", width = TableColumnWidth.MaxIntrinsic),
+                    UiTableDataColumn("Liquidez", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
+                    UiTableDataColumn("Observação", width = TableColumnWidth.Flex(1f)),
+                    UiTableDataColumn("Valor Anterior", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
+                    UiTableDataColumn("Valor Atual", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
+                    UiTableDataColumn("Balanço", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
+                    UiTableDataColumn("%", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center)
+                ),
+                rows = fixedIncomeData.map {
+                    listOf(
+                        it.issuerName,
+                        it.displayName,
+                        it.liquidity,
+                        it.observations,
+                        it.previousValue.currencyFormat(),
+                        it.currentValue.currencyFormat(),
+                        it.totalBalance.currencyFormat(),
+                        it.appreciation.toPercentage()
+                    )
+                },
+                provider = object : UiTableContentProviderImpl() {
+
+                    @Composable
+                    override fun Cell(index: Int, data: Any) {
+                        when (index) {
+                        2 -> Liquidity(data)
+                            else -> super.Cell(index, data.toString())
+                        }
+                    }
+
+                    /**
+                     *
+                     */
+
+                    @Composable
+                    fun Liquidity(liquidity: Any) {
+
+                        require(liquidity is Liquidity) { "Invalid data type" }
+
+                        val icon = when (liquidity) {
+                            Liquidity.DAILY -> Icons.Default.EventAvailable
+                            else -> Icons.Default.EventBusy
+                        }
+
+                        val color = when (liquidity) {
+                            Liquidity.DAILY -> Color.Green
+                            else -> Color.Red
+                        }
+
+                        val tooltipText = liquidity.formated()
+
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.End),
+                            tooltip = {
+                                PlainTooltip {
+                                    Text(tooltipText)
+                                }
+                            },
+                            state = rememberTooltipState()
+                        ) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = liquidity.formated(),
+                                modifier = Modifier.alpha(0.5f),//.size(18.dp),
+                                tint = color
+                            )
+                        }
+                    }
+                }
+            )
+        }
+//    }
+
+    else UiTable(
         modifier = modifier,
         data = fixedIncomeData,
         groupBy = { it.brokerageName },

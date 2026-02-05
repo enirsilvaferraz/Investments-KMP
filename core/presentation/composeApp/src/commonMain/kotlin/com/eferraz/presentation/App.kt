@@ -3,6 +3,7 @@ package com.eferraz.presentation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -34,7 +35,7 @@ public fun InternalApp() {
 @Composable
 private fun AppNavigationHost() {
 
-    val backStack = rememberNavBackStack(config, GoalsMonitoringRouting)
+    val backStack = rememberNavBackStack(config, HistoryRouting)
 
     NavigationSuiteScaffold(
         navigationItems = navRailMenus(backStack),
@@ -67,6 +68,13 @@ private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Uni
         onClick = { backStack[0] = GoalsMonitoringRouting }
     )
 
+    NavigationSuiteItem(
+        icon = { Icon(imageVector = Icons.Default.DeveloperMode, contentDescription = "Histórico") },
+        label = { Text("Histórico") },
+        selected = backStack.lastOrNull() == HistoryRoutingV2,
+        onClick = { backStack[0] = HistoryRoutingV2 }
+    )
+
 //    NavigationSuiteItem(
 //        icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Test") },
 //        label = { Text("Test") },
@@ -95,6 +103,10 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
 
             entry<TestRouting> {
                 UITablePreview()
+            }
+
+            entry<HistoryRoutingV2> {
+                HistoryRoute(true)
             }
         }
     )
