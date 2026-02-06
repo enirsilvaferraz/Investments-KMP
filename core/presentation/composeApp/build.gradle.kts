@@ -30,7 +30,3 @@ kotlin.android {
     namespace = "com.eferraz.presentation"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 }
-
-dependencies {
-    "androidRuntimeClasspath"(libs.androidx.ui.tooling)
-}
