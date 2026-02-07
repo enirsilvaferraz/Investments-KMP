@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
@@ -16,10 +17,6 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
 
-        implementation(projects.entity)
-        implementation(projects.usecases)
-        implementation(projects.designSystem)
-
         implementation(libs.androidx.lifecycle.viewmodel)
         implementation(libs.androidx.lifecycle.runtimeCompose)
 
@@ -28,7 +25,7 @@ kotlin {
 }
 
 kotlin.android {
-    namespace = "com.eferraz.presentation"
+    namespace = "com.eferraz.design_system"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 }
 

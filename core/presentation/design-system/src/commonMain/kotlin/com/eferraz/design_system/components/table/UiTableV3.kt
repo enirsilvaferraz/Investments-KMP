@@ -1,4 +1,4 @@
-package com.eferraz.presentation.design_system.components.table_v3
+package com.eferraz.design_system.components.table
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.eferraz.presentation.design_system.theme.AppTheme
 import com.seanproctor.datatable.BasicDataTable
 import com.seanproctor.datatable.CellContentProvider
 import com.seanproctor.datatable.DataColumn
@@ -44,14 +43,14 @@ import com.seanproctor.datatable.TableColumnWidth
 import com.seanproctor.datatable.rememberDataTableState
 
 @Immutable
-internal data class UiTableDataColumn(
+public data class UiTableDataColumn(
     val text: String,
     val alignment: Alignment = Alignment.CenterStart,
     val width: TableColumnWidth = TableColumnWidth.Flex(1f),
 )
 
 @Composable
-internal fun UiTableV3(
+public fun UiTableV3(
     modifier: Modifier = Modifier,
     header: String? = null,
     columns: List<UiTableDataColumn>,
@@ -59,11 +58,11 @@ internal fun UiTableV3(
     subFooter: List<Any>? = null,
     footer: (@Composable () -> Unit)? = null,
     provider: UiTableContentProvider = UiTableContentProviderImpl(),
-    headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh, // Passar para dentro do provider
     footerBackgroundColor: Color = headerBackgroundColor,
 ) {
 
-    if(rows.isEmpty()) return
+    if (rows.isEmpty()) return
 
     val state = rememberDataTableState()
 
@@ -229,9 +228,9 @@ private object Material3CellContentProvider : CellContentProvider {
 
 @Preview(widthDp = 700)
 @Composable
-internal fun UiTableV3Preview() {
+private fun UiTableV3Preview() {
 
-    AppTheme {
+    MaterialTheme {
 
         Surface {
 

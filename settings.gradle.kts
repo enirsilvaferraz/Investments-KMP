@@ -55,6 +55,9 @@ project(":desktopApp").projectDir = File(settingsDir, "core/apps/desktopApp")
 include(":composeApp")
 project(":composeApp").projectDir = File(settingsDir, "core/presentation/composeApp")
 
+include(":design-system")
+project(":design-system").projectDir = File(settingsDir, "core/presentation/design-system")
+
 include(":entity")
 project(":entity").projectDir = File(settingsDir, "core/domain/entity")
 
