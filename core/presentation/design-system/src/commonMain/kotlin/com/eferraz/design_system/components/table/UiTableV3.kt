@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,26 +41,30 @@ import com.seanproctor.datatable.DataColumn
 import com.seanproctor.datatable.DataTableScope
 import com.seanproctor.datatable.DataTableState
 import com.seanproctor.datatable.TableColumnWidth
+import com.seanproctor.datatable.TableRowScope
 import com.seanproctor.datatable.rememberDataTableState
 
 @Immutable
-public data class UiTableDataColumn(
+public data class UiTableDataColumn<T>(
     val text: String,
     val alignment: Alignment = Alignment.CenterStart,
     val width: TableColumnWidth = TableColumnWidth.Flex(1f),
+    val comparable: (T) -> Comparable<*>,
+    val content: @Composable (T) -> Unit = { Text(comparable(it).toString()) },
 )
 
 @Composable
-public fun UiTableV3(
+public fun <T> UiTableV3(
     modifier: Modifier = Modifier,
     header: String? = null,
-    columns: List<UiTableDataColumn>,
-    rows: List<List<Any>>,
-    subFooter: List<Any>? = null,
+    columns: List<UiTableDataColumn<T>>,
+    rows: List<T>,
+    subFooter: T? = null,
     footer: (@Composable () -> Unit)? = null,
     provider: UiTableContentProvider = UiTableContentProviderImpl(),
-    headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh, // Passar para dentro do provider
+    headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest, // Passar para dentro do provider
     footerBackgroundColor: Color = headerBackgroundColor,
+    rowBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
 ) {
 
     if (rows.isEmpty()) return
@@ -71,10 +76,11 @@ public fun UiTableV3(
     }
 
     val sortedRows = remember(rows, sortConfig) {
+        val (columnIndex, ascending) = sortConfig
         when {
-            sortConfig.first == null -> rows
-            sortConfig.second -> rows.sortedBy { it.getOrNull(sortConfig.first!!)?.toString().orEmpty() }
-            else -> rows.sortedByDescending { it.getOrNull(sortConfig.first!!)?.toString().orEmpty() }
+            columnIndex == null -> rows
+            ascending -> rows.sortedWith(compareBy { columns[columnIndex].comparable(it) })
+            else -> rows.sortedWith(compareByDescending { columns[columnIndex].comparable(it) })
         }
     }
 
@@ -84,22 +90,27 @@ public fun UiTableV3(
                 width = column.width,
                 alignment = column.alignment,
                 onSort = { columnIndex: Int, ascending: Boolean -> sortConfig = columnIndex to ascending },
-                header = { provider.Column(index, column.text) }
+                header = { provider.Column(index, column.text,column.alignment) }
             )
         }
     }
 
-    val content: DataTableScope.() -> Unit = remember(sortedRows, subFooter, footerBackgroundColor, provider) {
+    val content: DataTableScope.() -> Unit = remember(sortedRows, columns, subFooter, footerBackgroundColor, provider) {
 
         {
 
+            fun TableRowScope.cells(rowData: T) {
+                columns.forEachIndexed { index, column ->
+                    cell {
+                        column.content(rowData)
+                    }
+                }
+            }
+
             sortedRows.forEachIndexed { _, rowData ->
                 row {
-                    rowData.forEachIndexed { index, cellData ->
-                        cell {
-                            provider.Cell(index, cellData)
-                        }
-                    }
+                    backgroundColor = rowBackgroundColor
+                    cells(rowData)
                 }
             }
 
@@ -107,11 +118,7 @@ public fun UiTableV3(
                 row {
                     isFooter = true
                     backgroundColor = footerBackgroundColor
-                    subFooter.forEachIndexed { index, cellData ->
-                        cell {
-                            provider.SubFooter(index, cellData)
-                        }
-                    }
+                    cells(subFooter)
                 }
             }
         }
@@ -127,7 +134,7 @@ public fun UiTableV3(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            containerColor = rowBackgroundColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
         )
     ) {
@@ -135,7 +142,7 @@ public fun UiTableV3(
         if (header != null) provider.Header(header, headerBackgroundColor)
 
         DataTable(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             state = state,
             sortAscending = sortConfig.second,
             sortColumnIndex = sortConfig.first,
@@ -143,7 +150,8 @@ public fun UiTableV3(
             footerBackgroundColor = footerBackgroundColor,
             columns = dataColumns,
             content = content,
-            footer = footerWrapped
+            footer = footerWrapped,
+            contentPadding = PaddingValues(12.dp)
         )
     }
 }
@@ -235,12 +243,19 @@ private fun UiTableV3Preview() {
         Surface {
 
             // Dados para demonstrar ordenação
+            data class PreviewRow(
+                val id: Int,
+                val name: String,
+                val description: String,
+                val value: Int,
+            )
+
             val previewData = listOf(
-                listOf(5, "Zebra", "Item Z", 100),
-                listOf(2, "Apple", "Item A", 50),
-                listOf(1, "Banana", "Item B", 25),
-                listOf(3, "Cherry", "Item C", 90),
-                listOf(6, "Orange", "Item O", 60),
+                PreviewRow(5, "Zebra", "Item Z", 100),
+                PreviewRow(2, "Apple", "Item A", 50),
+                PreviewRow(1, "Banana", "Item B", 25),
+                PreviewRow(3, "Cherry", "Item C", 90),
+                PreviewRow(6, "Orange", "Item O", 60),
             )
 
             Column(
@@ -251,10 +266,32 @@ private fun UiTableV3Preview() {
                 UiTableV3(
                     header = "Nubank",
                     columns = listOf(
-                        UiTableDataColumn("ID", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
-                        UiTableDataColumn("Nome", width = TableColumnWidth.MaxIntrinsic),
-                        UiTableDataColumn("Descrição", width = TableColumnWidth.Flex(1f)),
-                        UiTableDataColumn("Valor", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
+
+                        UiTableDataColumn(
+                            text = "ID",
+                            width = TableColumnWidth.MaxIntrinsic,
+                            alignment = Alignment.Center,
+                            comparable = { it.id },
+                        ),
+
+                        UiTableDataColumn(
+                            text = "Nome",
+                            width = TableColumnWidth.MaxIntrinsic,
+                            comparable = { it.name },
+                        ),
+
+                        UiTableDataColumn(
+                            text = "Descrição",
+                            width = TableColumnWidth.Flex(1f),
+                            comparable = { it.description },
+                        ),
+
+                        UiTableDataColumn(
+                            text = "Valor",
+                            width = TableColumnWidth.MaxIntrinsic,
+                            alignment = Alignment.CenterEnd,
+                            comparable = { it.value },
+                        ),
                     ),
                     rows = previewData,
                     footer = {
@@ -267,13 +304,31 @@ private fun UiTableV3Preview() {
 
                 UiTableV3(
                     columns = listOf(
-                        UiTableDataColumn("ID", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
-                        UiTableDataColumn("Nome", width = TableColumnWidth.MaxIntrinsic),
-                        UiTableDataColumn("Descrição", width = TableColumnWidth.Flex(1f)),
-                        UiTableDataColumn("Valor", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
+                        UiTableDataColumn(
+                            text = "ID",
+                            width = TableColumnWidth.MaxIntrinsic,
+                            alignment = Alignment.Center,
+                            comparable = { it.id },
+                        ),
+                        UiTableDataColumn(
+                            text = "Nome",
+                            width = TableColumnWidth.MaxIntrinsic,
+                            comparable = { it.name },
+                        ),
+                        UiTableDataColumn(
+                            text = "Descrição",
+                            width = TableColumnWidth.Flex(1f),
+                            comparable = { it.description },
+                        ),
+                        UiTableDataColumn(
+                            text = "Valor",
+                            width = TableColumnWidth.MaxIntrinsic,
+                            alignment = Alignment.CenterEnd,
+                            comparable = { it.value },
+                        ),
                     ),
                     rows = previewData,
-                    subFooter = listOf("", "Sub calc Orange", "", 600),
+                    subFooter = PreviewRow(0, "Sub calc Orange", "", 600),
                 )
             }
         }

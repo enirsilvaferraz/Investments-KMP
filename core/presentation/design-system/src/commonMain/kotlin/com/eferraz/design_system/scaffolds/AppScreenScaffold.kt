@@ -68,6 +68,7 @@ public fun AppScreenScaffold(
     subMainPane: (@Composable () -> Unit)? = null,
     supportingPane: (@Composable ColumnScope.() -> Unit)? = null,
     extraPane: (@Composable ColumnScope.() -> Unit)? = null,
+    supportingPaneWidthRate: Float = 0.22f,
 ) {
 
     val cornerPadding = 24
@@ -101,7 +102,7 @@ public fun AppScreenScaffold(
                     modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest).padding(end = cornerPadding.dp),
                     directive = navigator.scaffoldDirective.copy(
                         horizontalPartitionSpacerSize = cornerPadding.dp,
-                        defaultPanePreferredWidth = maxWidth * 0.22f
+                        defaultPanePreferredWidth = maxWidth * supportingPaneWidthRate
                     ),
                     value = navigator.scaffoldValue,
                     mainPane = {
@@ -130,7 +131,7 @@ public fun AppScreenScaffold(
                             AnimatedPane(modifier = Modifier.clip(RoundedCornerShape(12.dp))) {
                                 Column(
                                     modifier = Modifier.verticalScroll(rememberScrollState()),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(24.dp),
                                     content = supportingPane
                                 )
                             }
