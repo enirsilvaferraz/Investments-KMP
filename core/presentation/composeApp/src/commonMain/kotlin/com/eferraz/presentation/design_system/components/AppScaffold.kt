@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.eferraz.presentation.design_system.components.panels.Pane
 import com.eferraz.presentation.design_system.components.panels.Section
 
+@Deprecated("Unused")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun AppScaffold(

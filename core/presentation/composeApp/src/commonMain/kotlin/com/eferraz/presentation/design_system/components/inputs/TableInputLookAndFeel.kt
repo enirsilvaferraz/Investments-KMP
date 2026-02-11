@@ -1,7 +1,5 @@
 package com.eferraz.presentation.design_system.components.inputs
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -15,6 +13,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.eferraz.presentation.design_system.utils.thenIf
@@ -37,25 +37,38 @@ internal fun TableInputLookAndFeel(
     val actualIsFocused = isFocused ?: isFocusedState
 
     val colors = MaterialTheme.colorScheme
-    val shapes = MaterialTheme.shapes
 
     val showBorder = (actualIsHovered || actualIsFocused || isError) && enabled
 
-    val backgroundColor = if (showBorder) colors.surfaceContainerHighest else Color.Transparent
+    val showUnderline = (actualIsHovered || actualIsFocused || isError) && enabled
 
-    val borderColor = when {
+    val underlineColor = when {
         isError -> colors.error
         actualIsFocused -> colors.primary
-        showBorder -> colors.outline
+        showUnderline -> colors.outline
         else -> Color.Transparent
     }
+
+    val underlineThickness = if (actualIsFocused) 2.dp else 1.dp
 
     Box(
         modifier = modifier
             .hoverable(interactionSource = interactionSource)
             .thenIf(
                 condition = showBorder,
-                ifTrue = { modifier.background(backgroundColor, shapes.medium).border(1.dp, borderColor, shapes.medium) }
+                ifTrue = {
+                    modifier
+                        .drawBehind {
+                            val strokeWidth = underlineThickness.toPx()
+                            val y = size.height - strokeWidth / 2
+                            drawLine(
+                                color = underlineColor,
+                                start = Offset(0f, y),
+                                end = Offset(size.width, y),
+                                strokeWidth = strokeWidth
+                            )
+                        }
+                }
             )
             .height(35.dp),
         contentAlignment = Alignment.CenterStart,
