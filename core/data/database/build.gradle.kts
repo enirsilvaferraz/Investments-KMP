@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.foundation.project.library)
+    alias(libs.plugins.foundation.project)
     alias(libs.plugins.foundation.library.room)
     alias(libs.plugins.foundation.library.koin)
 }

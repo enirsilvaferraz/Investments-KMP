@@ -2,7 +2,7 @@ import com.eferraz.buildlogic.ext.generateConstants
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.foundation.project.library)
+    alias(libs.plugins.foundation.project)
     alias(libs.plugins.foundation.library.koin)
     alias(libs.plugins.foundation.library.ktor)
 }

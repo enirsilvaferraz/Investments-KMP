@@ -2,8 +2,8 @@ import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.foundation.project.library)
-    alias(libs.plugins.foundation.library.compose)
+    alias(libs.plugins.foundation.project)
+    alias(libs.plugins.foundation.library.comp)
     alias(libs.plugins.foundation.library.koin)
 }
 
