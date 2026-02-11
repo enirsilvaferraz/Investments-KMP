@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
+import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.providers.DateProvider
 import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
@@ -23,6 +25,7 @@ import org.koin.core.annotation.KoinViewModel
 internal class HistoryViewModel(
     dateProvider: DateProvider,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
+    private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val getHistoryTableDataUseCase: GetHistoryTableDataUseCase,
     private val updateFixedIncomeAndFundsHistoryValueUseCase: UpdateFixedIncomeAndFundsHistoryValueUseCase,
     private val updateVariableIncomeValues: SyncVariableIncomeValuesUseCase,
@@ -36,6 +39,11 @@ internal class HistoryViewModel(
             _state.value = _state.value.copy(periods = getDataPeriodUseCase(Unit).getOrNull() ?: emptyList())
         }
 
+        viewModelScope.launch {
+            getBrokeragesUseCase(GetBrokeragesUseCase.Param)
+                .onSuccess { brokerages -> _state.value = _state.value.copy(brokerages = brokerages) }
+        }
+
         processIntent(HistoryIntent.LoadInitialData)
     }
 
@@ -44,9 +52,10 @@ internal class HistoryViewModel(
             is HistoryIntent.SelectPeriod -> selectPeriod(intent.period)
             is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entry, intent.value)
             is HistoryIntent.SelectHolding -> selectHolding(intent.holding)
-            is HistoryIntent.LoadInitialData -> loadPeriodData()
+            is HistoryIntent.LoadInitialData -> loadInitialData(null)
             is HistoryIntent.Sync -> sync()
             is HistoryIntent.SelectCategory -> selectCategory(intent.category)
+            is HistoryIntent.SelectBrokerage -> selectBrokerage(intent.brokerage)
         }
     }
 
@@ -62,6 +71,12 @@ internal class HistoryViewModel(
 
     private fun selectHolding(holding: AssetHolding?) {
         _state.value = _state.value.copy(selectedHolding = holding)
+    }
+
+    private fun selectBrokerage(brokerage: Brokerage) {
+        val brokerage1 = if (brokerage == _state.value.brokerage) null else brokerage
+        _state.value = _state.value.copy(brokerage = brokerage1)
+        loadInitialData(brokerage1)
     }
 
     private fun updateEntryValue(
@@ -87,13 +102,13 @@ internal class HistoryViewModel(
         }
     }
 
-    internal fun loadPeriodData() {
+    internal fun loadInitialData(brokerage: Brokerage?) {
 
         val category = _state.value.currentCategory
         val period = _state.value.selectedPeriod
 
         viewModelScope.launch {
-            getHistoryTableDataUseCase(GetHistoryTableDataUseCase.Param(period, category))
+            getHistoryTableDataUseCase(GetHistoryTableDataUseCase.Param(period, category, brokerage = brokerage))
                 .onSuccess { tableData -> _state.value = _state.value.copy(tableData = tableData) }
         }
     }
@@ -102,6 +117,7 @@ internal class HistoryViewModel(
         data class SelectPeriod(val period: YearMonth) : HistoryIntent
         data class UpdateEntryValue(val entry: HoldingHistoryEntry, val value: Double) : HistoryIntent
         data class SelectHolding(val holding: AssetHolding?) : HistoryIntent
+        data class SelectBrokerage(val brokerage: Brokerage):HistoryIntent
         data object LoadInitialData : HistoryIntent
         data object Sync : HistoryIntent
         data class SelectCategory(val category: InvestmentCategory) : HistoryIntent
@@ -113,6 +129,8 @@ internal class HistoryViewModel(
         val periods: List<YearMonth> = emptyList(),
         val selectedHolding: AssetHolding? = null,
         val currentCategory: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
+        val brokerage: Brokerage? = null,
+        val brokerages: List<Brokerage> = emptyList(),
     )
 }
 

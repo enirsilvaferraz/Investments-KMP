@@ -9,7 +9,7 @@ import androidx.compose.ui.window.rememberWindowState
 
 public fun main(): Unit = application {
     Window(
-        state = rememberWindowState(width = 2000.dp, height = 1000.dp, position = WindowPosition.Aligned(Alignment.Center)),
+        state = rememberWindowState(width = 2000.dp, height = 1065.dp, position = WindowPosition.Aligned(Alignment.Center)),
         onCloseRequest = ::exitApplication,
         title = " ",
     ) {

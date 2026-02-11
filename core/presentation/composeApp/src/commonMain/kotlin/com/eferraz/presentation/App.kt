@@ -17,16 +17,20 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.eferraz.design_system.scaffolds.AppScaffoldPreview
 import com.eferraz.presentation.design_system.components.new_table.UITablePreview
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
 import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
 import com.eferraz.presentation.features.history.HistoryRoute
+import com.eferraz.presentation.features.history.HoldingHistoryRoute
+//import com.eferraz.presentation.features.history.HoldingHistoryScreenPreview
 
 @Composable
 public fun InternalApp() {
 
     AppTheme {
+//        HoldingHistoryScreenPreview()
         AppNavigationHost()
     }
 }
@@ -94,7 +98,7 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
             }
 
             entry<HistoryRouting> {
-                HistoryRoute()
+                HoldingHistoryRoute()
             }
 
             entry<GoalsMonitoringRouting> {

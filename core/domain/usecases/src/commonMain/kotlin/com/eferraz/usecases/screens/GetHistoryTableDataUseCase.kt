@@ -5,6 +5,7 @@ import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.AppUseCase
 import com.eferraz.usecases.GetTransactionsByHoldingUseCase
@@ -34,6 +35,7 @@ public class GetHistoryTableDataUseCase(
     public data class Param(
         val referenceDate: YearMonth,
         val category: InvestmentCategory,
+        val brokerage: Brokerage?,
     )
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
@@ -42,7 +44,9 @@ public class GetHistoryTableDataUseCase(
             .onFailure { println("Error: ${it.message}") }
             .getOrNull() ?: emptyList()
 
-        return results.map { result ->
+        return results
+            .filter { param.brokerage == null || it.holding.brokerage == param.brokerage }
+            .map { result ->
 
             val asset = result.holding.asset
             val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity

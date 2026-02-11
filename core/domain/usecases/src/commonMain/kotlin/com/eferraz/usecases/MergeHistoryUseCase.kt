@@ -36,7 +36,8 @@ public class MergeHistoryUseCase(
 
     override suspend fun execute(param: Param): List<HoldingHistoryResult> {
 
-        val holdings = assetHoldingRepository.getByCategory(param.category)
+        val holdings = assetHoldingRepository.getAll()
+//        val holdings = assetHoldingRepository.getByCategory(param.category)
 //            .filter { holding ->
 //                when (val asset = holding.asset) {
 //                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY || asset.issuer.isInLiquidation || asset.observations?.contains("FGTS") ?: false

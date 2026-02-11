@@ -8,11 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.eferraz.design_system.components.table.UiTableDataColumn
+import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.presentation.design_system.components.table.TableColumn
-import com.eferraz.presentation.design_system.components.table_v3.UiTableDataColumn
-import com.eferraz.presentation.design_system.components.table_v3.UiTableV3
 import com.seanproctor.datatable.TableColumnWidth
 
 @Composable
@@ -40,24 +40,19 @@ internal fun TransactionTable(
         buildFixedIncomeOrFundsColumns()
     }
 
-    UiTableV3(
-        modifier = modifier.fillMaxWidth(),
-        columns = columns.map { UiTableDataColumn(it.title, width = TableColumnWidth.MaxIntrinsic) },
-        rows = transactions.map {
-            if (isVariableIncome) listOf(
-                it.formatted.type,
-                it.formatted.date,
-                it.formatted.quantity.orEmpty(),
-                it.formatted.unitPrice.orEmpty(),
-                it.formatted.totalValue
-            )
-            else listOf(
-                it.formatted.type,
-                it.formatted.date,
-                it.formatted.totalValue
-            )
-        },
-    )
+//    UiTableV3(
+//        modifier = modifier.fillMaxWidth(),
+//        columns = columns.map { column ->
+//            UiTableDataColumn(
+//                text = column.title,
+//                width = TableColumnWidth.MaxIntrinsic,
+//                alignment = column.alignment,
+//                comparable = column.data,
+//                formatted = column.formated
+//            )
+//        },
+//        rows = transactions,
+//    )
 }
 
 @Composable

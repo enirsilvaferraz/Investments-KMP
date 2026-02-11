@@ -2,6 +2,7 @@ package com.eferraz.usecases.entities
 
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
@@ -69,6 +70,8 @@ public sealed interface HistoryTableData {
     public val totalBalance: Double
 
     public val displayName: String
+
+    public val category: InvestmentCategory
 }
 
 /**
@@ -110,7 +113,8 @@ public data class FixedIncomeHistoryTableData(
     override val totalContributions: Double,
     override val totalWithdrawals: Double,
     override val totalBalance: Double,
-    override val displayName: String
+    override val displayName: String,
+    override val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME
 ) : HistoryTableData
 
 /**
@@ -144,7 +148,8 @@ public data class VariableIncomeHistoryTableData(
     override val totalContributions: Double,
     override val totalWithdrawals: Double,
     override val totalBalance: Double,
-    override val displayName: String
+    override val displayName: String,
+    override val category: InvestmentCategory = InvestmentCategory.VARIABLE_INCOME
 ) : HistoryTableData
 
 /**
@@ -182,6 +187,7 @@ public data class InvestmentFundHistoryTableData(
     override val totalContributions: Double,
     override val totalWithdrawals: Double,
     override val totalBalance: Double,
-    override val displayName: String
+    override val displayName: String,
+    override val category: InvestmentCategory = InvestmentCategory.INVESTMENT_FUND
 ) : HistoryTableData
 

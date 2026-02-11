@@ -55,11 +55,11 @@ internal object Formatters {
     }
 
     internal fun LocalDate?.formated() =
-        this?.format(LocalDate.Format { year(); char('-'); monthNumber(); char('-'); day() }) ?: "-"
+        this?.format(LocalDate.Format { year(); char('.'); monthNumber(); char('.'); day() }) ?: "-"
 
 
     internal fun YearMonth.formated(): String =
-        format(YearMonth.Format { monthNumber(); char('/'); year() })
+        format(YearMonth.Format { year(); char('.'); monthNumber() })
 
     internal fun Liquidity.formated(liquidityDays: Int? = null): String = when (this) {
         Liquidity.DAILY -> "Diária"

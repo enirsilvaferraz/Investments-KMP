@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.eferraz.presentation.features.history
 
 import androidx.compose.animation.AnimatedVisibility
@@ -18,11 +20,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.EventBusy
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.outlined.Coffee
+import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.Work
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -30,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -40,6 +51,7 @@ import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaf
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,6 +60,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,6 +71,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.eferraz.design_system.components.table.UiTableDataColumn
+import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.presentation.FixedIncomeHistoryRouting
@@ -67,9 +84,6 @@ import com.eferraz.presentation.design_system.components.SegmentedControl
 import com.eferraz.presentation.design_system.components.SegmentedOption
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.components.new_table.UiTable
-import com.eferraz.presentation.design_system.components.table_v3.UiTableContentProviderImpl
-import com.eferraz.presentation.design_system.components.table_v3.UiTableDataColumn
-import com.eferraz.presentation.design_system.components.table_v3.UiTableV3
 import com.eferraz.presentation.features.history.HistoryViewModel.HistoryIntent
 import com.eferraz.presentation.features.history.HistoryViewModel.HistoryState
 import com.eferraz.presentation.features.transactions.TransactionPanel
@@ -89,7 +103,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun HistoryRoute(
-    enableV2: Boolean = false
+    enableV2: Boolean = false,
 ) {
 
     val sharedVm = koinViewModel<HistoryViewModel>()
@@ -183,7 +197,7 @@ private fun HistoryScreen(
                     )
                 }
 
-                SegmentedControl(
+                if (!enableV2) SegmentedControl(
                     options = listOf(
 
                         SegmentedOption(
@@ -212,6 +226,41 @@ private fun HistoryScreen(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     modifier = Modifier.padding(start = 16.dp, bottom = 8.dp).align(Alignment.BottomStart)
                 )
+                else {
+
+                    val options = listOf("Work", "Restaurant", "Coffee")
+                    val _ = listOf(Icons.Outlined.Work, Icons.Outlined.Restaurant, Icons.Outlined.Coffee)
+                    val _ = listOf(Icons.Filled.Work, Icons.Filled.Restaurant, Icons.Filled.Coffee)
+                    var selectedIndex by remember { mutableIntStateOf(0) }
+
+                    Row(
+//                        Modifier.padding(horizontal = 8.dp),
+                        modifier = Modifier.padding(start = 16.dp, bottom = 8.dp).align(Alignment.BottomStart),
+                        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                    ) {
+
+                        options.forEachIndexed { index, label ->
+                            ToggleButton(
+                                checked = selectedIndex == index,
+                                onCheckedChange = { selectedIndex = index },
+                                modifier = Modifier.semantics { role = Role.RadioButton },
+                                shapes =
+                                    when (index) {
+                                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                    },
+                            ) {
+//                            Icon(
+//                                if (selectedIndex == index) checkedIcons[index] else unCheckedIcons[index],
+//                                contentDescription = "Localized description",
+//                            )
+//                            Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                                Text(label)
+                            }
+                        }
+                    }
+                }
             }
         },
 
@@ -279,7 +328,7 @@ private fun SyncButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HistoryScreenFixedIncome(
     modifier: Modifier = Modifier,
@@ -293,91 +342,79 @@ private fun HistoryScreenFixedIncome(
 
     // Dados para demonstrar ordenação
 
-    val data = fixedIncomeData.groupBy { it.brokerageName }
+    val _ = fixedIncomeData.groupBy { it.brokerageName }
 
 
     if (enableV2) Column(
-//        Modifier.verticalScroll(rememberScrollState()).padding(16.dp),
+        Modifier.fillMaxSize(),
+//        Modifier.verticalScroll(rememberScrollState()).padding(0.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
 //        data.forEach { (brokerageName, data) ->
 
-            UiTableV3(
+        UiTableV3(
 //                header = brokerageName,
-                columns = listOf(
-                    UiTableDataColumn("Emissor", width = TableColumnWidth.MaxIntrinsic),
-                    UiTableDataColumn("Display Name", width = TableColumnWidth.MaxIntrinsic),
-                    UiTableDataColumn("Liquidez", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center),
-                    UiTableDataColumn("Observação", width = TableColumnWidth.Flex(1f)),
-                    UiTableDataColumn("Valor Anterior", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
-                    UiTableDataColumn("Valor Atual", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
-                    UiTableDataColumn("Balanço", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd),
-                    UiTableDataColumn("%", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center)
+            columns = listOf(
+                UiTableDataColumn(
+                    text = "Emissor",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    comparable = { it.issuerName },
+                    content = { it.issuerName }
                 ),
-                rows = fixedIncomeData.map {
-                    listOf(
-                        it.issuerName,
-                        it.displayName,
-                        it.liquidity,
-                        it.observations,
-                        it.previousValue.currencyFormat(),
-                        it.currentValue.currencyFormat(),
-                        it.totalBalance.currencyFormat(),
-                        it.appreciation.toPercentage()
-                    )
-                },
-                provider = object : UiTableContentProviderImpl() {
+                UiTableDataColumn(
+                    text = "Display Name",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    comparable = { it.displayName },
+                    content = { it.displayName }
+                ),
+                UiTableDataColumn(
+                    text = "Liquidez",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.Center,
+                    comparable = { it.liquidity },
+                    content = { it.liquidity.name }
+                ),
+                UiTableDataColumn(
+                    text = "Observação",
+                    width = TableColumnWidth.Flex(1f),
+                    comparable = { it.observations },
+                    content = { it.observations }
+                ),
+                UiTableDataColumn(
+                    text = "Valor Anterior",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.CenterEnd,
+                    comparable = { it.previousValue },
+                    content = { it.previousValue.currencyFormat() }
+                ),
+                UiTableDataColumn(
+                    text = "Valor Atual",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.CenterEnd,
+                    comparable = { it.currentValue },
+                    content = { it.currentValue.currencyFormat() }
+                ),
+                UiTableDataColumn(
+                    text = "Balanço",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.CenterEnd,
+                    comparable = { it.totalBalance },
+                    content = { it.totalBalance.currencyFormat() }
+                ),
+                UiTableDataColumn(
+                    text = "%",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.Center,
+                    comparable = { it.appreciation },
+                    content = { it.appreciation.toPercentage() }
+                )
+            ),
+            rows = fixedIncomeData,
+//            footerBackgroundColor = MaterialTheme.colorScheme.surfaceContainerLowest,
 
-                    @Composable
-                    override fun Cell(index: Int, data: Any) {
-                        when (index) {
-                        2 -> Liquidity(data)
-                            else -> super.Cell(index, data.toString())
-                        }
-                    }
-
-                    /**
-                     *
-                     */
-
-                    @Composable
-                    fun Liquidity(liquidity: Any) {
-
-                        require(liquidity is Liquidity) { "Invalid data type" }
-
-                        val icon = when (liquidity) {
-                            Liquidity.DAILY -> Icons.Default.EventAvailable
-                            else -> Icons.Default.EventBusy
-                        }
-
-                        val color = when (liquidity) {
-                            Liquidity.DAILY -> Color.Green
-                            else -> Color.Red
-                        }
-
-                        val tooltipText = liquidity.formated()
-
-                        TooltipBox(
-                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.End),
-                            tooltip = {
-                                PlainTooltip {
-                                    Text(tooltipText)
-                                }
-                            },
-                            state = rememberTooltipState()
-                        ) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = liquidity.formated(),
-                                modifier = Modifier.alpha(0.5f),//.size(18.dp),
-                                tint = color
-                            )
-                        }
-                    }
-                }
-            )
-        }
+        )
+    }
 //    }
 
     else UiTable(
@@ -597,8 +634,8 @@ private fun HistoryScreenVariableIncome(
     modifier: Modifier = Modifier,
     state: HistoryState,
     viewModel: HistoryViewModel,
-    scope: kotlinx.coroutines.CoroutineScope,
-    navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
+    scope: CoroutineScope,
+    navigator: ThreePaneScaffoldNavigator<Nothing>,
 ) {
     val variableIncomeData = state.tableData.filterIsInstance<VariableIncomeHistoryTableData>()
 
@@ -729,8 +766,8 @@ private fun HistoryScreenFunds(
     modifier: Modifier = Modifier,
     state: HistoryState,
     viewModel: HistoryViewModel,
-    scope: kotlinx.coroutines.CoroutineScope,
-    navigator: androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<Nothing>,
+    scope: CoroutineScope,
+    navigator: ThreePaneScaffoldNavigator<Nothing>,
 ) {
     val fundsData = state.tableData.filterIsInstance<InvestmentFundHistoryTableData>()
 
