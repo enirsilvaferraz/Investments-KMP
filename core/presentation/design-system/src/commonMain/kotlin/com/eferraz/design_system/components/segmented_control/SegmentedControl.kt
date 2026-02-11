@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 public fun <T> SegmentedControl(
     modifier: Modifier = Modifier,
-    selected: T,
+    selected: T?,
     options: List<T>,
     onSelect: (T) -> Unit,
     optionDisplay: (T) -> String = { it.toString() },

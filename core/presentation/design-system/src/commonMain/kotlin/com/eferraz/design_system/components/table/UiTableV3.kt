@@ -59,7 +59,7 @@ public fun <T> UiTableV3(
     header: String? = null,
     columns: List<UiTableDataColumn<T>>,
     rows: List<T>,
-    subFooter: T? = null,
+    subFooter: List<String>? = null,
     footer: (@Composable () -> Unit)? = null,
     provider: UiTableContentProvider = UiTableContentProviderImpl(),
     headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest, // Passar para dentro do provider
@@ -90,7 +90,7 @@ public fun <T> UiTableV3(
                 width = column.width,
                 alignment = column.alignment,
                 onSort = { columnIndex: Int, ascending: Boolean -> sortConfig = columnIndex to ascending },
-                header = { provider.Column(index, column.text,column.alignment) }
+                header = { provider.Column(index, column.text, column.alignment) }
             )
         }
     }
@@ -114,11 +114,15 @@ public fun <T> UiTableV3(
                 }
             }
 
-            if (subFooter != null) {
+            if (subFooter != null && columns.size == subFooter.size) {
                 row {
                     isFooter = true
                     backgroundColor = footerBackgroundColor
-                    cells(subFooter)
+                        columns.forEachIndexed { index, column ->
+                            cell {
+                                Text(subFooter.get(index))
+                            }
+                        }
                 }
             }
         }
@@ -328,7 +332,7 @@ private fun UiTableV3Preview() {
                         ),
                     ),
                     rows = previewData,
-                    subFooter = PreviewRow(0, "Sub calc Orange", "", 600),
+//                    subFooter = PreviewRow(0, "Sub calc Orange", "", 600),
                 )
             }
         }
