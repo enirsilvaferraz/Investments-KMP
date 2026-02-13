@@ -35,9 +35,11 @@ import com.eferraz.design_system.scaffolds.AppScreenScaffold
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.goals.FinancialGoal
+import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.presentation.commons.table_icons.BuildIcon
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.theme.getInfoColor
@@ -181,7 +183,9 @@ internal fun HoldingHistoryScreen(
                 onGoalChange
             )
 
-            Transactions(transactions, rows)
+            Summary(rows)
+
+            Transactions(transactions)
         }
     )
 }
@@ -195,6 +199,7 @@ private fun Table(
 ) {
 
     UiTableV3(
+        headerBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
         modifier = modifier,
         rows = data,
         columns = listOf(
@@ -368,51 +373,61 @@ private fun FilterPane(
 }
 
 @Composable
-private fun Transactions(transactions: List<AssetTransaction>, rows: List<HoldingHistoryData>) {
+private fun Transactions(transactions: List<AssetTransaction>) {
+
+    if (transactions.isEmpty()) {
+
+        AppScreenPane(
+            contentPadding = PaddingValues(16.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow
+        ) {
+            Text(modifier = Modifier.fillMaxWidth(), text = "Nenhuma transação esse mês", textAlign = TextAlign.Center)
+        }
+
+    } else {
+
+        AppScreenPane(
+            modifier = Modifier.padding(bottom = 32.dp),
+        ) {
+
+            UiTableV3(
+                headerBackgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+                rows = transactions,
+                columns = listOf(
+
+                    UiTableDataColumn(
+                        text = "Data",
+                        width = TableColumnWidth.Flex(1f),
+                        comparable = { it.date },
+                        content = { Text(it.date.formated()) }
+                    ),
+
+                    UiTableDataColumn(
+                        text = "Transação",
+                        width = TableColumnWidth.Flex(1f),
+                        comparable = { it.type },
+                        content = { Text(it.type.formated()) }
+                    ),
+
+                    UiTableDataColumn(
+                        text = "Valor",
+                        width = TableColumnWidth.Flex(1f),
+                        comparable = { it.totalValue },
+                        content = { Text(it.totalValue.currencyFormat()) }
+                    )
+                ),
+                footer = {
+                    Text("")
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun Summary(rows: List<HoldingHistoryData>) {
 
     AppScreenPane {
-
-        UiTableV3(
-            rows = transactions,
-            columns = listOf(
-
-                UiTableDataColumn(
-                    text = "Data",
-                    width = TableColumnWidth.Flex(1f),
-                    comparable = { it.date },
-                    content = { Text(it.date.formated()) }
-                ),
-
-                UiTableDataColumn(
-                    text = "Transação",
-                    width = TableColumnWidth.Flex(1f),
-                    comparable = { it.type },
-                    content = { Text(it.type.formated()) }
-                ),
-
-                UiTableDataColumn(
-                    text = "Valor",
-                    width = TableColumnWidth.Flex(1f),
-                    comparable = { it.totalValue },
-                    content = { Text(it.totalValue.currencyFormat()) }
-                )
-            ),
-            footer = {
-                Text("")
-            }
-        )
-    }
-
-    if (false) AppScreenPane(
-        contentPadding = PaddingValues(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow
-    ) {
-        Text(modifier = Modifier.fillMaxWidth(), text = "Nenhuma transação esse mês", textAlign = TextAlign.Center)
-    }
-
-    AppScreenPane(
-        modifier = Modifier.padding(bottom = 32.dp),
-    ) {
 
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -422,21 +437,29 @@ private fun Transactions(transactions: List<AssetTransaction>, rows: List<Holdin
 
             val prev = rows.sumOf { it.previousValue }
             val act = rows.sumOf { it.currentValue }
+            val bal = rows.sumOf { it.totalBalance }
+
+            val calc = Appreciation.calculate(
+                previousValue = prev,
+                currentValue = act,
+                contributions = bal,
+                withdrawals = 0.0
+            )
 
             listOf(
                 "Valor Anterior" to prev.currencyFormat(),
                 "Valor Atual" to act.currencyFormat(),
-                "Balanço" to rows.sumOf { it.totalBalance }.currencyFormat(),
-                "Valorização" to (prev / act).toPercentage()
+                "Balanço" to bal.currencyFormat(),
+                "Valorização" to calc.percentage.toPercentage()
             ).forEach { (title, value) ->
 
                 Column(
                     modifier = Modifier.weight(1f),//.height(150.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
 
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f))
                     ) {
 
 

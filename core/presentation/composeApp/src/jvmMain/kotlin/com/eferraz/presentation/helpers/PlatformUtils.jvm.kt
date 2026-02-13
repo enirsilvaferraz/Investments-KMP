@@ -12,7 +12,10 @@ public actual fun String.currencyToDouble(): Double? {
 }
 
 public actual fun Double.toPercentage(): String {
-    return NumberFormat.getPercentInstance().apply { maximumFractionDigits = 2 }.format(this / 100)
+    return NumberFormat.getPercentInstance().apply {
+        maximumFractionDigits = 2
+        minimumFractionDigits = 2
+    }.format(this / 100)
 }
 
 public actual fun String.fromPercentage(): Double? {
