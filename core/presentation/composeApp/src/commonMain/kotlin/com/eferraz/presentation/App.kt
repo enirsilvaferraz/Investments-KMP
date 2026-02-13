@@ -22,7 +22,6 @@ import com.eferraz.presentation.design_system.components.new_table.UITablePrevie
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
 import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
-import com.eferraz.presentation.features.history.HistoryRoute
 import com.eferraz.presentation.features.history.HoldingHistoryRoute
 //import com.eferraz.presentation.features.history.HoldingHistoryScreenPreview
 
@@ -72,12 +71,12 @@ private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Uni
         onClick = { backStack[0] = GoalsMonitoringRouting }
     )
 
-    NavigationSuiteItem(
-        icon = { Icon(imageVector = Icons.Default.DeveloperMode, contentDescription = "Histórico") },
-        label = { Text("Histórico") },
-        selected = backStack.lastOrNull() == HistoryRoutingV2,
-        onClick = { backStack[0] = HistoryRoutingV2 }
-    )
+//    NavigationSuiteItem(
+//        icon = { Icon(imageVector = Icons.Default.DeveloperMode, contentDescription = "Histórico") },
+//        label = { Text("Histórico") },
+//        selected = backStack.lastOrNull() == HistoryRoutingV2,
+//        onClick = { backStack[0] = HistoryRoutingV2 }
+//    )
 
 //    NavigationSuiteItem(
 //        icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Test") },
@@ -105,13 +104,9 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                 GoalsMonitoringRoute()
             }
 
-            entry<TestRouting> {
-                UITablePreview()
-            }
-
-            entry<HistoryRoutingV2> {
-                HistoryRoute(true)
-            }
+//            entry<TestRouting> {
+//                UITablePreview()
+//            }
         }
     )
 }

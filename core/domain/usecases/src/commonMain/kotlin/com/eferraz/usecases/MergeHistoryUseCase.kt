@@ -31,7 +31,7 @@ public class MergeHistoryUseCase(
 
     public data class Param(
         val referenceDate: YearMonth,
-        val category: InvestmentCategory
+        val category: InvestmentCategory?
     )
 
     override suspend fun execute(param: Param): List<HoldingHistoryResult> {

@@ -1,48 +1,29 @@
 package com.eferraz.presentation.features.history
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.EventAvailable
-import androidx.compose.material.icons.filled.EventBusy
-import androidx.compose.material.icons.filled.KeyboardOptionKey
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.ToggleButtonDefaults
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItem
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,19 +34,21 @@ import com.eferraz.design_system.scaffolds.AppScreenPane
 import com.eferraz.design_system.scaffolds.AppScreenScaffold
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
-import com.eferraz.entities.transactions.TransactionType
+import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.presentation.commons.table_icons.BuildIcon
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
-import com.eferraz.presentation.design_system.theme.AppTheme
+import com.eferraz.presentation.design_system.theme.getInfoColor
 import com.eferraz.presentation.design_system.theme.getSuccessColor
 import com.eferraz.presentation.design_system.theme.getWarningColor
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
+import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HistoryTableData
 import com.seanproctor.datatable.TableColumnWidth
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -75,7 +58,7 @@ internal data class HoldingHistoryData(
     val category: InvestmentCategory,
     val issuerName: String,
     val displayName: String,
-//    val liquidity: Liquidity,
+    val liquidity: Liquidity?,
     val observations: String,
     val previousValue: Double,
     val currentValue: Double,
@@ -88,7 +71,7 @@ internal data class HoldingHistoryData(
         category = it.category,
         issuerName = it.issuerName,
         displayName = it.displayName,
-//        liquidity = it.liquidity,
+        liquidity = if (it is FixedIncomeHistoryTableData) it.liquidity else null,
         observations = it.observations,
         previousValue = it.previousValue,
         currentValue = it.currentValue,
@@ -106,12 +89,23 @@ public fun HoldingHistoryRoute() {
     HoldingHistoryScreen(
         rows = state.tableData.map { HoldingHistoryData(it) },
         onValueChange = { entry, value -> vm.processIntent(HistoryViewModel.HistoryIntent.UpdateEntryValue(entry.entry, value)) },
-        brokerage = state.brokerage,
-        brokerages = state.brokerages,
+        brokerage = state.brokerage.selected,
+        brokerages = state.brokerage.options,
         onBrokerageChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectBrokerage(it)) },
-        periodSelected = state.selectedPeriod,
-        periodOptions = state.periods,
-        onPeriodChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectPeriod(it)) }
+        periodSelected = state.period.selected!!,
+        periodOptions = state.period.options,
+        onPeriodChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectPeriod(it)) },
+        categorySelected = state.category.selected,
+        categoryOptions = state.category.options,
+        onCategoryChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectCategory(it)) },
+        liquiditySelected = state.liquidity.selected,
+        liquidityOptions = state.liquidity.options,
+        onLiquidityChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectLiquidity(it)) },
+        goalSelected = state.goal.selected,
+        goalOptions = state.goal.options,
+        onGoalChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectGoal(it)) },
+        onSyncClick = { vm.processIntent(HistoryViewModel.HistoryIntent.Sync) },
+        transactions = state.transactions
     )
 }
 
@@ -126,11 +120,29 @@ internal fun HoldingHistoryScreen(
     periodSelected: YearMonth,
     periodOptions: List<YearMonth>,
     onPeriodChange: (YearMonth) -> Unit,
+    categorySelected: InvestmentCategory?,
+    categoryOptions: List<InvestmentCategory>,
+    onCategoryChange: (InvestmentCategory) -> Unit,
+    liquiditySelected: Liquidity?,
+    liquidityOptions: List<Liquidity>,
+    onLiquidityChange: (Liquidity) -> Unit,
+    goalSelected: FinancialGoal?,
+    goalOptions: List<FinancialGoal>,
+    onGoalChange: (FinancialGoal) -> Unit,
+    onSyncClick: () -> Unit,
+    transactions: List<AssetTransaction>,
 ) {
 
     AppScreenScaffold(
         title = "Posicionamento no Período",
         actions = {
+
+            IconButton(onClick = onSyncClick) {
+                Icon(
+                    imageVector = Icons.Default.Sync, contentDescription = "Sincronizar"
+                )
+            }
+
 //            IconButton(onClick = {}) {
 //                Icon(
 //                    imageVector = Icons.Default.FilterList, contentDescription = "Filtros"
@@ -153,8 +165,23 @@ internal fun HoldingHistoryScreen(
         },
         supportingPaneWidthRate = 0.23f,
         supportingPane = {
-            FilterPane(periodSelected, periodOptions, onPeriodChange)
-            Transactions()
+
+            FilterPane(
+                periodSelected,
+                periodOptions,
+                onPeriodChange,
+                categorySelected,
+                categoryOptions,
+                onCategoryChange,
+                liquiditySelected,
+                liquidityOptions,
+                onLiquidityChange,
+                goalSelected,
+                goalOptions,
+                onGoalChange
+            )
+
+            Transactions(transactions, rows)
         }
     )
 }
@@ -173,16 +200,17 @@ private fun Table(
         columns = listOf(
 
             UiTableDataColumn(
-                text = "Flags",
+                text = "",
                 width = TableColumnWidth.MaxIntrinsic,
                 comparable = { it.category },
-                content = { Category(it.category) }
+                content = { it.category.BuildIcon() }
             ),
 
 //            UiTableDataColumn(
-//                text = "Emissor",
+//                text = "",
 //                width = TableColumnWidth.MaxIntrinsic,
-//                comparable = { it.issuerName }
+//                comparable = { it.liquidity ?: "" },
+//                content = { it.liquidity?.BuildIcon() }
 //            ),
 
             UiTableDataColumn(
@@ -224,7 +252,16 @@ private fun Table(
                 width = TableColumnWidth.MaxIntrinsic,
                 alignment = Alignment.CenterEnd,
                 comparable = { it.totalBalance },
-                content = { Text(it.totalBalance.currencyFormat()) }
+                content = {
+                    Text(
+                        text = it.totalBalance.currencyFormat(),
+                        color = when {
+                            it.totalBalance < 0 -> getWarningColor()
+                            it.totalBalance > 0 -> getInfoColor()
+                            else -> Color.Gray
+                        }
+                    )
+                }
             ),
 
             UiTableDataColumn(
@@ -243,37 +280,40 @@ private fun Table(
                     )
                 }
             ),
-
-//            UiTableDataColumn(
-//                text = "Liquidez",
-//                width = TableColumnWidth.MaxIntrinsic,
-//                alignment = Alignment.Center,
-//                comparable = { it.liquidity },
-//                content = { Liquidity(it.liquidity) }
-//            ),
         ),
-        subFooter = listOf(
-            "",
-            "",
-            "",
-            "",
-            data.sumOf { it.previousValue }.currencyFormat(),
-            data.sumOf { it.currentValue }.currencyFormat(),
-            data.sumOf { it.totalBalance }.currencyFormat(),
-            ""
-        )
+//        subFooter = listOf(
+//            "",
+//            "",
+//            "",
+//            data.sumOf { it.previousValue }.currencyFormat(),
+//            data.sumOf { it.currentValue }.currencyFormat(),
+//            data.sumOf { it.totalBalance }.currencyFormat(),
+//            ""
+//        ),
+//            footer = {
+//                Text("")
+//            }
     )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun FilterPane(periodSelected: YearMonth, periodOptions: List<YearMonth>, onPeriodChange: (YearMonth) -> Unit) {
-
+private fun FilterPane(
+    periodSelected: YearMonth,
+    periodOptions: List<YearMonth>,
+    onPeriodChange: (YearMonth) -> Unit,
+    categorySelected: InvestmentCategory?,
+    categoryOptions: List<InvestmentCategory>,
+    onCategoryChange: (InvestmentCategory) -> Unit,
+    liquiditySelected: Liquidity?,
+    liquidityOptions: List<Liquidity>,
+    onLiquidityChange: (Liquidity) -> Unit,
+    goalSelected: FinancialGoal?,
+    goalOptions: List<FinancialGoal>,
+    onGoalChange: (FinancialGoal) -> Unit,
+) {
 
     AppScreenPane {
-//        Text("Período", modifier = Modifier.padding(bottom = 8.dp))
-
-
         SegmentedControl(
             selected = periodSelected,
             options = periodOptions,
@@ -282,119 +322,58 @@ private fun FilterPane(periodSelected: YearMonth, periodOptions: List<YearMonth>
             colors = ToggleButtonDefaults.toggleButtonColors(
                 checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+            ),
+            fill = true
         )
     }
 
-
-//    AppScreenPane {
-//        Text("Corretora", modifier = Modifier.padding(bottom = 8.dp))
-//        var brokerage by remember { mutableStateOf("Nubank") }
-//        SegmentedControl(
-//            selected = brokerage,
-//            options = listOf("Nubank", "Bradesco", "Santander", "Itaú", "Banco do Brasil", "Inter"),
-//            onSelect = { brokerage = it }
-//        )
-//    }
-
-
     AppScreenPane {
 
-        var r1 by remember { mutableStateOf("") }
-
-//        Text("Tipo de Investimento", modifier = Modifier.padding(bottom = 8.dp))
         SegmentedControl(
-            selected = r1,
-            options = listOf("Renda Fixa", "Renda Variável", "Fundos"),
-            onSelect = { r1 = it },
+            selected = categorySelected,
+            options = categoryOptions,
+            optionDisplay = { it.formated() },
+            onSelect = onCategoryChange,
             colors = ToggleButtonDefaults.toggleButtonColors(
                 checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            ),
+            fill = true
         )
-//    }
-//
-//    AppScreenPane {
-        var r2 by remember { mutableStateOf("") }
 
-//        Text("Liquidez", modifier = Modifier.padding(bottom = 8.dp))
         SegmentedControl(
-            selected = r2,
-            options = listOf("Liquidez Diária", "No Vencimento"),
-            onSelect = { r2 = it },
+            selected = liquiditySelected,
+            options = liquidityOptions,
+            optionDisplay = { it.formated() },
+            onSelect = onLiquidityChange,
             colors = ToggleButtonDefaults.toggleButtonColors(
                 checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            ),
+            fill = true
         )
-//    }
-//
-//    AppScreenPane {
-        var r3 by remember { mutableStateOf("") }
 
-//        Text("Objetivo", modifier = Modifier.padding(bottom = 8.dp))
         SegmentedControl(
-            selected = r3,
-            options = listOf("Apartamento", "Aposentadoria", "Automóvel"),
-            onSelect = { r3 = it },
+            selected = goalSelected,
+            options = goalOptions,
+            optionDisplay = { it.name },
+            onSelect = onGoalChange,
             colors = ToggleButtonDefaults.toggleButtonColors(
                 checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            ),
+            fill = true
         )
     }
 }
 
 @Composable
-private fun Transactions() {
-
-    data class TransactionView(val date: LocalDate, val type: TransactionType, val value: Double)
-
-//    Text("Transações", style = MaterialTheme.typography.titleMedium)
-
-    if (false) AppScreenPane {
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-
-            TextField(
-                modifier = Modifier.weight(1f),
-                value = "2026-01-01",
-                label = { Text("Data") },
-                onValueChange = {}
-            )
-
-            TextField(
-                modifier = Modifier.weight(1f),
-                value = "Compra",
-                label = { Text("Transação") },
-                onValueChange = {}
-            )
-
-            TextField(
-                modifier = Modifier.weight(1f),
-                prefix = { Text("R$ ") },
-                value = "10.000,00",
-                label = { Text("Valor") },
-                onValueChange = {}
-            )
-
-            FilledTonalIconButton(
-                onClick = { /*TODO*/ },
-            ) {
-                Icon(imageVector = Icons.Default.KeyboardOptionKey, contentDescription = null)
-            }
-        }
-    }
+private fun Transactions(transactions: List<AssetTransaction>, rows: List<HoldingHistoryData>) {
 
     AppScreenPane {
 
         UiTableV3(
-            rows = listOf(
-                TransactionView(LocalDate(2026, 10, 4), TransactionType.PURCHASE, 100.0),
-                TransactionView(LocalDate(2026, 10, 5), TransactionType.SALE, 200.0),
-                TransactionView(LocalDate(2026, 10, 6), TransactionType.PURCHASE, 300.0),
-                TransactionView(LocalDate(2026, 10, 7), TransactionType.SALE, 400.0)
-            ),
+            rows = transactions,
             columns = listOf(
 
                 UiTableDataColumn(
@@ -414,328 +393,76 @@ private fun Transactions() {
                 UiTableDataColumn(
                     text = "Valor",
                     width = TableColumnWidth.Flex(1f),
-                    comparable = { it.value },
-                    content = { Text(it.value.currencyFormat()) }
+                    comparable = { it.totalValue },
+                    content = { Text(it.totalValue.currencyFormat()) }
                 )
             ),
-//            subFooter = TransactionView(LocalDate(2026, 10, 4), TransactionType.PURCHASE, 100.0),
             footer = {
                 Text("")
             }
         )
     }
 
-    AppScreenPane(
+    if (false) AppScreenPane(
         contentPadding = PaddingValues(16.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
         Text(modifier = Modifier.fillMaxWidth(), text = "Nenhuma transação esse mês", textAlign = TextAlign.Center)
     }
 
-    if (false) AppScreenPane {
+    AppScreenPane(
+        modifier = Modifier.padding(bottom = 32.dp),
+    ) {
 
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            maxItemsInEachRow = 2
         ) {
 
-            Card(
-                modifier = Modifier.weight(1f),//.height(150.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
-            ) {
+            val prev = rows.sumOf { it.previousValue }
+            val act = rows.sumOf { it.currentValue }
+
+            listOf(
+                "Valor Anterior" to prev.currencyFormat(),
+                "Valor Atual" to act.currencyFormat(),
+                "Balanço" to rows.sumOf { it.totalBalance }.currencyFormat(),
+                "Valorização" to (prev / act).toPercentage()
+            ).forEach { (title, value) ->
 
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.weight(1f),//.height(150.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
 
-                    Text("Lucro Total", style = MaterialTheme.typography.titleSmall, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+                    ) {
 
-                    Text(
-                        "1000,00",
-                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 32.sp),
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                }
-            }
 
-            Card(
-                modifier = Modifier.weight(1f),//.height(150.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
-            ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
 
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                            Text(
+                                title,
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
 
-                    Text("Valorização", style = MaterialTheme.typography.titleSmall, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
 
-                    Text(
-                        "1.5%",
-                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 32.sp),
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
+                            Text(
+                                value,
+                                style = MaterialTheme.typography.titleLarge.copy(fontSize = 19.sp),
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
-
-/**
- *
- */
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun Liquidity(liquidity: Liquidity) {
-
-    val icon = when (liquidity) {
-        Liquidity.DAILY -> Icons.Default.EventAvailable
-        else -> Icons.Default.EventBusy
-    }
-
-    val color = when (liquidity) {
-        Liquidity.DAILY -> Color.Green
-        else -> Color.Red
-    }
-
-    val tooltipText = liquidity.formated()
-
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.End),
-        tooltip = {
-            PlainTooltip {
-                Text(tooltipText)
-            }
-        },
-        state = rememberTooltipState()
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = liquidity.formated(),
-            modifier = Modifier.alpha(0.5f),//.size(18.dp),
-            tint = color
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun Category(category: InvestmentCategory) {
-
-    val icon = Icons.Default.AttachMoney
-
-    val color = when (category) {
-        InvestmentCategory.FIXED_INCOME -> getSuccessColor()
-        InvestmentCategory.VARIABLE_INCOME -> MaterialTheme.colorScheme.error
-        InvestmentCategory.INVESTMENT_FUND -> getWarningColor()
-    }
-
-    val tooltipText = category.formated()
-
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.End),
-        tooltip = {
-            PlainTooltip {
-                Text(tooltipText)
-            }
-        },
-        state = rememberTooltipState()
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = tooltipText,
-            modifier = Modifier.alpha(0.5f),//.size(18.dp),
-            tint = color
-        )
-    }
-}
-
-//@Preview(widthDp = 2000, heightDp = 1000)
-////@Preview(widthDp = 1200, heightDp = 600)
-//@Composable
-//public fun HoldingHistoryScreenPreview() {
-//    AppTheme {
-//        NavigationSuiteScaffold(
-//            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest),
-//            navigationItemVerticalArrangement = Arrangement.Center,
-//            navigationItems = @Composable {
-//                for (i in 0..<5) {
-//                    NavigationSuiteItem(
-//                        icon = { Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "Ativos") },
-//                        label = { Text("Ativos") },
-//                        selected = i == 2,
-//                        onClick = { }
-//                    )
-//                }
-//            }
-//        ) {
-//            HoldingHistoryScreen(
-//                rows = listOf(
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Nubank",
-//                        displayName = "CDB 100% do CDI (venc. 2026.12.01)",
-////                        liquidity = Liquidity.DAILY,
-//                        observations = "Investimento de liquidez diária",
-//                        previousValue = 10000.0,
-//                        currentValue = 10856.0,
-//                        appreciation = 8.56,
-//                        totalBalance = 856.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Banco Inter",
-//                        displayName = "CDB 110% do CDI (venc. 2027.03.15)",
-////                        liquidity = Liquidity.AT_MATURITY,
-//                        observations = "Rendimento acima do CDI",
-//                        previousValue = 15000.0,
-//                        currentValue = 16245.0,
-//                        appreciation = 8.30,
-//                        totalBalance = 1245.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "BTG Pactual",
-//                        displayName = "LCI 95% do CDI (venc. 2026.06.30)",
-////                        liquidity = Liquidity.AT_MATURITY,
-//                        observations = "Isento de IR",
-//                        previousValue = 20000.0,
-//                        currentValue = 21340.0,
-//                        appreciation = 6.70,
-//                        totalBalance = 1340.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "XP Investimentos",
-//                        displayName = "Tesouro Selic 2029",
-////                        liquidity = Liquidity.DAILY,
-//                        observations = "Título público federal",
-//                        previousValue = 25000.0,
-//                        currentValue = 27125.0,
-//                        appreciation = 8.50,
-//                        totalBalance = 2125.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Itaú",
-//                        displayName = "CDB 105% do CDI (venc. 2028.01.20)",
-////                        liquidity = Liquidity.AT_MATURITY,
-//                        observations = "Prazo longo, maior rentabilidade",
-//                        previousValue = 30000.0,
-//                        currentValue = 32850.0,
-//                        appreciation = 9.50,
-//                        totalBalance = 2850.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "C6 Bank",
-//                        displayName = "LCA 90% do CDI (venc. 2026.09.10)",
-////                        liquidity = Liquidity.AT_MATURITY,
-//                        observations = "Crédito do agronegócio",
-//                        previousValue = 12000.0,
-//                        currentValue = 12768.0,
-//                        appreciation = 6.40,
-//                        totalBalance = 768.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Santander",
-//                        displayName = "CDB 108% do CDI (venc. 2027.11.05)",
-////                        liquidity = Liquidity.AT_MATURITY,
-//                        observations = "Banco tradicional",
-//                        previousValue = 18000.0,
-//                        currentValue = 19548.0,
-//                        appreciation = 8.60,
-//                        totalBalance = 1548.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Rico",
-//                        displayName = "Tesouro IPCA+ 2035",
-////                        liquidity = Liquidity.DAILY,
-//                        observations = "Proteção contra inflação",
-//                        previousValue = 22000.0,
-//                        currentValue = 24420.0,
-//                        appreciation = 11.00,
-//                        totalBalance = 2420.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Bradesco",
-//                        displayName = "CDB 102% do CDI (venc. 2026.08.15)",
-////                        liquidity = Liquidity.DAILY,
-//                        observations = "Liquidez diária disponível",
-//                        previousValue = 8000.0,
-//                        currentValue = 8536.0,
-//                        appreciation = 6.70,
-//                        totalBalance = 536.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Modal",
-//                        displayName = "LCI 88% do CDI (venc. 2027.02.28)",
-////                        liquidity = Liquidity.AT_MATURITY,
-//                        observations = "Sem IR, vencimento médio",
-//                        previousValue = 14000.0,
-//                        currentValue = 14868.0,
-//                        appreciation = 6.20,
-//                        totalBalance = 868.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Safra",
-//                        displayName = "CDB 112% do CDI (venc. 2028.05.10)",
-////                        liquidity = Liquidity.AT_MATURITY,
-//                        observations = "Alta rentabilidade",
-//                        previousValue = 35000.0,
-//                        currentValue = 38885.0,
-//                        appreciation = 11.10,
-//                        totalBalance = 3885.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Warren",
-//                        displayName = "Tesouro Prefixado 2027",
-////                        liquidity = Liquidity.DAILY,
-//                        observations = "Taxa prefixada de 11,5% a.a.",
-//                        previousValue = 16000.0,
-//                        currentValue = 17472.0,
-//                        appreciation = 9.20,
-//                        totalBalance = 1472.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "Banco BS2",
-//                        displayName = "CDB 115% do CDI (venc. 2027.07.20)",
-////                        liquidity = Liquidity.AT_MATURITY,
-//                        observations = "Banco médio, maior rentabilidade",
-//                        previousValue = 9000.0,
-//                        currentValue = 9801.0,
-//                        appreciation = 8.90,
-//                        totalBalance = 801.0
-//                    ),
-//                    HoldingHistoryData(
-//                        category = InvestmentCategory.FIXED_INCOME,
-//                        issuerName = "PagBank",
-//                        displayName = "CDB 98% do CDI (venc. 2026.04.30)",
-////                        liquidity = Liquidity.DAILY,
-//                        observations = "Liquidez imediata",
-//                        previousValue = 11000.0,
-//                        currentValue = 11726.0,
-//                        appreciation = 6.60,
-//                        totalBalance = 726.0
-//                    )
-//                ),
-//                brokerage = Brokerage(0, "Nubank"),
-//                brokerages = listOf(Brokerage(0, "Nubank")),
-//                onBrokerageChange = {},
-//                periodSelected = YearMonth(2026, 1),
-//                periodOptions = listOf(YearMonth(2025, 12), YearMonth(2026, 1), YearMonth(2026, 2)),
-//                onPeriodChange = {}
-//            )
-//        }
-//    }
-//}

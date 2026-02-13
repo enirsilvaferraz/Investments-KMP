@@ -3,19 +3,24 @@ package com.eferraz.presentation.features.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
+import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
+import com.eferraz.usecases.cruds.GetTransactionsUseCase
 import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.providers.DateProvider
 import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
 import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
@@ -26,22 +31,45 @@ internal class HistoryViewModel(
     dateProvider: DateProvider,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
+    private val getGoalUseCase: GetFinancialGoalsUseCase,
     private val getHistoryTableDataUseCase: GetHistoryTableDataUseCase,
+    private val getTransactionsUseCase: GetTransactionsUseCase,
     private val updateFixedIncomeAndFundsHistoryValueUseCase: UpdateFixedIncomeAndFundsHistoryValueUseCase,
     private val updateVariableIncomeValues: SyncVariableIncomeValuesUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HistoryState(selectedPeriod = dateProvider.getCurrentYearMonth()))
-    internal val state: StateFlow<HistoryState> = _state.asStateFlow()
+    val state: StateFlow<HistoryState> field = MutableStateFlow(
+        HistoryState(
+            period = HistoryState.Choice(
+                dateProvider.getCurrentYearMonth(),
+                emptyList()
+            ),
+        )
+    )
 
     init {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(periods = getDataPeriodUseCase(Unit).getOrNull() ?: emptyList())
-        }
 
         viewModelScope.launch {
-            getBrokeragesUseCase(GetBrokeragesUseCase.Param)
-                .onSuccess { brokerages -> _state.value = _state.value.copy(brokerages = brokerages) }
+
+            val periods = async {
+                getDataPeriodUseCase(Unit).getOrThrow()
+            }
+
+            val brokerages = async {
+                getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrThrow()
+            }
+
+            val goals = async {
+                getGoalUseCase(GetFinancialGoalsUseCase.All).getOrThrow()
+            }
+
+            state.update {
+                it.copy(
+                    goal = it.goal.copy(options = goals.await()),
+                    brokerage = it.brokerage.copy(options = brokerages.await()),
+                    period = it.period.copy(options = periods.await())
+                )
+            }
         }
 
         processIntent(HistoryIntent.LoadInitialData)
@@ -49,34 +77,44 @@ internal class HistoryViewModel(
 
     internal fun processIntent(intent: HistoryIntent) {
         when (intent) {
-            is HistoryIntent.SelectPeriod -> selectPeriod(intent.period)
-            is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entry, intent.value)
-            is HistoryIntent.SelectHolding -> selectHolding(intent.holding)
-            is HistoryIntent.LoadInitialData -> loadInitialData(null)
+            is HistoryIntent.LoadInitialData -> loadInitialData()
             is HistoryIntent.Sync -> sync()
+            is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entry, intent.value)
+            is HistoryIntent.SelectPeriod -> selectPeriod(intent.period)
             is HistoryIntent.SelectCategory -> selectCategory(intent.category)
             is HistoryIntent.SelectBrokerage -> selectBrokerage(intent.brokerage)
+            is HistoryIntent.SelectLiquidity -> selectLiquidity(intent.liquidity)
+            is HistoryIntent.SelectGoal -> selectGoal(intent.goal)
         }
     }
 
-    private fun selectCategory(category: InvestmentCategory) {
-        _state.update { it.copy(currentCategory = category) }
-        processIntent(HistoryIntent.LoadInitialData)
-    }
-
     private fun selectPeriod(period: YearMonth) {
-        _state.value = _state.value.copy(selectedPeriod = period)
+        state.update { it.copy(period = it.period.copy(selected = period)) }
         processIntent(HistoryIntent.LoadInitialData)
     }
 
-    private fun selectHolding(holding: AssetHolding?) {
-        _state.value = _state.value.copy(selectedHolding = holding)
+    private fun selectCategory(category: InvestmentCategory) {
+        val value = if (category == state.value.category.selected) null else category
+        state.update { it.copy(category = it.category.copy(selected = value)) }
+        processIntent(HistoryIntent.LoadInitialData)
     }
 
     private fun selectBrokerage(brokerage: Brokerage) {
-        val brokerage1 = if (brokerage == _state.value.brokerage) null else brokerage
-        _state.value = _state.value.copy(brokerage = brokerage1)
-        loadInitialData(brokerage1)
+        val value = if (brokerage == state.value.brokerage.selected) null else brokerage
+        state.update { it.copy(brokerage = it.brokerage.copy(selected = value)) }
+        processIntent(HistoryIntent.LoadInitialData)
+    }
+
+    private fun selectLiquidity(liquidity: Liquidity) {
+        val value = if (liquidity == state.value.liquidity.selected) null else liquidity
+        state.update { it.copy(liquidity = it.liquidity.copy(selected = value)) }
+        processIntent(HistoryIntent.LoadInitialData)
+    }
+
+    private fun selectGoal(goal: FinancialGoal) {
+        val value = if (goal == state.value.goal.selected) null else goal
+        state.update { it.copy(goal = it.goal.copy(selected = value)) }
+        processIntent(HistoryIntent.LoadInitialData)
     }
 
     private fun updateEntryValue(
@@ -95,42 +133,71 @@ internal class HistoryViewModel(
     private fun sync() {
         viewModelScope.launch {
             updateVariableIncomeValues(
-                SyncVariableIncomeValuesUseCase.Param(_state.value.selectedPeriod)
+                SyncVariableIncomeValuesUseCase.Param(state.value.period.selected!!)
             ).onSuccess {
                 processIntent(HistoryIntent.LoadInitialData)
             }
         }
     }
 
-    internal fun loadInitialData(brokerage: Brokerage?) {
+    internal fun loadInitialData() {
 
-        val category = _state.value.currentCategory
-        val period = _state.value.selectedPeriod
+        val period = state.value.period.selected!!
+        val category = state.value.category.selected
+        val brokerage = state.value.brokerage.selected
+        val goal = state.value.goal.selected
+        val liquidity = state.value.liquidity.selected
 
         viewModelScope.launch {
-            getHistoryTableDataUseCase(GetHistoryTableDataUseCase.Param(period, category, brokerage = brokerage))
-                .onSuccess { tableData -> _state.value = _state.value.copy(tableData = tableData) }
+
+            val transactions = async {
+                getTransactionsUseCase(
+                    GetTransactionsUseCase.ReferenceDate(period)
+                ).getOrNull() ?: emptyList()
+            }
+
+            val tableData = async {
+                getHistoryTableDataUseCase(
+                    GetHistoryTableDataUseCase.Param(
+                        referenceDate = period,
+                        category = category,
+                        brokerage = brokerage,
+                        goal = goal,
+                        liquidity = liquidity
+                    )
+                ).getOrNull() ?: emptyList()
+            }
+
+            state.update { it.copy(tableData = tableData.await(), transactions = transactions.await()) }
         }
     }
 
     internal sealed interface HistoryIntent {
-        data class SelectPeriod(val period: YearMonth) : HistoryIntent
-        data class UpdateEntryValue(val entry: HoldingHistoryEntry, val value: Double) : HistoryIntent
-        data class SelectHolding(val holding: AssetHolding?) : HistoryIntent
-        data class SelectBrokerage(val brokerage: Brokerage):HistoryIntent
         data object LoadInitialData : HistoryIntent
         data object Sync : HistoryIntent
+        data class UpdateEntryValue(val entry: HoldingHistoryEntry, val value: Double) : HistoryIntent
+        data class SelectPeriod(val period: YearMonth) : HistoryIntent
+        data class SelectBrokerage(val brokerage: Brokerage) : HistoryIntent
         data class SelectCategory(val category: InvestmentCategory) : HistoryIntent
+        data class SelectLiquidity(val liquidity: Liquidity) : HistoryIntent
+        data class SelectGoal(val goal: FinancialGoal) : HistoryIntent
     }
 
     internal data class HistoryState(
-        val selectedPeriod: YearMonth,
         val tableData: List<HistoryTableData> = emptyList(),
-        val periods: List<YearMonth> = emptyList(),
         val selectedHolding: AssetHolding? = null,
-        val currentCategory: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
-        val brokerage: Brokerage? = null,
-        val brokerages: List<Brokerage> = emptyList(),
-    )
+        val period: Choice<YearMonth> = Choice(null, emptyList()),
+        val brokerage: Choice<Brokerage> = Choice(null, emptyList()),
+        val category: Choice<InvestmentCategory> = Choice(null, InvestmentCategory.entries),
+        val liquidity: Choice<Liquidity> = Choice(null, Liquidity.entries),
+        val goal: Choice<FinancialGoal> = Choice(null, emptyList()),
+        val transactions: List<AssetTransaction> = emptyList(),
+    ) {
+
+        data class Choice<T>(
+            val selected: T?,
+            val options: List<T>,
+        )
+    }
 }
 

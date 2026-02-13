@@ -7,8 +7,8 @@ import androidx.room.Upsert
 import com.eferraz.database.entities.transaction.AssetTransactionEntity
 import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.FundsTransactionEntity
-import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.TransactionWithDetails
+import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import kotlinx.datetime.LocalDate
 
 /**
@@ -78,4 +78,15 @@ internal interface AssetTransactionDao {
     """
     )
     suspend fun getByGoalAndDateRange(goalId: Long, startDate: LocalDate, endDate: LocalDate): List<TransactionWithDetails>
+
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM asset_transactions 
+        WHERE transactionDate >= :startDate 
+        AND transactionDate <= :endDate
+        ORDER BY transactionDate DESC
+    """
+    )
+    suspend fun getByDateRange(startDate: LocalDate, endDate: LocalDate): List<TransactionWithDetails>
 }

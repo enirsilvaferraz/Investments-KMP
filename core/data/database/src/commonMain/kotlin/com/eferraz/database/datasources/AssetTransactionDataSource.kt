@@ -11,4 +11,5 @@ public interface AssetTransactionDataSource {
     public suspend fun getAllByHoldingAndDateRange(holding: AssetHolding, startDate: LocalDate, endDate: LocalDate): List<AssetTransaction>
     public suspend fun getByGoalAndReferenceDate(goalId: Long, startDate: LocalDate, endDate: LocalDate): List<AssetTransaction>
     public suspend fun delete(id: Long)
+    public suspend fun getByReferenceDate(startDate: LocalDate, endDate: LocalDate): List<AssetTransaction>
 }

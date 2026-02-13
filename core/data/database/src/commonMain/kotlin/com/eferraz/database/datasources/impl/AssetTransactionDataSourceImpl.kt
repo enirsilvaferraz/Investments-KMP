@@ -51,6 +51,14 @@ internal class AssetTransactionDataSourceImpl(
             it.toDomain(assetHoldingDataSource.getById(it.transaction.holdingId))
         }
 
+    override suspend fun getByReferenceDate(startDate: LocalDate, endDate: LocalDate): List<AssetTransaction> =
+        assetTransactionDao.getByDateRange(
+            startDate = startDate,
+            endDate = endDate
+        ).map {
+            it.toDomain(assetHoldingDataSource.getById(it.transaction.holdingId))
+        }
+
     override suspend fun delete(id: Long) {
         assetTransactionDao.deleteById(id)
     }

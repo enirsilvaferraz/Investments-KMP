@@ -4,7 +4,9 @@ import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.AppUseCase
@@ -34,8 +36,10 @@ public class GetHistoryTableDataUseCase(
 
     public data class Param(
         val referenceDate: YearMonth,
-        val category: InvestmentCategory,
+        val category: InvestmentCategory?,
         val brokerage: Brokerage?,
+        val goal: FinancialGoal?,
+        val liquidity: Liquidity?,
     )
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
@@ -45,88 +49,100 @@ public class GetHistoryTableDataUseCase(
             .getOrNull() ?: emptyList()
 
         return results
+//            .asSequence()
+            .filter {
+                param.category == null || when (param.category) {
+                    InvestmentCategory.FIXED_INCOME -> it.holding.asset is FixedIncomeAsset
+                    InvestmentCategory.VARIABLE_INCOME -> it.holding.asset is VariableIncomeAsset
+                    InvestmentCategory.INVESTMENT_FUND -> it.holding.asset is InvestmentFundAsset
+                }
+            }
             .filter { param.brokerage == null || it.holding.brokerage == param.brokerage }
+            .filter { param.goal == null || it.holding.goal == param.goal }
+            .filter { param.liquidity == null || (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity || (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity || (it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity }
             .map { result ->
 
-            val asset = result.holding.asset
-            val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity
-            val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity
-            val appreciation = result.profitOrLoss.percentage
+                val asset = result.holding.asset
+                val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity
+                val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity
+                val appreciation = result.profitOrLoss.percentage
 
-            // Obter transações do holding e calcular balanço
-            val transactions = getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(result.holding))
-                .getOrNull()
-                ?.filter { it.date.month == param.referenceDate.month && it.date.year == param.referenceDate.year }
-                ?: emptyList()
+                // Obter transações do holding e calcular balanço
+                val transactions = getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(result.holding))
+                    .getOrNull()
+                    ?.filter { it.date.month == param.referenceDate.month && it.date.year == param.referenceDate.year }
+                    ?: emptyList()
 
-            val transactionBalance = TransactionBalance.calculate(transactions)
-            val totalContributions = transactionBalance.contributions
-            val totalWithdrawals = transactionBalance.withdrawals
-            val totalBalance = transactionBalance.balance
+                val transactionBalance = TransactionBalance.calculate(transactions)
+                val totalContributions = transactionBalance.contributions
+                val totalWithdrawals = transactionBalance.withdrawals
+                val totalBalance = transactionBalance.balance
 
-            when (asset) {
+                when (asset) {
 
-                is FixedIncomeAsset -> FixedIncomeHistoryTableData(
-                    currentEntry = result.currentEntry,
-                    brokerageName = result.holding.brokerage.name,
-                    subType = asset.subType,
-                    type = asset.type,
-                    expirationDate = asset.expirationDate,
-                    contractedYield = asset.contractedYield,
-                    cdiRelativeYield = asset.cdiRelativeYield,
-                    issuerName = asset.issuer.name,
-                    liquidity = asset.liquidity,
-                    observations = asset.observations ?: "",
-                    previousValue = previousValue,
-                    currentValue = currentValue,
-                    appreciation = appreciation,
-                    editable = true,
-                    totalContributions = totalContributions,
-                    totalWithdrawals = totalWithdrawals,
-                    totalBalance = totalBalance,
-                    displayName = asset.formated()
-                )
+                    is FixedIncomeAsset -> FixedIncomeHistoryTableData(
+                        currentEntry = result.currentEntry,
+                        brokerageName = result.holding.brokerage.name,
+                        subType = asset.subType,
+                        type = asset.type,
+                        expirationDate = asset.expirationDate,
+                        contractedYield = asset.contractedYield,
+                        cdiRelativeYield = asset.cdiRelativeYield,
+                        issuerName = asset.issuer.name,
+                        liquidity = asset.liquidity,
+                        observations = asset.observations ?: "",
+                        previousValue = previousValue,
+                        currentValue = currentValue,
+                        appreciation = appreciation,
+                        editable = true,
+                        totalContributions = totalContributions,
+                        totalWithdrawals = totalWithdrawals,
+                        totalBalance = totalBalance,
+                        displayName = asset.formated()
+                    )
 
-                is VariableIncomeAsset -> VariableIncomeHistoryTableData(
-                    currentEntry = result.currentEntry,
-                    brokerageName = result.holding.brokerage.name,
-                    type = asset.type,
-                    ticker = asset.ticker,
-                    cnpj = asset.cnpj?.get() ?: "",
-                    name = asset.name,
-                    issuerName = asset.issuer.name,
-                    observations = asset.observations ?: "",
-                    previousValue = previousValue,
-                    currentValue = currentValue,
-                    appreciation = appreciation,
-                    editable = false,
-                    totalContributions = totalContributions,
-                    totalWithdrawals = totalWithdrawals,
-                    totalBalance = totalBalance,
-                    displayName = asset.formated()
-                )
+                    is VariableIncomeAsset -> VariableIncomeHistoryTableData(
+                        currentEntry = result.currentEntry,
+                        brokerageName = result.holding.brokerage.name,
+                        type = asset.type,
+                        ticker = asset.ticker,
+                        cnpj = asset.cnpj?.get() ?: "",
+                        name = asset.name,
+                        issuerName = asset.issuer.name,
+                        observations = asset.observations ?: "",
+                        previousValue = previousValue,
+                        currentValue = currentValue,
+                        appreciation = appreciation,
+                        editable = false,
+                        totalContributions = totalContributions,
+                        totalWithdrawals = totalWithdrawals,
+                        totalBalance = totalBalance,
+                        displayName = asset.formated()
+                    )
 
-                is InvestmentFundAsset -> InvestmentFundHistoryTableData(
-                    currentEntry = result.currentEntry,
-                    brokerageName = result.holding.brokerage.name,
-                    type = asset.type,
-                    name = asset.name,
-                    liquidity = asset.liquidity,
-                    liquidityDays = asset.liquidityDays,
-                    expirationDate = asset.expirationDate,
-                    issuerName = asset.issuer.name,
-                    observations = asset.observations ?: "",
-                    previousValue = previousValue,
-                    currentValue = currentValue,
-                    appreciation = appreciation,
-                    editable = true,
-                    totalContributions = totalContributions,
-                    totalWithdrawals = totalWithdrawals,
-                    totalBalance = totalBalance,
-                    displayName = asset.formated()
-                )
+                    is InvestmentFundAsset -> InvestmentFundHistoryTableData(
+                        currentEntry = result.currentEntry,
+                        brokerageName = result.holding.brokerage.name,
+                        type = asset.type,
+                        name = asset.name,
+                        liquidity = asset.liquidity,
+                        liquidityDays = asset.liquidityDays,
+                        expirationDate = asset.expirationDate,
+                        issuerName = asset.issuer.name,
+                        observations = asset.observations ?: "",
+                        previousValue = previousValue,
+                        currentValue = currentValue,
+                        appreciation = appreciation,
+                        editable = true,
+                        totalContributions = totalContributions,
+                        totalWithdrawals = totalWithdrawals,
+                        totalBalance = totalBalance,
+                        displayName = asset.formated()
+                    )
+                }
             }
-        }
+            .toList()
+            .sortedBy { it.category }
     }
 
     internal fun FixedIncomeAsset.formated(): String = when (type) {

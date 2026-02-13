@@ -13,4 +13,5 @@ public interface AssetTransactionRepository {
     public suspend fun getAllByHolding(holding: AssetHolding): List<AssetTransaction>
     public suspend fun getAllByHoldingAndDateRange(holding: AssetHolding, startDate: LocalDate, endDate: LocalDate): List<AssetTransaction>
     public suspend fun getByGoalAndReferenceDate(month: YearMonth, goal: FinancialGoal): List<AssetTransaction>
+    public suspend fun getByReferenceDate(date: YearMonth): List<AssetTransaction>
 }

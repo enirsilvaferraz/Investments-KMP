@@ -42,6 +42,14 @@ internal class AssetTransactionRepositoryImpl(
         )
     }
 
+    override suspend fun getByReferenceDate(date: YearMonth): List<AssetTransaction> {
+        val startDate = LocalDate(date.year, date.month, 1)
+        return dataSource.getByReferenceDate(
+            startDate = startDate,
+            endDate = startDate.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
+        )
+    }
+
     override suspend fun delete(id: Long) {
         dataSource.delete(id)
     }

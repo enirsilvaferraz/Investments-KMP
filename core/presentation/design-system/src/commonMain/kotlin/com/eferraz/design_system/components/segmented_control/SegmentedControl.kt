@@ -31,6 +31,7 @@ public fun <T> SegmentedControl(
     onSelect: (T) -> Unit,
     optionDisplay: (T) -> String = { it.toString() },
     colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
+    fill: Boolean = false,
 ) {
 
     Row(
@@ -44,10 +45,12 @@ public fun <T> SegmentedControl(
             val baseWeight = 3f  // peso mínimo para todos
             val proportionalWeight = textLength * 0.5f  // fator de proporção reduzido
 
+            val internalModifier = if (fill) Modifier.weight(baseWeight + proportionalWeight) else Modifier
+
             ToggleButton(
                 checked = selected == option,
                 onCheckedChange = { onSelect(option) },
-                modifier = Modifier.weight(baseWeight + proportionalWeight).semantics { role = Role.RadioButton },
+                modifier = internalModifier.semantics { role = Role.RadioButton },
                 colors = colors,
                 shapes = when (index) {
                     0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
