@@ -126,6 +126,8 @@ internal class HistoryViewModel(
                 UpdateFixedIncomeAndFundsHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
             ).onSuccess {
                 processIntent(HistoryIntent.LoadInitialData)
+            }.onFailure {
+                println(it.message)
             }
         }
     }
@@ -168,7 +170,10 @@ internal class HistoryViewModel(
                 ).getOrNull() ?: emptyList()
             }
 
-            state.update { it.copy(tableData = tableData.await(), transactions = transactions.await()) }
+            state.update {
+                val tableData1 = tableData.await()
+                val transactions1 = transactions.await()
+                it.copy(tableData = tableData1, transactions = transactions1) }
         }
     }
 

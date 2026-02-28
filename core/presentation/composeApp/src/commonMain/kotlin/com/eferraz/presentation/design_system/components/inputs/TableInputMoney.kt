@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -64,6 +65,7 @@ private fun TableInputMoney(
 
     val state = rememberMoneyInputState(value)
     val isFocusedState = interactionSource.collectIsFocusedAsState()
+    val currentOnValueChange by rememberUpdatedState(onValueChange)
 
     LaunchedEffect(Unit) {
         // Observa mudanças no valor digitado e no estado de foco
@@ -76,7 +78,8 @@ private fun TableInputMoney(
             }
             .collect { (amount, _) ->
                 // Notifica a mudança apenas após o debounce ou perda de foco
-                onValueChange(amount)
+                // Usa rememberUpdatedState para evitar closure stale quando o componente é reutilizado
+                currentOnValueChange(amount)
             }
     }
 

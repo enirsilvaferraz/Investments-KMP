@@ -20,6 +20,7 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,7 +40,6 @@ import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
-import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.presentation.commons.table_icons.BuildIcon
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.theme.getInfoColor
@@ -88,25 +88,51 @@ public fun HoldingHistoryRoute() {
     val vm = koinViewModel<HistoryViewModel>()
     val state by vm.state.collectAsStateWithLifecycle()
 
+    val rows = remember(state.tableData) {
+        state.tableData.map { HoldingHistoryData(it) }
+    }
+
+    val onValueChange = remember(vm) {
+        { entry: HoldingHistoryData, value: Double -> vm.processIntent(HistoryViewModel.HistoryIntent.UpdateEntryValue(entry.entry, value)) }
+    }
+    val onBrokerageChange = remember(vm) {
+        { b: Brokerage -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectBrokerage(b)) }
+    }
+    val onPeriodChange = remember(vm) {
+        { p: YearMonth -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectPeriod(p)) }
+    }
+    val onCategoryChange = remember(vm) {
+        { c: InvestmentCategory -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectCategory(c)) }
+    }
+    val onLiquidityChange = remember(vm) {
+        { l: Liquidity -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectLiquidity(l)) }
+    }
+    val onGoalChange = remember(vm) {
+        { g: FinancialGoal -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectGoal(g)) }
+    }
+    val onSyncClick = remember(vm) {
+        { vm.processIntent(HistoryViewModel.HistoryIntent.Sync) }
+    }
+
     HoldingHistoryScreen(
-        rows = state.tableData.map { HoldingHistoryData(it) },
-        onValueChange = { entry, value -> vm.processIntent(HistoryViewModel.HistoryIntent.UpdateEntryValue(entry.entry, value)) },
+        rows = rows,
+        onValueChange = onValueChange,
         brokerage = state.brokerage.selected,
         brokerages = state.brokerage.options,
-        onBrokerageChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectBrokerage(it)) },
+        onBrokerageChange = onBrokerageChange,
         periodSelected = state.period.selected!!,
         periodOptions = state.period.options,
-        onPeriodChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectPeriod(it)) },
+        onPeriodChange = onPeriodChange,
         categorySelected = state.category.selected,
         categoryOptions = state.category.options,
-        onCategoryChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectCategory(it)) },
+        onCategoryChange = onCategoryChange,
         liquiditySelected = state.liquidity.selected,
         liquidityOptions = state.liquidity.options,
-        onLiquidityChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectLiquidity(it)) },
+        onLiquidityChange = onLiquidityChange,
         goalSelected = state.goal.selected,
         goalOptions = state.goal.options,
-        onGoalChange = { vm.processIntent(HistoryViewModel.HistoryIntent.SelectGoal(it)) },
-        onSyncClick = { vm.processIntent(HistoryViewModel.HistoryIntent.Sync) },
+        onGoalChange = onGoalChange,
+        onSyncClick = onSyncClick,
         transactions = state.transactions
     )
 }
@@ -198,11 +224,9 @@ private fun Table(
     onValueChange: (HoldingHistoryData, Double) -> Unit,
 ) {
 
-    UiTableV3(
-        headerBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
-        modifier = modifier,
-        rows = data,
-        columns = listOf(
+    val columns = remember(onValueChange, data) {
+
+        listOf<UiTableDataColumn<HoldingHistoryData>>(
 
             UiTableDataColumn(
                 text = "",
@@ -243,10 +267,10 @@ private fun Table(
                 width = TableColumnWidth.MaxIntrinsic,
                 alignment = Alignment.CenterEnd,
                 comparable = { it.currentValue },
-                content = {
+                content = { rowData ->
                     TableInputMoney(
-                        value = it.currentValue,
-                        onValueChange = { value -> onValueChange(it, value ?: 0.0) },
+                        value = rowData.currentValue,
+                        onValueChange = { value -> onValueChange(rowData, value ?: 0.0) },
                         enabled = true
                     )
                 }
@@ -285,7 +309,14 @@ private fun Table(
                     )
                 }
             ),
-        ),
+        )
+    }
+
+    UiTableV3(
+        headerBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+        modifier = modifier,
+        rows = data,
+        columns = columns,
 //        subFooter = listOf(
 //            "",
 //            "",
