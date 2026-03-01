@@ -13,6 +13,7 @@ import kotlinx.datetime.LocalDate
  * Interface que representa uma linha da tabela de histórico de posições.
  * Cada implementação representa uma linha específica para um tipo de asset.
  */
+@Deprecated("Repensar esses dados")
 public sealed interface HistoryTableData {
 
     /**

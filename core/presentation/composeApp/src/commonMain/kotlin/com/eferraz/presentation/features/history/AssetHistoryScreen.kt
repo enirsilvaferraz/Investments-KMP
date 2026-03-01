@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,7 +24,6 @@ import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,42 +55,11 @@ import com.eferraz.presentation.features.transactions.TransactionPanel
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
-import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
-import com.eferraz.usecases.entities.HistoryTableData
+import com.eferraz.usecases.entities.HoldingHistoryView
 import com.seanproctor.datatable.TableColumnWidth
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
-
-@Immutable
-internal data class HoldingHistoryData(
-    val entry: HoldingHistoryEntry,
-    val category: InvestmentCategory,
-    val brokerageName: String,
-    val issuerName: String,
-    val displayName: String,
-    val liquidity: Liquidity?,
-    val observations: String,
-    val previousValue: Double,
-    val currentValue: Double,
-    val appreciation: Double,
-    val totalBalance: Double,
-) {
-
-    constructor(it: HistoryTableData) : this(
-        entry = it.currentEntry,
-        category = it.category,
-        brokerageName = it.brokerageName,
-        issuerName = it.issuerName,
-        displayName = it.displayName,
-        liquidity = if (it is FixedIncomeHistoryTableData) it.liquidity else null,
-        observations = it.observations,
-        previousValue = it.previousValue,
-        currentValue = it.currentValue,
-        appreciation = it.appreciation,
-        totalBalance = it.totalBalance
-    )
-}
 
 @Composable
 public fun HoldingHistoryRoute() {
@@ -98,37 +67,33 @@ public fun HoldingHistoryRoute() {
     val vm = koinViewModel<HistoryViewModel>()
     val state by vm.state.collectAsStateWithLifecycle()
 
-    val rows = remember(state.tableData) {
-        state.tableData.map { HoldingHistoryData(it) }
-    }
-
     val onValueChange = remember(vm) {
-        { entry: HoldingHistoryData, value: Double -> vm.processIntent(HistoryViewModel.HistoryIntent.UpdateEntryValue(entry.entry, value)) }
+        { entry: HoldingHistoryView, value: Double -> vm.processIntent(HistoryIntent.UpdateEntryValue(entry.entry, value)) }
     }
     val onBrokerageChange = remember(vm) {
-        { b: Brokerage -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectBrokerage(b)) }
+        { b: Brokerage -> vm.processIntent(HistoryIntent.SelectBrokerage(b)) }
     }
     val onPeriodChange = remember(vm) {
-        { p: YearMonth -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectPeriod(p)) }
+        { p: YearMonth -> vm.processIntent(HistoryIntent.SelectPeriod(p)) }
     }
     val onCategoryChange = remember(vm) {
-        { c: InvestmentCategory -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectCategory(c)) }
+        { c: InvestmentCategory -> vm.processIntent(HistoryIntent.SelectCategory(c)) }
     }
     val onLiquidityChange = remember(vm) {
-        { l: Liquidity -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectLiquidity(l)) }
+        { l: Liquidity -> vm.processIntent(HistoryIntent.SelectLiquidity(l)) }
     }
     val onGoalChange = remember(vm) {
-        { g: FinancialGoal -> vm.processIntent(HistoryViewModel.HistoryIntent.SelectGoal(g)) }
+        { g: FinancialGoal -> vm.processIntent(HistoryIntent.SelectGoal(g)) }
     }
     val onSyncClick = remember(vm) {
-        { vm.processIntent(HistoryViewModel.HistoryIntent.Sync) }
+        { vm.processIntent(HistoryIntent.Sync) }
     }
 
     HoldingHistoryScreen(
-        rows = rows,
+        dataRows = state.tableData,
         onValueChange = onValueChange,
-        brokerage = state.brokerage.selected,
-        brokerages = state.brokerage.options,
+        brokerageSelected = state.brokerage.selected,
+        brokerageOptions = state.brokerage.options,
         onBrokerageChange = onBrokerageChange,
         periodSelected = state.period.selected!!,
         periodOptions = state.period.options,
@@ -151,10 +116,10 @@ public fun HoldingHistoryRoute() {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun HoldingHistoryScreen(
-    rows: List<HoldingHistoryData> = emptyList(),
-    onValueChange: (HoldingHistoryData, Double) -> Unit,
-    brokerage: Brokerage?,
-    brokerages: List<Brokerage>,
+    dataRows: List<HoldingHistoryView>,
+    onValueChange: (HoldingHistoryView, Double) -> Unit,
+    brokerageSelected: Brokerage?,
+    brokerageOptions: List<Brokerage>,
     onBrokerageChange: (Brokerage) -> Unit,
     periodSelected: YearMonth,
     periodOptions: List<YearMonth>,
@@ -179,98 +144,97 @@ internal fun HoldingHistoryScreen(
         title = "Posicionamento no Período",
         navigator = navigator,
         actions = {
-
-            if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary)
-                IconButton(onClick = {
-                    scope.launch {
-                        navigator.navigateBack()
-                    }
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Close, contentDescription = "Fechar"
-                    )
-                }
-
-            IconButton(onClick = onSyncClick) {
-                Icon(
-                    imageVector = Icons.Default.Sync, contentDescription = "Sincronizar"
-                )
-            }
-
-//            IconButton(onClick = {}) {
-//                Icon(
-//                    imageVector = Icons.Default.FilterList, contentDescription = "Filtros"
-//                )
-//            }
+            Actions(
+                showClose = navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary,
+                onSyncClick = onSyncClick,
+                onCloseClick = { scope.launch { navigator.navigateBack() } }
+            )
         },
         mainPane = {
             Table(
-                data = rows,
+                data = dataRows,
                 onValueChange = onValueChange,
-                onSelect = { it: HoldingHistoryEntry ->
-                    scope.launch {
-                        navigator.navigateTo(ThreePaneScaffoldRole.Tertiary, it)
-                    }
-                }
+                onSelect = { it: HoldingHistoryEntry -> scope.launch { navigator.navigateTo(ThreePaneScaffoldRole.Tertiary, it) } }
             )
         },
         subMainPane = {
             SegmentedControl(
-                selected = brokerage,
-                options = brokerages,
+                selected = brokerageSelected,
+                options = brokerageOptions,
                 optionDisplay = { it.name },
                 onSelect = onBrokerageChange
             )
         },
         supportingPaneWidthRate = 0.23f,
         supportingPane = {
-
-            FilterPane(
-                periodSelected,
-                periodOptions,
-                onPeriodChange,
-                categorySelected,
-                categoryOptions,
-                onCategoryChange,
-                liquiditySelected,
-                liquidityOptions,
-                onLiquidityChange,
-                goalSelected,
-                goalOptions,
-                onGoalChange
+            Supporting(
+                periodSelected = periodSelected,
+                periodOptions = periodOptions,
+                onPeriodChange = onPeriodChange,
+                categorySelected = categorySelected,
+                categoryOptions = categoryOptions,
+                onCategoryChange = onCategoryChange,
+                liquiditySelected = liquiditySelected,
+                liquidityOptions = liquidityOptions,
+                onLiquidityChange = onLiquidityChange,
+                goalSelected = goalSelected,
+                goalOptions = goalOptions,
+                onGoalChange = onGoalChange,
+                dataRows = dataRows,
+                transactions = transactions
             )
-
-            Summary(rows)
-
-            Transactions(transactions)
         },
         extraPane = {
-            val selectedHolding = navigator.currentDestination?.contentKey
-            selectedHolding?.let {
+            navigator.currentDestination?.contentKey?.let {
                 TransactionPanel(selectedHolding = it.holding)
             }
         }
     )
 }
 
+@Composable
+private fun Actions(
+    showClose: Boolean,
+    onSyncClick: () -> Unit,
+    onCloseClick: () -> Unit,
+) {
+
+    if (showClose) IconButton(onClick = { onCloseClick() }) {
+        Icon(
+            imageVector = Icons.Default.Close, contentDescription = "Fechar"
+        )
+    }
+
+    IconButton(onClick = onSyncClick) {
+        Icon(
+            imageVector = Icons.Default.Sync, contentDescription = "Sincronizar"
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Table(
     modifier: Modifier = Modifier,
-    data: List<HoldingHistoryData>,
-    onValueChange: (HoldingHistoryData, Double) -> Unit,
+    data: List<HoldingHistoryView>,
+    onValueChange: (HoldingHistoryView, Double) -> Unit,
     onSelect: (HoldingHistoryEntry) -> Unit,
 ) {
 
     val columns = remember(onValueChange, data) {
 
-        listOf<UiTableDataColumn<HoldingHistoryData>>(
+        listOf<UiTableDataColumn<HoldingHistoryView>>(
 
             UiTableDataColumn(
                 text = "",
                 width = TableColumnWidth.MaxIntrinsic,
                 comparable = { it.category },
-                content = { it.category.BuildIcon() }
+                content = {
+                    Row {
+                        it.category.BuildIcon()
+                        it.liquidity?.BuildIcon()
+                    }
+                }
             ),
 
             UiTableDataColumn(
@@ -278,13 +242,6 @@ private fun Table(
                 width = TableColumnWidth.MaxIntrinsic,
                 comparable = { it.brokerageName }
             ),
-
-//            UiTableDataColumn(
-//                text = "",
-//                width = TableColumnWidth.MaxIntrinsic,
-//                comparable = { it.liquidity ?: "" },
-//                content = { it.liquidity?.BuildIcon() }
-//            ),
 
             UiTableDataColumn(
                 text = "Display Name",
@@ -315,7 +272,7 @@ private fun Table(
                     TableInputMoney(
                         value = rowData.currentValue,
                         onValueChange = { value -> onValueChange(rowData, value ?: 0.0) },
-                        enabled = true
+                        enabled = rowData.isCurrentValueEnabled()
                     )
                 }
             ),
@@ -331,7 +288,7 @@ private fun Table(
                         color = when {
                             it.totalBalance < 0 -> getWarningColor()
                             it.totalBalance > 0 -> getInfoColor()
-                            else -> Color.Gray
+                            else -> Color.Gray.copy(alpha = .5f)
                         }
                     )
                 }
@@ -348,7 +305,7 @@ private fun Table(
                         color = when {
                             it.appreciation < 0 -> MaterialTheme.colorScheme.error
                             it.appreciation > 0 -> getSuccessColor()
-                            else -> Color.Gray
+                            else -> Color.Gray.copy(alpha = .5f)
                         }
                     )
                 }
@@ -361,27 +318,13 @@ private fun Table(
         modifier = modifier,
         rows = data,
         columns = columns,
-        onRowClick = {
-            onSelect(it.entry)
-        }
-//        subFooter = listOf(
-//            "",
-//            "",
-//            "",
-//            data.sumOf { it.previousValue }.currencyFormat(),
-//            data.sumOf { it.currentValue }.currencyFormat(),
-//            data.sumOf { it.totalBalance }.currencyFormat(),
-//            ""
-//        ),
-//            footer = {
-//                Text("")
-//            }
+        onRowClick = { onSelect(it.entry) }
     )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun FilterPane(
+private fun Supporting(
     periodSelected: YearMonth,
     periodOptions: List<YearMonth>,
     onPeriodChange: (YearMonth) -> Unit,
@@ -394,9 +337,12 @@ private fun FilterPane(
     goalSelected: FinancialGoal?,
     goalOptions: List<FinancialGoal>,
     onGoalChange: (FinancialGoal) -> Unit,
+    dataRows: List<HoldingHistoryView>,
+    transactions: List<AssetTransaction>,
 ) {
 
     AppScreenPane {
+
         SegmentedControl(
             selected = periodSelected,
             options = periodOptions,
@@ -448,6 +394,10 @@ private fun FilterPane(
             fill = true
         )
     }
+
+    Summary(dataRows)
+
+    Transactions(transactions)
 }
 
 @Composable
@@ -503,7 +453,7 @@ private fun Transactions(transactions: List<AssetTransaction>) {
 }
 
 @Composable
-private fun Summary(rows: List<HoldingHistoryData>) {
+private fun Summary(rows: List<HoldingHistoryView>) { // TODO mover calculos para usecase
 
     AppScreenPane {
 
@@ -536,7 +486,7 @@ private fun Summary(rows: List<HoldingHistoryData>) {
             ).forEach { (title, value) ->
 
                 Column(
-                    modifier = Modifier.weight(1f),//.height(150.dp),
+                    modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
 

@@ -49,7 +49,6 @@ public class GetHistoryTableDataUseCase(
             .getOrNull() ?: emptyList()
 
         return results
-//            .asSequence()
             .filter {
                 param.category == null || when (param.category) {
                     InvestmentCategory.FIXED_INCOME -> it.holding.asset is FixedIncomeAsset
