@@ -1,35 +1,52 @@
 package com.eferraz.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.DeveloperMode
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItem
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
-import com.eferraz.design_system.scaffolds.AppScaffoldPreview
-import com.eferraz.presentation.design_system.components.new_table.UITablePreview
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
+import com.eferraz.presentation.features.form.AssetForm
 import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
 import com.eferraz.presentation.features.history.HoldingHistoryRoute
-//import com.eferraz.presentation.features.history.HoldingHistoryScreenPreview
 
 @Composable
 public fun InternalApp() {
 
     AppTheme {
-//        HoldingHistoryScreenPreview()
         AppNavigationHost()
     }
 }
@@ -44,7 +61,12 @@ private fun AppNavigationHost() {
         navigationItems = navRailMenus(backStack),
         navigationItemVerticalArrangement = Arrangement.Center,
         content = appNavDisplay(backStack),
-//        primaryActionContent = primaryActionContent,
+//        primaryActionContent = {
+//            ActionButton {
+//                // Push FormRouting em vez de substituir - diálogos precisam de conteúdo por baixo (overlaidEntries)
+//                backStack += FormRouting
+//            }
+//        },
     )
 }
 
@@ -88,8 +110,11 @@ private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Uni
 
 private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Unit = {
 
+    val dialogStrategy = remember { DialogSceneStrategy<NavKey>() }
+
     NavDisplay(
         backStack = backStack,
+        sceneStrategy = dialogStrategy,
         entryProvider = entryProvider {
 
             entry<AssetsRouting> {
@@ -104,6 +129,10 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                 GoalsMonitoringRoute()
             }
 
+            entry<FormRouting>(metadata = DialogSceneStrategy.dialog()) {
+                AssetForm()
+            }
+
 //            entry<TestRouting> {
 //                UITablePreview()
 //            }
@@ -111,26 +140,28 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
     )
 }
 
-//val primaryActionContent: () -> Unit = {
-//
-//    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(96.dp).padding(top = 25.dp)) {
-//
-//        AnimatedVisibility(
-//            visible = isHomeSelected,
-//            enter = fadeIn() + scaleIn(),
-//            exit = fadeOut() + scaleOut()
-//        ) {
-//
-//            FloatingActionButton(
-////                        modifier = Modifier.padding(top = 30.dp, start=20.dp),
-//                onClick = { /* TODO: Implementar ação futura */ },
-//                elevation = FloatingActionButtonDefaults.loweredElevation()
-//            ) {
-//                Icon(
-//                    imageVector = Icons.Default.Add,
-//                    contentDescription = "Adicionar"
-//                )
-//            }
-//        }
-//    }
-//}
+@Composable
+private fun ActionButton(
+    onClick: () -> Unit,
+) {
+
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(96.dp).padding(top = 25.dp)) {
+
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut()
+        ) {
+
+            FloatingActionButton(
+                onClick = onClick,
+                elevation = FloatingActionButtonDefaults.loweredElevation()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Adicionar"
+                )
+            }
+        }
+    }
+}

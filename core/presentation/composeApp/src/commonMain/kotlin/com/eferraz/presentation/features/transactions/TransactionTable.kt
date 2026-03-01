@@ -12,7 +12,6 @@ import com.eferraz.design_system.components.table.UiTableDataColumn
 import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.VariableIncomeAsset
-import com.eferraz.presentation.design_system.components.table.TableColumn
 import com.seanproctor.datatable.TableColumnWidth
 
 @Composable
@@ -40,76 +39,75 @@ internal fun TransactionTable(
         buildFixedIncomeOrFundsColumns()
     }
 
-//    UiTableV3(
-//        modifier = modifier.fillMaxWidth(),
-//        columns = columns.map { column ->
-//            UiTableDataColumn(
-//                text = column.title,
-//                width = TableColumnWidth.MaxIntrinsic,
-//                alignment = column.alignment,
-//                comparable = column.data,
-//                formatted = column.formated
-//            )
-//        },
-//        rows = transactions,
-//    )
+    UiTableV3(
+        modifier = modifier.fillMaxWidth(),
+        columns = columns,
+        rows = transactions,
+    )
 }
 
 @Composable
-private fun buildVariableIncomeColumns(): List<TableColumn<TransactionRow>> {
+private fun buildVariableIncomeColumns(): List<UiTableDataColumn<TransactionRow>> {
     return listOf(
-        TableColumn(
-            title = "Transação",
-            data = { viewData.type },
-            formated = { formatted.type }
+        UiTableDataColumn(
+            text = "Transação",
+            width = TableColumnWidth.MaxIntrinsic,
+            comparable = { it.viewData.type },
+            content = { Text(it.formatted.type) }
         ),
-        TableColumn(
-            title = "Data",
-            data = { viewData.date },
-            formated = { formatted.date },
-            alignment = Alignment.CenterHorizontally
+        UiTableDataColumn(
+            text = "Data",
+            width = TableColumnWidth.MaxIntrinsic,
+            alignment = Alignment.Center,
+            comparable = { it.viewData.date },
+            content = { Text(it.formatted.date) }
         ),
-        TableColumn(
-            title = "Quantidade",
-            data = { viewData.quantity ?: 0.0 },
-            formated = { formatted.quantity ?: "-" },
-            alignment = Alignment.End
+        UiTableDataColumn(
+            text = "Quantidade",
+            width = TableColumnWidth.MaxIntrinsic,
+            alignment = Alignment.CenterEnd,
+            comparable = { it.viewData.quantity ?: 0.0 },
+            content = { Text(it.formatted.quantity ?: "-") }
         ),
-        TableColumn(
-            title = "Preço Unitário",
-            data = { viewData.unitPrice ?: 0.0 },
-            formated = { formatted.unitPrice ?: "-" },
-            alignment = Alignment.End
+        UiTableDataColumn(
+            text = "Preço Unitário",
+            width = TableColumnWidth.MaxIntrinsic,
+            alignment = Alignment.CenterEnd,
+            comparable = { it.viewData.unitPrice ?: 0.0 },
+            content = { Text(it.formatted.unitPrice ?: "-") }
         ),
-        TableColumn(
-            title = "Valor Total",
-            data = { viewData.totalValue },
-            formated = { formatted.totalValue },
-            alignment = Alignment.End
+        UiTableDataColumn(
+            text = "Valor Total",
+            width = TableColumnWidth.MaxIntrinsic,
+            alignment = Alignment.CenterEnd,
+            comparable = { it.viewData.totalValue },
+            content = { Text(it.formatted.totalValue) }
         ),
     )
 }
 
 @Composable
-private fun buildFixedIncomeOrFundsColumns(): List<TableColumn<TransactionRow>> {
+private fun buildFixedIncomeOrFundsColumns(): List<UiTableDataColumn<TransactionRow>> {
     return listOf(
-        TableColumn(
-            title = "Transação",
-            data = { viewData.type },
-            formated = { formatted.type }
+        UiTableDataColumn(
+            text = "Transação",
+            width = TableColumnWidth.MaxIntrinsic,
+            comparable = { it.viewData.type },
+            content = { Text(it.formatted.type) }
         ),
-        TableColumn(
-            title = "Data",
-            data = { viewData.date },
-            formated = { formatted.date },
-            alignment = Alignment.CenterHorizontally
+        UiTableDataColumn(
+            text = "Data",
+            width = TableColumnWidth.MaxIntrinsic,
+            alignment = Alignment.Center,
+            comparable = { it.viewData.date },
+            content = { Text(it.formatted.date) }
         ),
-        TableColumn(
-            title = "Valor Total",
-            data = { viewData.totalValue },
-            formated = { formatted.totalValue },
-            alignment = Alignment.End
+        UiTableDataColumn(
+            text = "Valor Total",
+            width = TableColumnWidth.MaxIntrinsic,
+            alignment = Alignment.CenterEnd,
+            comparable = { it.viewData.totalValue },
+            content = { Text(it.formatted.totalValue) }
         ),
     )
 }
-

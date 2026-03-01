@@ -64,6 +64,7 @@ public fun <T> UiTableV3(
     headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest, // Passar para dentro do provider
     footerBackgroundColor: Color = headerBackgroundColor,
     rowBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    onRowClick: (T) -> Unit = {},
 ) {
 
     if (rows.isEmpty()) return
@@ -109,6 +110,7 @@ public fun <T> UiTableV3(
             sortedRows.forEachIndexed { _, rowData ->
                 row {
                     backgroundColor = rowBackgroundColor
+                    onClick = { onRowClick(rowData) }
                     cells(rowData)
                 }
             }

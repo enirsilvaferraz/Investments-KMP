@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -17,10 +18,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButtonDefaults
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
+import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,12 +51,14 @@ import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.theme.getInfoColor
 import com.eferraz.presentation.design_system.theme.getSuccessColor
 import com.eferraz.presentation.design_system.theme.getWarningColor
+import com.eferraz.presentation.features.transactions.TransactionPanel
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
 import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HistoryTableData
 import com.seanproctor.datatable.TableColumnWidth
+import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -58,6 +66,7 @@ import org.koin.compose.viewmodel.koinViewModel
 internal data class HoldingHistoryData(
     val entry: HoldingHistoryEntry,
     val category: InvestmentCategory,
+    val brokerageName: String,
     val issuerName: String,
     val displayName: String,
     val liquidity: Liquidity?,
@@ -71,6 +80,7 @@ internal data class HoldingHistoryData(
     constructor(it: HistoryTableData) : this(
         entry = it.currentEntry,
         category = it.category,
+        brokerageName = it.brokerageName,
         issuerName = it.issuerName,
         displayName = it.displayName,
         liquidity = if (it is FixedIncomeHistoryTableData) it.liquidity else null,
@@ -138,6 +148,7 @@ public fun HoldingHistoryRoute() {
 }
 
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun HoldingHistoryScreen(
     rows: List<HoldingHistoryData> = emptyList(),
@@ -161,9 +172,24 @@ internal fun HoldingHistoryScreen(
     transactions: List<AssetTransaction>,
 ) {
 
+    val scope = rememberCoroutineScope()
+    val navigator: ThreePaneScaffoldNavigator<HoldingHistoryEntry> = rememberSupportingPaneScaffoldNavigator<HoldingHistoryEntry>()
+
     AppScreenScaffold(
         title = "Posicionamento no Período",
+        navigator = navigator,
         actions = {
+
+            if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary)
+                IconButton(onClick = {
+                    scope.launch {
+                        navigator.navigateBack()
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Close, contentDescription = "Fechar"
+                    )
+                }
 
             IconButton(onClick = onSyncClick) {
                 Icon(
@@ -180,7 +206,12 @@ internal fun HoldingHistoryScreen(
         mainPane = {
             Table(
                 data = rows,
-                onValueChange = onValueChange
+                onValueChange = onValueChange,
+                onSelect = { it: HoldingHistoryEntry ->
+                    scope.launch {
+                        navigator.navigateTo(ThreePaneScaffoldRole.Tertiary, it)
+                    }
+                }
             )
         },
         subMainPane = {
@@ -212,6 +243,12 @@ internal fun HoldingHistoryScreen(
             Summary(rows)
 
             Transactions(transactions)
+        },
+        extraPane = {
+            val selectedHolding = navigator.currentDestination?.contentKey
+            selectedHolding?.let {
+                TransactionPanel(selectedHolding = it.holding)
+            }
         }
     )
 }
@@ -222,6 +259,7 @@ private fun Table(
     modifier: Modifier = Modifier,
     data: List<HoldingHistoryData>,
     onValueChange: (HoldingHistoryData, Double) -> Unit,
+    onSelect: (HoldingHistoryEntry) -> Unit,
 ) {
 
     val columns = remember(onValueChange, data) {
@@ -233,6 +271,12 @@ private fun Table(
                 width = TableColumnWidth.MaxIntrinsic,
                 comparable = { it.category },
                 content = { it.category.BuildIcon() }
+            ),
+
+            UiTableDataColumn(
+                text = "Corretora",
+                width = TableColumnWidth.MaxIntrinsic,
+                comparable = { it.brokerageName }
             ),
 
 //            UiTableDataColumn(
@@ -317,6 +361,9 @@ private fun Table(
         modifier = modifier,
         rows = data,
         columns = columns,
+        onRowClick = {
+            onSelect(it.entry)
+        }
 //        subFooter = listOf(
 //            "",
 //            "",
@@ -480,8 +527,12 @@ private fun Summary(rows: List<HoldingHistoryData>) {
             listOf(
                 "Valor Anterior" to prev.currencyFormat(),
                 "Valor Atual" to act.currencyFormat(),
-                "Balanço" to bal.currencyFormat(),
-                "Valorização" to calc.percentage.toPercentage()
+                "Aportes" to "--",
+                "Retiradas" to "--",
+                "Balanço / Crescimento" to bal.currencyFormat(),
+                "%" to "--",
+                "Valorização" to "--",
+                "%" to calc.percentage.toPercentage()
             ).forEach { (title, value) ->
 
                 Column(

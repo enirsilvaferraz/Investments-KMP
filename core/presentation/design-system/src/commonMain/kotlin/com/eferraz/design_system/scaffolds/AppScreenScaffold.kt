@@ -60,7 +60,7 @@ import com.eferraz.design_system.components.segmented_control.SegmentedControl
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-public fun AppScreenScaffold(
+public fun <T>AppScreenScaffold(
     modifier: Modifier = Modifier,
     title: String,
     actions: @Composable RowScope.() -> Unit = {},
@@ -69,6 +69,7 @@ public fun AppScreenScaffold(
     supportingPane: (@Composable ColumnScope.() -> Unit)? = null,
     extraPane: (@Composable ColumnScope.() -> Unit)? = null,
     supportingPaneWidthRate: Float = 0.22f,
+    navigator: ThreePaneScaffoldNavigator<T> = rememberSupportingPaneScaffoldNavigator<T>(),
 ) {
 
     val cornerPadding = 24
@@ -93,8 +94,6 @@ public fun AppScreenScaffold(
     ) {
 
         Column(modifier = Modifier.padding(it)) {
-
-            val navigator: ThreePaneScaffoldNavigator<Nothing> = rememberSupportingPaneScaffoldNavigator<Nothing>()
 
             BoxWithConstraints {
 
@@ -163,7 +162,7 @@ public fun AppScaffoldPreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun ApplicationScaffold() {
 
@@ -183,7 +182,7 @@ private fun ApplicationScaffold() {
         }
     ) {
 
-        AppScreenScaffold(
+        AppScreenScaffold<Nothing>(
             title = "Titulo da Tela",
             actions = {
                 IconButton(onClick = {}) {
