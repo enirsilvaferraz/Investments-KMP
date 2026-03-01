@@ -19,7 +19,7 @@ import kotlinx.datetime.LocalDate
             entity = OwnerEntity::class,
             parentColumns = ["id"],
             childColumns = ["ownerId"],
-            onDelete = ForeignKey.Companion.RESTRICT
+            onDelete = ForeignKey.RESTRICT
         )
     ],
     indices = [

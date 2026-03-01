@@ -43,7 +43,7 @@ internal data class AssetEntity(
     val issuerId: Long,
 
     @ColumnInfo(name = "category")
-    val category: String, // 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND'
+    val category: String, // 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND' // TODO Transformar em enum Category
 
     @ColumnInfo(name = "liquidity")
     val liquidity: Liquidity,

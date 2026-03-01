@@ -19,7 +19,7 @@ import com.eferraz.entities.assets.VariableIncomeAssetType
             entity = AssetEntity::class,
             parentColumns = ["id"],
             childColumns = ["assetId"],
-            onDelete = ForeignKey.Companion.CASCADE
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [Index(value = ["ticker"], unique = true)]

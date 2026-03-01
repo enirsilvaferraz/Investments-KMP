@@ -17,7 +17,7 @@ import androidx.room.PrimaryKey
             entity = FinancialGoalEntity::class,
             parentColumns = ["id"],
             childColumns = ["goalId"],
-            onDelete = ForeignKey.Companion.CASCADE
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
