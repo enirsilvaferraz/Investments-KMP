@@ -114,7 +114,7 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
 
     NavDisplay(
         backStack = backStack,
-        sceneStrategy = dialogStrategy,
+        sceneStrategies = listOf(dialogStrategy),
         entryProvider = entryProvider {
 
             entry<AssetsRouting> {

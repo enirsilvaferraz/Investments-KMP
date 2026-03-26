@@ -6,6 +6,12 @@ plugins {
     kotlin("jvm")
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xskip-prerelease-check")
+    }
+}
+
 dependencies {
     implementation(projects.umbrellaApp)
     implementation(compose.desktop.currentOs)

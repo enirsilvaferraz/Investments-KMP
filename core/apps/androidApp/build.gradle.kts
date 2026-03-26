@@ -12,8 +12,3 @@ kotlin {
         implementation(projects.umbrellaApp)
     }
 }
-
-kotlin.android {
-    namespace = "com.eferraz.umbrella"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-}

@@ -8,10 +8,6 @@ plugins {
 
 kotlin {
 
-    compilerOptions {
-        freeCompilerArgs.add("-Xskip-prerelease-check")
-    }
-
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
         implementation(projects.composeApp)
@@ -21,9 +17,4 @@ kotlin {
         implementation(projects.network)
         implementation(projects.database)
     }
-}
-
-kotlin.android {
-    namespace = "com.eferraz.umbrella"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
 }

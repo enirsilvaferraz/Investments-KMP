@@ -9,11 +9,6 @@ plugins {
 
 kotlin {
 
-    compilerOptions {
-        freeCompilerArgs.add("-Xreturn-value-checker=check")
-        freeCompilerArgs.add("-Xexplicit-backing-fields")
-    }
-
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
 
@@ -22,13 +17,4 @@ kotlin {
 
         implementation(libs.datatable.material3)
     }
-}
-
-kotlin.android {
-    namespace = "com.eferraz.design_system"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-}
-
-dependencies {
-    "androidRuntimeClasspath"(libs.androidx.ui.tooling)
 }

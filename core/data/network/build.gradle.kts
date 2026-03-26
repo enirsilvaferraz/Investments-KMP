@@ -15,11 +15,6 @@ kotlin {
     }
 }
 
-kotlin.android {
-    namespace = "com.eferraz.network"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-}
-
 generateConstants(
     fileName = "TokenConfig",
     packageName = "com.eferraz.network",

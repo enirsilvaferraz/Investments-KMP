@@ -13,7 +13,4 @@ kotlin {
     }
 }
 
-kotlin.android {
-    namespace = "com.eferraz.usecases"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-}
+koinCompiler { compileSafety = false }
