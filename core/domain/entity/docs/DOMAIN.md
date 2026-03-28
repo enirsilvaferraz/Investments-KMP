@@ -102,7 +102,7 @@ Progresso, valor atual consolidado, médias e datas estimadas **não** são atri
 
 ## 9. Diagrama de relacionamento entre entidades (ER)
 
-Todos os **enums** e **classes** do módulo `entity` aparecem abaixo com o **nome Kotlin** (PascalCase), exceto `EntityModule` (Koin, fora do modelo de domínio). Atributos principais e cardinalidades são conceituais; arestas marcadas como `calculate`, `when` ou `via holding` refletem uso no código, não FK de banco.
+As **classes** do módulo `entity` aparecem abaixo com o **nome Kotlin** (PascalCase), exceto `EntityModule` (Koin, fora do modelo de domínio). **Enums** (`Liquidity`, tipos de ativo, `TransactionType`, `InvestmentCategory`, etc.) estão no código e na §6.5, não no diagrama. Atributos principais e cardinalidades são conceituais; arestas marcadas como `calculate`, `when` ou `via holding` refletem uso no código, não FK de banco.
 
 ```mermaid
 erDiagram
@@ -116,60 +116,26 @@ erDiagram
         LocalDate expirationDate
         Double contractedYield
         Double cdiRelativeYield "opcional"
+        String type "enum FixedIncomeAssetType"
+        String subType "enum FixedIncomeSubType"
+        String liquidity "enum Liquidity"
     }
     VariableIncomeAsset {
         Long id
         String name
         String ticker
         CNPJ cnpj "opcional"
-        Liquidity liquidity "fixo D_PLUS_DAYS"
+        String type "enum VariableIncomeAssetType"
+        String liquidity "fixo D_PLUS_DAYS"
         Int liquidityDays "fixo 2"
     }
     InvestmentFundAsset {
         Long id
         String name
+        String type "enum InvestmentFundAssetType"
+        String liquidity "enum Liquidity"
         LocalDate expirationDate "opcional"
         Int liquidityDays
-    }
-    Liquidity {
-        String DAILY
-        String AT_MATURITY
-        String D_PLUS_DAYS
-    }
-    FixedIncomeAssetType {
-        String POST_FIXED
-        String PRE_FIXED
-        String INFLATION_LINKED
-    }
-    FixedIncomeSubType {
-        String CDB
-        String LCI
-        String LCA
-        String CRA
-        String CRI
-        String DEBENTURE
-        String SELIC
-        String PRECATORIO
-    }
-    VariableIncomeAssetType {
-        String NATIONAL_STOCK
-        String INTERNATIONAL_STOCK
-        String REAL_ESTATE_FUND
-        String ETF
-    }
-    InvestmentFundAssetType {
-        String PENSION
-        String STOCK_FUND
-        String MULTIMARKET_FUND
-    }
-    TransactionType {
-        String PURCHASE
-        String SALE
-    }
-    InvestmentCategory {
-        String FIXED_INCOME
-        String VARIABLE_INCOME
-        String INVESTMENT_FUND
     }
     AssetHolding {
         Long id
@@ -178,6 +144,7 @@ erDiagram
     AssetTransaction {
         Long id
         LocalDate date
+        String type "enum TransactionType"
         Double totalValue
         String observations "opcional"
     }
@@ -287,17 +254,7 @@ erDiagram
     Asset ||--o{ VariableIncomeAsset : "implements"
     Asset ||--o{ InvestmentFundAsset : "implements"
     Asset }o--|| Issuer : "issuer"
-    InvestmentCategory ||--o{ FixedIncomeAsset : "categoria RF"
-    InvestmentCategory ||--o{ VariableIncomeAsset : "categoria RV"
-    InvestmentCategory ||--o{ InvestmentFundAsset : "categoria fundo"
-    FixedIncomeAsset }o--|| FixedIncomeAssetType : "type"
-    FixedIncomeAsset }o--|| FixedIncomeSubType : "subType"
-    FixedIncomeAsset }o--|| Liquidity : "liquidity"
-    VariableIncomeAsset }o--|| VariableIncomeAssetType : "type"
-    VariableIncomeAsset }o--|| Liquidity : "liquidity"
     VariableIncomeAsset }o--o| CNPJ : "cnpj"
-    InvestmentFundAsset }o--|| InvestmentFundAssetType : "type"
-    InvestmentFundAsset }o--|| Liquidity : "liquidity"
     AssetHolding }o--|| Asset : "asset"
     AssetHolding }o--|| Owner : "owner"
     AssetHolding }o--|| Brokerage : "brokerage"
@@ -306,7 +263,6 @@ erDiagram
     FinancialGoal }o--|| Owner : "owner"
     AssetHolding ||--o{ AssetTransaction : "transacoes"
     AssetTransaction }o--|| AssetHolding : "holding"
-    AssetTransaction }o--|| TransactionType : "type"
     AssetTransaction ||--o| FixedIncomeTransaction : "implements"
     AssetTransaction ||--o| VariableIncomeTransaction : "implements"
     AssetTransaction ||--o| FundsTransaction : "implements"
@@ -315,7 +271,6 @@ erDiagram
     VariableIncomeTransaction }o--o{ VariableIncomeAsset : "RV via holding"
     FundsTransaction }o--o{ InvestmentFundAsset : "fundo via holding"
     TransactionBalance }o--o{ AssetTransaction : "calculate List"
-    TransactionBalance }o--o{ TransactionType : "filtra PURCHASE SALE"
     TransactionBalance }o--o{ FixedIncomeTransaction : "when branch"
     TransactionBalance }o--o{ VariableIncomeTransaction : "when branch"
     TransactionBalance }o--o{ FundsTransaction : "when branch"
@@ -338,11 +293,11 @@ erDiagram
     StockQuoteHistory }o--o{ VariableIncomeAsset : "mesmo ticker"
 ```
 
-**Ligações só no módulo `entity` (Kotlin):** import ou tipo em propriedade; `when` em `TransactionBalance`; `GoalProjections` / `ProjectedGoal` por `calculate`; enums referenciados pelas entidades acima.
+**Ligações só no módulo `entity` (Kotlin):** import ou tipo em propriedade; `when` em `TransactionBalance`; `GoalProjections` / `ProjectedGoal` por `calculate`.
 
 **Sem referência a outros tipos do domínio neste módulo:** `MandatoryText`, `MaturityDate` (VOs isolados). **`InvestmentCategory`:** definido no módulo, sem uso por outras classes aqui.
 
-**Excluído do diagrama:** `EntityModule` (configuração Koin, não faz parte do modelo de domínio).
+**Fora do Mermaid:** enums (§6.5 e código-fonte); **`EntityModule`** (Koin, não é modelo de domínio).
 
 **Arestas** `calculate`, `when`, `via holding` não são FKs de BD; são uso estático ou navegação em objeto.
 
