@@ -293,6 +293,43 @@ erDiagram
     StockQuoteHistory }o--o{ VariableIncomeAsset : "mesmo ticker"
 ```
 
+### 9.1 Classes com método `calculate`
+
+Fábricas no **`companion object`** (assinaturas resumidas; ver código). `Growth` também possui `calculate` privado de apoio.
+
+```mermaid
+classDiagram
+    direction TB
+    class Appreciation {
+        <<companion>>
+        +calculate(previousValue, currentValue, contributions, withdrawals) Appreciation
+    }
+    class Growth {
+        <<companion>>
+        +calculate(previousValue, currentValue, contributions, withdrawals) Growth
+    }
+    class TransactionBalance {
+        <<companion>>
+        +calculate(transactions) TransactionBalance
+    }
+    class ProjectedGoal {
+        <<companion>>
+        +calculate(currentValue, appreciationRate, contribution) ProjectedGoal
+    }
+    class GoalProjections {
+        <<companion>>
+        +calculate(plan, maxMonths) GoalProjections
+        +calculate(initialValue, startMonth, appreciationRate, contribution, targetValue, maxMonths) GoalProjections
+    }
+    class GrowthRate {
+        <<companion>>
+        +calculate(initialValue, finalValue, periods) GrowthRate
+    }
+    TransactionBalance ..> AssetTransaction : "List em calculate"
+    GoalProjections ..> GoalInvestmentPlan : "plan"
+    GoalProjections ..> ProjectedGoal : "ProjectedGoal.calculate por mês"
+```
+
 **Ligações só no módulo `entity` (Kotlin):** import ou tipo em propriedade; `when` em `TransactionBalance`; `GoalProjections` / `ProjectedGoal` por `calculate`.
 
 **Sem referência a outros tipos do domínio neste módulo:** `MandatoryText`, `MaturityDate` (VOs isolados). **`InvestmentCategory`:** definido no módulo, sem uso por outras classes aqui.
