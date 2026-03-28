@@ -1,20 +1,19 @@
 <!--
   Relatório de impacto (sync)
-  Versão: 1.3.0 → 1.4.0
-  Motivo do MINOR: novo princípio IX (coerência código ↔ documentos MD ↔ .specify ↔ IA)
+  Versão: 1.12.2 → 1.12.3
+  Motivo do PATCH: redução de redundância (intro vs. precedência; IV visibilidade; V testes + `.mdc`);
+  secção «Orientação de decisões técnicas» condensada; sem alteração normativa de fundo.
 
-  Princípios alterados: adicionado IX; VIII sem mudança de título.
+  Princípios alterados: IV, V (redação)
 
-  Secções novas: IX Coerência entre código, documentação Markdown e configuradores
-
-  Templates: plan-template (Constitution Check); spec-template (nota); .cursorrules
+  Templates: nenhum (texto anterior já alinhado)
 
   Pendências: nenhuma
 -->
 
 # Constitution — Investments-KMP
 
-Documento de princípios do projeto. Orienta `/speckit.*`, planos, tarefas e implementação. Em conflito com práticas soltas, **esta constitution**, **`DOMAIN.md`** (quando aplicável) e **`.cursorrules`** prevalecem.
+Documento de princípios do projeto; orienta `/speckit.*`, planos, tarefas e implementação. Ordem de precedência entre fontes normativas: secção **Governança** (abaixo).
 
 **Normas:** **DEVE** / **NÃO DEVE** são obrigatórios. **DEVERIA** é recomendação forte; desvios **DEVERIAM** ser justificados no plano (Complexity Tracking) ou no PR.
 
@@ -42,32 +41,38 @@ Após alterações em código ou Gradle que possam afetar compilação, **DEVE**
 
 #### Visibilidade e `explicitApi()`
 
-O projeto compila com **`explicitApi()`** (convention KMP). Toda declaração ao nível do ficheiro (classes, interfaces, funções de topo, propriedades, etc.) **DEVE** ter **modificador de visibilidade explícito** — **NÃO DEVE** depender da visibilidade padrão implícita.
+O projeto compila com **`explicitApi()`** (convention KMP). Toda declaração ao nível do ficheiro (classes, interfaces, funções de topo, propriedades, etc.) **DEVE** ter **modificador de visibilidade explícito**.
 
-**Regra de ouro:** escolher sempre a **visibilidade mais restrita** que ainda permita o uso legítimo **no grafo de módulos** (consumo real por outros `:módulos` ou `expect`/`actual`).
+Escolher a **visibilidade mais restrita** que ainda permita uso legítimo **no grafo de módulos** (outros `:módulos`, `expect`/`actual`).
 
 | Modificador | Quando usar |
 |-------------|-------------|
 | **`private`** | Símbolos **só** referenciados **no mesmo ficheiro** (ex.: sub-composables, helpers locais). |
-| **`internal`** | **Predefinição** para tudo o que **não** é contrato entre módulos: DAOs, entidades Room, `*RepositoryImpl`, ViewModels, mappers, maior parte de composables/estado interno ao módulo, infra `expect`/`actual` só usada dentro do módulo (ex.: motor HTTP, builder de BD). |
+| **`internal`** | **Predefinição** para o que **não** é contrato entre módulos: DAOs, entidades Room, `*RepositoryImpl`, ViewModels, mappers, maior parte de composables/estado interno ao módulo, infra `expect`/`actual` só usada dentro do módulo (ex.: motor HTTP, builder de BD). |
 | **`public`** | **Apenas** para API que **outro subprojeto Gradle** precisa de **importar**: tipos de domínio e ports expostos, casos de uso e interfaces públicas, ponto de entrada (`App()`), destinos/rotas partilhados, `expect`/`actual` que constituem API real (ex.: formatação em `PlatformUtils`). |
 | **`protected`** | Só quando uma **hierarquia de classes** o exige; cada uso **DEVERIA** ser intencional e raro neste projeto. |
 
-**NÃO DEVE** marcar `public` por conveniência ou “para mais tarde”. **DEVERIA** começar por **`internal`** (ou `private` se só for usado no ficheiro) e **só elevar** a `public` quando existir **consumidor noutro módulo**.
+**Não** marcar `public` por conveniência; começar por `internal` ou `private` e só elevar quando houver consumidor noutro módulo. Em revisão: *«quem fora deste módulo importa isto?»* — se ninguém, **não** `public`.
 
-**`expect` / `actual`:** a visibilidade **DEVE** coincidir entre declaração `expect` e todas as `actual` (ex.: ambos `internal`).
+**`expect` / `actual`:** mesma visibilidade na declaração `expect` e em **todas** as `actual`.
 
-**Orientação técnica:** em revisão, perguntar “**quem fora deste módulo importa isto?**”; se a resposta for “ninguém”, o símbolo **NÃO DEVE** ser `public`.
-
-**Orientação técnica (geral IV):** em dúvida entre duas implementações, preferir a que for **mais simples de ler, testar e alterar** sem quebrar fronteiras de módulo nem alargar API sem necessidade.
+**Cursor:** **`.cursor/rules/explicit-api.mdc`** (IX); **resto de IV:** em dúvida, preferir a solução **mais simples de ler, testar e alterar** sem alargar API nem quebrar módulos.
 
 ### V. Padrões de teste e evidência
 
-- **Fonte de regras:** convenções detalhadas em **`.cursor/rules/test-patterns.mdc`** (nomenclatura, `jvmTest` / `commonTest`, asserções com delta em `Double`, MockK/corrotinas).
-- **Lógica crítica:** alterações a cálculos financeiros, invariantes de domínio ou contratos de casos de uso **DEVERIAM** incluir ou atualizar testes automatizados no nível adequado (`entity`, `usecases`, `composeApp` conforme o caso).
+**Referência operacional:** **`.cursor/rules/test-patterns.mdc`** (nomenclatura, KDoc, `// GIVEN`/`// WHEN`/`// THEN`, source sets, `Double`, corrotinas, MockK, dados inline). Testes **novos ou alterados** **DEVEM** seguir esse ficheiro; desvios **NÃO DEVEM** ocorrer sem justificativa no PR; mudança permanente **DEVE** atualizar o `.mdc` (IX).
+
+- **Idioma (inglês):** em `*Test.kt`, texto descritivo do teste (classe, métodos em *backticks*, comentários de cenário, asserções **definidas no teste**) **DEVE** ser **inglês**. Mensagens de exceção de **produção** **não** estão cobertas. Legado em PT **DEVERIA** migrar ao tocar no ficheiro.
+- **Nomes GIVEN / WHEN / THEN:** métodos **novos ou alterados** **DEVEM** usar **GIVEN**, **WHEN**, **THEN** em maiúsculas no nome; **GIVEN … WHEN … THEN …** ou **GIVEN … THEN …** conforme haja passo intermediário. **Não** usar estilo `should …` / `when …` em testes novos ou alterados; legado **DEVERIA** migrar ao tocar no ficheiro.
+- **KDoc e corpo:** **DEVERIA** KDoc em inglês acima de `@Test`; **DEVERIA** `// GIVEN` / `// WHEN` / `// THEN` (ou só GIVEN/THEN) com **linha em branco** antes de cada marcador. Testes triviais: mantém KDoc; comentários de secção **podem** omitir-se se só duplicarem o nome.
+- **MockK:** para colaboradores externos à unidade sob teste (ports, repos, *clients*, etc.) **DEVE** usar-se **MockK**, salvo o teste exercitar só funções puras, valores de domínio ou código sem colaboradores substituíveis. **Não** acoplar a infra real (rede, BD, FS).
+- **Dados no teste:** **DEVERIA** evitar *factories* centralizadas (`TestDataFactory`, etc.) e *helpers* `private` no ficheiro; **NÃO DEVE** acrescentar **novos** métodos a factories existentes para código novo; exceções mínimas (ex.: `@BeforeTest`) **DEVERIAM** constar no PR.
+- **Módulo `usecases` (`core/domain/usecases/`):** **toda** alteração a ficheiros **`.kt`** ou **`.kts`** sob esse caminho que **modifique código executável** (lógica de casos de uso, interfaces de repositório, DTOs de aplicação, DI, etc.) **DEVE** ser acompanhada, **no mesmo PR**, de **testes unitários** novos ou de **testes existentes atualizados** no módulo Gradle **`:usecases`** (`src/jvmTest/`), em conformidade com `.cursor/rules/test-patterns.mdc`. **NÃO DEVE** integrar-se código em `usecases` sem cobertura de teste apropriada quando a mudança for **testável** (regra geral: se compila e comporta-se diferente, há teste).
+- **Exceções ao parágrafo anterior:** alterações **apenas** a comentários/KDoc **sem** mudar código executável; alterações **apenas** a `build.gradle.kts` do módulo **sem** mudar dependências de teste ou fontes; renomeações mecânicas que **exijam** só atualização espelhada nos testes — neste último caso **DEVE** atualizar-se **também** os ficheiros `*Test.kt` afetados no mesmo PR.
+- **Lógica crítica:** alterações a cálculos financeiros, invariantes de domínio ou contratos de casos de uso **DEVERIAM** incluir ou atualizar testes automatizados no nível adequado (`entity`, `usecases`, `composeApp` conforme o caso), **sempre** respeitando os parágrafos anteriores quando houver teste.
 - **Rastreio:** critérios de aceitação na spec **DEVERIAM** ser verificáveis por teste automatizado ou por passos de verificação explícitos na tarefa.
 
-**Orientação técnica:** ao planear uma feature, identificar **o que prova** que funciona (teste unitário, verificação manual documentada); **NÃO DEVE** fundar segurança só em testes manuais ad hoc para regras de negócio repetíveis.
+**Orientação técnica:** ao planear uma feature, identificar **o que prova** que funciona (teste unitário alinhado a `test-patterns.mdc`, ou verificação manual documentada); **NÃO DEVE** fundar segurança só em testes manuais ad hoc para regras de negócio repetíveis. Para `usecases`, validar com `./gradlew :usecases:jvmTest` antes de concluir.
 
 ### VI. Consistência da experiência do utilizador
 
@@ -88,9 +93,10 @@ O projeto compila com **`explicitApi()`** (convention KMP). Toda declaração ao
 ### VIII. Idioma dos documentos (português do Brasil)
 
 - **Texto corrido:** toda documentação **produzida** para este repositório — incluindo **esta constitution**, **`DOMAIN.md`**, especificações em `specs/`, planos (`plan.md`), listas de tarefas (`tasks.md`), pesquisas, modelos de dados, checklists, **templates em `.specify/templates/` usados aqui**, `docs/` e **`.cursorrules`** — **DEVE** ser redigida em **português do Brasil (pt-BR)** (ortografia e vocabulário brasileiros).
+- **Exceção — testes unitários:** ficheiros **`*.kt` de teste** (`*Test.kt`, `jvmTest` / `commonTest`) seguem o **princípio V** (inglês); o princípio VIII **não** aplica pt-BR ao texto descritivo dos testes.
 - **Artefatos gerados por comandos** (`/speckit.*`): o conteúdo entregue ao utilizador **DEVE** seguir pt-BR, salvo citações ou termos técnicos abaixo.
 - **Exceções permitidas:** identificadores de código, nomes de bibliotecas e APIs externas, comandos de terminal, caminhos de ficheiro; termos técnicos sem tradução estável (ex.: *pull request*, *pipeline* quando preferido pela equipa); trechos citados de normas ou RFCs.
-- **Código:** comentários e **KDoc** destinados à equipa **DEVERIAM** preferir pt-BR; comentários triviais ou gerados automaticamente podem seguir o idioma já predominante no ficheiro.
+- **Código (não teste):** comentários e **KDoc** em código de produção **DEVERIAM** preferir pt-BR; comentários triviais ou gerados automaticamente podem seguir o idioma já predominante no ficheiro.
 - **Interface do utilizador:** textos de UI **DEVERIAM** estar em pt-BR, alinhados ao produto.
 
 **Orientação técnica:** em PRs ou revisões de documentação, tratar **mistura desnecessária** de inglês em documentos normativos como **dívida** a corrigir.
@@ -101,7 +107,7 @@ Alterações de código **NÃO DEVEM** deixar o repositório em estado em que **
 
 - **Documentos Markdown (`*.md`):** quando a alteração **mudar** modelo de domínio, invariantes, regras de negócio, fluxos ou decisões já descritas, **DEVE** atualizar-se o **Markdown aplicável** na **mesma alteração** ou no **mesmo PR** (preferencialmente): em especial **`DOMAIN.md`**, ficheiros em **`docs/`**, e specs/planos/tarefas em **`specs/`** que estejam ativos para a feature. Se não couber no mesmo PR, **DEVE** existir **PR de seguimento imediato** só para documentação, referenciado no original.
 - **Specify (`.specify/`):** quando a alteração **mudar** princípios de governança, gates de plano, formato de artefatos ou convenções que os **templates** ou **`memory`** formalizam, **DEVE** atualizar-se **`.specify/memory/constitution.md`** e, se necessário, **`.specify/templates/**`, scripts em **`.specify/scripts/`** e **`init-options.json`**, para que comandos `/speckit.*` e novas features **não herdem** texto obsoleto.
-- **Configuração da IA (Cursor e afins):** quando a alteração **mudar** regras operacionais já espelhadas em **`.cursorrules`**, **`.cursor/rules/*.mdc`** ou comandos **`.cursor/commands/`** personalizados ao projeto (build, testes, domínio), **DEVE** atualizar-se o **ficheiro correspondente** na **mesma alteração** ou no **mesmo PR**, de modo que agentes e revisores **leiam** a mesma regra que o código exige.
+- **Configuração da IA (Cursor e afins):** quando a alteração **mudar** regras operacionais já espelhadas em **`.cursorrules`**, **`.cursor/rules/*.mdc`** (ex.: **`explicit-api.mdc`**, **`test-patterns.mdc`**) ou comandos **`.cursor/commands/`** personalizados ao projeto (build, testes, domínio), **DEVE** atualizar-se o **ficheiro correspondente** na **mesma alteração** ou no **mesmo PR**, de modo que agentes e revisores **leiam** a mesma regra que o código exige.
 
 **Âmbito:** alterações **puramente internas** (refactor sem mudança de comportamento, correção de *typo*, formatação) **NÃO EXIGEM** atualização de documentos nem de configuradores **salvo** se corrigirem informação **explicitamente falsa** na documentação.
 
@@ -111,13 +117,11 @@ Alterações de código **NÃO DEVEM** deixar o repositório em estado em que **
 
 ## Orientação de decisões técnicas e de implementação
 
-Estas regras **ligam** os princípios às escolhas do dia a dia:
-
-1. **Spec e plano:** cada decisão relevante (biblioteca nova, camada extra, formato de API) **DEVERIA** poder ser lida à luz desta constitution (domínio, qualidade, testes, UX, desempenho, **idioma**).
-2. **Trade-offs:** se qualidade de código ou testes forem sacrificados por prazo, o plano ou o PR **DEVERIAM** registar o risco e o follow-up (dívida explícita).
-3. **Implementação:** priorizar código que a equipa consiga **rever e estender**; alinhar com **`.cursorrules`** para build, com **`.cursor/rules/test-patterns.mdc`** para testes, e com **visibilidade mínima** (`explicitApi`) para superfície pública entre módulos.
-4. **Features financeiras:** decisões que alterem cálculos ou persistência **DEVERIAM** cruzar **`DOMAIN.md`** e atualizar documentação quando o modelo mudar.
-5. **Coerência global:** cumprimento do **princípio IX** — código, `*.md` relevantes, `.specify/` e regras de IA **alinhados** no mesmo ciclo de entrega quando houver impacto.
+1. **Spec e plano:** decisões relevantes **DEVERIAM** ser legíveis à luz desta constitution (domínio, qualidade, testes, UX, desempenho, idioma).
+2. **Trade-offs:** sacrificar qualidade ou testes **DEVERIA** ficar explícito no plano ou PR (risco, follow-up).
+3. **Implementação:** **`.cursorrules`** (build); **`.cursor/rules/explicit-api.mdc`** (IV); **`.cursor/rules/test-patterns.mdc`** (V); resto conforme princípios II–IV.
+4. **Features financeiras:** cruzar **`DOMAIN.md`** e documentação quando cálculos ou persistência mudarem.
+5. **Coerência (IX):** `*.md` aplicável, `.specify/` e `.cursor*` no mesmo ciclo quando o código o exigir.
 
 ---
 
@@ -128,9 +132,10 @@ Estas regras **ligam** os princípios às escolhas do dia a dia:
 1. Constitution  
 2. **`DOMAIN.md`** (modelo de domínio)  
 3. **`.cursorrules`**  
-4. **`.cursor/rules/test-patterns.mdc`** (detalhe de testes)  
-5. **`.specify/memory/`** e templates (governança Spec Kit)  
-6. Acordos de equipa em PRs  
+4. **`.cursor/rules/explicit-api.mdc`** (visibilidade e `explicitApi`)  
+5. **`.cursor/rules/test-patterns.mdc`** (detalhe de testes)  
+6. **`.specify/memory/`** e templates (governança Spec Kit)  
+7. Acordos de equipa em PRs  
 
 ### Versionamento desta constitution
 
@@ -141,6 +146,6 @@ Estas regras **ligam** os princípios às escolhas do dia a dia:
 ### Emendas e revisão
 
 - Alterações **DEVERIAM** atualizar **Version** e **Last Amended** (data ISO **YYYY-MM-DD**).
-- PRs que toquem domínio, **API pública entre módulos**, UX crítica, desempenho, **documentação**, **`.specify/`** ou **regras de IA** **DEVERIAM** referir aderência aos princípios relevantes (incl. **IX**, visibilidade e **pt-BR**).
+- PRs que toquem domínio, **`usecases`**, API entre módulos, **testes**, UX crítica, desempenho, **documentação**, **`.specify/`** ou **regras de IA** **DEVERIAM** referir os princípios tocados (incl. **IV**–**V**, **IX**, **VIII** quando aplicável).
 
-**Version**: 1.4.0 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-03-28
+**Version**: 1.12.3 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-03-28

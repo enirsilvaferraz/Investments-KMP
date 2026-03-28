@@ -1,0 +1,36 @@
+---
+description: Visibilidade explícita e explicitApi() — Investments-KMP
+globs: **/*.kt
+alwaysApply: false
+---
+
+# Visibilidade explícita (`explicitApi`)
+
+Norma geral: **`.specify/memory/constitution.md`** (princípio **IV**, subsecção *Visibilidade e `explicitApi()`*; princípio **IX** para manter esta regra alinhada ao código).
+
+## Obrigação
+
+O projeto compila com **`explicitApi()`** nos módulos KMP que aplicam a convenção. **Toda** declaração ao nível do ficheiro — **classes**, **interfaces**, **objects**, **enums**, **typealiases**, **funções de topo**, **propriedades de topo** — **deve** ter **modificador de visibilidade explícito**. **Não** omitir visibilidade (o compilador **não** assume `public` implicitamente com `explicitApi()`).
+
+Para **membros** de classe/interface (propriedades, funções, construtores aninhados): **deve** haver modificador explícito quando a regra do módulo o exigir; em geral, **priorizar a visibilidade mais restrita** coerente com o uso.
+
+## Regra de ouro
+
+Escolher sempre a **visibilidade mais restrita** que ainda permita o uso legítimo **no grafo de módulos** (quem **importa** este símbolo noutro `:módulo`?).
+
+| Modificador | Uso típico |
+|-------------|------------|
+| **`private`** | Apenas **dentro do mesmo ficheiro** (helpers, sub-composables locais). |
+| **`internal`** | **Predefinição** para o que **não** é contrato entre módulos (DAOs, `*RepositoryImpl`, ViewModels, mappers, maior parte do código do módulo). |
+| **`public`** | **Só** para API que **outro subprojeto Gradle** precisa **importar**. |
+| **`protected`** | Só quando a **hierarquia de classes** o exige; raro e intencional. |
+
+**Não** marcar `public` por conveniência. **Começar** por `internal` (ou `private` se só no ficheiro) e **só elevar** a `public` quando existir **consumidor noutro módulo**.
+
+## `expect` / `actual`
+
+A visibilidade **deve** **coincidir** entre `expect` e **cada** `actual` (por exemplo ambos `internal`).
+
+## Revisão rápida
+
+Perguntar: *«Quem fora deste módulo importa isto?»* — Se **ninguém**, o símbolo **não** deve ser `public`.

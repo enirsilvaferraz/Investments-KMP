@@ -4,6 +4,18 @@
 
 Documentação de projeto (incluindo esta regra, specs, planos e referências em `.specify/`) **deve** seguir **português do Brasil (pt-BR)**, alinhado a `.specify/memory/constitution.md` (princípio VIII). Exceções: identificadores de código, APIs externas e termos técnicos sem tradução estável.
 
+## Visibilidade Kotlin (`explicitApi`)
+
+Ao criar ou alterar ficheiros **`.kt`** (produção ou testes em módulos com `explicitApi()`), **deve** seguir **`.cursor/rules/explicit-api.mdc`**, conforme `.specify/memory/constitution.md` princípio **IV**: **modificador de visibilidade explícito** em declarações ao nível do ficheiro; **priorizar a visibilidade mais restrita** (`private` → `internal` → `public` só quando outro módulo importar). Mudanças permanentes de padrão **devem** atualizar o `.mdc` e a constituição quando aplicável (princípio IX).
+
+## Testes unitários (padrões Cursor)
+
+Ao criar ou alterar testes unitários (`*Test.kt`), **deve** seguir **`.cursor/rules/test-patterns.mdc`**, conforme `.specify/memory/constitution.md` princípio **V**. Desvios exigem justificativa no PR; mudanças permanentes de padrão **devem** atualizar o `.mdc` (princípio IX).
+
+Alterações em **`core/domain/usecases/`** que modifiquem código executável **devem** incluir ou atualizar testes no módulo **`:usecases`** (`jvmTest`) no mesmo PR; validar com `./gradlew :usecases:jvmTest` quando aplicável.
+
+Texto dos testes (nomes de métodos com **GIVEN / WHEN / THEN**, **KDoc** `/** … */` em inglês, comentários **`// GIVEN`**, **`// WHEN`**, **`// THEN`** no corpo quando aplicável (**linha em branco** antes de cada um), restantes comentários de cenário em `*Test.kt`) **deve** estar em **inglês**, conforme `.specify/memory/constitution.md` princípio V e `.cursor/rules/test-patterns.mdc`. Para colaboradores externos à classe sob teste (ports, repositórios, *clients*, etc.), **deve** usar **MockK** quando aplicável. **DEVERIA** criar os objetos necessários **no próprio método de teste** e **evitar** *factories* centralizadas de teste (ex. `TestDataFactory`) para código novo, conforme o mesmo princípio e o `.mdc`.
+
 ## Coerência código, documentos e IA
 
 Quando uma alteração de código **mudar** domínio, invariantes, convenções de build/testes ou regras já descritas neste ficheiro, em `.cursor/rules/` ou em `.specify/`, **deve** atualizar no **mesmo PR** (ou PR de seguimento imediato) os **documentos Markdown** aplicáveis (`DOMAIN.md`, `docs/`, `specs/`), **`.specify/`** (constitution, templates, se afetados) e **regras de IA** (`.cursorrules`, `.mdc`, comandos personalizados), conforme `.specify/memory/constitution.md` princípio **IX**. Refactors sem mudança de comportamento **não** exigem atualização salvo corrigir documentação **objetivamente falsa**.

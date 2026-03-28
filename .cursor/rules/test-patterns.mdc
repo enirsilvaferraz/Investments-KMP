@@ -6,51 +6,40 @@ alwaysApply: false
 
 # Padrões de Testes Automatizados
 
-Regras de governança: `.specify/memory/constitution.md` (qualidade e testes, IV–V — **testes em inglês**; **GIVEN / WHEN / THEN** no nome; **KDoc** em inglês no método; **`// GIVEN` / `// WHEN` / `// THEN`** no corpo com **linha em branco** antes de cada marcador; **MockK** para colaboradores externos; **criação no próprio teste** — **evitar** *factories* como `TestDataFactory`; **usecases** exige testes em `:usecases`; documentação **pt-BR** (VIII) **exceto** `*Test.kt`; **coerência MD / `.specify` / `.cursor`**, IX).
+Norma geral: **`.specify/memory/constitution.md`** (princípios IV–V, VIII–IX). Resumo: **inglês** em `*Test.kt`; **GIVEN/WHEN/THEN** no nome e no corpo; **KDoc**; **MockK** para colaboradores; dados **inline** (sem novas entradas em `TestDataFactory`); **`core/domain/usecases/`** → testes em **`:usecases`** (`jvmTest`).
 
-## Onde vivem os testes (source sets)
+## Onde vivem os testes
 
-| Módulo | Source set | Uso |
-|--------|------------|-----|
-| `entity`, `usecases` | `src/jvmTest/kotlin/...` | Domínio e casos de uso na JVM (`:entity:jvmTest`, `:usecases:jvmTest`) |
-| `composeApp` | `src/commonTest/kotlin/...` | Estado de UI / transformações em código comum |
+| Módulo | Source set | Gradle (verificação) |
+|--------|------------|----------------------|
+| `entity`, `usecases` | `src/jvmTest/kotlin/...` | `:entity:jvmTest`, `:usecases:jvmTest` |
+| `composeApp` | `src/commonTest/kotlin/...` | `:composeApp:commonTest` |
 
-## Estrutura e Organização
+## Idioma, classe e nome do método
 
-### Idioma (inglês)
+- **Idioma:** tudo o que o teste **escreve** (nome em *backticks*, KDoc, comentários, asserções que o teste define) **em inglês**. Legado em PT **migra** ao tocar no ficheiro.
+- **Classe:** sufixo **`Test`**; reflete o alvo (ex.: `ProjectedGoalTest`).
+- **Nome (`fun \`...\`()`):** palavras **`GIVEN`**, **`WHEN`**, **`THEN`** em maiúsculas.
+  - **`GIVEN … WHEN … THEN …`** — há arranjo, ação e resultado.
+  - **`GIVEN … THEN …`** — sem passo **WHEN** distinto.
+- **Não** usar estilo `should …` / `when …` em testes novos ou alterados.
 
-**Obrigatório:** nomes de métodos de teste, descrições em *backticks*, comentários de cenário e texto **introduzido pelo teste** **devem** estar em **inglês**, conforme `.specify/memory/constitution.md` princípio V. Código legado em português **deve** migrar para inglês quando o ficheiro for alterado.
+## KDoc e corpo: `// GIVEN`, `// WHEN`, `// THEN`
 
-### Nomenclatura de Classes
-- Classes de teste devem terminar com `Test` (ex.: `ProjectedGoalTest`, `AppreciationTest`)
-- Nome deve refletir a classe ou funcionalidade sob teste
+| O quê | Regra |
+|-------|--------|
+| **KDoc** | `/** … */` **em inglês** imediatamente acima de `@Test`: cenário + expectativa (complementa o nome). |
+| **Marcadores** | `// GIVEN` (arranjo), `// WHEN` (ação na unidade sob teste), `// THEN` (asserções / `verify` / `coVerify`). **Não** usar `// Arrange` / `// Act` / `// Assert`. |
+| **Linha em branco** | Uma **antes** de **cada** marcador (incluindo o primeiro `// GIVEN` após `{`). |
+| **WHEN** | Omitir só se não houver ação separada do arranjo; aí **GIVEN** → **THEN**. |
+| **Depois de THEN** | Se precisar de `verify` explícito, pode usar `// Verificar chamadas` **com linha em branco antes**. |
+| **Trivial** | Mantém **KDoc**; comentários de secção **podem** omitir-se se só duplicarem o nome. |
 
-### Nomenclatura de Métodos — GIVEN / WHEN / THEN (obrigatório)
-
-**Todo** método de teste **novo ou alterado** **deve** usar **inglês** e as palavras-chave **GIVEN**, **WHEN** e **THEN** em maiúsculas no nome do método (nome Kotlin entre *backticks*):
-
-- **GIVEN … WHEN … THEN …** — quando existir arranjo, ação distinta e resultado.
-- **GIVEN … THEN …** — quando só há estado inicial e resultado (sem passo intermediário relevante).
-
-**Não** usar estilos `should …` / `when …` sem **GIVEN/WHEN/THEN** em testes novos ou alterados; ficheiros legados **devem** ser migrados quando tocados.
-
-### KDoc no método e comentários `// GIVEN`, `// WHEN`, `// THEN` no corpo
-
-**Todo** teste **novo ou alterado** **DEVERIA** ter **KDoc** (`/** … */`) **em inglês** **acima** do `@Test`, resumindo o cenário e o resultado esperado (complementa o nome em *backticks*).
-
-No **corpo** do método, **DEVERIA** marcar com **comentários de linha**:
-
-- **`// GIVEN`** — arranjo (dados, mocks, estado inicial).
-- **`// WHEN`** — ação sobre a unidade sob teste (omitir **só** se não houver passo distinto; nesse caso **GIVEN** seguido de **THEN** basta).
-- **`// THEN`** — asserções e verificações (`verify`, etc.).
-
-**Formatação:** **DEVERIA** preceder **cada** **`// GIVEN`**, **`// WHEN`** e **`// THEN`** de uma **linha em branco** (após `{`, use linha em branco e depois o primeiro **`// GIVEN`**; entre o código de uma secção e o comentário da seguinte, use linha em branco antes do próximo marcador).
-
-**Exceção:** teste **trivial** (poucas linhas, uma expressão óbvia) — **mantém** **KDoc**; os comentários **GIVEN/WHEN/THEN** **podem** ser omitidos se só repetirem o nome do método sem acrescentar leitura.
+**Exemplo canónico:**
 
 ```kotlin
 /**
- * Example: two entries at 100.0 each → expect 200.0 total invested
+ * Two entries at 100.0 invested each → total invested 200.0
  */
 @Test
 fun `GIVEN two history entries with known invested amounts THEN total invested sums correctly`() {
@@ -71,22 +60,16 @@ fun `GIVEN two history entries with known invested amounts THEN total invested s
 }
 ```
 
-## Bibliotecas e Imports
+*Imports* conforme o módulo (`com.eferraz.entities.holdings`, `kotlinx.datetime`, MockK, etc.).
 
-### JUnit + Kotlin Test
-Código legado em `entity` usa `org.junit.Test` e `org.junit.Assert`; em código novo prefira **`kotlin.test`** para asserções, mantendo **delta em `Double`**.
+**`runTest`:** os mesmos marcadores **dentro** do lambda; `@OptIn(ExperimentalCoroutinesApi::class)` quando aplicável. Casos de uso com corrotinas: padrão **`Dispatchers.Unconfined`** injetado no UC quando o teste precisar comportamento síncrono (ver `MergeHistoryUseCaseTest` / `CreateHistoryUseCaseTest`).
 
-```kotlin
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import kotlin.test.assertFailsWith
-```
+## Dados, helpers e MockK
 
-### MockK — colaboradores externos à classe sob teste (obrigatório quando aplicável)
-
-Quando a **classe ou função sob teste** depende de **outras unidades** injetadas ou passadas (interfaces de repositório, ports, *clients*, *dispatchers* externos ao teste, etc.), **deve** usar **MockK** para esses colaboradores — **não** instanciar implementações reais de infraestrutura (HTTP, BD, ficheiros) em testes unitários.
-
-**Não** exige MockK quando o teste só envolve **funções puras**, **objetos de valor** ou **domínio** construídos diretamente (ex.: `ProjectedGoal.calculate(...)` sem mocks).
+- **Dados:** montar **no** `@Test` (construtores, `mockk { }`, literais). **Não** adicionar **novos** métodos a `TestDataFactory`; legado que a use → migrar para **inline** ao alterar o ficheiro.
+- **Helpers:** **evitar** `private fun` só para dados; repetir no teste **DEVERIA** ser preferível. **Exceção:** `@BeforeTest` ou `private val` para **mocks** iguais em vários métodos.
+- **MockK** para colaboradores **externos** à regra (ports, repos, clients, dispatchers de produção). **Não** usar infra real (HTTP, BD, FS). **Não** exige MockK em função pura / só domínio sem colaborador.
+- **`suspend`:** `coEvery`, `coVerify`, `coAnswers`. `relaxed = true` só se não esconder falhas relevantes.
 
 ```kotlin
 import io.mockk.coEvery
@@ -96,183 +79,22 @@ import io.mockk.mockk
 import io.mockk.verify
 ```
 
-- Funções **`suspend`**: `coEvery`, `coVerify`, `coAnswers`.
-- Preferir **`relaxed = true`** só quando reduzir ruído sem esconder erros relevantes; caso contrário, comportamento explícito.
+## Asserções e `Double`
 
-### Coroutines em testes
-```kotlin
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
-import kotlin.test.BeforeTest
-
-@OptIn(ExperimentalCoroutinesApi::class)
-class ExampleUseCaseTest {
-    @BeforeTest
-    fun setup() { /* mocks */ }
-
-    /**
-     * Repository returns data; use case completes without error.
-     */
-    @Test
-    fun `GIVEN mocked repository WHEN invoking use case THEN completes successfully`() = runTest {
-
-        // GIVEN
-
-        // WHEN
-
-        // THEN
-    }
-}
-```
-
-- Injetar **`Dispatchers.Unconfined`** no use case quando o teste precisar de comportamento síncrono (padrão em `MergeHistoryUseCaseTest` / `CreateHistoryUseCaseTest`).
-
-### Criação de dados no próprio teste (evitar factories)
-
-**DEVERIA** **evitar** *factories* centralizadas de teste (ex.: object **`TestDataFactory`**). **DEVERIA** construir **no corpo** de cada método `@Test` os objetos necessários: construtores de entidades, **`mockk { … }`**, `listOf(… )`, literais.
-
-**NÃO DEVE** acrescentar **novos** métodos a `TestDataFactory` (ou equivalente) para código novo. Ficheiros legados que **ainda** usem `TestDataFactory` **DEVERIAM** migrar para arranjo **inline** quando forem alterados.
-
-## Padrões de Asserções
-
-### Comparação de Valores Decimais
-Sempre use delta/epsilon para comparar valores `Double`:
+- **`Double`:** sempre **delta** em `assertEquals` — ex.: `0.001` (percentuais / precisão), `0.01` (valores monetários).
+- **Várias propriedades:** validar todas as relevantes no **THEN**.
+- **Exceções:** `assertFailsWith` (kotlin.test); mensagem de **produção** pode ser pt-BR se o domínio fixar assim.
 
 ```kotlin
-// ✅ CORRETO - com delta
-assertEquals(100.0, result.value, 0.001)
-assertEquals(10.0, result.percentage, 0.01)
-
-// ❌ INCORRETO - sem delta
-assertEquals(100.0, result.value)
+import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 ```
 
-### Valores Múltiplos
-Verifique todas as propriedades relevantes:
+## Cobertura (orientação)
 
-```kotlin
-assertEquals(100.0, result.value, 0.001)
-assertEquals(10.0, result.percentage, 0.001)
-```
+Incluir, quando fizer sentido: *happy path* → variações → **bordas** (zeros, limites) → **erro** / validação → combinações de entradas. Ordem no ficheiro: típico → variantes → borda → exceção.
 
-### Teste de Exceções
-Use `assertFailsWith` do kotlin.test e verifique a mensagem **de produção** (pode estar em pt-BR se o domínio assim definir):
+---
 
-```kotlin
-val exception = assertFailsWith<IllegalArgumentException> {
-    ProjectedGoal.calculate(
-        currentValue = -1000.0,
-        appreciationRate = 0.80,
-        contribution = 1500.0
-    )
-}
-assertEquals(expectedDomainMessage, exception.message)
-```
-
-## Documentação em Testes
-
-### Comentários explicativos adicionais
-**Dentro** das secções **GIVEN** / **WHEN** / **THEN**, use **inglês** em comentários que detalhem valores (ex.: descrição de compras); valores monetários podem usar a mesma moeda/unidade do domínio.
-
-(Construir **tudo** no próprio teste; **não** extrair para `TestDataFactory` nem para `private fun` *helper* salvo exceção justificada. Ajuste os *imports* aos tipos do módulo, ex.: `com.eferraz.entities.holdings`, `kotlinx.datetime`, MockK.)
-
-## Helpers e Mocks
-
-### Evitar funções helper privadas
-
-**DEVERIA** **evitar** funções `private fun` no ficheiro só para montar dados — **DEVERIA** manter o arranjo **dentro** do método `@Test`. Duplicação **leve** entre testes **DEVERIA** ser aceite em troca de leitura linear.
-
-**Exceções** aceitáveis: **`@BeforeTest`** / propriedades **`private val`** para **mocks** partilhados **iguais** em vários testes (ver abaixo).
-
-### Mocks compartilhados
-Declare mocks reutilizáveis como propriedades da classe:
-
-```kotlin
-private val holding = mockk<AssetHolding> {
-    every { id } returns 1L
-}
-```
-
-## Cobertura de Cenários
-
-### Casos obrigatórios
-Sempre cubra:
-
-1. **Happy path**
-```kotlin
-@Test
-fun `GIVEN pure appreciation and no contributions WHEN projecting THEN return expected growth`() { }
-```
-
-2. **Bordas** (zeros, limites)
-```kotlin
-@Test
-fun `GIVEN all values are zero THEN return zero`() { }
-
-@Test
-fun `GIVEN zero current value WHEN projecting THEN handle edge case`() { }
-```
-
-3. **Erro / validação**
-```kotlin
-@Test
-fun `GIVEN negative current value WHEN calculating THEN throw`() { }
-
-@Test
-fun `GIVEN empty input WHEN validating THEN reject`() { }
-```
-
-4. **Combinações de entradas**
-```kotlin
-@Test
-fun `GIVEN appreciation and contributions WHEN projecting THEN return combined result`() { }
-
-@Test
-fun `GIVEN appreciation and withdrawals WHEN projecting THEN return combined result`() { }
-```
-
-### Ordem dos Testes
-Organize na sequência:
-1. Casos normais/típicos
-2. Variações com diferentes parâmetros
-3. Casos de borda (zeros, limites)
-4. Casos de exceção/erro
-
-## Corpo do teste: `// GIVEN`, `// WHEN`, `// THEN`
-
-O **nome** do método segue **GIVEN / WHEN / THEN**; o **corpo** **DEVERIA** usar **os mesmos rótulos** em comentários (`// GIVEN`, `// WHEN`, `// THEN`), **não** `// Arrange` / `// Act` / `// Assert`. **DEVERIA** haver **linha em branco** antes de **cada** marcador. Em **casos de uso** com `runTest`, mantenha **GIVEN/WHEN/THEN** dentro do bloco; use **`// Verificar chamadas`** após **THEN** (com linha em branco antes) se precisar de `verify` / `coVerify` explícitos.
-
-```kotlin
-/**
- * Valid inputs produce the projected balance matching the formula.
- */
-@Test
-fun `GIVEN valid inputs WHEN calculating projection THEN return expected value`() {
-
-    // GIVEN
-    val currentValue = 10000.0
-    val appreciationRate = 0.80
-    val contribution = 1500.0
-
-    // WHEN
-    val result = ProjectedGoal.calculate(
-        currentValue = currentValue,
-        appreciationRate = appreciationRate,
-        contribution = contribution
-    )
-
-    // THEN
-    assertEquals(11592.0, result.value, 0.01)
-}
-```
-
-## Precisão de Delta
-
-Use deltas apropriados para o contexto:
-- `0.001` para valores precisos (percentuais, pequenos valores)
-- `0.01` para valores monetários (centavos)
-
-```kotlin
-assertEquals(100.0, result.value, 0.001)      // Valor preciso
-assertEquals(7376.00, result.balance, 0.01)   // Valor monetário
-```
+*Alterações permanentes de estilo exigem atualizar este `.mdc` e a constitution no mesmo ciclo (princípio IX).*
