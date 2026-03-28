@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.eferraz.design_system.core.StableList
 import com.seanproctor.datatable.BasicDataTable
 import com.seanproctor.datatable.CellContentProvider
 import com.seanproctor.datatable.DataColumn
@@ -56,9 +57,9 @@ public data class UiTableDataColumn<T>(
 public fun <T> UiTableV3(
     modifier: Modifier = Modifier,
     header: String? = null,
-    columns: List<UiTableDataColumn<T>>,
-    rows: List<T>,
-    subFooter: List<String>? = null,
+    columns: StableList<UiTableDataColumn<T>>,
+    rows: StableList<T>,
+    subFooter: StableList<String>? = null,
     footer: (@Composable () -> Unit)? = null,
     provider: UiTableContentProvider = UiTableContentProviderImpl(),
     headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest, // Passar para dentro do provider
@@ -67,7 +68,7 @@ public fun <T> UiTableV3(
     onRowClick: (T) -> Unit = {},
 ) {
 
-    if (rows.isEmpty()) return
+    if (rows.items.isEmpty()) return
 
     val state = rememberDataTableState()
 
@@ -77,15 +78,16 @@ public fun <T> UiTableV3(
 
     val sortedRows = remember(rows, sortConfig) {
         val (columnIndex, ascending) = sortConfig
+        val rowItems = rows.items
         when {
-            columnIndex == null -> rows
-            ascending -> rows.sortedWith(compareBy { columns[columnIndex].comparable(it) })
-            else -> rows.sortedWith(compareByDescending { columns[columnIndex].comparable(it) })
+            columnIndex == null -> rowItems
+            ascending -> rowItems.sortedWith(compareBy { columns.items[columnIndex].comparable(it) })
+            else -> rowItems.sortedWith(compareByDescending { columns.items[columnIndex].comparable(it) })
         }
     }
 
     val dataColumns = remember(columns, provider) {
-        columns.mapIndexed { index, column ->
+        columns.items.mapIndexed { index, column ->
             DataColumn(
                 width = column.width,
                 alignment = column.alignment,
@@ -100,7 +102,8 @@ public fun <T> UiTableV3(
         {
 
             fun TableRowScope.cells(rowData: T) {
-                columns.forEachIndexed { index, column ->
+
+                columns.items.forEachIndexed { index, column ->
                     cell {
                         column.content(rowData)
                     }
@@ -108,6 +111,7 @@ public fun <T> UiTableV3(
             }
 
             sortedRows.forEachIndexed { _, rowData ->
+
                 row {
                     backgroundColor = rowBackgroundColor
                     onClick = { onRowClick(rowData) }
@@ -115,15 +119,16 @@ public fun <T> UiTableV3(
                 }
             }
 
-            if (subFooter != null && columns.size == subFooter.size) {
+            if (subFooter != null && columns.items.size == subFooter.items.size) {
+
                 row {
                     isFooter = true
                     backgroundColor = footerBackgroundColor
-                        columns.forEachIndexed { index, column ->
-                            cell {
-                                Text(subFooter.get(index))
-                            }
+                    columns.items.forEachIndexed { index, column ->
+                        cell {
+                            Text(subFooter.items[index])
                         }
+                    }
                 }
             }
         }
@@ -255,12 +260,14 @@ private fun UiTableV3Preview() {
                 val value: Int,
             )
 
-            val previewData = listOf(
-                PreviewRow(5, "Zebra", "Item Z", 100),
-                PreviewRow(2, "Apple", "Item A", 50),
-                PreviewRow(1, "Banana", "Item B", 25),
-                PreviewRow(3, "Cherry", "Item C", 90),
-                PreviewRow(6, "Orange", "Item O", 60),
+            val previewData = StableList(
+                listOf(
+                    PreviewRow(5, "Zebra", "Item Z", 100),
+                    PreviewRow(2, "Apple", "Item A", 50),
+                    PreviewRow(1, "Banana", "Item B", 25),
+                    PreviewRow(3, "Cherry", "Item C", 90),
+                    PreviewRow(6, "Orange", "Item O", 60),
+                )
             )
 
             Column(
@@ -270,67 +277,71 @@ private fun UiTableV3Preview() {
 
                 UiTableV3(
                     header = "Nubank",
-                    columns = listOf(
+                    columns = StableList(
+                        listOf(
 
-                        UiTableDataColumn(
-                            text = "ID",
-                            width = TableColumnWidth.MaxIntrinsic,
-                            alignment = Alignment.Center,
-                            comparable = { it.id },
-                        ),
+                            UiTableDataColumn(
+                                text = "ID",
+                                width = TableColumnWidth.MaxIntrinsic,
+                                alignment = Alignment.Center,
+                                comparable = { it.id },
+                            ),
 
-                        UiTableDataColumn(
-                            text = "Nome",
-                            width = TableColumnWidth.MaxIntrinsic,
-                            comparable = { it.name },
-                        ),
+                            UiTableDataColumn(
+                                text = "Nome",
+                                width = TableColumnWidth.MaxIntrinsic,
+                                comparable = { it.name },
+                            ),
 
-                        UiTableDataColumn(
-                            text = "Descrição",
-                            width = TableColumnWidth.Flex(1f),
-                            comparable = { it.description },
-                        ),
+                            UiTableDataColumn(
+                                text = "Descrição",
+                                width = TableColumnWidth.Flex(1f),
+                                comparable = { it.description },
+                            ),
 
-                        UiTableDataColumn(
-                            text = "Valor",
-                            width = TableColumnWidth.MaxIntrinsic,
-                            alignment = Alignment.CenterEnd,
-                            comparable = { it.value },
-                        ),
+                            UiTableDataColumn(
+                                text = "Valor",
+                                width = TableColumnWidth.MaxIntrinsic,
+                                alignment = Alignment.CenterEnd,
+                                comparable = { it.value },
+                            ),
+                        )
                     ),
                     rows = previewData,
                     footer = {
                         Text(
-                            text = "Total: ${previewData.size} itens",
+                            text = "Total: ${previewData.items.size} itens",
                             style = MaterialTheme.typography.titleSmall,
                         )
                     }
                 )
 
                 UiTableV3(
-                    columns = listOf(
-                        UiTableDataColumn(
-                            text = "ID",
-                            width = TableColumnWidth.MaxIntrinsic,
-                            alignment = Alignment.Center,
-                            comparable = { it.id },
-                        ),
-                        UiTableDataColumn(
-                            text = "Nome",
-                            width = TableColumnWidth.MaxIntrinsic,
-                            comparable = { it.name },
-                        ),
-                        UiTableDataColumn(
-                            text = "Descrição",
-                            width = TableColumnWidth.Flex(1f),
-                            comparable = { it.description },
-                        ),
-                        UiTableDataColumn(
-                            text = "Valor",
-                            width = TableColumnWidth.MaxIntrinsic,
-                            alignment = Alignment.CenterEnd,
-                            comparable = { it.value },
-                        ),
+                    columns = StableList(
+                        listOf(
+                            UiTableDataColumn(
+                                text = "ID",
+                                width = TableColumnWidth.MaxIntrinsic,
+                                alignment = Alignment.Center,
+                                comparable = { it.id },
+                            ),
+                            UiTableDataColumn(
+                                text = "Nome",
+                                width = TableColumnWidth.MaxIntrinsic,
+                                comparable = { it.name },
+                            ),
+                            UiTableDataColumn(
+                                text = "Descrição",
+                                width = TableColumnWidth.Flex(1f),
+                                comparable = { it.description },
+                            ),
+                            UiTableDataColumn(
+                                text = "Valor",
+                                width = TableColumnWidth.MaxIntrinsic,
+                                alignment = Alignment.CenterEnd,
+                                comparable = { it.value },
+                            ),
+                        )
                     ),
                     rows = previewData,
 //                    subFooter = PreviewRow(0, "Sub calc Orange", "", 600),

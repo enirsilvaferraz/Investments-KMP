@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.eferraz.design_system.core.StableList
 import com.eferraz.design_system.components.table.UiTableDataColumn
 import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.entities.assets.Asset
@@ -41,8 +42,8 @@ internal fun TransactionTable(
 
     UiTableV3(
         modifier = modifier.fillMaxWidth(),
-        columns = columns,
-        rows = transactions,
+        columns = StableList(columns),
+        rows = StableList(transactions),
     )
 }
 

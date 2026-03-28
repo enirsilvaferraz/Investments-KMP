@@ -56,6 +56,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eferraz.design_system.components.segmented_control.SegmentedControl
+import com.eferraz.design_system.components.segmented_control.SegmentedControlChoice
+import com.eferraz.design_system.core.StableList
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
@@ -195,11 +197,15 @@ private fun ApplicationScaffold() {
 
                 AppScreenPane {
 
-                    var r1 by remember { mutableStateOf("Renda Variável") }
+                    var r1 by remember {
+                        mutableStateOf("Renda Variável".let { SegmentedControlChoice(it, it) })
+                    }
 
                     SegmentedControl(
                         selected = r1,
-                        options = listOf("Renda Fixa", "Renda Variável", "Fundos"),
+                        options = StableList(
+                            listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) }
+                        ),
                         onSelect = { r1 = it },
                         colors = ToggleButtonDefaults.toggleButtonColors(
                             checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -207,11 +213,15 @@ private fun ApplicationScaffold() {
                         )
                     )
 
-                    var r2 by remember { mutableStateOf("Liquidez Diária") }
+                    var r2 by remember {
+                        mutableStateOf("Liquidez Diária".let { SegmentedControlChoice(it, it) })
+                    }
 
                     SegmentedControl(
                         selected = r2,
-                        options = listOf("Liquidez Diária", "No Vencimento"),
+                        options = StableList(
+                            listOf("Liquidez Diária", "No Vencimento").map { SegmentedControlChoice(it, it) }
+                        ),
                         onSelect = { r2 = it },
                         colors = ToggleButtonDefaults.toggleButtonColors(
                             checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -237,11 +247,14 @@ private fun ApplicationScaffold() {
             },
             subMainPane = {
 
-                var r1 by remember { mutableStateOf("Nubank") }
+                var r1 by remember { mutableStateOf("Nubank".let { SegmentedControlChoice(it, it) }) }
 
                 SegmentedControl(
                     selected = r1,
-                    options = listOf("Nubank", "Bradesco", "Santander", "Itaú", "Banco do Brasil", "Inter"),
+                    options = StableList(
+                        listOf("Nubank", "Bradesco", "Santander", "Itaú", "Banco do Brasil", "Inter")
+                            .map { SegmentedControlChoice(it, it) }
+                    ),
                     onSelect = { r1 = it }
                 )
             }

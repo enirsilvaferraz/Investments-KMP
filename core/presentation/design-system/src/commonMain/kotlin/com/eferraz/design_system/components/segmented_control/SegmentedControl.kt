@@ -21,15 +21,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import com.eferraz.design_system.core.StableList
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 public fun <T> SegmentedControl(
     modifier: Modifier = Modifier,
-    selected: T?,
-    options: List<T>,
-    onSelect: (T) -> Unit,
-    optionDisplay: (T) -> String = { it.toString() },
+    selected: SegmentedControlChoice<T>?,
+    options: StableList<SegmentedControlChoice<T>>,
+    onSelect: (SegmentedControlChoice<T>) -> Unit,
     colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
     fill: Boolean = false,
 ) {
@@ -39,9 +39,9 @@ public fun <T> SegmentedControl(
         horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
     ) {
 
-        options.forEachIndexed { index, option ->
+        options.items.forEachIndexed { index, option ->
 
-            val textLength = optionDisplay(option).length
+            val textLength = option.label.length
             val baseWeight = 3f  // peso mínimo para todos
             val proportionalWeight = textLength * 0.5f  // fator de proporção reduzido
 
@@ -54,12 +54,12 @@ public fun <T> SegmentedControl(
                 colors = colors,
                 shapes = when (index) {
                     0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                    options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    options.items.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                 },
             ) {
                 Text(
-                    text = optionDisplay(option),
+                    text = option.label,
                     maxLines = 1
                 )
             }
@@ -71,23 +71,26 @@ public fun <T> SegmentedControl(
 @Preview
 @Composable
 private fun SegmentedControlPreview() {
+
     MaterialTheme {
+
         Surface {
+
             Column {
 
-                var r1 by remember { mutableStateOf("Renda Variável") }
+                var r1 by remember { mutableStateOf("Renda Variável".let { SegmentedControlChoice(it, it) }) }
 
                 SegmentedControl(
                     selected = r1,
-                    options = listOf("Renda Fixa", "Renda Variável", "Fundos"),
+                    options = StableList(listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) }),
                     onSelect = { r1 = it }
                 )
 
-                var r2 by remember { mutableStateOf("Liquidez Diária") }
+                var r2 by remember { mutableStateOf("Liquidez Diária".let { SegmentedControlChoice(it, it) }) }
 
                 SegmentedControl(
                     selected = r2,
-                    options = listOf("Liquidez Diária", "No Vencimento"),
+                    options = StableList(listOf("Liquidez Diária", "No Vencimento").map { SegmentedControlChoice(it, it) }),
                     onSelect = { r2 = it },
                     colors = ToggleButtonDefaults.toggleButtonColors(
                         checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -95,11 +98,11 @@ private fun SegmentedControlPreview() {
                     )
                 )
 
-                var r3 by remember { mutableStateOf("Fundos") }
+                var r3 by remember { mutableStateOf("Fundos".let { SegmentedControlChoice(it, it) }) }
 
                 SegmentedControl(
                     selected = r3,
-                    options = listOf("Renda Fixa", "Renda Variável", "Fundos"),
+                    options = StableList(listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) }),
                     onSelect = { r3 = it },
                     colors = ToggleButtonDefaults.toggleButtonColors(
                         checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,

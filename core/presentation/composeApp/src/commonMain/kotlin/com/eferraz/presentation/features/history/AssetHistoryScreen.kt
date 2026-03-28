@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.design_system.components.segmented_control.SegmentedControl
+import com.eferraz.design_system.components.segmented_control.SegmentedControlChoice
+import com.eferraz.design_system.core.StableList
 import com.eferraz.design_system.components.table.UiTableDataColumn
 import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.design_system.scaffolds.AppScreenPane
@@ -159,10 +161,9 @@ internal fun HoldingHistoryScreen(
         },
         subMainPane = {
             SegmentedControl(
-                selected = brokerageSelected,
-                options = brokerageOptions,
-                optionDisplay = { it.name },
-                onSelect = onBrokerageChange
+                selected = brokerageSelected?.let { SegmentedControlChoice(it, it.name) },
+                options = StableList(brokerageOptions.map { SegmentedControlChoice(it, it.name) }),
+                onSelect = { choice -> onBrokerageChange(choice.id) }
             )
         },
         supportingPaneWidthRate = 0.23f,
@@ -223,7 +224,8 @@ private fun Table(
 
     val columns = remember(onValueChange, data) {
 
-        listOf<UiTableDataColumn<HoldingHistoryView>>(
+        StableList(
+            listOf<UiTableDataColumn<HoldingHistoryView>>(
 
             UiTableDataColumn(
                 text = "",
@@ -311,12 +313,13 @@ private fun Table(
                 }
             ),
         )
+        )
     }
 
     UiTableV3(
         headerBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
         modifier = modifier,
-        rows = data,
+        rows = StableList(data),
         columns = columns,
         onRowClick = { onSelect(it.entry) }
     )
@@ -344,10 +347,9 @@ private fun Supporting(
     AppScreenPane {
 
         SegmentedControl(
-            selected = periodSelected,
-            options = periodOptions,
-            optionDisplay = { it.formated() },
-            onSelect = onPeriodChange,
+            selected = SegmentedControlChoice(periodSelected, periodSelected.formated()),
+            options = StableList(periodOptions.map { SegmentedControlChoice(it, it.formated()) }),
+            onSelect = { onPeriodChange(it.id) },
             colors = ToggleButtonDefaults.toggleButtonColors(
                 checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -359,10 +361,9 @@ private fun Supporting(
     AppScreenPane {
 
         SegmentedControl(
-            selected = categorySelected,
-            options = categoryOptions,
-            optionDisplay = { it.formated() },
-            onSelect = onCategoryChange,
+            selected = categorySelected?.let { SegmentedControlChoice(it, it.formated()) },
+            options = StableList(categoryOptions.map { SegmentedControlChoice(it, it.formated()) }),
+            onSelect = { onCategoryChange(it.id) },
             colors = ToggleButtonDefaults.toggleButtonColors(
                 checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
@@ -371,10 +372,9 @@ private fun Supporting(
         )
 
         SegmentedControl(
-            selected = liquiditySelected,
-            options = liquidityOptions,
-            optionDisplay = { it.formated() },
-            onSelect = onLiquidityChange,
+            selected = liquiditySelected?.let { SegmentedControlChoice(it, it.formated()) },
+            options = StableList(liquidityOptions.map { SegmentedControlChoice(it, it.formated()) }),
+            onSelect = { onLiquidityChange(it.id) },
             colors = ToggleButtonDefaults.toggleButtonColors(
                 checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
@@ -383,10 +383,9 @@ private fun Supporting(
         )
 
         SegmentedControl(
-            selected = goalSelected,
-            options = goalOptions,
-            optionDisplay = { it.name },
-            onSelect = onGoalChange,
+            selected = goalSelected?.let { SegmentedControlChoice(it, it.name) },
+            options = StableList(goalOptions.map { SegmentedControlChoice(it, it.name) }),
+            onSelect = { onGoalChange(it.id) },
             colors = ToggleButtonDefaults.toggleButtonColors(
                 checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
@@ -420,8 +419,9 @@ private fun Transactions(transactions: List<AssetTransaction>) {
 
             UiTableV3(
                 headerBackgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
-                rows = transactions,
-                columns = listOf(
+                rows = StableList(transactions),
+                columns = StableList(
+                    listOf(
 
                     UiTableDataColumn(
                         text = "Data",
@@ -442,6 +442,7 @@ private fun Transactions(transactions: List<AssetTransaction>) {
                         width = TableColumnWidth.Flex(1f),
                         comparable = { it.totalValue },
                         content = { Text(it.totalValue.currencyFormat()) }
+                    )
                     )
                 ),
                 footer = {
