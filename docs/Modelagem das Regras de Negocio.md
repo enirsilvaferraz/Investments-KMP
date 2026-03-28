@@ -78,7 +78,7 @@ Calcula o crescimento total (absoluto e percentual) de uma posição de investim
 
 ## Referências
 
-- [Modelagem de Dominio](Modelagem%20de%20Dominio.md)
+- [Domínio do módulo entity](../core/domain/entity/docs/DOMAIN.md)
 - [RN - Calcular Balanço de Transações](rules/RN%20-%20Calcular%20Balanço%20de%20Transações.md)
 - [RN - Calcular Valor Projetado de Meta Financeira](rules/RN%20-%20Calcular%20Valor%20Projetado%20de%20Meta%20Financeira.md)
 - [RN - Gerar Mapa de Projeção de Meta Financeira](rules/RN%20-%20Gerar%20Mapa%20de%20Projeção%20de%20Meta%20Financeira.md)

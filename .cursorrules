@@ -34,8 +34,9 @@ Onde "module" é o nome do subprojeto que teve seus arquivos alterados.
 ## Verificação de Documentação do Domínio
 SEMPRE que fizer alterações em arquivos dentro do módulo `core/domain/` (incluindo `core/domain/entity/` e `core/domain/usecases/`), você DEVE:
 
-1. **Verificar se a documentação em `docs/` precisa ser atualizada**, especialmente:
-   - `docs/Modelagem de Dominio.md` - quando entidades, propriedades, relacionamentos ou regras de negócio forem alterados
+1. **Verificar se a documentação precisa ser atualizada**, especialmente:
+   - `core/domain/entity/docs/DOMAIN.md` - modelo de domínio do módulo entity (única fonte; manter alinhado ao código)
+   - `docs/rules/` ou documentação em `usecases` - quando regras de negócio ou processos forem alterados
    - Outros arquivos em `docs/` que possam estar relacionados às mudanças feitas
 
 2. **Analisar as alterações feitas** e determinar se:
