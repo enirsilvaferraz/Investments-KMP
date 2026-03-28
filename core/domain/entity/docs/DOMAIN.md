@@ -96,13 +96,13 @@ Detalhes algorítmicos ficam nos casos de uso, não neste arquivo.
 
 ## 8. Metas — valores típicos **não** persistidos em `FinancialGoal`
 
-Progresso, valor atual consolidado, médias e datas estimadas **não** são atributos persistidos em `FinancialGoal` no modelo conceitual; são calculados na aplicação. Tipos auxiliares no código (`GoalMonthlyData`, `GoalProjections`, `GrowthRate`, etc.) complementam o diagrama ER.
+Progresso, valor atual consolidado, médias e datas estimadas **não** são atributos persistidos em `FinancialGoal` no modelo conceitual; são calculados na aplicação. `GoalMonthlyData` aparece no ER (§9); `GoalProjections`, `GrowthRate` e outras fábricas `calculate` estão no §9.1.
 
 ---
 
 ## 9. Diagrama de relacionamento entre entidades (ER)
 
-As **classes** do módulo `entity` aparecem abaixo com o **nome Kotlin** (PascalCase), exceto `EntityModule` (Koin, fora do modelo de domínio). **Enums** (`Liquidity`, tipos de ativo, `TransactionType`, `InvestmentCategory`, etc.) estão no código e na §6.5, não no diagrama. Atributos principais e cardinalidades são conceituais; arestas marcadas como `calculate`, `when` ou `via holding` refletem uso no código, não FK de banco.
+As **classes** do módulo `entity` aparecem abaixo com o **nome Kotlin** (PascalCase), exceto `EntityModule` (Koin, fora do modelo de domínio). **Enums** (`Liquidity`, tipos de ativo, `TransactionType`, `InvestmentCategory`, etc.) estão no código e na §6.5, não no diagrama. **Não entram neste ER** as classes com fábrica `calculate` (`Appreciation`, `Growth`, `TransactionBalance`, `ProjectedGoal`, `GoalProjections`, `GrowthRate`) — estão no §9.1. Atributos principais e cardinalidades são conceituais; arestas com `via holding` refletem uso no código, não FK de banco.
 
 ```mermaid
 erDiagram
@@ -205,21 +205,6 @@ erDiagram
         Double appreciation
         Double appreciationRate
     }
-    GrowthRate {
-        Double percentValue
-        Double decimalValue
-    }
-    ProjectedGoal {
-        Double value
-    }
-    GoalProjections {
-        String map "Map YearMonth ProjectedGoal"
-    }
-    TransactionBalance {
-        Double contributions
-        Double withdrawals
-        Double balance
-    }
     StockQuoteHistory {
         Long id
         String ticker
@@ -231,14 +216,6 @@ erDiagram
         Long volume "opcional"
         Double adjustedClose "opcional"
         String companyName "opcional"
-    }
-    Appreciation {
-        Double value
-        Double percentage
-    }
-    Growth {
-        Double value
-        Double percentage
     }
     CNPJ {
         String value "validado via get"
@@ -270,26 +247,9 @@ erDiagram
     FixedIncomeTransaction }o--o{ FixedIncomeAsset : "RF via holding"
     VariableIncomeTransaction }o--o{ VariableIncomeAsset : "RV via holding"
     FundsTransaction }o--o{ InvestmentFundAsset : "fundo via holding"
-    TransactionBalance }o--o{ AssetTransaction : "calculate List"
-    TransactionBalance }o--o{ FixedIncomeTransaction : "when branch"
-    TransactionBalance }o--o{ VariableIncomeTransaction : "when branch"
-    TransactionBalance }o--o{ FundsTransaction : "when branch"
     HoldingHistoryEntry }o--|| AssetHolding : "holding"
-    HoldingHistoryEntry }o--o{ Growth : "insumos calculate"
-    HoldingHistoryEntry }o--o{ Appreciation : "insumos calculate"
-    AssetHolding }o--o{ Appreciation : "metrica posicao"
-    AssetHolding }o--o{ Growth : "metrica posicao"
-    Appreciation }o--o{ AssetTransaction : "aportes retiradas"
-    Growth }o--o{ AssetTransaction : "fluxos periodo"
     FinancialGoal }o--o{ GoalMonthlyData : "serie agregada"
     GoalInvestmentPlan }o--|| FinancialGoal : "goal"
-    GoalInvestmentPlan }o--o| GoalProjections : "calculate retorna"
-    GoalProjections }o--o{ ProjectedGoal : "map values"
-    GoalProjections }o--o| FinancialGoal : "via plan.goal"
-    ProjectedGoal }o--o| GoalProjections : "contido no map"
-    ProjectedGoal }o--o| GoalInvestmentPlan : "parametros alinhados"
-    GrowthRate }o--o{ FinancialGoal : "CAGR analises"
-    GrowthRate }o--o{ GoalMonthlyData : "VO vs Double growthRate"
     StockQuoteHistory }o--o{ VariableIncomeAsset : "mesmo ticker"
 ```
 
@@ -330,13 +290,13 @@ classDiagram
     GoalProjections ..> ProjectedGoal : "ProjectedGoal.calculate por mês"
 ```
 
-**Ligações só no módulo `entity` (Kotlin):** import ou tipo em propriedade; `when` em `TransactionBalance`; `GoalProjections` / `ProjectedGoal` por `calculate`.
+**Ligações só no módulo `entity` (Kotlin):** import ou tipo em propriedade. **`TransactionBalance`**, **`GoalProjections`**, **`ProjectedGoal`**, **`Appreciation`**, **`Growth`**, **`GrowthRate`:** ver §9.1 (não repetidos no ER acima).
 
 **Sem referência a outros tipos do domínio neste módulo:** `MandatoryText`, `MaturityDate` (VOs isolados). **`InvestmentCategory`:** definido no módulo, sem uso por outras classes aqui.
 
-**Fora do Mermaid:** enums (§6.5 e código-fonte); **`EntityModule`** (Koin, não é modelo de domínio).
+**Fora do ER:** enums (§6.5 e código-fonte); classes com `calculate` (§9.1); **`EntityModule`** (Koin, não é modelo de domínio).
 
-**Arestas** `calculate`, `when`, `via holding` não são FKs de BD; são uso estático ou navegação em objeto.
+**Arestas** `via holding` não são FKs de BD; são navegação em objeto (`holding.asset`, etc.).
 
 ---
 
