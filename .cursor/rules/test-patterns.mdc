@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Padrões de Testes Automatizados
 
-Regras de governança: `.specify/memory/constitution.md` (qualidade e testes, IV–V; **pt-BR**, VIII; **coerência MD / `.specify` / `.cursor`**, IX).
+Regras de governança: `.specify/memory/constitution.md` (qualidade e testes, IV–V — **testes em inglês**; **GIVEN / WHEN / THEN** no nome; **KDoc** em inglês no método; **`// GIVEN` / `// WHEN` / `// THEN`** no corpo com **linha em branco** antes de cada marcador; **MockK** para colaboradores externos; **criação no próprio teste** — **evitar** *factories* como `TestDataFactory`; **usecases** exige testes em `:usecases`; documentação **pt-BR** (VIII) **exceto** `*Test.kt`; **coerência MD / `.specify` / `.cursor`**, IX).
 
 ## Onde vivem os testes (source sets)
 
@@ -17,35 +17,58 @@ Regras de governança: `.specify/memory/constitution.md` (qualidade e testes, IV
 
 ## Estrutura e Organização
 
+### Idioma (inglês)
+
+**Obrigatório:** nomes de métodos de teste, descrições em *backticks*, comentários de cenário e texto **introduzido pelo teste** **devem** estar em **inglês**, conforme `.specify/memory/constitution.md` princípio V. Código legado em português **deve** migrar para inglês quando o ficheiro for alterado.
+
 ### Nomenclatura de Classes
-- Classes de teste devem terminar com `Test` (ex: `ProjectedGoalTest`, `AppreciationTest`)
-- Nome deve refletir a classe ou funcionalidade sendo testada
+- Classes de teste devem terminar com `Test` (ex.: `ProjectedGoalTest`, `AppreciationTest`)
+- Nome deve refletir a classe ou funcionalidade sob teste
 
-### Nomenclatura de Métodos
+### Nomenclatura de Métodos — GIVEN / WHEN / THEN (obrigatório)
 
-**Dois estilos** são usados no repositório — manter **consistência dentro do mesmo ficheiro**:
+**Todo** método de teste **novo ou alterado** **deve** usar **inglês** e as palavras-chave **GIVEN**, **WHEN** e **THEN** em maiúsculas no nome do método (nome Kotlin entre *backticks*):
 
-1. **Português (domínio puro, utilitários)** — `deve [ação] quando/corretamente/para [contexto]`:
+- **GIVEN … WHEN … THEN …** — quando existir arranjo, ação distinta e resultado.
+- **GIVEN … THEN …** — quando só há estado inicial e resultado (sem passo intermediário relevante).
+
+**Não** usar estilos `should …` / `when …` sem **GIVEN/WHEN/THEN** em testes novos ou alterados; ficheiros legados **devem** ser migrados quando tocados.
+
+### KDoc no método e comentários `// GIVEN`, `// WHEN`, `// THEN` no corpo
+
+**Todo** teste **novo ou alterado** **DEVERIA** ter **KDoc** (`/** … */`) **em inglês** **acima** do `@Test`, resumindo o cenário e o resultado esperado (complementa o nome em *backticks*).
+
+No **corpo** do método, **DEVERIA** marcar com **comentários de linha**:
+
+- **`// GIVEN`** — arranjo (dados, mocks, estado inicial).
+- **`// WHEN`** — ação sobre a unidade sob teste (omitir **só** se não houver passo distinto; nesse caso **GIVEN** seguido de **THEN** basta).
+- **`// THEN`** — asserções e verificações (`verify`, etc.).
+
+**Formatação:** **DEVERIA** preceder **cada** **`// GIVEN`**, **`// WHEN`** e **`// THEN`** de uma **linha em branco** (após `{`, use linha em branco e depois o primeiro **`// GIVEN`**; entre o código de uma secção e o comentário da seguinte, use linha em branco antes do próximo marcador).
+
+**Exceção:** teste **trivial** (poucas linhas, uma expressão óbvia) — **mantém** **KDoc**; os comentários **GIVEN/WHEN/THEN** **podem** ser omitidos se só repetirem o nome do método sem acrescentar leitura.
 
 ```kotlin
+/**
+ * Example: two entries at 100.0 each → expect 200.0 total invested
+ */
 @Test
-fun `deve calcular valor projetado corretamente com valor atual, aporte e rentabilidade`() { }
+fun `GIVEN two history entries with known invested amounts THEN total invested sums correctly`() {
 
-@Test
-fun `deve lancar excecao quando valor atual for negativo`() { }
+    // GIVEN
+    val holding = mockk<AssetHolding> { every { id } returns 1L }
+    val ym = YearMonth(2024, Month.JANUARY)
+    val entries = listOf(
+        HoldingHistoryEntry(holding = holding, referenceDate = ym, totalInvested = 100.0),
+        HoldingHistoryEntry(holding = holding, referenceDate = ym, totalInvested = 100.0),
+    )
 
-@Test
-fun `deve retornar zero quando todos os valores forem zero`() { }
-```
+    // WHEN
+    val total = entries.sumOf { it.totalInvested }
 
-2. **GIVEN / WHEN / THEN em inglês (use cases, presentation)** — descreve cenário e resultado:
-
-```kotlin
-@Test
-fun `GIVEN holdings with complete history THEN return results with current and previous entries`() = runTest { }
-
-@Test
-fun `GIVEN initial value WHEN initialized THEN should format correct string`() { }
+    // THEN
+    assertEquals(200.0, total, 0.01)
+}
 ```
 
 ## Bibliotecas e Imports
@@ -59,12 +82,22 @@ import org.junit.Test
 import kotlin.test.assertFailsWith
 ```
 
-### MockK (casos de uso com suspend)
+### MockK — colaboradores externos à classe sob teste (obrigatório quando aplicável)
+
+Quando a **classe ou função sob teste** depende de **outras unidades** injetadas ou passadas (interfaces de repositório, ports, *clients*, *dispatchers* externos ao teste, etc.), **deve** usar **MockK** para esses colaboradores — **não** instanciar implementações reais de infraestrutura (HTTP, BD, ficheiros) em testes unitários.
+
+**Não** exige MockK quando o teste só envolve **funções puras**, **objetos de valor** ou **domínio** construídos diretamente (ex.: `ProjectedGoal.calculate(...)` sem mocks).
+
 ```kotlin
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 ```
+
+- Funções **`suspend`**: `coEvery`, `coVerify`, `coAnswers`.
+- Preferir **`relaxed = true`** só quando reduzir ruído sem esconder erros relevantes; caso contrário, comportamento explícito.
 
 ### Coroutines em testes
 ```kotlin
@@ -73,19 +106,32 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MeuUseCaseTest {
+class ExampleUseCaseTest {
     @BeforeTest
     fun setup() { /* mocks */ }
 
+    /**
+     * Repository returns data; use case completes without error.
+     */
     @Test
-    fun `GIVEN ... THEN ...`() = runTest { /* ... */ }
+    fun `GIVEN mocked repository WHEN invoking use case THEN completes successfully`() = runTest {
+
+        // GIVEN
+
+        // WHEN
+
+        // THEN
+    }
 }
 ```
 
 - Injetar **`Dispatchers.Unconfined`** no use case quando o teste precisar de comportamento síncrono (padrão em `MergeHistoryUseCaseTest` / `CreateHistoryUseCaseTest`).
 
-### Fábricas de dados (`usecases`)
-- Centralizar construção de `Owner`, `AssetHolding`, `HoldingHistoryEntry`, etc. em **`TestDataFactory`** (object no pacote de testes), com defaults sensatos e parâmetros nomeados para sobrescrever só o necessário.
+### Criação de dados no próprio teste (evitar factories)
+
+**DEVERIA** **evitar** *factories* centralizadas de teste (ex.: object **`TestDataFactory`**). **DEVERIA** construir **no corpo** de cada método `@Test` os objetos necessários: construtores de entidades, **`mockk { … }`**, `listOf(… )`, literais.
+
+**NÃO DEVE** acrescentar **novos** métodos a `TestDataFactory` (ou equivalente) para código novo. Ficheiros legados que **ainda** usem `TestDataFactory` **DEVERIAM** migrar para arranjo **inline** quando forem alterados.
 
 ## Padrões de Asserções
 
@@ -110,7 +156,7 @@ assertEquals(10.0, result.percentage, 0.001)
 ```
 
 ### Teste de Exceções
-Use `assertFailsWith` do kotlin.test e verifique a mensagem:
+Use `assertFailsWith` do kotlin.test e verifique a mensagem **de produção** (pode estar em pt-BR se o domínio assim definir):
 
 ```kotlin
 val exception = assertFailsWith<IllegalArgumentException> {
@@ -120,59 +166,25 @@ val exception = assertFailsWith<IllegalArgumentException> {
         contribution = 1500.0
     )
 }
-
-assertEquals("O valor atual deve ser maior que zero. Valor recebido: -1000.0", exception.message)
+assertEquals(expectedDomainMessage, exception.message)
 ```
 
 ## Documentação em Testes
 
-### Comentários Explicativos
-Adicione comentários para cálculos complexos:
+### Comentários explicativos adicionais
+**Dentro** das secções **GIVEN** / **WHEN** / **THEN**, use **inglês** em comentários que detalhem valores (ex.: descrição de compras); valores monetários podem usar a mesma moeda/unidade do domínio.
 
-```kotlin
-@Test
-fun `deve calcular contribuicoes corretamente para compras de renda variavel`() {
-    // Compra 1: 50 ações × R$ 56,36 = R$ 2.818,00
-    // Compra 2: 50 ações × R$ 56,36 = R$ 2.818,00
-    // Compra 3: 30 ações × R$ 58,00 = R$ 1.740,00
-    // Total: R$ 7.376,00
-    val result = TransactionBalance.calculate(
-        listOf(
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 30.0, 58.0)
-        )
-    )
-
-    assertEquals(7376.00, result.contributions, 0.01)
-}
-```
+(Construir **tudo** no próprio teste; **não** extrair para `TestDataFactory` nem para `private fun` *helper* salvo exceção justificada. Ajuste os *imports* aos tipos do módulo, ex.: `com.eferraz.entities.holdings`, `kotlinx.datetime`, MockK.)
 
 ## Helpers e Mocks
 
-### Funções Helper
-Crie funções privadas para simplificar a criação de objetos complexos:
+### Evitar funções helper privadas
 
-```kotlin
-private fun createVariableIncomeTransaction(
-    type: TransactionType,
-    quantity: Double,
-    unitPrice: Double,
-    date: LocalDate = LocalDate(2025, 1, 15)
-): VariableIncomeTransaction {
-    return mockk {
-        every { holding } returns this@TransactionBalanceTest.holding
-        every { this@mockk.type } returns type
-        every { this@mockk.quantity } returns quantity
-        every { this@mockk.unitPrice } returns unitPrice
-        every { totalValue } returns quantity * unitPrice
-        every { this@mockk.date } returns date
-        every { id } returns 0L
-    }
-}
-```
+**DEVERIA** **evitar** funções `private fun` no ficheiro só para montar dados — **DEVERIA** manter o arranjo **dentro** do método `@Test`. Duplicação **leve** entre testes **DEVERIA** ser aceite em troca de leitura linear.
 
-### Mocks Compartilhados
+**Exceções** aceitáveis: **`@BeforeTest`** / propriedades **`private val`** para **mocks** partilhados **iguais** em vários testes (ver abaixo).
+
+### Mocks compartilhados
 Declare mocks reutilizáveis como propriedades da classe:
 
 ```kotlin
@@ -183,40 +195,40 @@ private val holding = mockk<AssetHolding> {
 
 ## Cobertura de Cenários
 
-### Casos Obrigatórios
-Sempre teste:
+### Casos obrigatórios
+Sempre cubra:
 
-1. **Caso Normal**: Cenário típico de uso
+1. **Happy path**
 ```kotlin
 @Test
-fun `deve calcular crescimento corretamente com valorizacao pura sem contribuicoes`() { }
+fun `GIVEN pure appreciation and no contributions WHEN projecting THEN return expected growth`() { }
 ```
 
-2. **Casos de Borda**: Valores zero, limites
+2. **Bordas** (zeros, limites)
 ```kotlin
 @Test
-fun `deve retornar zero quando todos os valores forem zero`() { }
+fun `GIVEN all values are zero THEN return zero`() { }
 
 @Test
-fun `deve calcular valor projetado corretamente com valor atual zero`() { }
+fun `GIVEN zero current value WHEN projecting THEN handle edge case`() { }
 ```
 
-3. **Casos de Exceção**: Validações e erros
+3. **Erro / validação**
 ```kotlin
 @Test
-fun `deve lancar excecao quando valor atual for negativo`() { }
+fun `GIVEN negative current value WHEN calculating THEN throw`() { }
 
 @Test
-fun `deve lancar excecao para string vazia`() { }
+fun `GIVEN empty input WHEN validating THEN reject`() { }
 ```
 
-4. **Combinações**: Diferentes combinações de entradas
+4. **Combinações de entradas**
 ```kotlin
 @Test
-fun `deve calcular crescimento corretamente com valorizacao e contribuicao`() { }
+fun `GIVEN appreciation and contributions WHEN projecting THEN return combined result`() { }
 
 @Test
-fun `deve calcular crescimento corretamente com valorizacao e resgate`() { }
+fun `GIVEN appreciation and withdrawals WHEN projecting THEN return combined result`() { }
 ```
 
 ### Ordem dos Testes
@@ -226,20 +238,30 @@ Organize na sequência:
 3. Casos de borda (zeros, limites)
 4. Casos de exceção/erro
 
-## Estrutura Arrange-Act-Assert
+## Corpo do teste: `// GIVEN`, `// WHEN`, `// THEN`
 
-Em testes **simples** de domínio, AAA pode ser implícito (sem comentários).
-
-Em testes **longos** (use cases), comentários **`// Arrange`**, **`// Act`**, **`// Assert`** e **`// Verificar chamadas`** melhoram a leitura. Opcionalmente use **`// region`** para agrupar cenários.
+O **nome** do método segue **GIVEN / WHEN / THEN**; o **corpo** **DEVERIA** usar **os mesmos rótulos** em comentários (`// GIVEN`, `// WHEN`, `// THEN`), **não** `// Arrange` / `// Act` / `// Assert`. **DEVERIA** haver **linha em branco** antes de **cada** marcador. Em **casos de uso** com `runTest`, mantenha **GIVEN/WHEN/THEN** dentro do bloco; use **`// Verificar chamadas`** após **THEN** (com linha em branco antes) se precisar de `verify` / `coVerify` explícitos.
 
 ```kotlin
+/**
+ * Valid inputs produce the projected balance matching the formula.
+ */
 @Test
-fun `deve calcular valor projetado corretamente`() {
+fun `GIVEN valid inputs WHEN calculating projection THEN return expected value`() {
+
+    // GIVEN
+    val currentValue = 10000.0
+    val appreciationRate = 0.80
+    val contribution = 1500.0
+
+    // WHEN
     val result = ProjectedGoal.calculate(
-        currentValue = 10000.0,
-        appreciationRate = 0.80,
-        contribution = 1500.0
+        currentValue = currentValue,
+        appreciationRate = appreciationRate,
+        contribution = contribution
     )
+
+    // THEN
     assertEquals(11592.0, result.value, 0.01)
 }
 ```
