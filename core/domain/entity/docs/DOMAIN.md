@@ -96,18 +96,18 @@ Detalhes algorítmicos ficam nos casos de uso, não neste arquivo.
 
 ## 8. Metas — valores típicos **não** persistidos em `FinancialGoal`
 
-Progresso, valor atual consolidado, médias e datas estimadas **não** são atributos persistidos em `FinancialGoal` no modelo conceitual; são calculados na aplicação. `GoalMonthlyData` aparece no ER (§9); `GoalProjections`, `GrowthRate` e outras fábricas `calculate` estão no §9.1.
+Progresso, valor atual consolidado, médias e datas estimadas **não** são atributos persistidos em `FinancialGoal` no modelo conceitual; são calculados na aplicação. Tipos auxiliares no código (`GoalMonthlyData`, `GoalProjections`, `GrowthRate`, etc.) complementam o diagrama ER.
 
 ---
 
 ## 9. Diagrama de relacionamento entre entidades (ER)
 
-As **classes** do módulo `entity` aparecem abaixo com o **nome Kotlin** (PascalCase), exceto `EntityModule` (Koin, fora do modelo de domínio). **Enums** (`Liquidity`, tipos de ativo, `TransactionType`, `InvestmentCategory`, etc.) estão no código e na §6.5, não no diagrama. **Não entram neste ER** as classes com fábrica `calculate` (`Appreciation`, `Growth`, `TransactionBalance`, `ProjectedGoal`, `GoalProjections`, `GrowthRate`) — estão no §9.1. Atributos principais e cardinalidades são conceituais; arestas com `via holding` refletem uso no código, não FK de banco.
+As **classes** do módulo `entity` aparecem com **nome Kotlin** (PascalCase), exceto `EntityModule` (Koin). **Enums** estão na §6.5 e no código, não nos diagramas. O ER está **dividido por pacote** (`com.eferraz.entities.*`); onde uma relação atravessa pacotes, a entidade externa aparece como **referência** (atributo `String ref "§9.x"` — ver diagrama daquele pacote). Atributos e cardinalidades são conceituais; arestas `calculate`, `when` ou `via holding` refletem uso no código, não FK de banco.
+
+### 9.1 Pacote `assets` (`com.eferraz.entities.assets`)
 
 ```mermaid
-%%{init: {"layout": "elk"}}%%
 erDiagram
-    direction TB
     Asset {
         Long id
         Issuer issuer
@@ -139,9 +139,118 @@ erDiagram
         LocalDate expirationDate "opcional"
         Int liquidityDays
     }
+    Issuer {
+        Long id
+        String name
+        Boolean isInLiquidation
+    }
+    CNPJ {
+        String value "validado via get"
+    }
+    MaturityDate {
+        String value "parse LocalDate"
+    }
+    Asset ||--o{ FixedIncomeAsset : "implements"
+    Asset ||--o{ VariableIncomeAsset : "implements"
+    Asset ||--o{ InvestmentFundAsset : "implements"
+    Asset }o--|| Issuer : "issuer"
+    VariableIncomeAsset }o--o| CNPJ : "cnpj"
+```
+
+### 9.2 Pacote `holdings` (`com.eferraz.entities.holdings`)
+
+Referências: `Asset`, `FinancialGoal`, `VariableIncomeAsset`, `AssetTransaction` (definições completas nos §9.1, §9.4 e §9.3).
+
+```mermaid
+erDiagram
+    Asset {
+        String ref "§9.1"
+    }
+    FinancialGoal {
+        String ref "§9.4"
+    }
+    VariableIncomeAsset {
+        String ref "§9.1"
+    }
+    AssetTransaction {
+        String ref "§9.3"
+    }
     AssetHolding {
         Long id
         FinancialGoal goal "opcional"
+    }
+    Owner {
+        Long id
+        String name
+    }
+    Brokerage {
+        Long id
+        String name
+    }
+    HoldingHistoryEntry {
+        Long id "opcional"
+        YearMonth referenceDate
+        Double endOfMonthValue
+        Double endOfMonthQuantity
+        Double endOfMonthAverageCost
+        Double totalInvested
+    }
+    StockQuoteHistory {
+        Long id
+        String ticker
+        LocalDate date
+        Double open "opcional"
+        Double high "opcional"
+        Double low "opcional"
+        Double close "opcional"
+        Long volume "opcional"
+        Double adjustedClose "opcional"
+        String companyName "opcional"
+    }
+    Appreciation {
+        Double value
+        Double percentage
+    }
+    Growth {
+        Double value
+        Double percentage
+    }
+    AssetHolding }o--|| Asset : "asset"
+    AssetHolding }o--|| Owner : "owner"
+    AssetHolding }o--|| Brokerage : "brokerage"
+    AssetHolding }o--o| FinancialGoal : "goal opcional"
+    FinancialGoal ||--o{ AssetHolding : "holdings"
+    AssetHolding ||--o{ AssetTransaction : "transacoes"
+    HoldingHistoryEntry }o--|| AssetHolding : "holding"
+    HoldingHistoryEntry }o--o{ Growth : "insumos calculate"
+    HoldingHistoryEntry }o--o{ Appreciation : "insumos calculate"
+    AssetHolding }o--o{ Appreciation : "metrica posicao"
+    AssetHolding }o--o{ Growth : "metrica posicao"
+    Appreciation }o--o{ AssetTransaction : "aportes retiradas"
+    Growth }o--o{ AssetTransaction : "fluxos periodo"
+    StockQuoteHistory }o--o{ VariableIncomeAsset : "mesmo ticker"
+```
+
+### 9.3 Pacote `transactions` (`com.eferraz.entities.transactions`)
+
+Referências: `AssetHolding`, `Asset`, `FixedIncomeAsset`, `VariableIncomeAsset`, `InvestmentFundAsset` (§9.2 e §9.1).
+
+```mermaid
+erDiagram
+    AssetHolding {
+        String ref "§9.2"
+    }
+    Asset {
+        String ref "§9.1"
+    }
+    FixedIncomeAsset {
+        String ref "§9.1"
+    }
+    VariableIncomeAsset {
+        String ref "§9.1"
+    }
+    InvestmentFundAsset {
+        String ref "§9.1"
     }
     AssetTransaction {
         Long id
@@ -164,26 +273,33 @@ erDiagram
         Long id
         Double totalValue
     }
-    HoldingHistoryEntry {
-        Long id "opcional"
-        YearMonth referenceDate
-        Double endOfMonthValue
-        Double endOfMonthQuantity
-        Double endOfMonthAverageCost
-        Double totalInvested
+    TransactionBalance {
+        Double contributions
+        Double withdrawals
+        Double balance
     }
+    AssetTransaction }o--|| AssetHolding : "holding"
+    AssetTransaction ||--o| FixedIncomeTransaction : "implements"
+    AssetTransaction ||--o| VariableIncomeTransaction : "implements"
+    AssetTransaction ||--o| FundsTransaction : "implements"
+    AssetTransaction }o--o| Asset : "holding.asset"
+    FixedIncomeTransaction }o--o{ FixedIncomeAsset : "RF via holding"
+    VariableIncomeTransaction }o--o{ VariableIncomeAsset : "RV via holding"
+    FundsTransaction }o--o{ InvestmentFundAsset : "fundo via holding"
+    TransactionBalance }o--o{ AssetTransaction : "calculate List"
+    TransactionBalance }o--o{ FixedIncomeTransaction : "when branch"
+    TransactionBalance }o--o{ VariableIncomeTransaction : "when branch"
+    TransactionBalance }o--o{ FundsTransaction : "when branch"
+```
+
+### 9.4 Pacote `goals` (`com.eferraz.entities.goals`)
+
+Referência: `Owner` (§9.2).
+
+```mermaid
+erDiagram
     Owner {
-        Long id
-        String name
-    }
-    Brokerage {
-        Long id
-        String name
-    }
-    Issuer {
-        Long id
-        String name
-        Boolean isInLiquidation
+        String ref "§9.2"
     }
     FinancialGoal {
         Long id
@@ -207,99 +323,57 @@ erDiagram
         Double appreciation
         Double appreciationRate
     }
-    StockQuoteHistory {
-        Long id
-        String ticker
-        LocalDate date
-        Double open "opcional"
-        Double high "opcional"
-        Double low "opcional"
-        Double close "opcional"
-        Long volume "opcional"
-        Double adjustedClose "opcional"
-        String companyName "opcional"
+    GrowthRate {
+        Double percentValue
+        Double decimalValue
     }
-    CNPJ {
-        String value "validado via get"
+    ProjectedGoal {
+        Double value
     }
+    GoalProjections {
+        String map "Map YearMonth ProjectedGoal"
+    }
+    FinancialGoal }o--|| Owner : "owner"
+    FinancialGoal }o--o{ GoalMonthlyData : "serie agregada"
+    GoalInvestmentPlan }o--|| FinancialGoal : "goal"
+    GoalInvestmentPlan }o--o| GoalProjections : "calculate retorna"
+    GoalProjections }o--o{ ProjectedGoal : "map values"
+    GoalProjections }o--o| FinancialGoal : "via plan.goal"
+    ProjectedGoal }o--o| GoalProjections : "contido no map"
+    ProjectedGoal }o--o| GoalInvestmentPlan : "parametros alinhados"
+    GrowthRate }o--o{ FinancialGoal : "CAGR analises"
+    GrowthRate }o--o{ GoalMonthlyData : "VO vs Double growthRate"
+```
+
+### 9.5 Pacote `value` (`com.eferraz.entities.value`)
+
+```mermaid
+erDiagram
     MandatoryText {
         String value "nao vazio"
     }
-    MaturityDate {
-        String value "parse LocalDate"
-    }
-
-    Asset ||--o{ FixedIncomeAsset : "implements"
-    Asset ||--o{ VariableIncomeAsset : "implements"
-    Asset ||--o{ InvestmentFundAsset : "implements"
-    Asset }o--|| Issuer : "issuer"
-    VariableIncomeAsset }o--o| CNPJ : "cnpj"
-    AssetHolding }o--|| Asset : "asset"
-    AssetHolding }o--|| Owner : "owner"
-    AssetHolding }o--|| Brokerage : "brokerage"
-    AssetHolding }o--o| FinancialGoal : "goal opcional"
-    FinancialGoal ||--o{ AssetHolding : "holdings"
-    FinancialGoal }o--|| Owner : "owner"
-    AssetHolding ||--o{ AssetTransaction : "transacoes"
-    AssetTransaction }o--|| AssetHolding : "holding"
-    AssetTransaction ||--o| FixedIncomeTransaction : "implements"
-    AssetTransaction ||--o| VariableIncomeTransaction : "implements"
-    AssetTransaction ||--o| FundsTransaction : "implements"
-    AssetTransaction }o--o| Asset : "holding.asset"
-%%    FixedIncomeTransaction }o--o{ FixedIncomeAsset : "RF via holding"
-%%    VariableIncomeTransaction }o--o{ VariableIncomeAsset : "RV via holding"
-%%    FundsTransaction }o--o{ InvestmentFundAsset : "fundo via holding"
-    HoldingHistoryEntry }o--|| AssetHolding : "holding"
-    FinancialGoal }o--o{ GoalMonthlyData : "serie agregada"
-    GoalInvestmentPlan }o--|| FinancialGoal : "goal"
-    StockQuoteHistory }o--o{ VariableIncomeAsset : "mesmo ticker"
 ```
 
-### 9.1 Classes com método `calculate`
+### 9.6 Ligações entre pacotes (resumo)
 
-Fábricas no **`companion object`** (assinaturas resumidas; ver código). `Growth` também possui `calculate` privado de apoio. Mesmo `init` de layout **ELK** que no ER (reduz cruzamentos onde o renderizador aplicar).
+| Origem (pacote) | Entidade | Ligação | Destino (pacote) | Entidade |
+|-----------------|----------|---------|-------------------|----------|
+| `holdings` | `AssetHolding` | posição de | `assets` | `Asset` |
+| `holdings` | `AssetHolding` | meta opcional | `goals` | `FinancialGoal` |
+| `holdings` | `AssetHolding` | transações | `transactions` | `AssetTransaction` |
+| `goals` | `FinancialGoal` | titular | `holdings` | `Owner` |
+| `transactions` | `AssetTransaction` | pertence a | `holdings` | `AssetHolding` |
+| `transactions` | subtipos de transação | ativo via holding | `assets` | RF / RV / Fundo |
+| `holdings` | `StockQuoteHistory` | mesmo ticker | `assets` | `VariableIncomeAsset` |
+| `holdings` | `Appreciation` / `Growth` | usam fluxos | `transactions` | `AssetTransaction` |
 
-```mermaid
-%%{init: {"layout": "elk"}}%%
-classDiagram
-    direction TB
-    class Appreciation {
-        <<companion>>
-        +calculate(previousValue, currentValue, contributions, withdrawals) Appreciation
-    }
-    class Growth {
-        <<companion>>
-        +calculate(previousValue, currentValue, contributions, withdrawals) Growth
-    }
-    class TransactionBalance {
-        <<companion>>
-        +calculate(transactions) TransactionBalance
-    }
-    class ProjectedGoal {
-        <<companion>>
-        +calculate(currentValue, appreciationRate, contribution) ProjectedGoal
-    }
-    class GoalProjections {
-        <<companion>>
-        +calculate(plan, maxMonths) GoalProjections
-        +calculate(initialValue, startMonth, appreciationRate, contribution, targetValue, maxMonths) GoalProjections
-    }
-    class GrowthRate {
-        <<companion>>
-        +calculate(initialValue, finalValue, periods) GrowthRate
-    }
-    TransactionBalance ..> AssetTransaction : "List em calculate"
-    GoalProjections ..> GoalInvestmentPlan : "plan"
-    GoalProjections ..> ProjectedGoal : "ProjectedGoal.calculate por mês"
-```
-
-**Ligações só no módulo `entity` (Kotlin):** import ou tipo em propriedade. **`TransactionBalance`**, **`GoalProjections`**, **`ProjectedGoal`**, **`Appreciation`**, **`Growth`**, **`GrowthRate`:** ver §9.1 (não repetidos no ER acima).
+**Ligações só no módulo `entity` (Kotlin):** import ou tipo em propriedade; `when` em `TransactionBalance`; `GoalProjections` / `ProjectedGoal` por `calculate`.
 
 **Sem referência a outros tipos do domínio neste módulo:** `MandatoryText`, `MaturityDate` (VOs isolados). **`InvestmentCategory`:** definido no módulo, sem uso por outras classes aqui.
 
-**Fora do ER:** enums (§6.5 e código-fonte); classes com `calculate` (§9.1); **`EntityModule`** (Koin, não é modelo de domínio).
+**Fora do Mermaid:** enums (§6.5 e código-fonte); **`EntityModule`** (Koin, não é modelo de domínio).
 
-**Arestas** `via holding` não são FKs de BD; são navegação em objeto (`holding.asset`, etc.).
+**Arestas** `calculate`, `when`, `via holding` não são FKs de BD; são uso estático ou navegação em objeto.
 
 ---
 
