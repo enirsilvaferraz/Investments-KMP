@@ -1,30 +1,23 @@
 package com.eferraz.entities.transactions
 
 import com.eferraz.entities.holdings.AssetHolding
-import com.eferraz.entities.transactions.FixedIncomeTransaction
-import com.eferraz.entities.transactions.FundsTransaction
-import com.eferraz.entities.transactions.TransactionBalance
-import com.eferraz.entities.transactions.TransactionType
-import com.eferraz.entities.transactions.VariableIncomeTransaction
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.LocalDate
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TransactionBalanceTest {
 
-    // Mock holding
     private val holding = mockk<AssetHolding> {
         every { id } returns 1L
     }
 
-    // Helper to create variable income transaction
     private fun createVariableIncomeTransaction(
         type: TransactionType,
         quantity: Double,
         unitPrice: Double,
-        date: LocalDate = LocalDate(2025, 1, 15)
+        date: LocalDate = LocalDate(2025, 1, 15),
     ): VariableIncomeTransaction {
         return mockk {
             every { holding } returns this@TransactionBalanceTest.holding
@@ -37,11 +30,10 @@ class TransactionBalanceTest {
         }
     }
 
-    // Helper to create fixed income transaction
     private fun createFixedIncomeTransaction(
         type: TransactionType,
         totalValue: Double,
-        date: LocalDate = LocalDate(2025, 1, 10)
+        date: LocalDate = LocalDate(2025, 1, 10),
     ): FixedIncomeTransaction {
         return mockk {
             every { holding } returns this@TransactionBalanceTest.holding
@@ -52,11 +44,10 @@ class TransactionBalanceTest {
         }
     }
 
-    // Helper to create funds transaction
     private fun createFundsTransaction(
         type: TransactionType,
         totalValue: Double,
-        date: LocalDate = LocalDate(2025, 1, 5)
+        date: LocalDate = LocalDate(2025, 1, 5),
     ): FundsTransaction {
         return mockk {
             every { holding } returns this@TransactionBalanceTest.holding
@@ -67,179 +58,196 @@ class TransactionBalanceTest {
         }
     }
 
+    /**
+     * Empty transaction list yields zero contributions, withdrawals and balance.
+     */
     @Test
-    fun `deve retornar zeros para lista vazia de transacoes`() {
+    fun `GIVEN empty transaction list WHEN calculate THEN returns zeros`() {
 
+        // WHEN
         val result = TransactionBalance.calculate(emptyList<VariableIncomeTransaction>())
 
+        // THEN
         assertEquals(0.0, result.contributions, 0.001)
         assertEquals(0.0, result.withdrawals, 0.001)
         assertEquals(0.0, result.balance, 0.001)
     }
 
+    /**
+     * Three variable-income purchases sum contributions and balance.
+     */
     @Test
-    fun `deve calcular contribuicoes corretamente para compras de renda variavel`() {
+    fun `GIVEN variable income purchases WHEN calculate THEN sums contributions`() {
 
-        // Compra 1: 50 ações × R$ 56,36 = R$ 2.818,00
-        // Compra 2: 50 ações × R$ 56,36 = R$ 2.818,00
-        // Compra 3: 30 ações × R$ 58,00 = R$ 1.740,00
-        // Total: R$ 7.376,00
-        val result = TransactionBalance.calculate(
-            listOf(
-                createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-                createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-                createVariableIncomeTransaction(TransactionType.PURCHASE, 30.0, 58.0)
-            )
+        // GIVEN
+        val transactions = listOf(
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 30.0, 58.0),
         )
 
+        // WHEN
+        val result = TransactionBalance.calculate(transactions)
+
+        // THEN
         assertEquals(7376.00, result.contributions, 0.01)
         assertEquals(0.0, result.withdrawals, 0.001)
         assertEquals(7376.00, result.balance, 0.01)
     }
 
+    /**
+     * Purchases and one sale reduce net balance.
+     */
     @Test
-    fun `deve calcular balanco corretamente para compras e vendas de renda variavel`() {
+    fun `GIVEN purchases and sale WHEN calculate THEN net balance matches flows`() {
 
-        // Compra 1: 50 ações × R$ 56,36 = R$ 2.818,00
-        // Compra 2: 50 ações × R$ 56,36 = R$ 2.818,00
-        // Compra 3: 30 ações × R$ 58,00 = R$ 1.740,00
-        // Venda:    10 ações × R$ 60,00 = R$ 600,00
-        // Balanço: R$ 7.376,00 - R$ 600,00 = R$ 6.776,00
-        val result = TransactionBalance.calculate(
-            listOf(
-                createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-                createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-                createVariableIncomeTransaction(TransactionType.PURCHASE, 30.0, 58.0),
-                createVariableIncomeTransaction(TransactionType.SALE, 10.0, 60.0)
-            )
+        // GIVEN
+        val transactions = listOf(
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 30.0, 58.0),
+            createVariableIncomeTransaction(TransactionType.SALE, 10.0, 60.0),
         )
 
+        // WHEN
+        val result = TransactionBalance.calculate(transactions)
+
+        // THEN
         assertEquals(7376.00, result.contributions, 0.01)
         assertEquals(600.00, result.withdrawals, 0.01)
         assertEquals(6776.00, result.balance, 0.01)
     }
 
+    /**
+     * Fixed income purchases only.
+     */
     @Test
-    fun `deve calcular contribuicoes corretamente para compras de renda fixa`() {
+    fun `GIVEN fixed income purchases WHEN calculate THEN sums contributions`() {
 
-        // Compra 1: R$ 5.000,00
-        // Compra 2: R$ 3.000,00
-        // Compra 3: R$ 2.000,00
-        // Total: R$ 10.000,00
-        val result = TransactionBalance.calculate(
-            listOf(
-                createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
-                createFixedIncomeTransaction(TransactionType.PURCHASE, 3000.0),
-                createFixedIncomeTransaction(TransactionType.PURCHASE, 2000.0)
-            )
+        // GIVEN
+        val transactions = listOf(
+            createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
+            createFixedIncomeTransaction(TransactionType.PURCHASE, 3000.0),
+            createFixedIncomeTransaction(TransactionType.PURCHASE, 2000.0),
         )
 
+        // WHEN
+        val result = TransactionBalance.calculate(transactions)
+
+        // THEN
         assertEquals(10000.00, result.contributions, 0.01)
         assertEquals(0.0, result.withdrawals, 0.001)
         assertEquals(10000.00, result.balance, 0.01)
     }
 
+    /**
+     * Fixed income purchases and large redemption yield negative balance.
+     */
     @Test
-    fun `deve calcular balanco negativo corretamente para compras e resgates de renda fixa`() {
+    fun `GIVEN fixed income purchases and redemption WHEN calculate THEN negative balance`() {
 
-        // Compra 1: R$ 5.000,00
-        // Compra 2: R$ 3.000,00
-        // Compra 3: R$ 2.000,00
-        // Resgate:  R$ 11.500,00
-        // Balanço: R$ 10.000,00 - R$ 11.500,00 = -R$ 1.500,00
-        val result = TransactionBalance.calculate(
-            listOf(
-                createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
-                createFixedIncomeTransaction(TransactionType.PURCHASE, 3000.0),
-                createFixedIncomeTransaction(TransactionType.PURCHASE, 2000.0),
-                createFixedIncomeTransaction(TransactionType.SALE, 11500.0)
-            )
+        // GIVEN
+        val transactions = listOf(
+            createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
+            createFixedIncomeTransaction(TransactionType.PURCHASE, 3000.0),
+            createFixedIncomeTransaction(TransactionType.PURCHASE, 2000.0),
+            createFixedIncomeTransaction(TransactionType.SALE, 11500.0),
         )
 
+        // WHEN
+        val result = TransactionBalance.calculate(transactions)
+
+        // THEN
         assertEquals(10000.00, result.contributions, 0.01)
         assertEquals(11500.00, result.withdrawals, 0.01)
         assertEquals(-1500.00, result.balance, 0.01)
     }
 
+    /**
+     * Fund purchases only.
+     */
     @Test
-    fun `deve calcular contribuicoes corretamente para compras de fundos`() {
+    fun `GIVEN fund purchases WHEN calculate THEN sums contributions`() {
 
-        // Compra 1: R$ 10.000,00
-        // Compra 2: R$ 5.000,00
-        // Compra 3: R$ 8.000,00
-        // Compra 4: R$ 7.000,00
-        // Total: R$ 30.000,00
-        val result = TransactionBalance.calculate(
-            listOf(
-                createFundsTransaction(TransactionType.PURCHASE, 10000.0),
-                createFundsTransaction(TransactionType.PURCHASE, 5000.0),
-                createFundsTransaction(TransactionType.PURCHASE, 8000.0),
-                createFundsTransaction(TransactionType.PURCHASE, 7000.0)
-            )
+        // GIVEN
+        val transactions = listOf(
+            createFundsTransaction(TransactionType.PURCHASE, 10000.0),
+            createFundsTransaction(TransactionType.PURCHASE, 5000.0),
+            createFundsTransaction(TransactionType.PURCHASE, 8000.0),
+            createFundsTransaction(TransactionType.PURCHASE, 7000.0),
         )
 
+        // WHEN
+        val result = TransactionBalance.calculate(transactions)
+
+        // THEN
         assertEquals(30000.00, result.contributions, 0.01)
         assertEquals(0.0, result.withdrawals, 0.001)
         assertEquals(30000.00, result.balance, 0.01)
     }
 
+    /**
+     * Fund purchases and one redemption.
+     */
     @Test
-    fun `deve calcular balanco corretamente para compras e resgates de fundos`() {
+    fun `GIVEN fund purchases and redemption WHEN calculate THEN net balance`() {
 
-        // Compra 1: R$ 10.000,00
-        // Compra 2: R$ 5.000,00
-        // Compra 3: R$ 8.000,00
-        // Compra 4: R$ 7.000,00
-        // Resgate:  R$ 12.000,00
-        // Balanço: R$ 30.000,00 - R$ 12.000,00 = R$ 18.000,00
-        val result = TransactionBalance.calculate(
-            listOf(
-                createFundsTransaction(TransactionType.PURCHASE, 10000.0),
-                createFundsTransaction(TransactionType.PURCHASE, 5000.0),
-                createFundsTransaction(TransactionType.PURCHASE, 8000.0),
-                createFundsTransaction(TransactionType.PURCHASE, 7000.0),
-                createFundsTransaction(TransactionType.SALE, 12000.0)
-            )
+        // GIVEN
+        val transactions = listOf(
+            createFundsTransaction(TransactionType.PURCHASE, 10000.0),
+            createFundsTransaction(TransactionType.PURCHASE, 5000.0),
+            createFundsTransaction(TransactionType.PURCHASE, 8000.0),
+            createFundsTransaction(TransactionType.PURCHASE, 7000.0),
+            createFundsTransaction(TransactionType.SALE, 12000.0),
         )
 
+        // WHEN
+        val result = TransactionBalance.calculate(transactions)
+
+        // THEN
         assertEquals(30000.00, result.contributions, 0.01)
         assertEquals(12000.00, result.withdrawals, 0.01)
         assertEquals(18000.00, result.balance, 0.01)
     }
 
+    /**
+     * Only sales with no purchases yield negative balance.
+     */
     @Test
-    fun `deve retornar balanco negativo quando houver apenas vendas`() {
+    fun `GIVEN only sales WHEN calculate THEN negative balance`() {
 
-        // Venda: 100 ações × R$ 50,00 = R$ 5.000,00
-        // Balanço: R$ 0,00 - R$ 5.000,00 = -R$ 5.000,00
-        val result = TransactionBalance.calculate(
-            listOf(
-                createVariableIncomeTransaction(TransactionType.SALE, 100.0, 50.0)
-            )
+        // GIVEN
+        val transactions = listOf(
+            createVariableIncomeTransaction(TransactionType.SALE, 100.0, 50.0),
         )
 
+        // WHEN
+        val result = TransactionBalance.calculate(transactions)
+
+        // THEN
         assertEquals(0.0, result.contributions, 0.001)
         assertEquals(5000.00, result.withdrawals, 0.01)
         assertEquals(-5000.00, result.balance, 0.01)
     }
 
+    /**
+     * Mixed asset types in one list.
+     */
     @Test
-    fun `deve calcular balanco corretamente para tipos mistos de ativos`() {
+    fun `GIVEN mixed asset transaction types WHEN calculate THEN aggregates correctly`() {
 
-        // Ações:  50 × R$ 20,00 = R$ 1.000,00
-        // CDB:    R$ 5.000,00
-        // Fundo:  R$ 3.000,00
-        // Venda:  10 × R$ 25,00 = R$ 250,00
-        // Balanço: R$ 9.000,00 - R$ 250,00 = R$ 8.750,00
-        val result = TransactionBalance.calculate(
-            listOf(
-                createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 20.0),
-                createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
-                createFundsTransaction(TransactionType.PURCHASE, 3000.0),
-                createVariableIncomeTransaction(TransactionType.SALE, 10.0, 25.0)
-            )
+        // GIVEN
+        val transactions = listOf(
+            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 20.0),
+            createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
+            createFundsTransaction(TransactionType.PURCHASE, 3000.0),
+            createVariableIncomeTransaction(TransactionType.SALE, 10.0, 25.0),
         )
 
+        // WHEN
+        val result = TransactionBalance.calculate(transactions)
+
+        // THEN
         assertEquals(9000.00, result.contributions, 0.01)
         assertEquals(250.00, result.withdrawals, 0.01)
         assertEquals(8750.00, result.balance, 0.01)

@@ -1,7 +1,5 @@
 package com.eferraz.entities.assets
 
-import com.eferraz.entities.assets.Issuer
-import com.eferraz.entities.assets.Liquidity
 import kotlinx.datetime.LocalDate
 
 /**

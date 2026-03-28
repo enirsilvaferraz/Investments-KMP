@@ -67,7 +67,7 @@ public class MergeHistoryUseCase(
             )
 
             HoldingHistoryResult(holding, currentEntry, previousEntry, appreciation)
-        }.also { println("Enir: ${it.size}") }
+        }
     }
 
     private suspend fun create(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry =

@@ -15,14 +15,14 @@ Aplicativo de **carteira de investimentos**: cadastro de ativos, posições por 
 
 ## 2. Mapa de pacotes
 
-| Pacote | Conteúdo principal |
-|--------|-------------------|
-| `assets` | `Asset` (sealed), RF/RV/Fundo, `Issuer`, `Liquidity`, enums, `CNPJ`, `MaturityDate`, `InvestmentCategory` |
-| `holdings` | `AssetHolding`, `Owner`, `Brokerage`, `HoldingHistoryEntry`, `Appreciation`, `Growth`, `StockQuoteHistory` |
-| `transactions` | `AssetTransaction` (sealed), `TransactionType`, `TransactionBalance` |
-| `goals` | `FinancialGoal`, `GoalInvestmentPlan`, `GrowthRate`, `GoalMonthlyData`, `ProjectedGoal`, `GoalProjections` |
-| `value` | `MandatoryText` |
-| `di` | `EntityModule` (Koin) |
+| Pacote         | Conteúdo principal                                                                                         |
+|----------------|------------------------------------------------------------------------------------------------------------|
+| `assets`       | `Asset` (sealed), RF/RV/Fundo, `Issuer`, `Liquidity`, enums, `CNPJ`, `MaturityDate`, `InvestmentCategory`  |
+| `holdings`     | `AssetHolding`, `Owner`, `Brokerage`, `HoldingHistoryEntry`, `Appreciation`, `Growth`, `StockQuoteHistory` |
+| `transactions` | `AssetTransaction` (sealed), `TransactionType`, `TransactionBalance`                                       |
+| `goals`        | `FinancialGoal`, `GoalInvestmentPlan`, `GrowthRate`, `GoalMonthlyData`, `ProjectedGoal`, `GoalProjections` |
+| `value`        | `MandatoryText`                                                                                            |
+| `di`           | `EntityModule` (Koin)                                                                                      |
 
 ---
 

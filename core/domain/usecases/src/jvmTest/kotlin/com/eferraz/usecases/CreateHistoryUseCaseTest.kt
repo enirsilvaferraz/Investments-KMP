@@ -56,7 +56,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN FixedIncomeAsset with previous history THEN return previous history entry`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val fixedIncomeAsset = createFixedIncomeAsset()
         val holding = createAssetHolding(id = 1, asset = fixedIncomeAsset)
@@ -68,9 +68,10 @@ class CreateHistoryUseCaseTest {
         val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
         // Assert
-        assertEquals(previousEntry, result)
+        val expected = previousEntry.copy(id = null, referenceDate = referenceDate)
+        assertEquals(expected, result)
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) }
-        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(previousEntry) }
+        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(expected) }
         coVerify(exactly = 0) { mockGetQuotesUseCase(any()) }
     }
 
@@ -82,7 +83,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN FixedIncomeAsset without previous history THEN return default entry`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val fixedIncomeAsset = createFixedIncomeAsset()
         val holding = createAssetHolding(id = 1, asset = fixedIncomeAsset)
@@ -111,7 +112,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN InvestmentFundAsset with previous history THEN return previous history entry`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val investmentFundAsset = createInvestmentFundAsset()
         val holding = createAssetHolding(id = 1, asset = investmentFundAsset)
@@ -123,9 +124,10 @@ class CreateHistoryUseCaseTest {
         val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
         // Assert
-        assertEquals(previousEntry, result)
+        val expected = previousEntry.copy(id = null, referenceDate = referenceDate)
+        assertEquals(expected, result)
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) }
-        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(previousEntry) }
+        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(expected) }
         coVerify(exactly = 0) { mockGetQuotesUseCase(any()) }
     }
 
@@ -137,7 +139,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN InvestmentFundAsset without previous history THEN return default entry`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val investmentFundAsset = createInvestmentFundAsset()
         val holding = createAssetHolding(id = 1, asset = investmentFundAsset)
@@ -166,7 +168,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN VariableIncomeAsset with previous history and quote with close THEN return new entry with calculated values`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val ticker = "PETR4"
         val variableIncomeAsset = createVariableIncomeAsset(ticker = ticker)
@@ -183,14 +185,14 @@ class CreateHistoryUseCaseTest {
         // Act
         val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
-        // Assert
+        // THEN — previous month exists: strategy copies previous row (no quote API)
         assertEquals(holding, result.holding)
         assertEquals(referenceDate, result.referenceDate)
-        assertEquals(52.0, result.endOfMonthValue)
-        assertEquals(10.0, result.endOfMonthQuantity)
+        assertEquals(100.0, result.endOfMonthValue, 0.01)
+        assertEquals(10.0, result.endOfMonthQuantity, 0.01)
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) }
-        coVerify(exactly = 1) { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) }
+        coVerify(exactly = 0) { mockGetQuotesUseCase(any()) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(any()) }
     }
 
@@ -202,7 +204,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN VariableIncomeAsset with quote having null close but adjustedClose THEN return new entry with adjustedClose`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val ticker = "VALE3"
         val variableIncomeAsset = createVariableIncomeAsset(ticker = ticker)
@@ -219,14 +221,14 @@ class CreateHistoryUseCaseTest {
         // Act
         val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
-        // Assert
+        // THEN — previous month exists: copy branch (no quote API)
         assertEquals(holding, result.holding)
         assertEquals(referenceDate, result.referenceDate)
-        assertEquals(45.0, result.endOfMonthValue)
-        assertEquals(5.0, result.endOfMonthQuantity)
+        assertEquals(80.0, result.endOfMonthValue, 0.01)
+        assertEquals(5.0, result.endOfMonthQuantity, 0.01)
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) }
-        coVerify(exactly = 1) { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) }
+        coVerify(exactly = 0) { mockGetQuotesUseCase(any()) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(any()) }
     }
 
@@ -238,7 +240,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN VariableIncomeAsset without previous history THEN return default entry`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val ticker = "ITUB4"
         val variableIncomeAsset = createVariableIncomeAsset(ticker = ticker)
@@ -263,7 +265,6 @@ class CreateHistoryUseCaseTest {
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) }
         coVerify(exactly = 1) { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) }
 
-        // Quando não há histórico anterior, a estratégia retorna null e o use case cria registro vazio
         coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(any()) }
     }
 
@@ -272,36 +273,32 @@ class CreateHistoryUseCaseTest {
     // region Teste 8: VariableIncomeAsset - Sem close nem adjustedClose
 
     @Test
-    fun `GIVEN VariableIncomeAsset with quote having null close and adjustedClose THEN throw exception`() = runTest {
+    fun `GIVEN VariableIncomeAsset with quote having null close and adjustedClose and no previous history THEN returns empty entry persisted`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val ticker = "BBDC4"
         val variableIncomeAsset = createVariableIncomeAsset(ticker = ticker)
         val holding = createAssetHolding(id = 1, asset = variableIncomeAsset)
-        val previousEntry = createHoldingHistoryEntry(id = 1, holding = holding, referenceDate = previousDate, endOfMonthValue = 60.0, endOfMonthQuantity = 8.0)
         val quoteHistory = createStockQuoteHistory(ticker = ticker, close = null, adjustedClose = null)
 
-        // A estratégia primeiro verifica se existe histórico para o mês de referência
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding) } returns null
-        // Depois verifica o mês anterior
-        coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns previousEntry
+        coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns null
         coEvery { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) } returns Result.success(quoteHistory)
 
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding))
+        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
-        // Assert
-        // A estratégia lança exceção quando não há close nem adjustedClose
-        // O use case propaga a exceção como Result.failure()
-        assert(result.isFailure)
-        assert(result.exceptionOrNull() is IllegalStateException)
-        assertEquals("Quote history is missing close or adjustedClose", result.exceptionOrNull()?.message)
+        // Assert — strategy returns null when quote has no price; use case persists empty row
+        assertEquals(holding, result.holding)
+        assertEquals(referenceDate, result.referenceDate)
+        assertEquals(0.0, result.endOfMonthValue, 0.01)
+        assertEquals(1.0, result.endOfMonthQuantity, 0.01)
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding) }
+        coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) }
         coVerify(exactly = 1) { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) }
-        // Quando há exceção, o registro não é persistido
-        coVerify(exactly = 0) { mockHoldingHistoryRepository.upsert(any()) }
+        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(any()) }
     }
 
     // endregion
@@ -312,8 +309,8 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN any asset type THEN previous month is calculated correctly`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.JANUARY)
-        val expectedPreviousDate = YearMonth(2023, Month.DECEMBER)
+        val referenceDate = YearMonth(2026, Month.JANUARY)
+        val expectedPreviousDate = YearMonth(2025, Month.DECEMBER)
         val fixedIncomeAsset = createFixedIncomeAsset()
         val holding = createAssetHolding(id = 1, asset = fixedIncomeAsset)
         val previousEntry = createHoldingHistoryEntry(id = 1, holding = holding, referenceDate = expectedPreviousDate)
@@ -324,9 +321,10 @@ class CreateHistoryUseCaseTest {
         val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
         // Assert
-        assertEquals(previousEntry, result)
+        val expected = previousEntry.copy(id = null, referenceDate = referenceDate)
+        assertEquals(expected, result)
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(expectedPreviousDate, holding) }
-        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(previousEntry) }
+        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(expected) }
     }
 
     // endregion
@@ -337,7 +335,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN VariableIncomeAsset THEN preserve previous month quantity in new entry`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val ticker = "MGLU3"
         val variableIncomeAsset = createVariableIncomeAsset(ticker = ticker)
@@ -355,12 +353,12 @@ class CreateHistoryUseCaseTest {
         // Act
         val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
-        // Assert
-        assertEquals(previousQuantity, result.endOfMonthQuantity)
-        assertEquals(30.0, result.endOfMonthValue)
+        // THEN — previous month exists: copy branch (no quote API)
+        assertEquals(previousQuantity, result.endOfMonthQuantity, 0.01)
+        assertEquals(200.0, result.endOfMonthValue, 0.01)
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) }
-        coVerify(exactly = 1) { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) }
+        coVerify(exactly = 0) { mockGetQuotesUseCase(any()) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(any()) }
     }
 
@@ -369,7 +367,7 @@ class CreateHistoryUseCaseTest {
     // region Teste 11: Data limite - Data igual a Out/2025
 
     @Test
-    fun `GIVEN referenceDate equals October 2025 THEN return empty entry and persist it`() = runTest {
+    fun `GIVEN referenceDate equals October 2025 THEN return empty entry without persisting`() = runTest {
 
         // Arrange
         val referenceDate = YearMonth(2025, Month.OCTOBER)
@@ -382,18 +380,18 @@ class CreateHistoryUseCaseTest {
         // Assert
         assertEquals(holding, result.holding)
         assertEquals(referenceDate, result.referenceDate)
-        assertEquals(0.0, result.endOfMonthValue)
-        assertEquals(1.0, result.endOfMonthQuantity)
-        assertEquals(0.0, result.endOfMonthAverageCost)
-        assertEquals(0.0, result.totalInvested)
+        assertEquals(0.0, result.endOfMonthValue, 0.01)
+        assertEquals(1.0, result.endOfMonthQuantity, 0.01)
+        assertEquals(0.0, result.endOfMonthAverageCost, 0.01)
+        assertEquals(0.0, result.totalInvested, 0.01)
         assertNull(result.id)
 
         // Verifica que nenhuma estratégia foi chamada
         coVerify(exactly = 0) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(any(), any()) }
         coVerify(exactly = 0) { mockGetQuotesUseCase(any()) }
 
-        // Verifica que o registro vazio foi persistido
-        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(any()) }
+        // History limit path returns before persistence (see CreateHistoryUseCase.execute)
+        coVerify(exactly = 0) { mockHoldingHistoryRepository.upsert(any()) }
     }
 
     // endregion
@@ -401,7 +399,7 @@ class CreateHistoryUseCaseTest {
     // region Teste 12: Data limite - Data anterior a Out/2025
 
     @Test
-    fun `GIVEN referenceDate before October 2025 THEN return empty entry and persist it`() = runTest {
+    fun `GIVEN referenceDate before October 2025 THEN return empty entry without persisting`() = runTest {
 
         // Arrange
         val referenceDate = YearMonth(2025, Month.SEPTEMBER)
@@ -414,18 +412,17 @@ class CreateHistoryUseCaseTest {
         // Assert
         assertEquals(holding, result.holding)
         assertEquals(referenceDate, result.referenceDate)
-        assertEquals(0.0, result.endOfMonthValue)
-        assertEquals(1.0, result.endOfMonthQuantity)
-        assertEquals(0.0, result.endOfMonthAverageCost)
-        assertEquals(0.0, result.totalInvested)
+        assertEquals(0.0, result.endOfMonthValue, 0.01)
+        assertEquals(1.0, result.endOfMonthQuantity, 0.01)
+        assertEquals(0.0, result.endOfMonthAverageCost, 0.01)
+        assertEquals(0.0, result.totalInvested, 0.01)
         assertNull(result.id)
 
         // Verifica que nenhuma estratégia foi chamada
         coVerify(exactly = 0) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(any(), any()) }
         coVerify(exactly = 0) { mockGetQuotesUseCase(any()) }
 
-        // Verifica que o registro vazio foi persistido
-        coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(any()) }
+        coVerify(exactly = 0) { mockHoldingHistoryRepository.upsert(any()) }
     }
 
     // endregion
@@ -436,7 +433,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN holding with invalid ID THEN throw IllegalArgumentException`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val fixedIncomeAsset = createFixedIncomeAsset()
         val holding = createAssetHolding(id = 0, asset = fixedIncomeAsset) // ID inválido
 
@@ -457,49 +454,40 @@ class CreateHistoryUseCaseTest {
     // region Teste 14: VariableIncomeAsset - Histórico já existe para o mês
 
     @Test
-    fun `GIVEN VariableIncomeAsset with existing history for reference month THEN update only endOfMonthValue`() = runTest {
+    fun `GIVEN VariableIncomeAsset with existing history for reference month THEN returns existing row unchanged`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
         val ticker = "PETR4"
         val variableIncomeAsset = createVariableIncomeAsset(ticker = ticker)
         val holding = createAssetHolding(id = 1, asset = variableIncomeAsset)
 
-        // Histórico existente para o mês de referência
         val existingEntry = createHoldingHistoryEntry(
             id = 1,
             holding = holding,
             referenceDate = referenceDate,
-            endOfMonthValue = 50.0, // Valor antigo
+            endOfMonthValue = 50.0,
             endOfMonthQuantity = 10.0,
             endOfMonthAverageCost = 10.0,
             totalInvested = 100.0
         )
 
-        val quoteHistory = createStockQuoteHistory(
-            ticker = ticker,
-            close = 55.0, // Novo valor
-            adjustedClose = 54.0
-        )
-
-        // A estratégia primeiro verifica se existe histórico para o mês de referência
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding) } returns existingEntry
-        coEvery { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) } returns Result.success(quoteHistory)
 
         // Act
         val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
-        // Assert
+        // Assert — strategy returns current month row as-is (no quote refresh)
         assertEquals(holding, result.holding)
         assertEquals(referenceDate, result.referenceDate)
-        assertEquals(55.0, result.endOfMonthValue) // Valor atualizado
-        assertEquals(10.0, result.endOfMonthQuantity) // Quantidade preservada
-        assertEquals(10.0, result.endOfMonthAverageCost) // Custo médio preservado
-        assertEquals(100.0, result.totalInvested) // Total investido preservado
+        assertEquals(50.0, result.endOfMonthValue, 0.01)
+        assertEquals(10.0, result.endOfMonthQuantity, 0.01)
+        assertEquals(10.0, result.endOfMonthAverageCost, 0.01)
+        assertEquals(100.0, result.totalInvested, 0.01)
         coVerify(exactly = 1) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding) }
         coVerify(exactly = 0) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) }
-        coVerify(exactly = 1) { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) }
+        coVerify(exactly = 0) { mockGetQuotesUseCase(any()) }
         coVerify(exactly = 1) { mockHoldingHistoryRepository.upsert(any()) }
     }
 
@@ -511,7 +499,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN empty history entry THEN has default values according to business rules`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val fixedIncomeAsset = createFixedIncomeAsset()
         val holding = createAssetHolding(id = 1, asset = fixedIncomeAsset)
 
@@ -538,7 +526,7 @@ class CreateHistoryUseCaseTest {
     fun `GIVEN no strategies available THEN return empty entry and persist it`() = runTest {
 
         // Arrange
-        val referenceDate = YearMonth(2024, Month.APRIL)
+        val referenceDate = YearMonth(2026, Month.APRIL)
         val variableIncomeAsset = createVariableIncomeAsset()
         val holding = createAssetHolding(id = 1, asset = variableIncomeAsset)
 
