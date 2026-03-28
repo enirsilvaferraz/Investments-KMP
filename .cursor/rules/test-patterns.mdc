@@ -6,6 +6,15 @@ alwaysApply: false
 
 # Padrões de Testes Automatizados
 
+Regras de governança: `.specify/memory/constitution.md` (qualidade e testes, IV–V; **pt-BR**, VIII; **coerência MD / `.specify` / `.cursor`**, IX).
+
+## Onde vivem os testes (source sets)
+
+| Módulo | Source set | Uso |
+|--------|------------|-----|
+| `entity`, `usecases` | `src/jvmTest/kotlin/...` | Domínio e casos de uso na JVM (`:entity:jvmTest`, `:usecases:jvmTest`) |
+| `composeApp` | `src/commonTest/kotlin/...` | Estado de UI / transformações em código comum |
+
 ## Estrutura e Organização
 
 ### Nomenclatura de Classes
@@ -13,7 +22,10 @@ alwaysApply: false
 - Nome deve refletir a classe ou funcionalidade sendo testada
 
 ### Nomenclatura de Métodos
-Use backticks com descrição em português no formato `deve [ação] quando/corretamente/para [contexto]`:
+
+**Dois estilos** são usados no repositório — manter **consistência dentro do mesmo ficheiro**:
+
+1. **Português (domínio puro, utilitários)** — `deve [ação] quando/corretamente/para [contexto]`:
 
 ```kotlin
 @Test
@@ -26,20 +38,54 @@ fun `deve lancar excecao quando valor atual for negativo`() { }
 fun `deve retornar zero quando todos os valores forem zero`() { }
 ```
 
+2. **GIVEN / WHEN / THEN em inglês (use cases, presentation)** — descreve cenário e resultado:
+
+```kotlin
+@Test
+fun `GIVEN holdings with complete history THEN return results with current and previous entries`() = runTest { }
+
+@Test
+fun `GIVEN initial value WHEN initialized THEN should format correct string`() { }
+```
+
 ## Bibliotecas e Imports
 
 ### JUnit + Kotlin Test
+Código legado em `entity` usa `org.junit.Test` e `org.junit.Assert`; em código novo prefira **`kotlin.test`** para asserções, mantendo **delta em `Double`**.
+
 ```kotlin
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.test.assertFailsWith
 ```
 
-### MockK (quando necessário)
+### MockK (casos de uso com suspend)
 ```kotlin
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 ```
+
+### Coroutines em testes
+```kotlin
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import kotlin.test.BeforeTest
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class MeuUseCaseTest {
+    @BeforeTest
+    fun setup() { /* mocks */ }
+
+    @Test
+    fun `GIVEN ... THEN ...`() = runTest { /* ... */ }
+}
+```
+
+- Injetar **`Dispatchers.Unconfined`** no use case quando o teste precisar de comportamento síncrono (padrão em `MergeHistoryUseCaseTest` / `CreateHistoryUseCaseTest`).
+
+### Fábricas de dados (`usecases`)
+- Centralizar construção de `Owner`, `AssetHolding`, `HoldingHistoryEntry`, etc. em **`TestDataFactory`** (object no pacote de testes), com defaults sensatos e parâmetros nomeados para sobrescrever só o necessário.
 
 ## Padrões de Asserções
 
@@ -182,19 +228,18 @@ Organize na sequência:
 
 ## Estrutura Arrange-Act-Assert
 
-Mantenha a estrutura implícita (sem comentários):
+Em testes **simples** de domínio, AAA pode ser implícito (sem comentários).
+
+Em testes **longos** (use cases), comentários **`// Arrange`**, **`// Act`**, **`// Assert`** e **`// Verificar chamadas`** melhoram a leitura. Opcionalmente use **`// region`** para agrupar cenários.
 
 ```kotlin
 @Test
 fun `deve calcular valor projetado corretamente`() {
-    // Arrange (implícito)
-    val result = ProjectedGoal.calculate(  // Act
+    val result = ProjectedGoal.calculate(
         currentValue = 10000.0,
         appreciationRate = 0.80,
         contribution = 1500.0
     )
-
-    // Assert
     assertEquals(11592.0, result.value, 0.01)
 }
 ```

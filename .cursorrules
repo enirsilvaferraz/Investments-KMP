@@ -1,5 +1,13 @@
 # Regras do Projeto Investments-KMP
 
+## Idioma da documentação
+
+Documentação de projeto (incluindo esta regra, specs, planos e referências em `.specify/`) **deve** seguir **português do Brasil (pt-BR)**, alinhado a `.specify/memory/constitution.md` (princípio VIII). Exceções: identificadores de código, APIs externas e termos técnicos sem tradução estável.
+
+## Coerência código, documentos e IA
+
+Quando uma alteração de código **mudar** domínio, invariantes, convenções de build/testes ou regras já descritas neste ficheiro, em `.cursor/rules/` ou em `.specify/`, **deve** atualizar no **mesmo PR** (ou PR de seguimento imediato) os **documentos Markdown** aplicáveis (`DOMAIN.md`, `docs/`, `specs/`), **`.specify/`** (constitution, templates, se afetados) e **regras de IA** (`.cursorrules`, `.mdc`, comandos personalizados), conforme `.specify/memory/constitution.md` princípio **IX**. Refactors sem mudança de comportamento **não** exigem atualização salvo corrigir documentação **objetivamente falsa**.
+
 ## Build Automático
 Após fazer alterações no código e considerar que a tarefa foi concluída, SEMPRE execute automaticamente o comando de build no módulo que foi alterado, compilando APENAS o target JVM (exemplo: `./gradlew :entity:compileKotlinJvm`) para verificar se o build está funcionando corretamente. Me responda se realmente está buildando.
 
