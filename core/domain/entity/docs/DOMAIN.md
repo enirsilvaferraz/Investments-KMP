@@ -105,7 +105,9 @@ Progresso, valor atual consolidado, médias e datas estimadas **não** são atri
 As **classes** do módulo `entity` aparecem abaixo com o **nome Kotlin** (PascalCase), exceto `EntityModule` (Koin, fora do modelo de domínio). **Enums** (`Liquidity`, tipos de ativo, `TransactionType`, `InvestmentCategory`, etc.) estão no código e na §6.5, não no diagrama. **Não entram neste ER** as classes com fábrica `calculate` (`Appreciation`, `Growth`, `TransactionBalance`, `ProjectedGoal`, `GoalProjections`, `GrowthRate`) — estão no §9.1. Atributos principais e cardinalidades são conceituais; arestas com `via holding` refletem uso no código, não FK de banco.
 
 ```mermaid
+%%{init: {"layout": "elk"}}%%
 erDiagram
+    direction TB
     Asset {
         Long id
         Issuer issuer
@@ -255,9 +257,10 @@ erDiagram
 
 ### 9.1 Classes com método `calculate`
 
-Fábricas no **`companion object`** (assinaturas resumidas; ver código). `Growth` também possui `calculate` privado de apoio.
+Fábricas no **`companion object`** (assinaturas resumidas; ver código). `Growth` também possui `calculate` privado de apoio. Mesmo `init` de layout **ELK** que no ER (reduz cruzamentos onde o renderizador aplicar).
 
 ```mermaid
+%%{init: {"layout": "elk"}}%%
 classDiagram
     direction TB
     class Appreciation {
