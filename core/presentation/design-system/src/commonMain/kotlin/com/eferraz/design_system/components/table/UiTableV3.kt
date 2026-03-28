@@ -32,14 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.eferraz.design_system.core.StableList
 import com.seanproctor.datatable.BasicDataTable
 import com.seanproctor.datatable.CellContentProvider
 import com.seanproctor.datatable.DataColumn
 import com.seanproctor.datatable.DataTableScope
-import com.seanproctor.datatable.DataTableState
 import com.seanproctor.datatable.TableColumnWidth
 import com.seanproctor.datatable.TableRowScope
 import com.seanproctor.datatable.rememberDataTableState
@@ -61,12 +59,13 @@ public fun <T> UiTableV3(
     rows: StableList<T>,
     subFooter: StableList<String>? = null,
     footer: (@Composable () -> Unit)? = null,
-    provider: UiTableContentProvider = UiTableContentProviderImpl(),
     headerBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest, // Passar para dentro do provider
     footerBackgroundColor: Color = headerBackgroundColor,
     rowBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     onRowClick: (T) -> Unit = {},
 ) {
+
+    val provider: UiTableContentProvider = remember { UiTableContentProviderImpl() }
 
     if (rows.items.isEmpty()) return
 
@@ -151,62 +150,32 @@ public fun <T> UiTableV3(
 
         if (header != null) provider.Header(header, headerBackgroundColor)
 
-        DataTable(
+        BasicDataTable(
             modifier = Modifier.fillMaxWidth(),
+            columns = dataColumns,
             state = state,
-            sortAscending = sortConfig.second,
-            sortColumnIndex = sortConfig.first,
+            separator = { HorizontalDivider() },
+            headerHeight = 56.dp,
+            rowHeight = 52.dp,
+            contentPadding = PaddingValues(12.dp),
             headerBackgroundColor = headerBackgroundColor,
             footerBackgroundColor = footerBackgroundColor,
-            columns = dataColumns,
-            content = content,
             footer = footerWrapped,
-            contentPadding = PaddingValues(12.dp)
+            cellContentProvider = Material3CellContentProvider,
+            sortColumnIndex = sortConfig.first,
+            sortAscending = sortConfig.second,
+            logger = null,
+            content = content
         )
     }
-}
-
-@Composable
-private fun DataTable(
-    columns: List<DataColumn>,
-    modifier: Modifier = Modifier,
-    state: DataTableState = rememberDataTableState(),
-    separator: @Composable () -> Unit = { HorizontalDivider() },
-    headerHeight: Dp = 56.dp,
-    rowHeight: Dp = 52.dp,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 4.dp),
-    headerBackgroundColor: Color = Color.Unspecified,
-    footerBackgroundColor: Color = Color.Unspecified,
-    footer: @Composable () -> Unit = { },
-    sortColumnIndex: Int? = null,
-    sortAscending: Boolean = true,
-    logger: ((String) -> Unit)? = null,
-    content: DataTableScope.() -> Unit,
-) {
-
-    BasicDataTable(
-        columns = columns,
-        modifier = modifier,
-        state = state,
-        separator = separator,
-        headerHeight = headerHeight,
-        rowHeight = rowHeight,
-        contentPadding = contentPadding,
-        headerBackgroundColor = headerBackgroundColor,
-        footerBackgroundColor = footerBackgroundColor,
-        footer = footer,
-        cellContentProvider = Material3CellContentProvider,
-        sortColumnIndex = sortColumnIndex,
-        sortAscending = sortAscending,
-        logger = logger,
-        content = content
-    )
 }
 
 private object Material3CellContentProvider : CellContentProvider {
 
     @Composable
-    override fun RowCellContent(content: @Composable () -> Unit) {
+    override fun RowCellContent(
+        content: @Composable () -> Unit,
+    ) {
 
         CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.bodyMedium) {
             content()
