@@ -1,5 +1,6 @@
-package com.eferraz.usecases.providers
+package com.eferraz.repositories
 
+import com.eferraz.usecases.repositories.DateProvider
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.toLocalDateTime

@@ -13,7 +13,7 @@ import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
 import com.eferraz.usecases.cruds.GetTransactionsUseCase
 import com.eferraz.usecases.entities.HoldingHistoryView
-import com.eferraz.usecases.providers.DateProvider
+import com.eferraz.usecases.repositories.DateProvider
 import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
 import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
 import kotlinx.coroutines.async

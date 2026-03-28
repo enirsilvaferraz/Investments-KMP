@@ -6,8 +6,8 @@ import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Growth
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.TransactionBalance
-import com.eferraz.usecases.providers.DateProvider
 import com.eferraz.usecases.repositories.AssetTransactionRepository
+import com.eferraz.usecases.repositories.DateProvider
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

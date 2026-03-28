@@ -1,6 +1,6 @@
 package com.eferraz.usecases
 
-import com.eferraz.usecases.providers.DateProvider
+import com.eferraz.usecases.repositories.DateProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.YearMonth

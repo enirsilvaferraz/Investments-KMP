@@ -1,4 +1,4 @@
-package com.eferraz.usecases.providers
+package com.eferraz.usecases.repositories
 
 import kotlinx.datetime.YearMonth
 
