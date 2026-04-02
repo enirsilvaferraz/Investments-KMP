@@ -9,6 +9,6 @@ kotlin {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
-        implementation(projects.umbrellaApp)
+        implementation(projects.apps.umbrellaApp)
     }
 }

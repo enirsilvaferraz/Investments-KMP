@@ -10,11 +10,11 @@ kotlin {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
-        implementation(projects.composeApp)
-        implementation(projects.entity)
-        implementation(projects.usecases)
-        implementation(projects.repositories)
-        implementation(projects.network)
-        implementation(projects.database)
+        implementation(projects.features.composeApp)
+        implementation(projects.domain.entity)
+        implementation(projects.domain.usecases)
+        implementation(projects.data.repositories)
+        implementation(projects.data.network)
+        implementation(projects.data.database)
     }
 }

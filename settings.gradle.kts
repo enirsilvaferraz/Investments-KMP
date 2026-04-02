@@ -50,32 +50,31 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-include(":umbrellaApp")
-project(":umbrellaApp").projectDir = File(settingsDir, "core/apps/umbrellaApp")
+include(":apps:androidApp")
+include(":apps:desktopApp")
+include(":apps:umbrellaApp")
+project(":apps").projectDir = File(settingsDir, "core/apps")
+project(":apps:androidApp").projectDir = File(settingsDir, "core/apps/androidApp")
+project(":apps:desktopApp").projectDir = File(settingsDir, "core/apps/desktopApp")
+project(":apps:umbrellaApp").projectDir = File(settingsDir, "core/apps/umbrellaApp")
 
-include(":androidApp")
-project(":androidApp").projectDir = File(settingsDir, "core/apps/androidApp")
+include(":features:composeApp")
+include(":features:design-system")
+project(":features").projectDir = File(settingsDir, "core/presentation")
+project(":features:composeApp").projectDir = File(settingsDir, "core/presentation/composeApp")
+project(":features:design-system").projectDir = File(settingsDir, "core/presentation/design-system")
 
-include(":desktopApp")
-project(":desktopApp").projectDir = File(settingsDir, "core/apps/desktopApp")
 
-include(":composeApp")
-project(":composeApp").projectDir = File(settingsDir, "core/presentation/composeApp")
+include(":domain:usecases")
+include(":domain:entity")
+project(":domain").projectDir = File(settingsDir, "core/domain")
+project(":domain:usecases").projectDir = File(settingsDir, "core/domain/usecases")
+project(":domain:entity").projectDir = File(settingsDir, "core/domain/entity")
 
-include(":design-system")
-project(":design-system").projectDir = File(settingsDir, "core/presentation/design-system")
-
-include(":entity")
-project(":entity").projectDir = File(settingsDir, "core/domain/entity")
-
-include(":usecases")
-project(":usecases").projectDir = File(settingsDir, "core/domain/usecases")
-
-include(":repositories")
-project(":repositories").projectDir = File(settingsDir, "core/data/repositories")
-
-include(":network")
-project(":network").projectDir = File(settingsDir, "core/data/network")
-
-include(":database")
-project(":database").projectDir = File(settingsDir, "core/data/database")
+include(":data:repositories")
+include(":data:network")
+include(":data:database")
+project(":data").projectDir = File(settingsDir, "core/data")
+project(":data:repositories").projectDir = File(settingsDir, "core/data/repositories")
+project(":data:network").projectDir = File(settingsDir, "core/data/network")
+project(":data:database").projectDir = File(settingsDir, "core/data/database")
