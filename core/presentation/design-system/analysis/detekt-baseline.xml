@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ArgumentListWrapping:AppScreenScaffold.kt:( imageVector = Icons.Default.Menu, contentDescription = "Ativos" )</ID>
+    <ID>ArgumentListWrapping:AppScreenScaffold.kt:(MaterialTheme.colorScheme.surfaceContainerLowest)</ID>
+    <ID>ArgumentListWrapping:AppScreenScaffold.kt:(end = cornerPadding.dp)</ID>
+    <ID>ArgumentListWrapping:SegmentedControl.kt:("Liquidez Diária", "No Vencimento")</ID>
+    <ID>ArgumentListWrapping:SegmentedControl.kt:("Renda Fixa", "Renda Variável", "Fundos")</ID>
+    <ID>ArgumentListWrapping:SegmentedControl.kt:(it, it)</ID>
+    <ID>ArgumentListWrapping:SegmentedControl.kt:(listOf("Liquidez Diária", "No Vencimento").map { SegmentedControlChoice(it, it) })</ID>
+    <ID>ArgumentListWrapping:SegmentedControl.kt:(listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) })</ID>
+    <ID>ComposableParamOrder:AppScreenScaffold.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class) @Composable public fun &lt;T&gt;AppScreenScaffold</ID>
+    <ID>ComposableParamOrder:SegmentedControl.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable public fun &lt;T&gt; SegmentedControl</ID>
+    <ID>ComposableParamOrder:UiTableV3.kt:@Composable public fun &lt;T&gt; UiTableV3</ID>
+    <ID>FinalNewline:AppScreenPane.kt:com.eferraz.design_system.scaffolds.AppScreenPane.kt</ID>
+    <ID>FinalNewline:AppScreenScaffold.kt:com.eferraz.design_system.scaffolds.AppScreenScaffold.kt</ID>
+    <ID>FinalNewline:SegmentedControl.kt:com.eferraz.design_system.components.segmented_control.SegmentedControl.kt</ID>
+    <ID>FinalNewline:SegmentedControlChoice.kt:com.eferraz.design_system.components.segmented_control.SegmentedControlChoice.kt</ID>
+    <ID>FinalNewline:StableList.kt:com.eferraz.design_system.core.StableList.kt</ID>
+    <ID>FinalNewline:UiTableContentProvider.kt:com.eferraz.design_system.components.table.UiTableContentProvider.kt</ID>
+    <ID>FinalNewline:UiTableV3.kt:com.eferraz.design_system.components.table.UiTableV3.kt</ID>
+    <ID>ForbiddenComment:AppScreenScaffold.kt:/* TODO: Implementar ação futura */</ID>
+    <ID>FunctionLiteral:SegmentedControl.kt:&lt;anonymous&gt;</ID>
+    <ID>Indentation:UiTableContentProvider.kt:UiTableContentProviderImpl$ </ID>
+    <ID>LongMethod:AppScreenScaffold.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class) @Composable public fun &lt;T&gt;AppScreenScaffold</ID>
+    <ID>LongMethod:AppScreenScaffold.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3AdaptiveApi::class) @Composable private fun ApplicationScaffold</ID>
+    <ID>LongMethod:UiTableV3.kt:@Composable public fun &lt;T&gt; UiTableV3</ID>
+    <ID>LongMethod:UiTableV3.kt:@Preview(widthDp = 700) @Composable private fun UiTableV3Preview</ID>
+    <ID>MagicNumber:AppScreenScaffold.kt:24</ID>
+    <ID>MagicNumber:SegmentedControl.kt:0.5f</ID>
+    <ID>MagicNumber:SegmentedControl.kt:3f</ID>
+    <ID>MagicNumber:UiTableV3.kt:100</ID>
+    <ID>MagicNumber:UiTableV3.kt:25</ID>
+    <ID>MagicNumber:UiTableV3.kt:3</ID>
+    <ID>MagicNumber:UiTableV3.kt:5</ID>
+    <ID>MagicNumber:UiTableV3.kt:50</ID>
+    <ID>MagicNumber:UiTableV3.kt:6</ID>
+    <ID>MagicNumber:UiTableV3.kt:60</ID>
+    <ID>MagicNumber:UiTableV3.kt:90</ID>
+    <ID>MatchingDeclarationName:UiTableV3.kt:UiTableDataColumn&lt;T&gt;</ID>
+    <ID>MaxLineLength:AppScreenScaffold.kt:modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest).padding(end = cornerPadding.dp)</ID>
+    <ID>MaxLineLength:SegmentedControl.kt:options = StableList(listOf("Liquidez Diária", "No Vencimento").map { SegmentedControlChoice(it, it) })</ID>
+    <ID>MaxLineLength:SegmentedControl.kt:options = StableList(listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) })</ID>
+    <ID>MaximumLineLength:AppScreenScaffold.kt:,</ID>
+    <ID>MaximumLineLength:SegmentedControl.kt:,</ID>
+    <ID>NewLineAtEndOfFile:AppScreenPane.kt:com.eferraz.design_system.scaffolds.AppScreenPane.kt</ID>
+    <ID>NewLineAtEndOfFile:AppScreenScaffold.kt:com.eferraz.design_system.scaffolds.AppScreenScaffold.kt</ID>
+    <ID>NewLineAtEndOfFile:SegmentedControl.kt:com.eferraz.design_system.components.segmented_control.SegmentedControl.kt</ID>
+    <ID>NewLineAtEndOfFile:SegmentedControlChoice.kt:com.eferraz.design_system.components.segmented_control.SegmentedControlChoice.kt</ID>
+    <ID>NewLineAtEndOfFile:StableList.kt:com.eferraz.design_system.core.StableList.kt</ID>
+    <ID>NewLineAtEndOfFile:UiTableContentProvider.kt:com.eferraz.design_system.components.table.UiTableContentProvider.kt</ID>
+    <ID>NewLineAtEndOfFile:UiTableV3.kt:com.eferraz.design_system.components.table.UiTableV3.kt</ID>
+    <ID>NoConsecutiveBlankLines:AppScreenScaffold.kt: </ID>
+    <ID>NoMultipleSpaces:SegmentedControl.kt: </ID>
+    <ID>PackageName:AppScreenPane.kt:package com.eferraz.design_system.scaffolds</ID>
+    <ID>PackageName:AppScreenScaffold.kt:package com.eferraz.design_system.scaffolds</ID>
+    <ID>PackageName:SegmentedControl.kt:package com.eferraz.design_system.components.segmented_control</ID>
+    <ID>PackageName:SegmentedControlChoice.kt:package com.eferraz.design_system.components.segmented_control</ID>
+    <ID>PackageName:StableList.kt:package com.eferraz.design_system.core</ID>
+    <ID>PackageName:UiTableContentProvider.kt:package com.eferraz.design_system.components.table</ID>
+    <ID>PackageName:UiTableV3.kt:package com.eferraz.design_system.components.table</ID>
+    <ID>PackageNaming:AppScreenPane.kt:package com.eferraz.design_system.scaffolds</ID>
+    <ID>PackageNaming:AppScreenScaffold.kt:package com.eferraz.design_system.scaffolds</ID>
+    <ID>PackageNaming:SegmentedControl.kt:package com.eferraz.design_system.components.segmented_control</ID>
+    <ID>PackageNaming:SegmentedControlChoice.kt:package com.eferraz.design_system.components.segmented_control</ID>
+    <ID>PackageNaming:StableList.kt:package com.eferraz.design_system.core</ID>
+    <ID>PackageNaming:UiTableContentProvider.kt:package com.eferraz.design_system.components.table</ID>
+    <ID>PackageNaming:UiTableV3.kt:package com.eferraz.design_system.components.table</ID>
+    <ID>PreviewPublic:AppScreenScaffold.kt:@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class) @Preview(widthDp = 2000, heightDp = 1000) @Preview(widthDp = 1300, heightDp = 600) @Composable public fun AppScaffoldPreview</ID>
+    <ID>SpacingAroundKeyword:UiTableContentProvider.kt:UiTableContentProviderImpl$when</ID>
+    <ID>TypeParameterListSpacing:AppScreenScaffold.kt:&lt;T&gt;</ID>
+  </CurrentIssues>
+</SmellBaseline>

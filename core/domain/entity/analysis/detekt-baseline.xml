@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FinalNewline:Appreciation.kt:com.eferraz.entities.holdings.Appreciation.kt</ID>
+    <ID>FinalNewline:CNPJ.kt:com.eferraz.entities.assets.CNPJ.kt</ID>
+    <ID>FinalNewline:EntityModule.kt:com.eferraz.entities.di.EntityModule.kt</ID>
+    <ID>FinalNewline:FinancialGoal.kt:com.eferraz.entities.goals.FinancialGoal.kt</ID>
+    <ID>FinalNewline:GoalInvestmentPlan.kt:com.eferraz.entities.goals.GoalInvestmentPlan.kt</ID>
+    <ID>FinalNewline:GoalMonthlyData.kt:com.eferraz.entities.goals.GoalMonthlyData.kt</ID>
+    <ID>FinalNewline:GoalProjections.kt:com.eferraz.entities.goals.GoalProjections.kt</ID>
+    <ID>FinalNewline:Growth.kt:com.eferraz.entities.holdings.Growth.kt</ID>
+    <ID>FinalNewline:InvestmentCategory.kt:com.eferraz.entities.assets.InvestmentCategory.kt</ID>
+    <ID>FinalNewline:Issuer.kt:com.eferraz.entities.assets.Issuer.kt</ID>
+    <ID>FinalNewline:Liquidity.kt:com.eferraz.entities.assets.Liquidity.kt</ID>
+    <ID>FinalNewline:MandatoryText.kt:com.eferraz.entities.value.MandatoryText.kt</ID>
+    <ID>FinalNewline:MaturityDate.kt:com.eferraz.entities.assets.MaturityDate.kt</ID>
+    <ID>FinalNewline:Owner.kt:com.eferraz.entities.holdings.Owner.kt</ID>
+    <ID>FinalNewline:ProjectedGoal.kt:com.eferraz.entities.goals.ProjectedGoal.kt</ID>
+    <ID>FinalNewline:TransactionBalance.kt:com.eferraz.entities.transactions.TransactionBalance.kt</ID>
+    <ID>FinalNewline:TransactionType.kt:com.eferraz.entities.transactions.TransactionType.kt</ID>
+    <ID>FunctionExpressionBody:TransactionBalance.kt:TransactionBalance.Companion${ return when (transaction) { is VariableIncomeTransaction -&gt; transaction.quantity * transaction.unitPrice is FixedIncomeTransaction -&gt; transaction.totalValue is FundsTransaction -&gt; transaction.totalValue } }</ID>
+    <ID>FunctionSignature:CNPJ.kt:CNPJ$public fun get: String</ID>
+    <ID>FunctionSignature:GoalProjections.kt:GoalProjections$public operator fun get: ProjectedGoal?</ID>
+    <ID>FunctionSignature:GoalProjections.kt:GoalProjections.Companion$public fun calculate: GoalProjections</ID>
+    <ID>FunctionSignature:Growth.kt:Growth.Companion$private fun calculate: Growth</ID>
+    <ID>FunctionSignature:MandatoryText.kt:MandatoryText$public fun get: String</ID>
+    <ID>ImportOrdering:AssetHolding.kt:import com.eferraz.entities.goals.FinancialGoal import com.eferraz.entities.holdings.Owner import com.eferraz.entities.assets.Asset</ID>
+    <ID>ImportOrdering:VariableIncomeAsset.kt:import com.eferraz.entities.assets.Issuer import com.eferraz.entities.assets.Liquidity import com.eferraz.entities.assets.CNPJ</ID>
+    <ID>Indentation:GoalProjections.kt:GoalProjections.Companion$ </ID>
+    <ID>MagicNumber:Appreciation.kt:Appreciation.Companion$100</ID>
+    <ID>MagicNumber:GoalProjections.kt:GoalProjections.Companion$64</ID>
+    <ID>MagicNumber:Growth.kt:Growth.Companion$100</ID>
+    <ID>MagicNumber:GrowthRate.kt:GrowthRate$100.0</ID>
+    <ID>MagicNumber:GrowthRate.kt:GrowthRate.Companion$100.0</ID>
+    <ID>MagicNumber:ProjectedGoal.kt:ProjectedGoal.Companion$100</ID>
+    <ID>MaxLineLength:GoalProjections.kt:GoalProjections.Companion$*</ID>
+    <ID>MaxLineLength:Growth.kt:Growth$*</ID>
+    <ID>MaxLineLength:VariableIncomeAsset.kt:VariableIncomeAsset$*</ID>
+    <ID>MultiLineIfElse:Growth.kt:Growth.Companion$0.0</ID>
+    <ID>MultiLineIfElse:Growth.kt:Growth.Companion$growthValue / previousValue * 100</ID>
+    <ID>NewLineAtEndOfFile:Appreciation.kt:com.eferraz.entities.holdings.Appreciation.kt</ID>
+    <ID>NewLineAtEndOfFile:CNPJ.kt:com.eferraz.entities.assets.CNPJ.kt</ID>
+    <ID>NewLineAtEndOfFile:EntityModule.kt:com.eferraz.entities.di.EntityModule.kt</ID>
+    <ID>NewLineAtEndOfFile:FinancialGoal.kt:com.eferraz.entities.goals.FinancialGoal.kt</ID>
+    <ID>NewLineAtEndOfFile:GoalInvestmentPlan.kt:com.eferraz.entities.goals.GoalInvestmentPlan.kt</ID>
+    <ID>NewLineAtEndOfFile:GoalMonthlyData.kt:com.eferraz.entities.goals.GoalMonthlyData.kt</ID>
+    <ID>NewLineAtEndOfFile:GoalProjections.kt:com.eferraz.entities.goals.GoalProjections.kt</ID>
+    <ID>NewLineAtEndOfFile:Growth.kt:com.eferraz.entities.holdings.Growth.kt</ID>
+    <ID>NewLineAtEndOfFile:InvestmentCategory.kt:com.eferraz.entities.assets.InvestmentCategory.kt</ID>
+    <ID>NewLineAtEndOfFile:Issuer.kt:com.eferraz.entities.assets.Issuer.kt</ID>
+    <ID>NewLineAtEndOfFile:Liquidity.kt:com.eferraz.entities.assets.Liquidity.kt</ID>
+    <ID>NewLineAtEndOfFile:MandatoryText.kt:com.eferraz.entities.value.MandatoryText.kt</ID>
+    <ID>NewLineAtEndOfFile:MaturityDate.kt:com.eferraz.entities.assets.MaturityDate.kt</ID>
+    <ID>NewLineAtEndOfFile:Owner.kt:com.eferraz.entities.holdings.Owner.kt</ID>
+    <ID>NewLineAtEndOfFile:ProjectedGoal.kt:com.eferraz.entities.goals.ProjectedGoal.kt</ID>
+    <ID>NewLineAtEndOfFile:TransactionBalance.kt:com.eferraz.entities.transactions.TransactionBalance.kt</ID>
+    <ID>NewLineAtEndOfFile:TransactionType.kt:com.eferraz.entities.transactions.TransactionType.kt</ID>
+    <ID>SpacingAroundParens:GoalInvestmentPlan.kt:GoalInvestmentPlan$)</ID>
+    <ID>StatementWrapping:MaturityDate.kt:MaturityDate$;</ID>
+    <ID>StatementWrapping:MaturityDate.kt:MaturityDate$year(); monthNumber(); day()</ID>
+  </CurrentIssues>
+</SmellBaseline>

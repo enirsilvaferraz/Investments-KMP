@@ -1,0 +1,639 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>AnnotationOnSeparateLine:Theme.kt:@Composable()</ID>
+    <ID>ArgumentListWrapping:AppScaffold.kt:(horizontalPartitionSpacerSize = 24.dp, defaultPanePreferredWidth = paneWidth)</ID>
+    <ID>ArgumentListWrapping:AssetFormScreen.kt:(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)</ID>
+    <ID>ArgumentListWrapping:AssetFormViewModel.kt:AssetFormViewModel$(expirationDate = intent.date)</ID>
+    <ID>ArgumentListWrapping:AssetHistoryScreen.kt:( imageVector = Icons.Default.Close, contentDescription = "Fechar" )</ID>
+    <ID>ArgumentListWrapping:AssetHistoryScreen.kt:( imageVector = Icons.Default.Sync, contentDescription = "Sincronizar" )</ID>
+    <ID>ArgumentListWrapping:AssetHistoryScreen.kt:(HistoryIntent.UpdateEntryValue(entry.entry, value))</ID>
+    <ID>ArgumentListWrapping:AssetHistoryScreen.kt:(ThreePaneScaffoldRole.Tertiary, it)</ID>
+    <ID>ArgumentListWrapping:AssetHistoryScreen.kt:(alpha = 0.5f)</ID>
+    <ID>ArgumentListWrapping:AssetHistoryScreen.kt:(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f))</ID>
+    <ID>ArgumentListWrapping:AssetHistoryScreen.kt:(entry.entry, value)</ID>
+    <ID>ArgumentListWrapping:AssetsViewModel.kt:AssetsViewModel$(SetBrokerageToHoldingUseCase.Param(assetId = intent.assetId, brokerage = intent.brokerage))</ID>
+    <ID>ArgumentListWrapping:AssetsViewModel.kt:AssetsViewModel$(assetId = intent.assetId, brokerage = intent.brokerage)</ID>
+    <ID>ArgumentListWrapping:Panels.kt:(12.dp)</ID>
+    <ID>ArgumentListWrapping:Panels.kt:(RoundedCornerShape(12.dp))</ID>
+    <ID>ArgumentListWrapping:Panels.kt:(modifier = modifier.clip(RoundedCornerShape(12.dp)), content = content, color = MaterialTheme.colorScheme.surfaceContainerHigh)</ID>
+    <ID>ArgumentListWrapping:TableHeader.kt:(column.isSortable, { Modifier.clickable { onSort(index, if (isSorted) !sortState.ascending else true) } })</ID>
+    <ID>ArgumentListWrapping:TableHeader.kt:(index, if (isSorted) !sortState.ascending else true)</ID>
+    <ID>ArgumentListWrapping:Theme.kt:( Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified )</ID>
+    <ID>ArgumentListWrapping:UITable.kt:(header = "Header 2", sortedBy = { it.text2 }, weight = 2.0f, cellValue = { it.text2 }, footer = { "Footer teste" })</ID>
+    <ID>ArgumentListWrapping:UiTableLayout.kt:(MaterialTheme.colorScheme.surfaceContainerHighest)</ID>
+    <ID>ArgumentListWrapping:UiTableLayout.kt:(horizontal = 8.dp)</ID>
+    <ID>BackingPropertyNaming:AssetsViewModel.kt:AssetsViewModel$private val _state = MutableStateFlow&lt;AssetsState?&gt;(null)</ID>
+    <ID>BackingPropertyNaming:GoalsMonitoringViewModel.kt:GoalsMonitoringViewModel$private val _state = MutableStateFlow(GoalsMonitoringState())</ID>
+    <ID>BinaryExpressionWrapping:Helpers.jvm.kt:calculateWindowSizeClass().widthSizeClass &gt;= WindowWidthSizeClass.Medium</ID>
+    <ID>CommentSpacing:Formatters.kt:Formatters$//"Fundo de Investimento"</ID>
+    <ID>CommentSpacing:TableIcons.kt://.size(18.dp),</ID>
+    <ID>CommentSpacing:TableTheme.kt:&lt;no name provided&gt;$//colors.surfaceContainerLow</ID>
+    <ID>CommentSpacing:Theme.kt://isSystemInDarkTheme(),</ID>
+    <ID>CommentSpacing:TransactionViewModel.kt:TransactionViewModel$//parseDate(formData.date) ?: throw IllegalArgumentException("Data inválida")</ID>
+    <ID>CommentWrapping:AssetsRoute.kt:/* onRowClick(row.assetId) */</ID>
+    <ID>ComposableNaming:UiTableRenderers.kt:CellRenderer$@Composable fun renderCell</ID>
+    <ID>ComposableNaming:UiTableRenderers.kt:CellRenderer$@Composable fun renderFooter</ID>
+    <ID>ComposableNaming:UiTableRenderers.kt:CellRenderer$@Composable fun renderHeader</ID>
+    <ID>ComposableParamOrder:AppScaffold.kt:@Deprecated("Unused") @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class) @Composable internal fun AppScaffold</ID>
+    <ID>ComposableParamOrder:AssetFormScreen.kt:@Composable private fun AssetFormScreenStructure</ID>
+    <ID>ComposableParamOrder:AssetHistoryScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable private fun Table</ID>
+    <ID>ComposableParamOrder:AssetsRoute.kt:@Composable private fun AssetsScreenFixedIncome</ID>
+    <ID>ComposableParamOrder:AssetsRoute.kt:@Composable private fun AssetsScreenFunds</ID>
+    <ID>ComposableParamOrder:AssetsRoute.kt:@Composable private fun AssetsScreenVariableIncome</ID>
+    <ID>ComposableParamOrder:AutoComplete.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun AutoComplete</ID>
+    <ID>ComposableParamOrder:DataTable.kt:@Composable internal fun &lt;T&gt; DataTable</ID>
+    <ID>ComposableParamOrder:EnumDropdown.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun &lt;T&gt; EnumDropdown</ID>
+    <ID>ComposableParamOrder:SelectComponent.kt:@Composable @OptIn(ExperimentalMaterial3Api::class) private fun InputSelect</ID>
+    <ID>ComposableParamOrder:TransactionForm.kt:@Composable internal fun TransactionForm</ID>
+    <ID>ComposableParamOrder:TransactionPanel.kt:@Composable internal fun TransactionPanel</ID>
+    <ID>ComposableParamOrder:TransactionTable.kt:@Composable internal fun TransactionTable</ID>
+    <ID>ComposableParamOrder:UITable.kt:@Composable internal fun &lt;T&gt; UiTable</ID>
+    <ID>CyclomaticComplexMethod:AssetFormViewModel.kt:AssetFormViewModel$fun processIntent</ID>
+    <ID>CyclomaticComplexMethod:AutoComplete.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun AutoComplete</ID>
+    <ID>CyclomaticComplexMethod:FilterGroup.kt:@Composable internal fun HistoryFilter</ID>
+    <ID>CyclomaticComplexMethod:TransactionForm.kt:@Composable internal fun TransactionForm</ID>
+    <ID>CyclomaticComplexMethod:TransactionViewModel.kt:TransactionViewModel$private fun validateFormData: Map&lt;String, String&gt;</ID>
+    <ID>EmptyDefaultConstructor:DateTransformation.kt:DateTransformation</ID>
+    <ID>EnumWrapping:FilterGroup.kt:FilterGroup$Level</ID>
+    <ID>ExplicitItLambdaParameter:AssetHistoryScreen.kt:{ it: HoldingHistoryEntry -&gt; scope.launch { navigator.navigateTo(ThreePaneScaffoldRole.Tertiary, it) } }</ID>
+    <ID>Filename:UiTableResponsive.kt:com.eferraz.presentation.design_system.components.new_table.UiTableResponsive.kt</ID>
+    <ID>FinalNewline:App.kt:com.eferraz.presentation.App.kt</ID>
+    <ID>FinalNewline:AppRoutes.kt:com.eferraz.presentation.AppRoutes.kt</ID>
+    <ID>FinalNewline:AppScaffold.kt:com.eferraz.presentation.design_system.components.AppScaffold.kt</ID>
+    <ID>FinalNewline:AssetForm.kt:com.eferraz.presentation.features.form.AssetForm.kt</ID>
+    <ID>FinalNewline:AssetFormScreen.kt:com.eferraz.presentation.features.assetForm.AssetFormScreen.kt</ID>
+    <ID>FinalNewline:AssetHistoryScreen.kt:com.eferraz.presentation.features.history.AssetHistoryScreen.kt</ID>
+    <ID>FinalNewline:AssetsViewModel.kt:com.eferraz.presentation.features.assets.AssetsViewModel.kt</ID>
+    <ID>FinalNewline:CurrencyVisualTransformation.kt:com.eferraz.presentation.helpers.CurrencyVisualTransformation.kt</ID>
+    <ID>FinalNewline:DateTransformation.kt:com.eferraz.presentation.design_system.components.DateTransformation.kt</ID>
+    <ID>FinalNewline:FilterGroup.kt:com.eferraz.presentation.design_system.components.FilterGroup.kt</ID>
+    <ID>FinalNewline:Formatters.kt:com.eferraz.presentation.helpers.Formatters.kt</ID>
+    <ID>FinalNewline:Helpers.android.kt:com.eferraz.presentation.helpers.Helpers.android.kt</ID>
+    <ID>FinalNewline:Helpers.ios.kt:com.eferraz.presentation.helpers.Helpers.ios.kt</ID>
+    <ID>FinalNewline:Helpers.jvm.kt:com.eferraz.presentation.helpers.Helpers.jvm.kt</ID>
+    <ID>FinalNewline:Helpers.kt:com.eferraz.presentation.helpers.Helpers.kt</ID>
+    <ID>FinalNewline:HistoryState.kt:com.eferraz.presentation.features.history.HistoryState.kt</ID>
+    <ID>FinalNewline:HistoryViewModel.kt:com.eferraz.presentation.features.history.HistoryViewModel.kt</ID>
+    <ID>FinalNewline:InputTextMoney.kt:com.eferraz.presentation.design_system.components.InputTextMoney.kt</ID>
+    <ID>FinalNewline:ModifierExt.kt:com.eferraz.presentation.design_system.utils.ModifierExt.kt</ID>
+    <ID>FinalNewline:Panels.kt:com.eferraz.presentation.design_system.components.panels.Panels.kt</ID>
+    <ID>FinalNewline:PlatformUtils.android.kt:com.eferraz.presentation.helpers.PlatformUtils.android.kt</ID>
+    <ID>FinalNewline:PlatformUtils.ios.kt:com.eferraz.presentation.helpers.PlatformUtils.ios.kt</ID>
+    <ID>FinalNewline:PlatformUtils.jvm.kt:com.eferraz.presentation.helpers.PlatformUtils.jvm.kt</ID>
+    <ID>FinalNewline:PlatformUtils.kt:com.eferraz.presentation.helpers.PlatformUtils.kt</ID>
+    <ID>FinalNewline:PresentationModule.kt:com.eferraz.presentation.di.PresentationModule.kt</ID>
+    <ID>FinalNewline:SelectComponent.kt:com.eferraz.presentation.design_system.components.SelectComponent.kt</ID>
+    <ID>FinalNewline:TableColumnBuilder.kt:com.eferraz.presentation.design_system.components.table.TableColumnBuilder.kt</ID>
+    <ID>FinalNewline:TableIcons.kt:com.eferraz.presentation.commons.table_icons.TableIcons.kt</ID>
+    <ID>FinalNewline:TableInputDate.kt:com.eferraz.presentation.design_system.components.inputs.TableInputDate.kt</ID>
+    <ID>FinalNewline:TableInputLookAndFeel.kt:com.eferraz.presentation.design_system.components.inputs.TableInputLookAndFeel.kt</ID>
+    <ID>FunctionExpressionBody:DateInputState.kt:{ return rememberSaveable(saver = DateInputState.Saver) { DateInputState(initialValue) } }</ID>
+    <ID>FunctionExpressionBody:MoneyInputState.kt:{ return rememberSaveable(saver = MoneyInputState.Saver) { MoneyInputState(initialValue) } }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.android.kt:{ return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(this) }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.android.kt:{ return NumberFormat.getCurrencyInstance(Locale.getDefault()).parse(this)?.toDouble() }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.android.kt:{ return NumberFormat.getPercentInstance().apply { maximumFractionDigits = 2 }.format(this / 100) }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.android.kt:{ return NumberFormat.getPercentInstance().apply { maximumFractionDigits = 2 }.parse(this)?.toDouble() }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.ios.kt:{ return NSNumberFormatter().apply { numberStyle = NSNumberFormatterCurrencyStyle }.numberFromString(this)?.doubleValue() }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.ios.kt:{ return NSNumberFormatter().apply { numberStyle = NSNumberFormatterCurrencyStyle }.stringFromNumber(NSNumber(this)) ?: "" }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.ios.kt:{ return NSNumberFormatter().apply { numberStyle = NSNumberFormatterPercentStyle locale = NSLocale.currentLocale maximumFractionDigits = 2u }.numberFromString(this)?.doubleValue() }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.ios.kt:{ return NSNumberFormatter().apply { numberStyle = NSNumberFormatterPercentStyle locale = NSLocale.currentLocale maximumFractionDigits = 2u }.stringFromNumber(NSNumber(double = this))!! }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.jvm.kt:{ return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(this) }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.jvm.kt:{ return NumberFormat.getCurrencyInstance(Locale.getDefault()).parse(this)?.toDouble() }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.jvm.kt:{ return NumberFormat.getPercentInstance().apply { maximumFractionDigits = 2 minimumFractionDigits = 2 }.format(this / 100) }</ID>
+    <ID>FunctionExpressionBody:PlatformUtils.jvm.kt:{ return NumberFormat.getPercentInstance().apply { maximumFractionDigits = 2 }.parse(this)?.toDouble() }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilder.kt:{ return TableColumn( title = title, weight = weight, alignment = alignment, sortStrategy = ColumnSortStrategy { item -&gt; data(item) }, cellContent = cellContent, footerOperation = footerOperation ) }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilders.kt:{ return TableColumn( title = title, weight = weight, alignment = alignment, sortStrategy = NotSortableStrategy(), cellContent = content, footerOperation = footerOperation ) }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilders.kt:{ return TableColumn( title = title, weight = weight, alignment = alignment, sortStrategy = if (sortable) ColumnSortStrategy(getValue) else NotSortableStrategy(), cellContent = { item -&gt; Text( modifier = Modifier.padding(horizontal = 8.dp), text = format(item), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface ) } ) }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilders.kt:{ return TableColumn( title = title, weight = weight, alignment = alignment, sortStrategy = if (sortable) ColumnSortStrategy(getValue) else NotSortableStrategy(), cellContent = { item -&gt; Text( modifier = Modifier.padding(horizontal = 8.dp), text = format(item), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface ) }, footerOperation = footerOperation ) }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilders.kt:{ return this.copy( footerOperation = { data -&gt; if (data.isEmpty()) null else formatter(data.map { extractor(it).toDouble() }.average()) } ) }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilders.kt:{ return this.copy( footerOperation = { data -&gt; if (data.isEmpty()) null else formatter(data.size) } ) }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilders.kt:{ return this.copy( footerOperation = { data -&gt; if (data.isEmpty()) null else formatter(data.sumOf { extractor(it).toDouble() }) } ) }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilders.kt:{ return this.copy( footerOperation = { if (it.isEmpty()) null else text } ) }</ID>
+    <ID>FunctionExpressionBody:TableColumnBuilders.kt:{ return this.copy(footerOperation = footerOperation) }</ID>
+    <ID>FunctionExpressionBody:TableSortState.kt:{ return remember { TableSortState&lt;T&gt;().apply { columnIndex = initialColumnIndex ascending = initialAscending } } }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) infoContainerDark else infoContainerLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) infoDark else infoLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) onInfoContainerDark else onInfoContainerLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) onInfoDark else onInfoLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) onSuccessContainerDark else onSuccessContainerLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) onSuccessDark else onSuccessLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) onWarningContainerDark else onWarningContainerLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) onWarningDark else onWarningLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) successContainerDark else successContainerLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) successDark else successLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) warningContainerDark else warningContainerLight }</ID>
+    <ID>FunctionExpressionBody:Theme.kt:{ return if (isDark) warningDark else warningLight }</ID>
+    <ID>FunctionExpressionBody:TransactionRow.kt:{ return quantity.toInt().toString() }</ID>
+    <ID>FunctionExpressionBody:TransactionTable.kt:{ return listOf( UiTableDataColumn( text = "Transação", width = TableColumnWidth.MaxIntrinsic, comparable = { it.viewData.type }, content = { Text(it.formatted.type) } ), UiTableDataColumn( text = "Data", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center, comparable = { it.viewData.date }, content = { Text(it.formatted.date) } ), UiTableDataColumn( text = "Quantidade", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd, comparable = { it.viewData.quantity ?: 0.0 }, content = { Text(it.formatted.quantity ?: "-") } ), UiTableDataColumn( text = "Preço Unitário", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd, comparable = { it.viewData.unitPrice ?: 0.0 }, content = { Text(it.formatted.unitPrice ?: "-") } ), UiTableDataColumn( text = "Valor Total", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd, comparable = { it.viewData.totalValue }, content = { Text(it.formatted.totalValue) } ), ) }</ID>
+    <ID>FunctionExpressionBody:TransactionTable.kt:{ return listOf( UiTableDataColumn( text = "Transação", width = TableColumnWidth.MaxIntrinsic, comparable = { it.viewData.type }, content = { Text(it.formatted.type) } ), UiTableDataColumn( text = "Data", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.Center, comparable = { it.viewData.date }, content = { Text(it.formatted.date) } ), UiTableDataColumn( text = "Valor Total", width = TableColumnWidth.MaxIntrinsic, alignment = Alignment.CenterEnd, comparable = { it.viewData.totalValue }, content = { Text(it.formatted.totalValue) } ), ) }</ID>
+    <ID>FunctionExpressionBody:UiTableRenderers.kt:{ return when (this) { Alignment.Start -&gt; Alignment.CenterStart Alignment.CenterHorizontally -&gt; Alignment.Center Alignment.End -&gt; Alignment.CenterEnd else -&gt; Alignment.CenterStart } }</ID>
+    <ID>FunctionExpressionBody:UiTableResponsive.kt:ResponsiveState${ return if (index in weights.indices) weights[index] else 1.0f }</ID>
+    <ID>FunctionExpressionBody:UiTableResponsive.kt:{ return remember(weights) { ResponsiveState(weights) } }</ID>
+    <ID>FunctionExpressionBody:UiTableSort.kt:SortDataCalculator${ return data.sortedWith( strategy.createComparator( sortState.sortedColumnIndex, sortState.isAscending, columns ) ) }</ID>
+    <ID>FunctionLiteral:AssetFormViewModel.kt:AssetFormViewModel$&lt;anonymous&gt;</ID>
+    <ID>FunctionLiteral:AssetHistoryScreen.kt:&lt;anonymous&gt;</ID>
+    <ID>FunctionLiteral:TableHeader.kt:&lt;anonymous&gt;</ID>
+    <ID>FunctionLiteral:UITable.kt:&lt;anonymous&gt;</ID>
+    <ID>FunctionSignature:App.kt:private fun appNavDisplay: @Composable () -&gt; Unit</ID>
+    <ID>FunctionSignature:App.kt:private fun navRailMenus: @Composable () -&gt; Unit</ID>
+    <ID>FunctionSignature:AssetFormViewModel.kt:AssetFormViewModel$private inline fun &lt;reified T : AssetFormData&gt; updateFormField</ID>
+    <ID>FunctionSignature:AssetsViewModel.kt:AssetsViewModel$internal fun loadAssets</ID>
+    <ID>FunctionSignature:AssetsViewModel.kt:AssetsViewModel$internal fun onIntent</ID>
+    <ID>FunctionSignature:AssetsViewModel.kt:AssetsViewModel$internal fun updateFixedIncomeAsset</ID>
+    <ID>FunctionSignature:AssetsViewModel.kt:AssetsViewModel$internal fun updateInvestmentFundAsset</ID>
+    <ID>FunctionSignature:AssetsViewModel.kt:AssetsViewModel$internal fun updateVariableIncomeAsset</ID>
+    <ID>FunctionSignature:CurrencyVisualTransformation.kt:CurrencyVisualTransformation.&lt;no name provided&gt;$override fun originalToTransformed: Int</ID>
+    <ID>FunctionSignature:CurrencyVisualTransformation.kt:CurrencyVisualTransformation.&lt;no name provided&gt;$override fun transformedToOriginal: Int</ID>
+    <ID>FunctionSignature:DataTable.kt:internal fun &lt;T&gt; alignment: Alignment</ID>
+    <ID>FunctionSignature:Formatters.kt:Formatters$internal fun Asset.formated: String</ID>
+    <ID>FunctionSignature:Formatters.kt:Formatters$internal fun FixedIncomeAssetType.formated</ID>
+    <ID>FunctionSignature:Formatters.kt:Formatters$internal fun FixedIncomeSubType.formated</ID>
+    <ID>FunctionSignature:Formatters.kt:Formatters$internal fun InvestmentCategory?.formated: String</ID>
+    <ID>FunctionSignature:Formatters.kt:Formatters$internal fun InvestmentFundAssetType.formated</ID>
+    <ID>FunctionSignature:Formatters.kt:Formatters$internal fun Liquidity.formated: String</ID>
+    <ID>FunctionSignature:Formatters.kt:Formatters$internal fun TransactionType.formated: String</ID>
+    <ID>FunctionSignature:Formatters.kt:Formatters$internal fun VariableIncomeAssetType.formated</ID>
+    <ID>FunctionSignature:GoalsMonitoringScreen.kt:private fun PeriodType.label: String</ID>
+    <ID>FunctionSignature:GoalsMonitoringViewModel.kt:GoalsMonitoringViewModel$private fun buildGoalDetails: GoalDetails</ID>
+    <ID>FunctionSignature:HistoryViewModel.kt:HistoryViewModel$private fun updateEntryValue</ID>
+    <ID>FunctionSignature:ModifierExt.kt:public fun Modifier.thenIf: Modifier</ID>
+    <ID>FunctionSignature:SortStrategy.kt:ColumnSortStrategy$override fun isSortable: Boolean</ID>
+    <ID>FunctionSignature:SortStrategy.kt:NotSortableStrategy$override fun isSortable: Boolean</ID>
+    <ID>FunctionSignature:SortStrategy.kt:NotSortableStrategy$override fun sort: List&lt;T&gt;</ID>
+    <ID>FunctionSignature:TableColumnBuilder.kt:internal fun &lt;T&gt; inputTextCell: @Composable RowScope.(T) -&gt; Unit</ID>
+    <ID>FunctionSignature:TableColumnBuilders.kt:internal fun &lt;T&gt; TableColumn&lt;T&gt;.withCountFooter: TableColumn&lt;T&gt;</ID>
+    <ID>FunctionSignature:TableColumnBuilders.kt:internal fun &lt;T&gt; TableColumn&lt;T&gt;.withFooter: TableColumn&lt;T&gt;</ID>
+    <ID>FunctionSignature:TableColumnBuilders.kt:internal fun &lt;T&gt; TableColumn&lt;T&gt;.withTextFooter: TableColumn&lt;T&gt;</ID>
+    <ID>FunctionSignature:TransactionViewModel.kt:TransactionViewModel$private fun createTransaction: AssetTransaction</ID>
+    <ID>FunctionSignature:TransactionViewModel.kt:TransactionViewModel$private fun validateFormData: Map&lt;String, String&gt;</ID>
+    <ID>FunctionSignature:UiTableContentScope.kt:ColumnData$fun hasFooter</ID>
+    <ID>FunctionSignature:UiTableContentScope.kt:ColumnData$fun isSortable</ID>
+    <ID>ImportOrdering:AssetFormScreen.kt:import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.PaddingValues import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.RowScope import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.padding import androidx.compose.foundation.lazy.grid.GridCells import androidx.compose.foundation.lazy.grid.GridItemSpan import androidx.compose.foundation.lazy.grid.LazyVerticalGrid import androidx.compose.foundation.lazy.grid.LazyGridScope import androidx.compose.foundation.text.KeyboardOptions import androidx.compose.material3.Button import androidx.compose.material3.ExperimentalMaterial3Api import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Scaffold import androidx.compose.material3.Text import androidx.compose.material3.TopAppBar import androidx.compose.material3.TopAppBarDefaults import androidx.compose.runtime.Composable import androidx.compose.ui.Modifier import androidx.compose.ui.text.input.KeyboardType import androidx.compose.ui.unit.dp import com.eferraz.entities.assets.FixedIncomeAssetType import com.eferraz.entities.assets.FixedIncomeSubType import com.eferraz.entities.assets.InvestmentCategory import com.eferraz.entities.assets.InvestmentFundAssetType import com.eferraz.entities.assets.Liquidity import com.eferraz.entities.assets.VariableIncomeAssetType import com.eferraz.presentation.design_system.components.EnumDropdown import com.eferraz.presentation.design_system.components.FormTextField import com.eferraz.presentation.helpers.Formatters.formated import com.eferraz.usecases.entities.AssetFormData import com.eferraz.usecases.entities.FixedIncomeFormData import com.eferraz.usecases.entities.InvestmentFundFormData import com.eferraz.usecases.entities.VariableIncomeFormData</ID>
+    <ID>ImportOrdering:AssetHistoryScreen.kt:import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.FlowRow import androidx.compose.foundation.layout.PaddingValues import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.padding import androidx.compose.material.icons.Icons import androidx.compose.material.icons.filled.Close import androidx.compose.material.icons.filled.Sync import androidx.compose.material3.Card import androidx.compose.material3.CardDefaults import androidx.compose.material3.ExperimentalMaterial3Api import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi import androidx.compose.material3.Icon import androidx.compose.material3.IconButton import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Text import androidx.compose.material3.ToggleButtonDefaults import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator import androidx.compose.runtime.Composable import androidx.compose.runtime.getValue import androidx.compose.runtime.remember import androidx.compose.runtime.rememberCoroutineScope import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.graphics.Color import androidx.compose.ui.text.style.TextAlign import androidx.compose.ui.unit.dp import androidx.compose.ui.unit.sp import androidx.lifecycle.compose.collectAsStateWithLifecycle import com.eferraz.design_system.components.segmented_control.SegmentedControl import com.eferraz.design_system.components.segmented_control.SegmentedControlChoice import com.eferraz.design_system.core.StableList import com.eferraz.design_system.components.table.UiTableDataColumn import com.eferraz.design_system.components.table.UiTableV3 import com.eferraz.design_system.scaffolds.AppScreenPane import com.eferraz.design_system.scaffolds.AppScreenScaffold import com.eferraz.entities.assets.InvestmentCategory import com.eferraz.entities.assets.Liquidity import com.eferraz.entities.goals.FinancialGoal import com.eferraz.entities.holdings.Appreciation import com.eferraz.entities.holdings.Brokerage import com.eferraz.entities.holdings.HoldingHistoryEntry import com.eferraz.entities.transactions.AssetTransaction import com.eferraz.presentation.commons.table_icons.BuildIcon import com.eferraz.presentation.design_system.components.inputs.TableInputMoney import com.eferraz.presentation.design_system.theme.getInfoColor import com.eferraz.presentation.design_system.theme.getSuccessColor import com.eferraz.presentation.design_system.theme.getWarningColor import com.eferraz.presentation.features.transactions.TransactionPanel import com.eferraz.presentation.helpers.Formatters.formated import com.eferraz.presentation.helpers.currencyFormat import com.eferraz.presentation.helpers.toPercentage import com.eferraz.usecases.entities.HoldingHistoryView import com.seanproctor.datatable.TableColumnWidth import kotlinx.coroutines.launch import kotlinx.datetime.YearMonth import org.koin.compose.viewmodel.koinViewModel</ID>
+    <ID>ImportOrdering:AssetsRoute.kt:import androidx.compose.foundation.layout.Box import androidx.compose.foundation.layout.fillMaxSize import androidx.compose.foundation.layout.padding import androidx.compose.material.icons.Icons import androidx.compose.material.icons.automirrored.filled.TrendingUp import androidx.compose.material.icons.filled.AccountBalance import androidx.compose.material.icons.filled.Add import androidx.compose.material.icons.filled.Close import androidx.compose.material.icons.filled.Savings import androidx.compose.material3.FilledIconButton import androidx.compose.material3.Icon import androidx.compose.material3.IconButtonDefaults import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Text import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator import androidx.compose.runtime.Composable import androidx.compose.runtime.getValue import androidx.compose.runtime.rememberCoroutineScope import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.unit.dp import androidx.lifecycle.compose.collectAsStateWithLifecycle import androidx.navigation3.runtime.entryProvider import androidx.navigation3.runtime.rememberNavBackStack import androidx.navigation3.ui.NavDisplay import com.eferraz.entities.assets.FixedIncomeAssetType import com.eferraz.entities.assets.FixedIncomeSubType import com.eferraz.entities.assets.InvestmentCategory import com.eferraz.entities.assets.InvestmentFundAssetType import com.eferraz.entities.assets.Liquidity import com.eferraz.entities.assets.VariableIncomeAssetType import com.eferraz.entities.assets.CNPJ import com.eferraz.entities.assets.MaturityDate import com.eferraz.presentation.FixedIncomeAssetRouting import com.eferraz.presentation.FundsAssetRouting import com.eferraz.presentation.VariableIncomeAssetRouting import com.eferraz.presentation.config import com.eferraz.presentation.design_system.components.AppScaffold import com.eferraz.presentation.design_system.components.SegmentedControl import com.eferraz.presentation.design_system.components.SegmentedOption import com.eferraz.presentation.design_system.components.inputs.TableInputDate import com.eferraz.presentation.design_system.components.inputs.TableInputSelect import com.eferraz.presentation.design_system.components.inputs.TableInputText import com.eferraz.presentation.design_system.components.new_table.UiTable import com.eferraz.presentation.features.assetForm.AssetFormIntent import com.eferraz.presentation.features.assetForm.AssetFormScreen import com.eferraz.presentation.features.assetForm.AssetFormViewModel import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsIntent.UpdateBrokerage import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsIntent.UpdateGoal import com.eferraz.presentation.features.assets.AssetsViewModel.AssetsState import com.eferraz.presentation.helpers.Formatters.formated import com.eferraz.usecases.entities.FixedIncomeAssetsTableData import com.eferraz.usecases.entities.InvestmentFundAssetsTableData import com.eferraz.usecases.entities.VariableIncomeAssetsTableData import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.launch import kotlinx.datetime.LocalDate import org.koin.compose.viewmodel.koinViewModel import org.koin.core.parameter.parametersOf</ID>
+    <ID>ImportOrdering:FormTextField.kt:import androidx.compose.foundation.text.KeyboardOptions import androidx.compose.ui.text.input.VisualTransformation import androidx.compose.material3.MaterialTheme import androidx.compose.material3.OutlinedTextField import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.ui.Modifier</ID>
+    <ID>ImportOrdering:TableInputMoney.kt:import androidx.compose.foundation.interaction.MutableInteractionSource import androidx.compose.foundation.interaction.collectIsFocusedAsState import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.offset import androidx.compose.foundation.layout.padding import androidx.compose.foundation.text.BasicTextField import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Surface import androidx.compose.material3.Text import androidx.compose.material3.TextField import androidx.compose.runtime.Composable import androidx.compose.runtime.LaunchedEffect import androidx.compose.runtime.getValue import androidx.compose.runtime.mutableStateOf import androidx.compose.runtime.remember import androidx.compose.runtime.setValue import androidx.compose.runtime.rememberUpdatedState import androidx.compose.runtime.snapshotFlow import androidx.compose.ui.Modifier import androidx.compose.ui.text.style.TextAlign import androidx.compose.ui.tooling.preview.Preview import androidx.compose.ui.unit.dp import com.eferraz.presentation.design_system.components.inputs.state.rememberMoneyInputState import com.eferraz.presentation.helpers.CurrencyVisualTransformation import kotlinx.coroutines.FlowPreview import kotlinx.coroutines.delay import kotlinx.coroutines.flow.collect import kotlinx.coroutines.flow.debounce import kotlinx.coroutines.flow.drop</ID>
+    <ID>ImportOrdering:TransactionForm.kt:import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.Spacer import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.height import androidx.compose.foundation.layout.padding import androidx.compose.foundation.text.KeyboardOptions import androidx.compose.material3.Button import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.ui.Modifier import androidx.compose.ui.text.input.KeyboardType import androidx.compose.ui.unit.dp import com.eferraz.entities.assets.Asset import com.eferraz.entities.assets.FixedIncomeAsset import com.eferraz.entities.assets.InvestmentFundAsset import com.eferraz.entities.transactions.TransactionType import com.eferraz.entities.assets.VariableIncomeAsset import com.eferraz.presentation.design_system.components.EnumDropdown import com.eferraz.presentation.design_system.components.FormTextField import com.eferraz.presentation.helpers.currencyFormat</ID>
+    <ID>ImportOrdering:TransactionTable.kt:import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.padding import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.unit.dp import com.eferraz.design_system.core.StableList import com.eferraz.design_system.components.table.UiTableDataColumn import com.eferraz.design_system.components.table.UiTableV3 import com.eferraz.entities.assets.Asset import com.eferraz.entities.assets.VariableIncomeAsset import com.seanproctor.datatable.TableColumnWidth</ID>
+    <ID>Indentation:AssetHistoryScreen.kt: </ID>
+    <ID>Indentation:AssetsRoute.kt: </ID>
+    <ID>Indentation:TransactionForm.kt: </ID>
+    <ID>LambdaParameterEventTrailing:AssetHistoryScreen.kt:onSelect: (HoldingHistoryEntry) -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:SelectComponent.kt:onValueChange: (String) -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:TransactionForm.kt:onSave: () -&gt; Unit</ID>
+    <ID>LongMethod:AssetFormScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun AssetFormScreen</ID>
+    <ID>LongMethod:AssetHistoryScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable private fun Table</ID>
+    <ID>LongMethod:AssetsRoute.kt:@Composable private fun AssetsScreenFixedIncome</ID>
+    <ID>LongMethod:AssetsRoute.kt:@Composable private fun AssetsScreenFunds</ID>
+    <ID>LongMethod:AssetsRoute.kt:@Composable private fun AssetsScreenVariableIncome</ID>
+    <ID>LongMethod:AssetsRoute.kt:@OptIn(ExperimentalMaterial3AdaptiveApi::class) @Composable internal fun AssetsRoute</ID>
+    <ID>LongMethod:AutoComplete.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun AutoComplete</ID>
+    <ID>LongMethod:FilterGroup.kt:@Composable internal fun HistoryFilter</ID>
+    <ID>LongMethod:InputTextMoney.kt:@Deprecated("Usar o novo input") @Composable internal fun InputTextMoney</ID>
+    <ID>LongMethod:TableInputSelect.kt:@Composable @OptIn(ExperimentalMaterial3Api::class) private fun &lt;T&gt; TableInputSelect</ID>
+    <ID>LongMethod:TransactionForm.kt:@Composable internal fun TransactionForm</ID>
+    <ID>LongMethod:TransactionPanel.kt:@Composable internal fun TransactionPanel</ID>
+    <ID>LongMethod:TransactionRow.kt:internal fun AssetTransaction.toTransactionRow: TransactionRow</ID>
+    <ID>LongMethod:UITable.kt:@Composable internal fun &lt;T&gt; UiTable</ID>
+    <ID>MagicNumber:AppScaffold.kt:0.20f</ID>
+    <ID>MagicNumber:AssetsRoute.kt:1900</ID>
+    <ID>MagicNumber:Color.kt:0xFF000000</ID>
+    <ID>MagicNumber:Color.kt:0xFF000D17</ID>
+    <ID>MagicNumber:Color.kt:0xFF002171</ID>
+    <ID>MagicNumber:Color.kt:0xFF00293D</ID>
+    <ID>MagicNumber:Color.kt:0xFF004D6F</ID>
+    <ID>MagicNumber:Color.kt:0xFF05080B</ID>
+    <ID>MagicNumber:Color.kt:0xFF0A0F12</ID>
+    <ID>MagicNumber:Color.kt:0xFF0D1215</ID>
+    <ID>MagicNumber:Color.kt:0xFF0D47A1</ID>
+    <ID>MagicNumber:Color.kt:0xFF0E0524</ID>
+    <ID>MagicNumber:Color.kt:0xFF101417</ID>
+    <ID>MagicNumber:Color.kt:0xFF1565C0</ID>
+    <ID>MagicNumber:Color.kt:0xFF162733</ID>
+    <ID>MagicNumber:Color.kt:0xFF181C20</ID>
+    <ID>MagicNumber:Color.kt:0xFF1976D2</ID>
+    <ID>MagicNumber:Color.kt:0xFF1A1C1E</ID>
+    <ID>MagicNumber:Color.kt:0xFF1A1E22</ID>
+    <ID>MagicNumber:Color.kt:0xFF1B5E20</ID>
+    <ID>MagicNumber:Color.kt:0xFF1C2024</ID>
+    <ID>MagicNumber:Color.kt:0xFF1D2E3A</ID>
+    <ID>MagicNumber:Color.kt:0xFF21323F</ID>
+    <ID>MagicNumber:Color.kt:0xFF2196F3</ID>
+    <ID>MagicNumber:Color.kt:0xFF220001</ID>
+    <ID>MagicNumber:Color.kt:0xFF24282C</ID>
+    <ID>MagicNumber:Color.kt:0xFF246488</ID>
+    <ID>MagicNumber:Color.kt:0xFF262A2E</ID>
+    <ID>MagicNumber:Color.kt:0xFF272D32</ID>
+    <ID>MagicNumber:Color.kt:0xFF273845</ID>
+    <ID>MagicNumber:Color.kt:0xFF2A2040</ID>
+    <ID>MagicNumber:Color.kt:0xFF2D3135</ID>
+    <ID>MagicNumber:Color.kt:0xFF2E7D32</ID>
+    <ID>MagicNumber:Color.kt:0xFF2F3337</ID>
+    <ID>MagicNumber:Color.kt:0xFF302746</ID>
+    <ID>MagicNumber:Color.kt:0xFF313539</ID>
+    <ID>MagicNumber:Color.kt:0xFF31373C</ID>
+    <ID>MagicNumber:Color.kt:0xFF352B4B</ID>
+    <ID>MagicNumber:Color.kt:0xFF353A3E</ID>
+    <ID>MagicNumber:Color.kt:0xFF383C40</ID>
+    <ID>MagicNumber:Color.kt:0xFF384956</ID>
+    <ID>MagicNumber:Color.kt:0xFF3A3151</ID>
+    <ID>MagicNumber:Color.kt:0xFF3A3E42</ID>
+    <ID>MagicNumber:Color.kt:0xFF3A4B58</ID>
+    <ID>MagicNumber:Color.kt:0xFF414549</ID>
+    <ID>MagicNumber:Color.kt:0xFF41484D</ID>
+    <ID>MagicNumber:Color.kt:0xFF43474B</ID>
+    <ID>MagicNumber:Color.kt:0xFF444A50</ID>
+    <ID>MagicNumber:Color.kt:0xFF4B4163</ID>
+    <ID>MagicNumber:Color.kt:0xFF4C5055</ID>
+    <ID>MagicNumber:Color.kt:0xFF4CAF50</ID>
+    <ID>MagicNumber:Color.kt:0xFF4D5359</ID>
+    <ID>MagicNumber:Color.kt:0xFF4E4465</ID>
+    <ID>MagicNumber:Color.kt:0xFF4F606E</ID>
+    <ID>MagicNumber:Color.kt:0xFF540003</ID>
+    <ID>MagicNumber:Color.kt:0xFF5D97BE</ID>
+    <ID>MagicNumber:Color.kt:0xFF5E6F7D</ID>
+    <ID>MagicNumber:Color.kt:0xFF600004</ID>
+    <ID>MagicNumber:Color.kt:0xFF63597C</ID>
+    <ID>MagicNumber:Color.kt:0xFF64B5F6</ID>
+    <ID>MagicNumber:Color.kt:0xFF676E74</ID>
+    <ID>MagicNumber:Color.kt:0xFF690005</ID>
+    <ID>MagicNumber:Color.kt:0xFF72678B</ID>
+    <ID>MagicNumber:Color.kt:0xFF73777F</ID>
+    <ID>MagicNumber:Color.kt:0xFF740006</ID>
+    <ID>MagicNumber:Color.kt:0xFF8193A2</ID>
+    <ID>MagicNumber:Color.kt:0xFF81C784</ID>
+    <ID>MagicNumber:Color.kt:0xFF8B9197</ID>
+    <ID>MagicNumber:Color.kt:0xFF8B9198</ID>
+    <ID>MagicNumber:Color.kt:0xFF90C9F2</ID>
+    <ID>MagicNumber:Color.kt:0xFF90CAF9</ID>
+    <ID>MagicNumber:Color.kt:0xFF93000A</ID>
+    <ID>MagicNumber:Color.kt:0xFF94CDF7</ID>
+    <ID>MagicNumber:Color.kt:0xFF978BB0</ID>
+    <ID>MagicNumber:Color.kt:0xFF98000A</ID>
+    <ID>MagicNumber:Color.kt:0xFFACB3B9</ID>
+    <ID>MagicNumber:Color.kt:0xFFB3C5D5</ID>
+    <ID>MagicNumber:Color.kt:0xFFB5B9BE</ID>
+    <ID>MagicNumber:Color.kt:0xFFB7C9D8</ID>
+    <ID>MagicNumber:Color.kt:0xFFBA1A1A</ID>
+    <ID>MagicNumber:Color.kt:0xFFBBDEFB</ID>
+    <ID>MagicNumber:Color.kt:0xFFBBE1FF</ID>
+    <ID>MagicNumber:Color.kt:0xFFBDC3CA</ID>
+    <ID>MagicNumber:Color.kt:0xFFC1C7CE</ID>
+    <ID>MagicNumber:Color.kt:0xFFC3C7CB</ID>
+    <ID>MagicNumber:Color.kt:0xFFC3C7CF</ID>
+    <ID>MagicNumber:Color.kt:0xFFC8E6C9</ID>
+    <ID>MagicNumber:Color.kt:0xFFCABCE4</ID>
+    <ID>MagicNumber:Color.kt:0xFFCCDFEF</ID>
+    <ID>MagicNumber:Color.kt:0xFFCEC0E8</ID>
+    <ID>MagicNumber:Color.kt:0xFFCED2D7</ID>
+    <ID>MagicNumber:Color.kt:0xFFCF2C27</ID>
+    <ID>MagicNumber:Color.kt:0xFFD1D5D9</ID>
+    <ID>MagicNumber:Color.kt:0xFFD3E5F5</ID>
+    <ID>MagicNumber:Color.kt:0xFFD7DDE4</ID>
+    <ID>MagicNumber:Color.kt:0xFFD9DCE0</ID>
+    <ID>MagicNumber:Color.kt:0xFFDADDE2</ID>
+    <ID>MagicNumber:Color.kt:0xFFDDE3EA</ID>
+    <ID>MagicNumber:Color.kt:0xFFDFE3E8</ID>
+    <ID>MagicNumber:Color.kt:0xFFE1E4E8</ID>
+    <ID>MagicNumber:Color.kt:0xFFE3E5E8</ID>
+    <ID>MagicNumber:Color.kt:0xFFE4D6FF</ID>
+    <ID>MagicNumber:Color.kt:0xFFE4F2FF</ID>
+    <ID>MagicNumber:Color.kt:0xFFE5E8ED</ID>
+    <ID>MagicNumber:Color.kt:0xFFE65100</ID>
+    <ID>MagicNumber:Color.kt:0xFFE9DDFF</ID>
+    <ID>MagicNumber:Color.kt:0xFFE9EBEE</ID>
+    <ID>MagicNumber:Color.kt:0xFFEBF1F8</ID>
+    <ID>MagicNumber:Color.kt:0xFFEEF1F6</ID>
+    <ID>MagicNumber:Color.kt:0xFFEFF1F4</ID>
+    <ID>MagicNumber:Color.kt:0xFFF1F3F5</ID>
+    <ID>MagicNumber:Color.kt:0xFFF1F4F9</ID>
+    <ID>MagicNumber:Color.kt:0xFFF5EDFF</ID>
+    <ID>MagicNumber:Color.kt:0xFFF5F7FA</ID>
+    <ID>MagicNumber:Color.kt:0xFFF6F9FE</ID>
+    <ID>MagicNumber:Color.kt:0xFFFAFBFC</ID>
+    <ID>MagicNumber:Color.kt:0xFFFF5449</ID>
+    <ID>MagicNumber:Color.kt:0xFFFF6F00</ID>
+    <ID>MagicNumber:Color.kt:0xFFFF9800</ID>
+    <ID>MagicNumber:Color.kt:0xFFFFAEA4</ID>
+    <ID>MagicNumber:Color.kt:0xFFFFB4AB</ID>
+    <ID>MagicNumber:Color.kt:0xFFFFB74D</ID>
+    <ID>MagicNumber:Color.kt:0xFFFFD2CC</ID>
+    <ID>MagicNumber:Color.kt:0xFFFFDAD6</ID>
+    <ID>MagicNumber:Color.kt:0xFFFFE0B2</ID>
+    <ID>MagicNumber:Color.kt:0xFFFFECE9</ID>
+    <ID>MagicNumber:Color.kt:0xFFFFFFFF</ID>
+    <ID>MagicNumber:CurrencyVisualTransformation.kt:CurrencyVisualTransformation$100</ID>
+    <ID>MagicNumber:DateInputState.kt:DateInputState$7</ID>
+    <ID>MagicNumber:DateInputState.kt:DateInputState$8</ID>
+    <ID>MagicNumber:DateTransformation.kt:DateTransformation$4</ID>
+    <ID>MagicNumber:DateTransformation.kt:DateTransformation$7</ID>
+    <ID>MagicNumber:DateTransformation.kt:DateTransformation$8</ID>
+    <ID>MagicNumber:DateTransformation.kt:DateTransformation.&lt;no name provided&gt;$10</ID>
+    <ID>MagicNumber:DateTransformation.kt:DateTransformation.&lt;no name provided&gt;$3</ID>
+    <ID>MagicNumber:DateTransformation.kt:DateTransformation.&lt;no name provided&gt;$5</ID>
+    <ID>MagicNumber:DateTransformation.kt:DateTransformation.&lt;no name provided&gt;$8</ID>
+    <ID>MagicNumber:GoalsMonitoringScreen.kt:45</ID>
+    <ID>MagicNumber:GoalsMonitoringScreen.kt:54</ID>
+    <ID>MagicNumber:InputTextMoney.kt:0.001</ID>
+    <ID>MagicNumber:InputTextMoney.kt:100</ID>
+    <ID>MagicNumber:MoneyInputState.kt:MoneyInputState$0.001</ID>
+    <ID>MagicNumber:MoneyInputState.kt:MoneyInputState$100</ID>
+    <ID>MagicNumber:PlatformUtils.android.kt:100</ID>
+    <ID>MagicNumber:PlatformUtils.jvm.kt:100</ID>
+    <ID>MagicNumber:TableIcons.kt:0.5f</ID>
+    <ID>MagicNumber:TableInputDate.kt:DateVisualTransformation$3</ID>
+    <ID>MagicNumber:TableInputDate.kt:DateVisualTransformation$5</ID>
+    <ID>MagicNumber:TableInputDate.kt:DateVisualTransformation$8</ID>
+    <ID>MagicNumber:TableInputMoney.kt:1234.56</ID>
+    <ID>MagicNumber:TableInputMoney.kt:3000L</ID>
+    <ID>MagicNumber:TableInputSelect.kt:3</ID>
+    <ID>MagicNumber:Theme.kt:0.5f</ID>
+    <ID>MagicNumber:TransactionViewModel.kt:TransactionViewModel$10</ID>
+    <ID>MagicNumber:TransactionViewModel.kt:TransactionViewModel$3</ID>
+    <ID>MagicNumber:UITable.kt:3</ID>
+    <ID>MagicNumber:UITable.kt:4</ID>
+    <ID>MatchingDeclarationName:AutoComplete.kt:AutoCompleteState</ID>
+    <ID>MatchingDeclarationName:UITable.kt:TableItem&lt;out T&gt;</ID>
+    <ID>MatchingDeclarationName:UiTableResponsive.kt:ResponsiveState</ID>
+    <ID>MaxLineLength:AppScaffold.kt:directive = navigator.scaffoldDirective.copy(horizontalPartitionSpacerSize = 24.dp, defaultPanePreferredWidth = paneWidth)</ID>
+    <ID>MaxLineLength:AssetFormScreen.kt:colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)</ID>
+    <ID>MaxLineLength:AssetFormViewModel.kt:AssetFormViewModel$is AssetFormIntent.UpdateFundExpirationDate -&gt; updateInvestmentFund { it.copy(expirationDate = intent.date) }</ID>
+    <ID>MaxLineLength:AssetHistoryScreen.kt:colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f))</ID>
+    <ID>MaxLineLength:AssetHistoryScreen.kt:onSelect = { it: HoldingHistoryEntry -&gt; scope.launch { navigator.navigateTo(ThreePaneScaffoldRole.Tertiary, it) } }</ID>
+    <ID>MaxLineLength:AssetHistoryScreen.kt:val navigator: ThreePaneScaffoldNavigator&lt;HoldingHistoryEntry&gt; = rememberSupportingPaneScaffoldNavigator&lt;HoldingHistoryEntry&gt;()</ID>
+    <ID>MaxLineLength:AssetHistoryScreen.kt:{ entry: HoldingHistoryView, value: Double -&gt; vm.processIntent(HistoryIntent.UpdateEntryValue(entry.entry, value)) }</ID>
+    <ID>MaxLineLength:AssetsViewModel.kt:AssetsViewModel$setBrokerageToHoldingUseCase(SetBrokerageToHoldingUseCase.Param(assetId = intent.assetId, brokerage = intent.brokerage))</ID>
+    <ID>MaxLineLength:AssetsViewModel.kt:AssetsViewModel.AssetsIntent$UpdateBrokerage : AssetsIntent</ID>
+    <ID>MaxLineLength:AssetsViewModel.kt:AssetsViewModel.AssetsIntent$UpdateGoal : AssetsIntent</ID>
+    <ID>MaxLineLength:Color.kt:internal val onSurfaceVariantLight = Color(0xFF3A3E42) // Contraste alto para legibilidade sobre surface e surfaceContainerLow</ID>
+    <ID>MaxLineLength:Helpers.jvm.kt:internal</ID>
+    <ID>MaxLineLength:Panels.kt:Surface(modifier = modifier.clip(RoundedCornerShape(12.dp)), content = content, color = MaterialTheme.colorScheme.surfaceContainerHigh)</ID>
+    <ID>MaxLineLength:Panels.kt:internal</ID>
+    <ID>MaxLineLength:SegmentedControl.kt:val containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface</ID>
+    <ID>MaxLineLength:SegmentedControl.kt:val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface</ID>
+    <ID>MaxLineLength:SelectComponent.kt:modifier = Modifier.menuAnchor()</ID>
+    <ID>MaxLineLength:TableHeader.kt:.</ID>
+    <ID>MaxLineLength:TableHeader.kt:imageVector = if (sortState.ascending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward</ID>
+    <ID>MaxLineLength:TransactionViewModel.kt:TransactionViewModel$val date = LocalDate.parse(formData.date) //parseDate(formData.date) ?: throw IllegalArgumentException("Data inválida")</ID>
+    <ID>MaxLineLength:UITable.kt:column(header = "Header 2", sortedBy = { it.text2 }, weight = 2.0f, cellValue = { it.text2 }, footer = { "Footer teste" })</ID>
+    <ID>MaxLineLength:UiTableLayout.kt:private</ID>
+    <ID>MaxLineLength:UiTableRenderers.kt:DefaultCellRenderer$imageVector = if (sortState.isAscending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward</ID>
+    <ID>MaximumLineLength:AppScaffold.kt:,</ID>
+    <ID>MaximumLineLength:AssetFormScreen.kt:)</ID>
+    <ID>MaximumLineLength:AssetFormViewModel.kt:AssetFormViewModel$}</ID>
+    <ID>MaximumLineLength:AssetHistoryScreen.kt:)</ID>
+    <ID>MaximumLineLength:AssetHistoryScreen.kt:}</ID>
+    <ID>MaximumLineLength:AssetsViewModel.kt:AssetsViewModel$)</ID>
+    <ID>MaximumLineLength:AssetsViewModel.kt:AssetsViewModel.AssetsIntent.UpdateBrokerage$AssetsIntent</ID>
+    <ID>MaximumLineLength:AssetsViewModel.kt:AssetsViewModel.AssetsIntent.UpdateGoal$AssetsIntent</ID>
+    <ID>MaximumLineLength:Color.kt:// Contraste alto para legibilidade sobre surface e surfaceContainerLow</ID>
+    <ID>MaximumLineLength:Helpers.jvm.kt:Medium</ID>
+    <ID>MaximumLineLength:Panels.kt:)</ID>
+    <ID>MaximumLineLength:Panels.kt:{</ID>
+    <ID>MaximumLineLength:SegmentedControl.kt:onSurface</ID>
+    <ID>MaximumLineLength:SegmentedControl.kt:surface</ID>
+    <ID>MaximumLineLength:SelectComponent.kt:// The `menuAnchor` modifier must be passed to the text field for correctness.</ID>
+    <ID>MaximumLineLength:TableHeader.kt:,</ID>
+    <ID>MaximumLineLength:TransactionViewModel.kt:TransactionViewModel$//parseDate(formData.date) ?: throw IllegalArgumentException("Data inválida")</ID>
+    <ID>MaximumLineLength:UITable.kt:)</ID>
+    <ID>MaximumLineLength:UiTableLayout.kt:)</ID>
+    <ID>MaximumLineLength:UiTableRenderers.kt:DefaultCellRenderer$,</ID>
+    <ID>ModifierNotUsedAtRoot:UITable.kt:modifier = modifier.fillMaxWidth().thenIf(hasFooter, { Modifier.weight(1f) })</ID>
+    <ID>MultiLineIfElse:AssetHistoryScreen.kt:IconButton(onClick = { onCloseClick() }) { Icon( imageVector = Icons.Default.Close, contentDescription = "Fechar" ) }</ID>
+    <ID>MultiLineIfElse:AssetsRoute.kt:AssetsScreenFixedIncome( state = tableState!!, category = category, viewModel = tableVm )</ID>
+    <ID>MultiLineIfElse:AssetsRoute.kt:AssetsScreenFunds( state = tableState!!, category = category, viewModel = tableVm )</ID>
+    <ID>MultiLineIfElse:AssetsRoute.kt:AssetsScreenVariableIncome( state = tableState!!, category = category, viewModel = tableVm )</ID>
+    <ID>MultiLineIfElse:AssetsRoute.kt:Icon(imageVector = Icons.Default.Add, contentDescription = null)</ID>
+    <ID>MultiLineIfElse:AssetsRoute.kt:Icon(imageVector = Icons.Default.Close, contentDescription = null)</ID>
+    <ID>MultiLineIfElse:AssetsRoute.kt:IconButtonDefaults.filledIconButtonColors()</ID>
+    <ID>MultiLineIfElse:AssetsRoute.kt:IconButtonDefaults.filledTonalIconButtonColors()</ID>
+    <ID>MultiLineIfElse:AutoComplete.kt:emptyList()</ID>
+    <ID>MultiLineIfElse:AutoComplete.kt:suggestions.filter { it.contains(value, ignoreCase = true) }.take(maxSuggestions)</ID>
+    <ID>MultiLineIfElse:FilterGroup.kt:selected.add(current)</ID>
+    <ID>MultiLineIfElse:FilterGroup.kt:selected.remove(current)</ID>
+    <ID>MultiLineIfElse:FilterGroup.kt:selected[0] = current</ID>
+    <ID>MultiLineIfElse:InputTextMoney.kt:onValueChange(null)</ID>
+    <ID>MultiLineIfElse:InputTextMoney.kt:onValueChange(string.toDouble() / 100)</ID>
+    <ID>MultiLineIfElse:TableColumnBuilders.kt:formatter(data.map { extractor(it).toDouble() }.average())</ID>
+    <ID>MultiLineIfElse:TableColumnBuilders.kt:formatter(data.size)</ID>
+    <ID>MultiLineIfElse:TableColumnBuilders.kt:formatter(data.sumOf { extractor(it).toDouble() })</ID>
+    <ID>MultiLineIfElse:TableColumnBuilders.kt:null</ID>
+    <ID>MultiLineIfElse:TableHeader.kt:Icon( imageVector = if (sortState.ascending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward, contentDescription = null, modifier = Modifier.size(16.dp), tint = theme.sortIcon )</ID>
+    <ID>MultiLineIfElse:TableRow.kt:HorizontalDivider( modifier = Modifier.fillMaxWidth(), color = dividerColor, thickness = 1.dp )</ID>
+    <ID>MultiLineIfElse:UITable.kt:TableFooter( data = data, columns = columns, responsiveState = responsiveState, cellRenderer = cellRenderer )</ID>
+    <ID>MultipleEmitters:AssetHistoryScreen.kt:@Composable private fun Actions</ID>
+    <ID>MutableStateAutoboxing:TableInputMoney.kt:mutableStateOf(0.0)</ID>
+    <ID>MutableStateAutoboxing:TableInputMoney.kt:mutableStateOf(1234.56)</ID>
+    <ID>NewLineAtEndOfFile:App.kt:com.eferraz.presentation.App.kt</ID>
+    <ID>NewLineAtEndOfFile:AppRoutes.kt:com.eferraz.presentation.AppRoutes.kt</ID>
+    <ID>NewLineAtEndOfFile:AppScaffold.kt:com.eferraz.presentation.design_system.components.AppScaffold.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetForm.kt:com.eferraz.presentation.features.form.AssetForm.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetFormScreen.kt:com.eferraz.presentation.features.assetForm.AssetFormScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetHistoryScreen.kt:com.eferraz.presentation.features.history.AssetHistoryScreen.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetsViewModel.kt:com.eferraz.presentation.features.assets.AssetsViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:CurrencyVisualTransformation.kt:com.eferraz.presentation.helpers.CurrencyVisualTransformation.kt</ID>
+    <ID>NewLineAtEndOfFile:DateTransformation.kt:com.eferraz.presentation.design_system.components.DateTransformation.kt</ID>
+    <ID>NewLineAtEndOfFile:FilterGroup.kt:com.eferraz.presentation.design_system.components.FilterGroup.kt</ID>
+    <ID>NewLineAtEndOfFile:Formatters.kt:com.eferraz.presentation.helpers.Formatters.kt</ID>
+    <ID>NewLineAtEndOfFile:Helpers.android.kt:com.eferraz.presentation.helpers.Helpers.android.kt</ID>
+    <ID>NewLineAtEndOfFile:Helpers.ios.kt:com.eferraz.presentation.helpers.Helpers.ios.kt</ID>
+    <ID>NewLineAtEndOfFile:Helpers.jvm.kt:com.eferraz.presentation.helpers.Helpers.jvm.kt</ID>
+    <ID>NewLineAtEndOfFile:Helpers.kt:com.eferraz.presentation.helpers.Helpers.kt</ID>
+    <ID>NewLineAtEndOfFile:HistoryState.kt:com.eferraz.presentation.features.history.HistoryState.kt</ID>
+    <ID>NewLineAtEndOfFile:HistoryViewModel.kt:com.eferraz.presentation.features.history.HistoryViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:InputTextMoney.kt:com.eferraz.presentation.design_system.components.InputTextMoney.kt</ID>
+    <ID>NewLineAtEndOfFile:ModifierExt.kt:com.eferraz.presentation.design_system.utils.ModifierExt.kt</ID>
+    <ID>NewLineAtEndOfFile:Panels.kt:com.eferraz.presentation.design_system.components.panels.Panels.kt</ID>
+    <ID>NewLineAtEndOfFile:PlatformUtils.android.kt:com.eferraz.presentation.helpers.PlatformUtils.android.kt</ID>
+    <ID>NewLineAtEndOfFile:PlatformUtils.ios.kt:com.eferraz.presentation.helpers.PlatformUtils.ios.kt</ID>
+    <ID>NewLineAtEndOfFile:PlatformUtils.jvm.kt:com.eferraz.presentation.helpers.PlatformUtils.jvm.kt</ID>
+    <ID>NewLineAtEndOfFile:PlatformUtils.kt:com.eferraz.presentation.helpers.PlatformUtils.kt</ID>
+    <ID>NewLineAtEndOfFile:PresentationModule.kt:com.eferraz.presentation.di.PresentationModule.kt</ID>
+    <ID>NewLineAtEndOfFile:SelectComponent.kt:com.eferraz.presentation.design_system.components.SelectComponent.kt</ID>
+    <ID>NewLineAtEndOfFile:TableColumnBuilder.kt:com.eferraz.presentation.design_system.components.table.TableColumnBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:TableIcons.kt:com.eferraz.presentation.commons.table_icons.TableIcons.kt</ID>
+    <ID>NewLineAtEndOfFile:TableInputDate.kt:com.eferraz.presentation.design_system.components.inputs.TableInputDate.kt</ID>
+    <ID>NewLineAtEndOfFile:TableInputLookAndFeel.kt:com.eferraz.presentation.design_system.components.inputs.TableInputLookAndFeel.kt</ID>
+    <ID>NoConsecutiveBlankLines:AssetFormIntent.kt: </ID>
+    <ID>NoConsecutiveBlankLines:AssetFormState.kt: </ID>
+    <ID>NoConsecutiveBlankLines:AssetHistoryScreen.kt: </ID>
+    <ID>NoConsecutiveBlankLines:AssetToFormDataMapper.kt: </ID>
+    <ID>NoConsecutiveBlankLines:AssetsRoute.kt: </ID>
+    <ID>NoConsecutiveBlankLines:AssetsViewModel.kt:AssetsViewModel$ </ID>
+    <ID>NoConsecutiveBlankLines:EnumDropdown.kt: </ID>
+    <ID>NoConsecutiveBlankLines:FormTextField.kt: </ID>
+    <ID>NoConsecutiveBlankLines:Formatters.kt:Formatters$ </ID>
+    <ID>NoConsecutiveBlankLines:SegmentedControl.kt: </ID>
+    <ID>NoConsecutiveBlankLines:SelectComponent.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TableInputDate.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TableInputMoney.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TableInputSelect.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TableInputText.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TableTheme.kt: </ID>
+    <ID>NoConsecutiveBlankLines:Theme.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TransactionForm.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TransactionIntent.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TransactionPanel.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TransactionRow.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TransactionState.kt: </ID>
+    <ID>NoConsecutiveBlankLines:TransactionViewModel.kt: </ID>
+    <ID>NoConsecutiveBlankLines:UiTableContentScope.kt: </ID>
+    <ID>NoConsecutiveBlankLines:UiTableLayout.kt: </ID>
+    <ID>NoConsecutiveBlankLines:UiTableRenderers.kt: </ID>
+    <ID>NoConsecutiveBlankLines:UiTableResponsive.kt: </ID>
+    <ID>NoConsecutiveBlankLines:UiTableSort.kt: </ID>
+    <ID>NoMultipleSpaces:AssetsRoute.kt: </ID>
+    <ID>NoMultipleSpaces:GoalsMonitoringScreen.kt: </ID>
+    <ID>NoMultipleSpaces:TableInputDate.kt:DateFormat.DD_MM_YYYY$ </ID>
+    <ID>NoMultipleSpaces:TableInputDate.kt:DateFormat.YYYY_MM_DD$ </ID>
+    <ID>NoTrailingSpaces:AssetsRoute.kt: </ID>
+    <ID>NoTrailingSpaces:InputTextMoney.kt: </ID>
+    <ID>NoTrailingSpaces:SortStrategy.kt:ColumnSortStrategy$ </ID>
+    <ID>NoTrailingSpaces:SortStrategy.kt:SortStrategy$ </ID>
+    <ID>NoTrailingSpaces:TableColumnBuilders.kt: </ID>
+    <ID>NoTrailingSpaces:TableInputSelect.kt: </ID>
+    <ID>NoTrailingSpaces:TableSortState.kt:TableSortState$ </ID>
+    <ID>NoTrailingSpaces:TableSorting.kt: </ID>
+    <ID>NoUnusedImports:App.kt:com.eferraz.presentation.App.kt</ID>
+    <ID>NoUnusedImports:AssetForm.kt:com.eferraz.presentation.features.form.AssetForm.kt</ID>
+    <ID>NoUnusedImports:HistoryState.kt:com.eferraz.presentation.features.history.HistoryState.kt</ID>
+    <ID>NoUnusedImports:SegmentedControl.kt:com.eferraz.presentation.design_system.components.SegmentedControl.kt</ID>
+    <ID>NoUnusedImports:TableIcons.kt:com.eferraz.presentation.commons.table_icons.TableIcons.kt</ID>
+    <ID>NoUnusedImports:TableInputMoney.kt:com.eferraz.presentation.design_system.components.inputs.TableInputMoney.kt</ID>
+    <ID>PackageName:AppScaffold.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:AutoComplete.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:Color.kt:package com.eferraz.presentation.design_system.theme</ID>
+    <ID>PackageName:DataTable.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:DateInputState.kt:package com.eferraz.presentation.design_system.components.inputs.state</ID>
+    <ID>PackageName:DateTransformation.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:EnumDropdown.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:FilterGroup.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:FormTextField.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:InputTextMoney.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:ModifierExt.kt:package com.eferraz.presentation.design_system.utils</ID>
+    <ID>PackageName:MoneyInputState.kt:package com.eferraz.presentation.design_system.components.inputs.state</ID>
+    <ID>PackageName:Panels.kt:package com.eferraz.presentation.design_system.components.panels</ID>
+    <ID>PackageName:SegmentedControl.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:SelectComponent.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageName:SortStrategy.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableCell.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableColumn.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableColumnBuilder.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableColumnBuilders.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableFooter.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableHeader.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableIcons.kt:package com.eferraz.presentation.commons.table_icons</ID>
+    <ID>PackageName:TableInputDate.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageName:TableInputLookAndFeel.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageName:TableInputMoney.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageName:TableInputSelect.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageName:TableInputText.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageName:TableRow.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableSortState.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableSorting.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:TableTheme.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageName:Theme.kt:package com.eferraz.presentation.design_system.theme</ID>
+    <ID>PackageName:Type.kt:package com.eferraz.presentation.design_system.theme</ID>
+    <ID>PackageName:UITable.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageName:UiTableContentScope.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageName:UiTableLayout.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageName:UiTableRenderers.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageName:UiTableResponsive.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageName:UiTableSort.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageNaming:AppScaffold.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:AutoComplete.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:Color.kt:package com.eferraz.presentation.design_system.theme</ID>
+    <ID>PackageNaming:DataTable.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:DateInputState.kt:package com.eferraz.presentation.design_system.components.inputs.state</ID>
+    <ID>PackageNaming:DateTransformation.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:EnumDropdown.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:FilterGroup.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:FormTextField.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:InputTextMoney.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:ModifierExt.kt:package com.eferraz.presentation.design_system.utils</ID>
+    <ID>PackageNaming:MoneyInputState.kt:package com.eferraz.presentation.design_system.components.inputs.state</ID>
+    <ID>PackageNaming:Panels.kt:package com.eferraz.presentation.design_system.components.panels</ID>
+    <ID>PackageNaming:SegmentedControl.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:SelectComponent.kt:package com.eferraz.presentation.design_system.components</ID>
+    <ID>PackageNaming:SortStrategy.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableCell.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableColumn.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableColumnBuilder.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableColumnBuilders.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableFooter.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableHeader.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableIcons.kt:package com.eferraz.presentation.commons.table_icons</ID>
+    <ID>PackageNaming:TableInputDate.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageNaming:TableInputLookAndFeel.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageNaming:TableInputMoney.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageNaming:TableInputSelect.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageNaming:TableInputText.kt:package com.eferraz.presentation.design_system.components.inputs</ID>
+    <ID>PackageNaming:TableRow.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableSortState.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableSorting.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:TableTheme.kt:package com.eferraz.presentation.design_system.components.table</ID>
+    <ID>PackageNaming:Theme.kt:package com.eferraz.presentation.design_system.theme</ID>
+    <ID>PackageNaming:Type.kt:package com.eferraz.presentation.design_system.theme</ID>
+    <ID>PackageNaming:UITable.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageNaming:UiTableContentScope.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageNaming:UiTableLayout.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageNaming:UiTableRenderers.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageNaming:UiTableResponsive.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>PackageNaming:UiTableSort.kt:package com.eferraz.presentation.design_system.components.new_table</ID>
+    <ID>ParameterListWrapping:AssetsViewModel.kt:AssetsViewModel.AssetsIntent.UpdateBrokerage$(val assetId: Long, val brokerage: Brokerage?, val category: InvestmentCategory)</ID>
+    <ID>ParameterListWrapping:AssetsViewModel.kt:AssetsViewModel.AssetsIntent.UpdateGoal$(val assetId: Long, val goal: FinancialGoal?, val category: InvestmentCategory)</ID>
+    <ID>ParameterListWrapping:Panels.kt:(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -&gt; Unit)</ID>
+    <ID>ParameterNaming:AutoComplete.kt:onItemCreated: ((String) -&gt; Unit)? = null</ID>
+    <ID>ParameterNaming:EnumDropdown.kt:onNullSelected: (() -&gt; Unit)? = null</ID>
+    <ID>PropertyWrapping:AssetHistoryScreen.kt:val navigator: ThreePaneScaffoldNavigator&lt;HoldingHistoryEntry&gt; = rememberSupportingPaneScaffoldNavigator&lt;HoldingHistoryEntry&gt;()</ID>
+    <ID>ReturnCount:DateTransformation.kt:DateTransformation.&lt;no name provided&gt;$override fun originalToTransformed: Int</ID>
+    <ID>ReturnCount:DateTransformation.kt:DateTransformation.&lt;no name provided&gt;$override fun transformedToOriginal: Int</ID>
+    <ID>ReturnCount:TableInputDate.kt:DateVisualTransformation.&lt;no name provided&gt;$override fun transformedToOriginal: Int</ID>
+    <ID>ReturnCount:TableSorting.kt:internal fun &lt;T&gt; sortData: List&lt;T&gt;</ID>
+    <ID>ReturnCount:TransactionViewModel.kt:TransactionViewModel$private fun parseDate: LocalDate?</ID>
+    <ID>SpacingAroundComma:AssetForm.kt:,</ID>
+    <ID>SpacingAroundComma:TableIcons.kt:,</ID>
+    <ID>SpacingAroundCurly:AssetsRoute.kt:{</ID>
+    <ID>SpacingAroundOperators:AssetsRoute.kt:!=</ID>
+    <ID>SpacingAroundParens:AssetForm.kt:(</ID>
+    <ID>SpacingAroundParens:PresentationModule.kt:PresentationModule$(</ID>
+    <ID>SpacingBetweenDeclarationsWithComments:Color.kt:// Background e Surface - melhor contraste</ID>
+    <ID>SpacingBetweenDeclarationsWithComments:SortStrategy.kt:SortStrategy$/** * Indica se a coluna é ordenável */</ID>
+    <ID>SpacingBetweenDeclarationsWithComments:TableSortState.kt:TableSortState$/** * Alterna a direção de ordenação da coluna atual */</ID>
+    <ID>SpacingBetweenDeclarationsWithComments:TableSortState.kt:TableSortState$/** * Atualiza o estado de ordenação * @param index Índice da coluna a ordenar * @param ascending Se true, ordena de forma crescente */</ID>
+    <ID>SpacingBetweenDeclarationsWithComments:TableSortState.kt:TableSortState$/** * Reseta o estado de ordenação */</ID>
+    <ID>StateParam:UiTableLayout.kt:onSelect: State&lt;((T) -&gt; Unit)?&gt;</ID>
+    <ID>StatementWrapping:AutoComplete.kt:{ { Text(placeholder) } }</ID>
+    <ID>StatementWrapping:Formatters.kt:Formatters$;</ID>
+    <ID>StatementWrapping:Formatters.kt:Formatters$year(); char('.'); monthNumber()</ID>
+    <ID>StatementWrapping:Formatters.kt:Formatters$year(); char('.'); monthNumber(); char('.'); day()</ID>
+    <ID>SwallowedException:AssetsRoute.kt:e: IllegalArgumentException</ID>
+    <ID>SwallowedException:TransactionViewModel.kt:TransactionViewModel$e: Exception</ID>
+    <ID>ThrowsCount:TransactionViewModel.kt:TransactionViewModel$private fun createTransaction: AssetTransaction</ID>
+    <ID>TooGenericExceptionCaught:TransactionViewModel.kt:TransactionViewModel$e: Exception</ID>
+    <ID>TooManyFunctions:AssetFormViewModel.kt:AssetFormViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:TableColumnBuilders.kt:com.eferraz.presentation.design_system.components.table.TableColumnBuilders.kt</ID>
+    <ID>TooManyFunctions:Theme.kt:com.eferraz.presentation.design_system.theme.Theme.kt</ID>
+    <ID>TooManyFunctions:TransactionViewModel.kt:TransactionViewModel : ViewModel</ID>
+    <ID>TooManyFunctionsInFile:AssetFormViewModel.kt:AssetFormViewModel : ViewModel</ID>
+    <ID>TooManyFunctionsInFile:TableColumnBuilders.kt:com.eferraz.presentation.design_system.components.table.TableColumnBuilders.kt</ID>
+    <ID>TooManyFunctionsInFile:Theme.kt:com.eferraz.presentation.design_system.theme.Theme.kt</ID>
+    <ID>TooManyFunctionsInFile:TransactionViewModel.kt:TransactionViewModel : ViewModel</ID>
+    <ID>UnusedParameter:AutoComplete.kt:onItemCreated: ((String) -&gt; Unit)? = null</ID>
+    <ID>UnusedParameter:GoalsMonitoringScreen.kt:backStack: NavBackStack&lt;NavKey&gt;</ID>
+    <ID>UnusedParameter:Panels.kt:modifier: Modifier = Modifier</ID>
+    <ID>UnusedParameter:SelectComponent.kt:modifier: Modifier = Modifier</ID>
+    <ID>UnusedParameter:TableFooter.kt:dividerColor: Color</ID>
+    <ID>UnusedParameter:Theme.kt:dynamicColor: Boolean = true</ID>
+    <ID>UnusedParameter:UiTableLayout.kt:index: Int</ID>
+    <ID>UnusedParameter:UiTableLayout.kt:responsiveState: ResponsiveState</ID>
+    <ID>UnusedParameter:UiTableLayout.kt:state: ResponsiveState</ID>
+    <ID>UnusedParameter:UiTableLayout.kt:totalItems: Int</ID>
+    <ID>ValueParameterComment:TableColumnBuilders.kt:// Opcional: permite ordenar por data real se fornecido</ID>
+    <ID>Wrapping:TransactionForm.kt:(</ID>
+    <ID>Wrapping:UITable.kt:"Footer teste"</ID>
+    <ID>Wrapping:UITable.kt:it.text2</ID>
+  </CurrentIssues>
+</SmellBaseline>

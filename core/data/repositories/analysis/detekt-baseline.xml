@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ArgumentListWrapping:SystemDateProvider.kt:SystemDateProvider$(TimeZone.currentSystemDefault())</ID>
+    <ID>ArgumentListWrapping:SystemDateProvider.kt:SystemDateProvider$(now.year, now.month)</ID>
+    <ID>FinalNewline:AssetRepositoryImpl.kt:com.eferraz.repositories.AssetRepositoryImpl.kt</ID>
+    <ID>FinalNewline:HoldingHistoryRepositoryImpl.kt:com.eferraz.repositories.HoldingHistoryRepositoryImpl.kt</ID>
+    <ID>FinalNewline:RepositoryModule.kt:com.eferraz.repositories.di.RepositoryModule.kt</ID>
+    <ID>FinalNewline:StockQuoteHistoryRepositoryImpl.kt:com.eferraz.repositories.StockQuoteHistoryRepositoryImpl.kt</ID>
+    <ID>FinalNewline:SystemDateProvider.kt:com.eferraz.repositories.SystemDateProvider.kt</ID>
+    <ID>FunctionExpressionBody:StockQuoteHistoryRepositoryImpl.kt:StockQuoteHistoryRepositoryImpl${ return dataSource.getQuote(ticker) }</ID>
+    <ID>FunctionExpressionBody:StockQuoteHistoryRepositoryImpl.kt:StockQuoteHistoryRepositoryImpl${ return dataSource.getQuote(ticker, referenceDate) }</ID>
+    <ID>FunctionLiteral:SystemDateProvider.kt:SystemDateProvider$&lt;anonymous&gt;</ID>
+    <ID>FunctionSignature:AssetHoldingRepositoryImpl.kt:AssetHoldingRepositoryImpl$override suspend fun delete</ID>
+    <ID>FunctionSignature:AssetHoldingRepositoryImpl.kt:AssetHoldingRepositoryImpl$override suspend fun getAll</ID>
+    <ID>FunctionSignature:AssetHoldingRepositoryImpl.kt:AssetHoldingRepositoryImpl$override suspend fun getAllVariableIncomeAssets</ID>
+    <ID>FunctionSignature:AssetHoldingRepositoryImpl.kt:AssetHoldingRepositoryImpl$override suspend fun getByAssetId</ID>
+    <ID>FunctionSignature:AssetHoldingRepositoryImpl.kt:AssetHoldingRepositoryImpl$override suspend fun getByCategory</ID>
+    <ID>FunctionSignature:AssetHoldingRepositoryImpl.kt:AssetHoldingRepositoryImpl$override suspend fun getByGoalId</ID>
+    <ID>FunctionSignature:AssetHoldingRepositoryImpl.kt:AssetHoldingRepositoryImpl$override suspend fun getById: AssetHolding</ID>
+    <ID>FunctionSignature:AssetHoldingRepositoryImpl.kt:AssetHoldingRepositoryImpl$override suspend fun upsert</ID>
+    <ID>FunctionSignature:AssetRepositoryImpl.kt:AssetRepositoryImpl$override suspend fun delete</ID>
+    <ID>FunctionSignature:AssetRepositoryImpl.kt:AssetRepositoryImpl$override suspend fun getAll</ID>
+    <ID>FunctionSignature:AssetRepositoryImpl.kt:AssetRepositoryImpl$override suspend fun getById</ID>
+    <ID>FunctionSignature:AssetRepositoryImpl.kt:AssetRepositoryImpl$override suspend fun getByTicker</ID>
+    <ID>FunctionSignature:AssetRepositoryImpl.kt:AssetRepositoryImpl$override suspend fun getByType</ID>
+    <ID>FunctionSignature:AssetRepositoryImpl.kt:AssetRepositoryImpl$override suspend fun upsert</ID>
+    <ID>FunctionSignature:BrokerageRepositoryImpl.kt:BrokerageRepositoryImpl$override suspend fun getAll</ID>
+    <ID>FunctionSignature:BrokerageRepositoryImpl.kt:BrokerageRepositoryImpl$override suspend fun getByName</ID>
+    <ID>FunctionSignature:FinancialGoalRepositoryImpl.kt:FinancialGoalRepositoryImpl$override suspend fun delete</ID>
+    <ID>FunctionSignature:FinancialGoalRepositoryImpl.kt:FinancialGoalRepositoryImpl$override suspend fun getAll</ID>
+    <ID>FunctionSignature:FinancialGoalRepositoryImpl.kt:FinancialGoalRepositoryImpl$override suspend fun getById</ID>
+    <ID>FunctionSignature:FinancialGoalRepositoryImpl.kt:FinancialGoalRepositoryImpl$override suspend fun getByName</ID>
+    <ID>FunctionSignature:FinancialGoalRepositoryImpl.kt:FinancialGoalRepositoryImpl$override suspend fun getByOwnerId</ID>
+    <ID>FunctionSignature:FinancialGoalRepositoryImpl.kt:FinancialGoalRepositoryImpl$override suspend fun upsert: Long</ID>
+    <ID>FunctionSignature:GoalInvestmentPlanRepositoryImpl.kt:GoalInvestmentPlanRepositoryImpl$override suspend fun delete</ID>
+    <ID>FunctionSignature:GoalInvestmentPlanRepositoryImpl.kt:GoalInvestmentPlanRepositoryImpl$override suspend fun deleteByGoalId</ID>
+    <ID>FunctionSignature:GoalInvestmentPlanRepositoryImpl.kt:GoalInvestmentPlanRepositoryImpl$override suspend fun getAll</ID>
+    <ID>FunctionSignature:GoalInvestmentPlanRepositoryImpl.kt:GoalInvestmentPlanRepositoryImpl$override suspend fun getByGoal</ID>
+    <ID>FunctionSignature:GoalInvestmentPlanRepositoryImpl.kt:GoalInvestmentPlanRepositoryImpl$override suspend fun getById</ID>
+    <ID>FunctionSignature:GoalInvestmentPlanRepositoryImpl.kt:GoalInvestmentPlanRepositoryImpl$override suspend fun upsert: Long</ID>
+    <ID>FunctionSignature:HoldingHistoryRepositoryImpl.kt:HoldingHistoryRepositoryImpl$override suspend fun getByGoalAndReferenceDate: List&lt;HoldingHistoryEntry&gt;</ID>
+    <ID>FunctionSignature:HoldingHistoryRepositoryImpl.kt:HoldingHistoryRepositoryImpl$override suspend fun getByHoldingAndReferenceDate: HoldingHistoryEntry?</ID>
+    <ID>FunctionSignature:IssuerRepositoryImpl.kt:IssuerRepositoryImpl$override suspend fun create</ID>
+    <ID>FunctionSignature:IssuerRepositoryImpl.kt:IssuerRepositoryImpl$override suspend fun getAll</ID>
+    <ID>FunctionSignature:IssuerRepositoryImpl.kt:IssuerRepositoryImpl$override suspend fun getByName</ID>
+    <ID>FunctionSignature:OwnerRepositoryImpl.kt:OwnerRepositoryImpl$override suspend fun getAll</ID>
+    <ID>FunctionSignature:OwnerRepositoryImpl.kt:OwnerRepositoryImpl$override suspend fun getFirst</ID>
+    <ID>ImportOrdering:AssetHoldingRepositoryImpl.kt:import com.eferraz.database.datasources.AssetHoldingDataSource import com.eferraz.entities.holdings.AssetHolding import com.eferraz.entities.assets.InvestmentCategory import com.eferraz.usecases.repositories.AssetHoldingRepository import org.koin.core.annotation.Factory</ID>
+    <ID>MaxLineLength:HoldingHistoryRepositoryImpl.kt:HoldingHistoryRepositoryImpl$override suspend</ID>
+    <ID>MaxLineLength:SystemDateProvider.kt:SystemDateProvider$Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).let { now -&gt; YearMonth(now.year, now.month) }</ID>
+    <ID>MaximumLineLength:HoldingHistoryRepositoryImpl.kt:HoldingHistoryRepositoryImpl$=</ID>
+    <ID>MaximumLineLength:SystemDateProvider.kt:SystemDateProvider$}</ID>
+    <ID>NewLineAtEndOfFile:AssetRepositoryImpl.kt:com.eferraz.repositories.AssetRepositoryImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:HoldingHistoryRepositoryImpl.kt:com.eferraz.repositories.HoldingHistoryRepositoryImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:RepositoryModule.kt:com.eferraz.repositories.di.RepositoryModule.kt</ID>
+    <ID>NewLineAtEndOfFile:StockQuoteHistoryRepositoryImpl.kt:com.eferraz.repositories.StockQuoteHistoryRepositoryImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:SystemDateProvider.kt:com.eferraz.repositories.SystemDateProvider.kt</ID>
+    <ID>NoConsecutiveBlankLines:AssetHoldingRepositoryImpl.kt: </ID>
+    <ID>NoConsecutiveBlankLines:BrokerageRepositoryImpl.kt: </ID>
+    <ID>NoConsecutiveBlankLines:IssuerRepositoryImpl.kt: </ID>
+    <ID>NoConsecutiveBlankLines:OwnerRepositoryImpl.kt: </ID>
+  </CurrentIssues>
+</SmellBaseline>

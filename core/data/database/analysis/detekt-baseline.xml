@@ -1,0 +1,157 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ArgumentListWrapping:AssetMappers.kt:( id = id, name = name, isInLiquidation = isInLiquidation )</ID>
+    <ID>ArgumentListWrapping:HoldingHistoryDataSourceImpl.kt:HoldingHistoryDataSourceImpl$(referenceDate, holding.id)</ID>
+    <ID>BinaryExpressionWrapping:HoldingHistoryDataSourceImpl.kt:HoldingHistoryDataSourceImpl$holdingHistoryDao.getByHoldingAndReferenceDate(referenceDate, holding.id) ?: return null</ID>
+    <ID>Filename:PlatformDataBaseBuilderExpect.ios.kt:com.eferraz.database.core.PlatformDataBaseBuilderExpect.ios.kt</ID>
+    <ID>Filename:PlatformDataBaseBuilderExpect.jvm.kt:com.eferraz.database.core.PlatformDataBaseBuilderExpect.jvm.kt</ID>
+    <ID>FinalNewline:AppDatabase.kt:com.eferraz.database.core.AppDatabase.kt</ID>
+    <ID>FinalNewline:AppDatabaseConstructor.kt:com.eferraz.database.core.AppDatabaseConstructor.kt</ID>
+    <ID>FinalNewline:AssetDataSource.kt:com.eferraz.database.datasources.AssetDataSource.kt</ID>
+    <ID>FinalNewline:AssetDataSourceImpl.kt:com.eferraz.database.datasources.impl.AssetDataSourceImpl.kt</ID>
+    <ID>FinalNewline:AssetEntity.kt:com.eferraz.database.entities.assets.AssetEntity.kt</ID>
+    <ID>FinalNewline:AssetHoldingEntity.kt:com.eferraz.database.entities.holdings.AssetHoldingEntity.kt</ID>
+    <ID>FinalNewline:AssetHoldingWithDetails.kt:com.eferraz.database.entities.holdings.AssetHoldingWithDetails.kt</ID>
+    <ID>FinalNewline:AssetTransactionEntity.kt:com.eferraz.database.entities.transaction.AssetTransactionEntity.kt</ID>
+    <ID>FinalNewline:AssetWithDetails.kt:com.eferraz.database.entities.assets.AssetWithDetails.kt</ID>
+    <ID>FinalNewline:BaseAssetEntity.kt:com.eferraz.database.entities.assets.BaseAssetEntity.kt</ID>
+    <ID>FinalNewline:BaseTransactionEntity.kt:com.eferraz.database.entities.transaction.BaseTransactionEntity.kt</ID>
+    <ID>FinalNewline:DataBaseBuilder.kt:com.eferraz.database.core.DataBaseBuilder.kt</ID>
+    <ID>FinalNewline:DatabaseModule.kt:com.eferraz.database.di.DatabaseModule.kt</ID>
+    <ID>FinalNewline:FixedIncomeAssetEntity.kt:com.eferraz.database.entities.assets.FixedIncomeAssetEntity.kt</ID>
+    <ID>FinalNewline:HoldingHistoryDataSourceImpl.kt:com.eferraz.database.datasources.impl.HoldingHistoryDataSourceImpl.kt</ID>
+    <ID>FinalNewline:HoldingHistoryEntryEntity.kt:com.eferraz.database.entities.histories.HoldingHistoryEntryEntity.kt</ID>
+    <ID>FinalNewline:InvestmentFundAssetEntity.kt:com.eferraz.database.entities.assets.InvestmentFundAssetEntity.kt</ID>
+    <ID>FinalNewline:PlatformDataBaseBuilder.android.kt:com.eferraz.database.core.PlatformDataBaseBuilder.android.kt</ID>
+    <ID>FinalNewline:PlatformDataBaseBuilder.kt:com.eferraz.database.core.PlatformDataBaseBuilder.kt</ID>
+    <ID>FinalNewline:PlatformDataBaseBuilderExpect.ios.kt:com.eferraz.database.core.PlatformDataBaseBuilderExpect.ios.kt</ID>
+    <ID>FinalNewline:PlatformDataBaseBuilderExpect.jvm.kt:com.eferraz.database.core.PlatformDataBaseBuilderExpect.jvm.kt</ID>
+    <ID>FinalNewline:TransactionWithDetails.kt:com.eferraz.database.entities.transaction.TransactionWithDetails.kt</ID>
+    <ID>FinalNewline:VariableIncomeAssetEntity.kt:com.eferraz.database.entities.assets.VariableIncomeAssetEntity.kt</ID>
+    <ID>FunctionExpressionBody:AssetMappers.kt:{ return when { fixedIncome != null -&gt; FixedIncomeAsset( id = asset.id, issuer = issuer.toDomain(), type = fixedIncome.type, subType = fixedIncome.subType, expirationDate = fixedIncome.expirationDate, contractedYield = fixedIncome.contractedYield, cdiRelativeYield = fixedIncome.cdiRelativeYield, liquidity = asset.liquidity, observations = asset.observations ) variableIncome != null -&gt; VariableIncomeAsset( id = asset.id, name = asset.name, issuer = issuer.toDomain(), type = variableIncome.type, ticker = variableIncome.ticker, observations = asset.observations ) funds != null -&gt; InvestmentFundAsset( id = asset.id, name = asset.name, issuer = issuer.toDomain(), type = funds.type, liquidity = asset.liquidity, liquidityDays = funds.liquidityDays, expirationDate = funds.expirationDate, observations = asset.observations ) else -&gt; throw IllegalStateException("AssetWithDetails must have at least one specific asset type") } }</ID>
+    <ID>FunctionExpressionBody:BrokerageDataSourceImpl.kt:BrokerageDataSourceImpl${ return brokerageDao.getAll() .firstOrNull { it.name.equals(name, ignoreCase = true) } ?.toModel() }</ID>
+    <ID>FunctionExpressionBody:BrokerageDataSourceImpl.kt:BrokerageDataSourceImpl${ return brokerageDao.getAll().map { it.toModel() } }</ID>
+    <ID>FunctionExpressionBody:Converters.kt:Converters${ return date?.toString() }</ID>
+    <ID>FunctionExpressionBody:Converters.kt:Converters${ return dateString?.let { LocalDate.parse(it) } }</ID>
+    <ID>FunctionExpressionBody:Converters.kt:Converters${ return yearMonth?.toString() }</ID>
+    <ID>FunctionExpressionBody:Converters.kt:Converters${ return yearMonthString?.let { YearMonth.parse(it) } }</ID>
+    <ID>FunctionExpressionBody:DataBaseBuilder.kt:DataBaseBuilder${ return buildPlatform() .setDriver(BundledSQLiteDriver()) .setQueryCoroutineContext(Dispatchers.IO) .build() }</ID>
+    <ID>FunctionExpressionBody:FinancialGoalDataSourceImpl.kt:FinancialGoalDataSourceImpl${ return financialGoalDao.getAll().mapNotNull { it.toDomain() } }</ID>
+    <ID>FunctionExpressionBody:FinancialGoalDataSourceImpl.kt:FinancialGoalDataSourceImpl${ return financialGoalDao.getById(id)?.toDomain() }</ID>
+    <ID>FunctionExpressionBody:FinancialGoalDataSourceImpl.kt:FinancialGoalDataSourceImpl${ return financialGoalDao.getByName(name)?.toDomain() }</ID>
+    <ID>FunctionExpressionBody:FinancialGoalDataSourceImpl.kt:FinancialGoalDataSourceImpl${ return financialGoalDao.getByOwnerId(ownerId).mapNotNull { it.toDomain() } }</ID>
+    <ID>FunctionExpressionBody:GoalInvestmentPlanDataSourceImpl.kt:GoalInvestmentPlanDataSourceImpl${ return goalInvestmentPlanDao.getAll().mapNotNull { it.toDomain() } }</ID>
+    <ID>FunctionExpressionBody:GoalInvestmentPlanDataSourceImpl.kt:GoalInvestmentPlanDataSourceImpl${ return goalInvestmentPlanDao.getByGoalId(goalId)?.toDomain() }</ID>
+    <ID>FunctionExpressionBody:GoalInvestmentPlanDataSourceImpl.kt:GoalInvestmentPlanDataSourceImpl${ return goalInvestmentPlanDao.getById(id)?.toDomain() }</ID>
+    <ID>FunctionExpressionBody:HoldingHistoryDataSourceImpl.kt:HoldingHistoryDataSourceImpl${ return assetHoldingDataSource.getAll() }</ID>
+    <ID>FunctionExpressionBody:IssuerDataSourceImpl.kt:IssuerDataSourceImpl${ return issuerDao.getAll().map { it.toModel() } }</ID>
+    <ID>FunctionExpressionBody:IssuerDataSourceImpl.kt:IssuerDataSourceImpl${ return issuerDao.getByName(name)?.toModel() }</ID>
+    <ID>FunctionExpressionBody:OwnerDataSourceImpl.kt:OwnerDataSourceImpl${ return ownerDao.getAll().firstOrNull()?.toModel() }</ID>
+    <ID>FunctionExpressionBody:OwnerDataSourceImpl.kt:OwnerDataSourceImpl${ return ownerDao.getAll().map { it.toModel() } }</ID>
+    <ID>FunctionSignature:AssetHoldingDataSourceImpl.kt:AssetHoldingDataSourceImpl$override suspend fun getById: AssetHolding</ID>
+    <ID>FunctionSignature:AssetHoldingDataSourceImpl.kt:AssetHoldingDataSourceImpl$private fun AssetHolding.toEntity</ID>
+    <ID>FunctionSignature:AssetMappers.kt:internal fun Issuer.toEntity</ID>
+    <ID>FunctionSignature:AssetMappers.kt:private fun IssuerEntity.toDomain: Issuer</ID>
+    <ID>FunctionSignature:AssetTransactionDao.kt:AssetTransactionDao$@Transaction @Query( """ SELECT asset_transactions.* FROM asset_transactions INNER JOIN asset_holdings ON asset_transactions.holdingId = asset_holdings.id WHERE asset_holdings.goalId = :goalId AND asset_transactions.transactionDate &gt;= :startDate AND asset_transactions.transactionDate &lt;= :endDate ORDER BY asset_transactions.transactionDate DESC """ ) suspend fun getByGoalAndDateRange: List&lt;TransactionWithDetails&gt;</ID>
+    <ID>FunctionSignature:AssetTransactionDataSource.kt:AssetTransactionDataSource$public suspend fun getAllByHoldingAndDateRange: List&lt;AssetTransaction&gt;</ID>
+    <ID>FunctionSignature:AssetTransactionDataSource.kt:AssetTransactionDataSource$public suspend fun getByGoalAndReferenceDate: List&lt;AssetTransaction&gt;</ID>
+    <ID>FunctionSignature:AssetTransactionDataSourceImpl.kt:AssetTransactionDataSourceImpl$override suspend fun getByGoalAndReferenceDate</ID>
+    <ID>FunctionSignature:BrokerageDataSourceImpl.kt:BrokerageDataSourceImpl$private fun BrokerageEntity.toModel</ID>
+    <ID>FunctionSignature:DataBaseBuilder.kt:DataBaseBuilder$fun databaseName</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideAssetDao: AssetDao</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideAssetHoldingDao: AssetHoldingDao</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideAssetTransactionDao: AssetTransactionDao</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideBrokerageDao: BrokerageDao</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideDatabase: AppDatabase</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideFinancialGoalDao: FinancialGoalDao</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideGoalInvestmentPlanDao: GoalInvestmentPlanDao</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideHoldingHistoryDao: HoldingHistoryDao</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideIssuerDao: IssuerDao</ID>
+    <ID>FunctionSignature:DatabaseModule.kt:DatabaseModule$@Single internal fun provideOwnerDao: OwnerDao</ID>
+    <ID>FunctionSignature:FinancialGoalDataSourceImpl.kt:FinancialGoalDataSourceImpl$private fun FinancialGoal.toEntity</ID>
+    <ID>FunctionSignature:GoalInvestmentPlanDataSourceImpl.kt:GoalInvestmentPlanDataSourceImpl$private fun GoalInvestmentPlan.toEntity</ID>
+    <ID>FunctionSignature:HoldingHistoryDataSource.kt:HoldingHistoryDataSource$public suspend fun getByHoldingAndReferenceDate: HoldingHistoryEntry?</ID>
+    <ID>FunctionSignature:HoldingHistoryDataSourceImpl.kt:HoldingHistoryDataSourceImpl$override suspend fun getByHoldingAndReferenceDate: HoldingHistoryEntry?</ID>
+    <ID>FunctionSignature:IssuerDataSourceImpl.kt:IssuerDataSourceImpl$private fun IssuerEntity.toModel</ID>
+    <ID>FunctionSignature:OwnerDataSourceImpl.kt:OwnerDataSourceImpl$private fun OwnerEntity.toModel</ID>
+    <ID>ImportOrdering:AppDatabase.kt:import androidx.room.AutoMigration import androidx.room.ConstructedBy import androidx.room.Database import androidx.room.RoomDatabase import androidx.room.TypeConverters import com.eferraz.database.core.converters.Converters import com.eferraz.database.daos.AssetDao import com.eferraz.database.daos.AssetHoldingDao import com.eferraz.database.daos.AssetTransactionDao import com.eferraz.database.daos.BrokerageDao import com.eferraz.database.daos.FinancialGoalDao import com.eferraz.database.daos.GoalInvestmentPlanDao import com.eferraz.database.daos.HoldingHistoryDao import com.eferraz.database.daos.IssuerDao import com.eferraz.database.daos.OwnerDao import com.eferraz.database.entities.assets.AssetEntity import com.eferraz.database.entities.goals.FinancialGoalEntity import com.eferraz.database.entities.goals.GoalInvestmentPlanEntity import com.eferraz.database.entities.holdings.AssetHoldingEntity import com.eferraz.database.entities.transaction.AssetTransactionEntity import com.eferraz.database.entities.supports.BrokerageEntity import com.eferraz.database.entities.assets.FixedIncomeAssetEntity import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity import com.eferraz.database.entities.transaction.FundsTransactionEntity import com.eferraz.database.entities.histories.HoldingHistoryEntryEntity import com.eferraz.database.entities.assets.InvestmentFundAssetEntity import com.eferraz.database.entities.supports.IssuerEntity import com.eferraz.database.entities.supports.OwnerEntity import com.eferraz.database.entities.assets.VariableIncomeAssetEntity import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity import com.eferraz.database.migrations.Migration3To4</ID>
+    <ID>ImportOrdering:AssetDao.kt:import androidx.room.Dao import androidx.room.Query import androidx.room.Transaction import androidx.room.Upsert import com.eferraz.database.entities.assets.AssetEntity import com.eferraz.database.entities.assets.FixedIncomeAssetEntity import com.eferraz.database.entities.assets.InvestmentFundAssetEntity import com.eferraz.database.entities.assets.VariableIncomeAssetEntity import com.eferraz.database.entities.assets.AssetWithDetails import com.eferraz.entities.assets.InvestmentCategory</ID>
+    <ID>ImportOrdering:AssetHoldingDataSource.kt:import com.eferraz.entities.holdings.AssetHolding import com.eferraz.entities.assets.InvestmentCategory</ID>
+    <ID>ImportOrdering:AssetMappers.kt:import com.eferraz.database.entities.supports.IssuerEntity import com.eferraz.database.entities.assets.AssetEntity import com.eferraz.database.entities.assets.AssetWithDetails import com.eferraz.database.entities.assets.FixedIncomeAssetEntity import com.eferraz.database.entities.assets.InvestmentFundAssetEntity import com.eferraz.database.entities.assets.VariableIncomeAssetEntity import com.eferraz.entities.assets.Asset import com.eferraz.entities.assets.FixedIncomeAsset import com.eferraz.entities.assets.InvestmentFundAsset import com.eferraz.entities.assets.Issuer import com.eferraz.entities.assets.VariableIncomeAsset</ID>
+    <ID>ImportOrdering:TransactionMappers.kt:import com.eferraz.database.entities.transaction.AssetTransactionEntity import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity import com.eferraz.database.entities.transaction.FundsTransactionEntity import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity import com.eferraz.database.entities.transaction.TransactionWithDetails import com.eferraz.entities.holdings.AssetHolding import com.eferraz.entities.transactions.AssetTransaction import com.eferraz.entities.transactions.FixedIncomeTransaction import com.eferraz.entities.transactions.FundsTransaction import com.eferraz.entities.transactions.VariableIncomeTransaction</ID>
+    <ID>Indentation:FixedIncomeTransactionEntity.kt:FixedIncomeTransactionEntity$ </ID>
+    <ID>Indentation:FundsTransactionEntity.kt:FundsTransactionEntity$ </ID>
+    <ID>Indentation:VariableIncomeTransactionEntity.kt:VariableIncomeTransactionEntity$ </ID>
+    <ID>MatchingDeclarationName:PlatformDataBaseBuilderExpect.ios.kt:PlatformDataBaseBuilder : DataBaseBuilder</ID>
+    <ID>MatchingDeclarationName:PlatformDataBaseBuilderExpect.jvm.kt:PlatformDataBaseBuilder : DataBaseBuilder</ID>
+    <ID>MaxLineLength:AssetTransactionDao.kt:AssetTransactionDao$suspend</ID>
+    <ID>MaxLineLength:AssetTransactionDataSource.kt:AssetTransactionDataSource$public suspend fun getAllByHoldingAndDateRange: List&lt;AssetTransaction&gt;</ID>
+    <ID>MaxLineLength:AssetTransactionDataSource.kt:AssetTransactionDataSource$public suspend fun getByGoalAndReferenceDate: List&lt;AssetTransaction&gt;</ID>
+    <ID>MaxLineLength:DatabaseModule.kt:DatabaseModule$internal</ID>
+    <ID>MaxLineLength:HoldingHistoryDataSource.kt:HoldingHistoryDataSource$public suspend fun getByHoldingAndReferenceDate: HoldingHistoryEntry?</ID>
+    <ID>MaxLineLength:HoldingHistoryDataSourceImpl.kt:HoldingHistoryDataSourceImpl$override suspend</ID>
+    <ID>MaxLineLength:HoldingHistoryDataSourceImpl.kt:HoldingHistoryDataSourceImpl$val historyWithDetails = holdingHistoryDao.getByHoldingAndReferenceDate(referenceDate, holding.id) ?: return null</ID>
+    <ID>MaximumLineLength:AssetTransactionDao.kt:AssetTransactionDao$&gt;</ID>
+    <ID>MaximumLineLength:AssetTransactionDataSource.kt:AssetTransactionDataSource$&gt;</ID>
+    <ID>MaximumLineLength:DatabaseModule.kt:DatabaseModule$)</ID>
+    <ID>MaximumLineLength:HoldingHistoryDataSource.kt:HoldingHistoryDataSource$?</ID>
+    <ID>MaximumLineLength:HoldingHistoryDataSourceImpl.kt:HoldingHistoryDataSourceImpl$null</ID>
+    <ID>MaximumLineLength:HoldingHistoryDataSourceImpl.kt:HoldingHistoryDataSourceImpl${</ID>
+    <ID>NewLineAtEndOfFile:AppDatabase.kt:com.eferraz.database.core.AppDatabase.kt</ID>
+    <ID>NewLineAtEndOfFile:AppDatabaseConstructor.kt:com.eferraz.database.core.AppDatabaseConstructor.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetDataSource.kt:com.eferraz.database.datasources.AssetDataSource.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetDataSourceImpl.kt:com.eferraz.database.datasources.impl.AssetDataSourceImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetEntity.kt:com.eferraz.database.entities.assets.AssetEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetHoldingEntity.kt:com.eferraz.database.entities.holdings.AssetHoldingEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetHoldingWithDetails.kt:com.eferraz.database.entities.holdings.AssetHoldingWithDetails.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetTransactionEntity.kt:com.eferraz.database.entities.transaction.AssetTransactionEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:AssetWithDetails.kt:com.eferraz.database.entities.assets.AssetWithDetails.kt</ID>
+    <ID>NewLineAtEndOfFile:BaseAssetEntity.kt:com.eferraz.database.entities.assets.BaseAssetEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:BaseTransactionEntity.kt:com.eferraz.database.entities.transaction.BaseTransactionEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:DataBaseBuilder.kt:com.eferraz.database.core.DataBaseBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:DatabaseModule.kt:com.eferraz.database.di.DatabaseModule.kt</ID>
+    <ID>NewLineAtEndOfFile:FixedIncomeAssetEntity.kt:com.eferraz.database.entities.assets.FixedIncomeAssetEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:HoldingHistoryDataSourceImpl.kt:com.eferraz.database.datasources.impl.HoldingHistoryDataSourceImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:HoldingHistoryEntryEntity.kt:com.eferraz.database.entities.histories.HoldingHistoryEntryEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:InvestmentFundAssetEntity.kt:com.eferraz.database.entities.assets.InvestmentFundAssetEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:PlatformDataBaseBuilder.android.kt:com.eferraz.database.core.PlatformDataBaseBuilder.android.kt</ID>
+    <ID>NewLineAtEndOfFile:PlatformDataBaseBuilder.kt:com.eferraz.database.core.PlatformDataBaseBuilder.kt</ID>
+    <ID>NewLineAtEndOfFile:PlatformDataBaseBuilderExpect.ios.kt:com.eferraz.database.core.PlatformDataBaseBuilderExpect.ios.kt</ID>
+    <ID>NewLineAtEndOfFile:PlatformDataBaseBuilderExpect.jvm.kt:com.eferraz.database.core.PlatformDataBaseBuilderExpect.jvm.kt</ID>
+    <ID>NewLineAtEndOfFile:TransactionWithDetails.kt:com.eferraz.database.entities.transaction.TransactionWithDetails.kt</ID>
+    <ID>NewLineAtEndOfFile:VariableIncomeAssetEntity.kt:com.eferraz.database.entities.assets.VariableIncomeAssetEntity.kt</ID>
+    <ID>NoConsecutiveBlankLines:AssetHoldingDao.kt: </ID>
+    <ID>NoConsecutiveBlankLines:AssetHoldingDataSource.kt: </ID>
+    <ID>NoConsecutiveBlankLines:AssetHoldingDataSourceImpl.kt: </ID>
+    <ID>NoConsecutiveBlankLines:AssetMappers.kt: </ID>
+    <ID>NoConsecutiveBlankLines:BrokerageDao.kt: </ID>
+    <ID>NoConsecutiveBlankLines:BrokerageDataSource.kt: </ID>
+    <ID>NoConsecutiveBlankLines:BrokerageDataSourceImpl.kt: </ID>
+    <ID>NoConsecutiveBlankLines:BrokerageEntity.kt: </ID>
+    <ID>NoConsecutiveBlankLines:Converters.kt: </ID>
+    <ID>NoConsecutiveBlankLines:HoldingHistoryDataSource.kt: </ID>
+    <ID>NoConsecutiveBlankLines:HoldingHistoryWithDetails.kt: </ID>
+    <ID>NoConsecutiveBlankLines:IssuerDao.kt: </ID>
+    <ID>NoConsecutiveBlankLines:IssuerDataSource.kt: </ID>
+    <ID>NoConsecutiveBlankLines:IssuerDataSourceImpl.kt: </ID>
+    <ID>NoConsecutiveBlankLines:IssuerEntity.kt: </ID>
+    <ID>NoConsecutiveBlankLines:OwnerDao.kt: </ID>
+    <ID>NoConsecutiveBlankLines:OwnerDataSource.kt: </ID>
+    <ID>NoConsecutiveBlankLines:OwnerDataSourceImpl.kt: </ID>
+    <ID>NoConsecutiveBlankLines:OwnerEntity.kt: </ID>
+    <ID>ParameterListWrapping:AssetTransactionDao.kt:AssetTransactionDao$(goalId: Long, startDate: LocalDate, endDate: LocalDate)</ID>
+    <ID>ParameterListWrapping:AssetTransactionDataSource.kt:AssetTransactionDataSource$(goalId: Long, startDate: LocalDate, endDate: LocalDate)</ID>
+    <ID>ParameterListWrapping:AssetTransactionDataSource.kt:AssetTransactionDataSource$(holding: AssetHolding, startDate: LocalDate, endDate: LocalDate)</ID>
+    <ID>ParameterListWrapping:DatabaseModule.kt:DatabaseModule$(database: AppDatabase)</ID>
+    <ID>ParameterListWrapping:HoldingHistoryDataSource.kt:HoldingHistoryDataSource$(referenceDate: YearMonth, holding: AssetHolding)</ID>
+    <ID>ReturnCount:AssetHoldingDataSourceImpl.kt:AssetHoldingDataSourceImpl$override suspend fun getByAssetId: AssetHolding?</ID>
+    <ID>SpacingAroundOperators:PlatformDataBaseBuilderExpect.jvm.kt:PlatformDataBaseBuilder$+</ID>
+    <ID>TooManyFunctionsInFile:AssetTransactionDao.kt:AssetTransactionDao</ID>
+    <ID>ValueParameterComment:InvestmentFundAssetEntity.kt:InvestmentFundAssetEntity$// Opcional</ID>
+    <ID>ValueParameterComment:VariableIncomeAssetEntity.kt:VariableIncomeAssetEntity$// UNIQUE</ID>
+    <ID>Wrapping:AssetDao.kt:AssetDao$(</ID>
+    <ID>Wrapping:AssetHoldingDao.kt:AssetHoldingDao$(</ID>
+  </CurrentIssues>
+</SmellBaseline>
