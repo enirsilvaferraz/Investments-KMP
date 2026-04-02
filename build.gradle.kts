@@ -9,4 +9,6 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.room) apply false
     alias(libs.plugins.koin.compiler) apply false
+    alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.foundation.detekt) apply true
 }
