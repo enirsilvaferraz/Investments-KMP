@@ -20,7 +20,11 @@ public interface UiTableContentProvider {
     public fun Header(text: String, color: Color)
 
     @Composable
-    public fun Column(index: Int, text: String, alignment: Alignment)
+    public fun Column(
+        index: Int,
+        text: String,
+        alignment: Alignment
+    )
 
     @Composable
     public fun Cell(index: Int, text: Any)
@@ -46,12 +50,16 @@ public open class UiTableContentProviderImpl : UiTableContentProvider {
     }
 
     @Composable
-    override fun Column(index: Int, text: String, alignment: Alignment) {
+    override fun Column(
+        index: Int,
+        text: String,
+        alignment: Alignment
+    ) {
         Text(
             text = text,
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(0.dp).fillMaxWidth(),
-            textAlign = when(alignment) {
+            textAlign = when (alignment) {
                 Alignment.CenterEnd -> TextAlign.End
                 Alignment.CenterStart -> TextAlign.Start
                 else -> TextAlign.Center
@@ -80,7 +88,7 @@ public open class UiTableContentProviderImpl : UiTableContentProvider {
 //        Box(
 //            modifier = Modifier.fillMaxWidth()
 //        ) {
-            footer()
+        footer()
 //        }
     }
 }

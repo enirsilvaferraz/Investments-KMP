@@ -43,18 +43,19 @@ internal class BrApiQuoteDataSourceImpl(
         }.body<BrApiQuoteResponse>().results.first().toModel(referenceDate)
     }
 
-    private fun QuoteResult.toModel(): StockQuoteHistory = StockQuoteHistory(
-        id = 0,
-        ticker = symbol,
-        date = (regularMarketTime ?: "1970-01-01T00:00:00Z").toDate(),
-        open = regularMarketOpen,
-        high = regularMarketDayHigh,
-        low = regularMarketDayLow,
-        close = regularMarketPrice,
-        volume = regularMarketVolume,
-        adjustedClose = regularMarketPrice,
-        companyName = longName
-    )
+    private fun QuoteResult.toModel(): StockQuoteHistory =
+        StockQuoteHistory(
+            id = 0,
+            ticker = symbol,
+            date = (regularMarketTime ?: "1970-01-01T00:00:00Z").toDate(),
+            open = regularMarketOpen,
+            high = regularMarketDayHigh,
+            low = regularMarketDayLow,
+            close = regularMarketPrice,
+            volume = regularMarketVolume,
+            adjustedClose = regularMarketPrice,
+            companyName = longName
+        )
 
     private fun QuoteResult.toModel(yearMonth: YearMonth): StockQuoteHistory {
 
@@ -63,8 +64,9 @@ internal class BrApiQuoteDataSourceImpl(
             ?.filter { (date, _) -> YearMonth(date.year, date.month) == yearMonth }
             ?: throw IllegalStateException("Nenhum dado histórico disponível para o mês $yearMonth")
 
-        if (quotesInMonth.isEmpty())
+        if (quotesInMonth.isEmpty()) {
             throw IllegalStateException("Nenhuma cotação encontrada para o mês $yearMonth")
+        }
 
         val lastQuote = quotesInMonth
             .maxByOrNull { (date, _) -> date }

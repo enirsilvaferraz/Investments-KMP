@@ -42,7 +42,11 @@ internal class AssetTransactionDataSourceImpl(
         return transactionsWithDetails.map { it.toDomain(holding) }
     }
 
-    override suspend fun getByGoalAndReferenceDate(goalId: Long, startDate: LocalDate, endDate: LocalDate) =
+    override suspend fun getByGoalAndReferenceDate(
+        goalId: Long,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ) =
         assetTransactionDao.getByGoalAndDateRange(
             goalId = goalId,
             startDate = startDate,

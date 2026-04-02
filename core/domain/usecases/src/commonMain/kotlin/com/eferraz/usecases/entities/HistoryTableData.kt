@@ -3,10 +3,10 @@ package com.eferraz.usecases.entities
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
-import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.holdings.HoldingHistoryEntry
 import kotlinx.datetime.LocalDate
 
 /**
@@ -65,6 +65,7 @@ public sealed interface HistoryTableData {
      * Total de retiradas no período.
      */
     public val totalWithdrawals: Double
+
     /**
      * Total de saldo no período.
      */
@@ -191,4 +192,3 @@ public data class InvestmentFundHistoryTableData(
     override val displayName: String,
     override val category: InvestmentCategory = InvestmentCategory.INVESTMENT_FUND
 ) : HistoryTableData
-

@@ -23,16 +23,16 @@ public class Growth private constructor(
          * @param previousValue Valor anterior (deve ser > 0 para evitar divisão por zero).
          * @param currentValue Valor atual.
          */
-        private fun calculate(
-            previousValue: Double,
-            currentValue: Double,
-        ): Growth {
+        private fun calculate(previousValue: Double, currentValue: Double,): Growth {
 
             val growthValue = currentValue - previousValue
 
             val percentage =
-                if (previousValue > 0) growthValue / previousValue * 100
-                else 0.0
+                if (previousValue > 0) {
+                    growthValue / previousValue * 100
+                } else {
+                    0.0
+                }
 
             return Growth(value = growthValue, percentage = percentage)
         }

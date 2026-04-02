@@ -23,14 +23,14 @@ public class SetBrokerageToHoldingUseCase(
     )
 
     override suspend fun execute(param: Param) {
-        
+
         val existingHolding = assetHoldingRepository.getByAssetId(param.assetId)
 
         when {
-            
+
             // Caso 1: Corretora foi informada
             param.brokerage != null -> upsert(param.assetId, existingHolding, param.brokerage)
-            
+
             // Caso 2: Corretora foi removida (null) e existe AssetHolding
             existingHolding != null -> delete(existingHolding)
         }
@@ -58,4 +58,3 @@ public class SetBrokerageToHoldingUseCase(
         assetHoldingRepository.delete(existingHolding.id)
     }
 }
-

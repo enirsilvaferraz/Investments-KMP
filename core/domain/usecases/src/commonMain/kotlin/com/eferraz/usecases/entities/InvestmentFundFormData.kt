@@ -18,4 +18,3 @@ public data class InvestmentFundFormData(
     override val brokerageName: String? = null,
     override val goalName: String? = null,
 ) : AssetFormData()
-

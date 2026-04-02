@@ -9,16 +9,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-internal fun <T> inputTextCell(
-    formated: T.() -> String,
-): @Composable RowScope.(T) -> Unit = {
-    Text(
-        modifier = Modifier.padding(horizontal = 8.dp),
-        text = formated(it),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurface
-    )
-}
+internal fun <T> inputTextCell(formated: T.() -> String,): @Composable RowScope.(T) -> Unit =
+    {
+        Text(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            text = formated(it),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
 
 /**
  * Função de compatibilidade com a API antiga
@@ -36,9 +35,8 @@ internal fun <T> TableColumn(
     formated: T.() -> String = { data().toString() },
     cellContent: @Composable RowScope.(T) -> Unit = inputTextCell(formated),
     footerOperation: ((List<T>) -> String?)? = null,
-): TableColumn<T> {
-
-    return TableColumn(
+): TableColumn<T> =
+    TableColumn(
         title = title,
         weight = weight,
         alignment = alignment,
@@ -46,4 +44,3 @@ internal fun <T> TableColumn(
         cellContent = cellContent,
         footerOperation = footerOperation
     )
-}

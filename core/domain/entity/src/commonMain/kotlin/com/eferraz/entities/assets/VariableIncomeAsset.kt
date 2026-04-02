@@ -1,8 +1,8 @@
 package com.eferraz.entities.assets
 
+import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
-import com.eferraz.entities.assets.CNPJ
 
 /**
  * Representa um ativo de renda variável.

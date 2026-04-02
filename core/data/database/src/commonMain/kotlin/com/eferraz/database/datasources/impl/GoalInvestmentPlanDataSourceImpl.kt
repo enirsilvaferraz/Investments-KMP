@@ -18,17 +18,16 @@ internal class GoalInvestmentPlanDataSourceImpl(
         return goalInvestmentPlanDao.upsert(entity)
     }
 
-    override suspend fun getAll(): List<GoalInvestmentPlan> {
-        return goalInvestmentPlanDao.getAll().mapNotNull { it.toDomain() }
-    }
+    override suspend fun getAll(): List<GoalInvestmentPlan> =
+        goalInvestmentPlanDao.getAll().mapNotNull {
+            it.toDomain()
+        }
 
-    override suspend fun getById(id: Long): GoalInvestmentPlan? {
-        return goalInvestmentPlanDao.getById(id)?.toDomain()
-    }
+    override suspend fun getById(id: Long): GoalInvestmentPlan? =
+        goalInvestmentPlanDao.getById(id)?.toDomain()
 
-    override suspend fun getByGoalId(goalId: Long): GoalInvestmentPlan? {
-        return goalInvestmentPlanDao.getByGoalId(goalId)?.toDomain()
-    }
+    override suspend fun getByGoalId(goalId: Long): GoalInvestmentPlan? =
+        goalInvestmentPlanDao.getByGoalId(goalId)?.toDomain()
 
     override suspend fun delete(id: Long) {
         goalInvestmentPlanDao.deleteById(id)
@@ -49,11 +48,12 @@ internal class GoalInvestmentPlanDataSourceImpl(
         )
     }
 
-    private fun GoalInvestmentPlan.toEntity() = GoalInvestmentPlanEntity(
-        id = id ?: 0,
-        goalId = goal.id,
-        monthlyContribution = contribution,
-        monthlyReturnRate = appreciationRate,
-        initialValue = initialValue
-    )
+    private fun GoalInvestmentPlan.toEntity() =
+        GoalInvestmentPlanEntity(
+            id = id ?: 0,
+            goalId = goal.id,
+            monthlyContribution = contribution,
+            monthlyReturnRate = appreciationRate,
+            initialValue = initialValue
+        )
 }

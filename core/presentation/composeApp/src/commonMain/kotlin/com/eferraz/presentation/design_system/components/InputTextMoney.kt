@@ -48,7 +48,7 @@ internal fun InputTextMoney(
     LaunchedEffect(value) {
         val currentTextValue = textFieldValueState.text.trimStart { it == '0' }
         val currentValue = if (currentTextValue.isEmpty()) 0.0 else currentTextValue.toDouble() / 100
-        
+
         // Só atualiza se o valor externo for diferente do valor atual do campo
         // Isso evita resetar o campo quando o usuário está editando
         if (kotlin.math.abs(currentValue - value) > 0.001) {
@@ -120,8 +120,11 @@ internal fun InputTextMoney(
 
                 val string = filteredText.trimStart { it == '0' }
 
-                if (string.isEmpty()) onValueChange(null)
-                else onValueChange(string.toDouble() / 100)
+                if (string.isEmpty()) {
+                    onValueChange(null)
+                } else {
+                    onValueChange(string.toDouble() / 100)
+                }
 
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),

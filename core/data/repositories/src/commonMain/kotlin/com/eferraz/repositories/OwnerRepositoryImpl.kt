@@ -9,8 +9,9 @@ internal class OwnerRepositoryImpl(
     private val dataSource: OwnerDataSource,
 ) : OwnerRepository {
 
-    override suspend fun getAll() = dataSource.getAll()
+    override suspend fun getAll() =
+        dataSource.getAll()
 
-    override suspend fun getFirst() = dataSource.getFirst()
+    override suspend fun getFirst() =
+        dataSource.getFirst()
 }
-

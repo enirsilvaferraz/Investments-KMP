@@ -14,9 +14,8 @@ internal class ResponsiveState(
 ) {
     val columnCount: Int get() = weights.size
 
-    fun getWeight(index: Int): Float {
-        return if (index in weights.indices) weights[index] else 1.0f
-    }
+    fun getWeight(index: Int): Float =
+        if (index in weights.indices) weights[index] else 1.0f
 }
 
 // ============================================================================
@@ -24,7 +23,7 @@ internal class ResponsiveState(
 // ============================================================================
 
 @Composable
-internal fun rememberResponsiveState(weights: List<Float>): ResponsiveState {
-    return remember(weights) { ResponsiveState(weights) }
-}
-
+internal fun rememberResponsiveState(weights: List<Float>): ResponsiveState =
+    remember(weights) {
+        ResponsiveState(weights)
+    }

@@ -18,4 +18,3 @@ internal data class OwnerEntity(
     @ColumnInfo(name = "name")
     val name: String
 )
-

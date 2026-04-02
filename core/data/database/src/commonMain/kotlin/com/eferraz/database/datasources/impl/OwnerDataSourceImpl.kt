@@ -11,17 +11,15 @@ internal class OwnerDataSourceImpl(
     private val ownerDao: OwnerDao,
 ) : OwnerDataSource {
 
-    override suspend fun getAll(): List<Owner> {
-        return ownerDao.getAll().map { it.toModel() }
-    }
+    override suspend fun getAll(): List<Owner> =
+        ownerDao.getAll().map { it.toModel() }
 
-    override suspend fun getFirst(): Owner? {
-        return ownerDao.getAll().firstOrNull()?.toModel()
-    }
+    override suspend fun getFirst(): Owner? =
+        ownerDao.getAll().firstOrNull()?.toModel()
 
-    private fun OwnerEntity.toModel() = Owner(
-        id = id,
-        name = name
-    )
+    private fun OwnerEntity.toModel() =
+        Owner(
+            id = id,
+            name = name
+        )
 }
-

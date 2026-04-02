@@ -30,4 +30,4 @@ internal data class FundsTransactionEntity(
     @ColumnInfo(name = "totalValue")
     val totalValue: Double,
 
-    ) : BaseTransactionEntity
+) : BaseTransactionEntity

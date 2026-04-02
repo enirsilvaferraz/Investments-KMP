@@ -19,21 +19,19 @@ internal class FinancialGoalDataSourceImpl(
         return financialGoalDao.upsert(entity)
     }
 
-    override suspend fun getAll(): List<FinancialGoal> {
-        return financialGoalDao.getAll().mapNotNull { it.toDomain() }
-    }
+    override suspend fun getAll(): List<FinancialGoal> =
+        financialGoalDao.getAll().mapNotNull { it.toDomain() }
 
-    override suspend fun getById(id: Long): FinancialGoal? {
-        return financialGoalDao.getById(id)?.toDomain()
-    }
+    override suspend fun getById(id: Long): FinancialGoal? =
+        financialGoalDao.getById(id)?.toDomain()
 
-    override suspend fun getByName(name: String): FinancialGoal? {
-        return financialGoalDao.getByName(name)?.toDomain()
-    }
+    override suspend fun getByName(name: String): FinancialGoal? =
+        financialGoalDao.getByName(name)?.toDomain()
 
-    override suspend fun getByOwnerId(ownerId: Long): List<FinancialGoal> {
-        return financialGoalDao.getByOwnerId(ownerId).mapNotNull { it.toDomain() }
-    }
+    override suspend fun getByOwnerId(ownerId: Long): List<FinancialGoal> =
+        financialGoalDao.getByOwnerId(ownerId).mapNotNull {
+            it.toDomain()
+        }
 
     override suspend fun delete(id: Long) {
         financialGoalDao.deleteById(id)
@@ -51,12 +49,13 @@ internal class FinancialGoalDataSourceImpl(
         )
     }
 
-    private fun FinancialGoal.toEntity() = FinancialGoalEntity(
-        id = id,
-        ownerId = owner.id,
-        name = name,
-        targetValue = targetValue,
-        startDate = startDate,
-        description = description
-    )
+    private fun FinancialGoal.toEntity() =
+        FinancialGoalEntity(
+            id = id,
+            ownerId = owner.id,
+            name = name,
+            targetValue = targetValue,
+            startDate = startDate,
+            description = description
+        )
 }

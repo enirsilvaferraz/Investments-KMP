@@ -11,13 +11,11 @@ internal class IssuerDataSourceImpl(
     private val issuerDao: IssuerDao,
 ) : IssuerDataSource {
 
-    override suspend fun getAll(): List<Issuer> {
-        return issuerDao.getAll().map { it.toModel() }
-    }
+    override suspend fun getAll(): List<Issuer> =
+        issuerDao.getAll().map { it.toModel() }
 
-    override suspend fun getByName(name: String): Issuer? {
-        return issuerDao.getByName(name)?.toModel()
-    }
+    override suspend fun getByName(name: String): Issuer? =
+        issuerDao.getByName(name)?.toModel()
 
     override suspend fun create(name: String): Issuer {
         val entity = IssuerEntity(name = name.trim())
@@ -25,10 +23,10 @@ internal class IssuerDataSourceImpl(
         return Issuer(id = id, name = name.trim())
     }
 
-    private fun IssuerEntity.toModel() = Issuer(
-        id = id,
-        name = name,
-        isInLiquidation = isInLiquidation
-    )
+    private fun IssuerEntity.toModel() =
+        Issuer(
+            id = id,
+            name = name,
+            isInLiquidation = isInLiquidation
+        )
 }
-

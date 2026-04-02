@@ -18,6 +18,7 @@ internal val errorLight = Color(0xFFBA1A1A)
 internal val onErrorLight = Color(0xFFFFFFFF)
 internal val errorContainerLight = Color(0xFFFFDAD6)
 internal val onErrorContainerLight = Color(0xFF93000A)
+
 // Background e Surface - melhor contraste
 internal val backgroundLight = Color(0xFFFAFBFC)
 internal val onBackgroundLight = Color(0xFF1A1C1E)

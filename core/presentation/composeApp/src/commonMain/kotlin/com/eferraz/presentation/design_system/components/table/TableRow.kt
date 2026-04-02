@@ -45,11 +45,12 @@ internal fun <T> TableRow(
             }
         }
 
-        if (showDivider)
+        if (showDivider) {
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 color = dividerColor,
                 thickness = 1.dp
             )
+        }
     }
 }

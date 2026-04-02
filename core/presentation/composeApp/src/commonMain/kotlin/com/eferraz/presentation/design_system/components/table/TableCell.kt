@@ -12,10 +12,7 @@ import androidx.compose.ui.unit.dp
  * Célula individual da tabela
  */
 @Composable
-internal fun <T> RowScope.TableCell(
-    item: T,
-    column: TableColumn<T>,
-) {
+internal fun <T> RowScope.TableCell(item: T, column: TableColumn<T>,) {
 
     Box(
         modifier = Modifier.weight(column.weight)

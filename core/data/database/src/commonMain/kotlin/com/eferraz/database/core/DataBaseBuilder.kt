@@ -8,14 +8,14 @@ import org.koin.core.component.KoinComponent
 
 internal interface DataBaseBuilder : KoinComponent {
 
-    fun build(): AppDatabase {
-        return buildPlatform()
+    fun build(): AppDatabase =
+        buildPlatform()
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()
-    }
 
     fun buildPlatform(): RoomDatabase.Builder<AppDatabase>
 
-    fun databaseName() = "investiments-kmp.db"
+    fun databaseName() =
+        "investiments-kmp.db"
 }

@@ -46,4 +46,3 @@ public suspend inline fun <T> measureTimeMillis(label: String, block: suspend ()
 @PublishedApi
 internal suspend inline fun <T> measureTimeMillisSuspend(label: String, block: suspend () -> T): Pair<Long, T> =
     measureTimeMillis(label, block)
-

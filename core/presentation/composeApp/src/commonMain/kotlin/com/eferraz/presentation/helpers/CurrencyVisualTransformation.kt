@@ -16,8 +16,10 @@ internal object CurrencyVisualTransformation : VisualTransformation {
         return TransformedText(
             text = AnnotatedString(text = formattedValue),
             offsetMapping = object : OffsetMapping {
-                override fun originalToTransformed(offset: Int): Int = formattedValue.length
-                override fun transformedToOriginal(offset: Int): Int = text.text.length
+                override fun originalToTransformed(offset: Int): Int =
+                    formattedValue.length
+                override fun transformedToOriginal(offset: Int): Int =
+                    text.text.length
             }
         )
     }

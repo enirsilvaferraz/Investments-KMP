@@ -9,5 +9,6 @@ public value class MandatoryText(private val value: String) {
         if (value.isEmpty()) throw IllegalArgumentException("MandatoryText cannot be empty")
     }
 
-    public fun get(): String = value
+    public fun get(): String =
+        value
 }

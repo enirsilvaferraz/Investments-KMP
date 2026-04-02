@@ -63,16 +63,14 @@ internal class SortDataCalculator<T>(
         data: List<T>,
         sortState: SortState,
         columns: List<((T) -> Comparable<*>)?>,
-    ): List<T> {
-
-        return data.sortedWith(
+    ): List<T> =
+        data.sortedWith(
             strategy.createComparator(
                 sortState.sortedColumnIndex,
                 sortState.isAscending,
                 columns
             )
         )
-    }
 }
 
 // ============================================================================
@@ -122,4 +120,3 @@ internal fun <T> rememberSortState(
 
     return manager
 }
-

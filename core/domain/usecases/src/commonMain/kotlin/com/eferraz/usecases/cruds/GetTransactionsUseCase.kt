@@ -17,7 +17,8 @@ public class GetTransactionsUseCase(
     public sealed interface Params
     public data class ReferenceDate(val date: YearMonth) : Params
 
-    override suspend fun execute(param: Params): List<AssetTransaction> = when (param) {
-        is ReferenceDate -> assetTransactionRepository.getByReferenceDate(param.date)
-    }
+    override suspend fun execute(param: Params): List<AssetTransaction> =
+        when (param) {
+            is ReferenceDate -> assetTransactionRepository.getByReferenceDate(param.date)
+        }
 }

@@ -1,7 +1,7 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.holdings.AssetHolding
 
 public interface AssetHoldingDataSource {
     public suspend fun getById(holdingId: Long): AssetHolding
@@ -13,4 +13,3 @@ public interface AssetHoldingDataSource {
     public suspend fun getByGoalId(goalId: Long): List<AssetHolding>
     public suspend fun delete(id: Long)
 }
-

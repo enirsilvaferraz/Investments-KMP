@@ -73,4 +73,3 @@ internal fun <T> EnumDropdown(
         }
     }
 }
-

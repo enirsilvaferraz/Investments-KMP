@@ -57,7 +57,11 @@ internal class AssetFormViewModel(
             is AssetFormIntent.UpdateFundType -> updateInvestmentFund { it.copy(type = intent.type) }
             is AssetFormIntent.UpdateFundName -> updateInvestmentFund { it.copy(name = intent.name) }
             is AssetFormIntent.UpdateLiquidityDays -> updateInvestmentFund { it.copy(liquidityDays = intent.days) }
-            is AssetFormIntent.UpdateFundExpirationDate -> updateInvestmentFund { it.copy(expirationDate = intent.date) }
+            is AssetFormIntent.UpdateFundExpirationDate -> updateInvestmentFund {
+                it.copy(
+                    expirationDate = intent.date
+                )
+            }
 
             // Variable Income
             is AssetFormIntent.UpdateVariableType -> updateVariableIncome { it.copy(type = intent.type) }
@@ -102,9 +106,7 @@ internal class AssetFormViewModel(
         _state.update { state -> state.copy(formData = AssetFormData.build(category)) }
     }
 
-    private inline fun <reified T : AssetFormData> updateFormField(
-        crossinline update: (T) -> AssetFormData,
-    ) {
+    private inline fun <reified T : AssetFormData> updateFormField(crossinline update: (T) -> AssetFormData,) {
         _state.update { state ->
             when (val formData = state.formData) {
                 is T -> state.copy(formData = update(formData))

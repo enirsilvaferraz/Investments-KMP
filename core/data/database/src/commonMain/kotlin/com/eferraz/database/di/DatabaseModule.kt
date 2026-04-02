@@ -20,32 +20,42 @@ import org.koin.core.annotation.Single
 public class DatabaseModule {
 
     @Single
-    internal fun provideDatabase(): AppDatabase = PlatformDataBaseBuilder.build()
+    internal fun provideDatabase(): AppDatabase =
+        PlatformDataBaseBuilder.build()
 
     @Single
-    internal fun provideAssetDao(database: AppDatabase): AssetDao = database.assetDao()
+    internal fun provideAssetDao(database: AppDatabase): AssetDao =
+        database.assetDao()
 
     @Single
-    internal fun provideAssetHoldingDao(database: AppDatabase): AssetHoldingDao = database.assetHoldingDao()
+    internal fun provideAssetHoldingDao(database: AppDatabase): AssetHoldingDao =
+        database.assetHoldingDao()
 
     @Single
-    internal fun provideHoldingHistoryDao(database: AppDatabase): HoldingHistoryDao = database.holdingHistoryDao()
+    internal fun provideHoldingHistoryDao(database: AppDatabase): HoldingHistoryDao =
+        database.holdingHistoryDao()
 
     @Single
-    internal fun provideIssuerDao(database: AppDatabase): IssuerDao = database.issuerDao()
+    internal fun provideIssuerDao(database: AppDatabase): IssuerDao =
+        database.issuerDao()
 
     @Single
-    internal fun provideOwnerDao(database: AppDatabase): OwnerDao = database.ownerDao()
+    internal fun provideOwnerDao(database: AppDatabase): OwnerDao =
+        database.ownerDao()
 
     @Single
-    internal fun provideBrokerageDao(database: AppDatabase): BrokerageDao = database.brokerageDao()
+    internal fun provideBrokerageDao(database: AppDatabase): BrokerageDao =
+        database.brokerageDao()
 
     @Single
-    internal fun provideAssetTransactionDao(database: AppDatabase): AssetTransactionDao = database.assetTransactionDao()
+    internal fun provideAssetTransactionDao(database: AppDatabase): AssetTransactionDao =
+        database.assetTransactionDao()
 
     @Single
-    internal fun provideFinancialGoalDao(database: AppDatabase): FinancialGoalDao = database.financialGoalDao()
+    internal fun provideFinancialGoalDao(database: AppDatabase): FinancialGoalDao =
+        database.financialGoalDao()
 
     @Single
-    internal fun provideGoalInvestmentPlanDao(database: AppDatabase): GoalInvestmentPlanDao = database.goalInvestmentPlanDao()
+    internal fun provideGoalInvestmentPlanDao(database: AppDatabase): GoalInvestmentPlanDao =
+        database.goalInvestmentPlanDao()
 }

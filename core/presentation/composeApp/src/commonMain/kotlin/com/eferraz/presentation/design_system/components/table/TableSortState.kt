@@ -13,10 +13,10 @@ internal class TableSortState<T> {
 
     var columnIndex: Int? by mutableStateOf(null)
         internal set
-    
+
     var ascending: Boolean by mutableStateOf(true)
         internal set
-    
+
     /**
      * Atualiza o estado de ordenação
      * @param index Índice da coluna a ordenar
@@ -26,7 +26,7 @@ internal class TableSortState<T> {
         this.ascending = if (columnIndex != index) true else ascending
         this.columnIndex = index
     }
-    
+
     /**
      * Alterna a direção de ordenação da coluna atual
      */
@@ -35,7 +35,7 @@ internal class TableSortState<T> {
             ascending = !ascending
         }
     }
-    
+
     /**
      * Reseta o estado de ordenação
      */
@@ -52,11 +52,10 @@ internal class TableSortState<T> {
 internal fun <T> rememberTableSortState(
     initialColumnIndex: Int? = null,
     initialAscending: Boolean = true
-): TableSortState<T> {
-    return remember {
+): TableSortState<T> =
+    remember {
         TableSortState<T>().apply {
             columnIndex = initialColumnIndex
             ascending = initialAscending
         }
     }
-}

@@ -115,10 +115,7 @@ internal class HistoryViewModel(
         processIntent(HistoryIntent.LoadInitialData)
     }
 
-    private fun updateEntryValue(
-        entry: HoldingHistoryEntry,
-        value: Double,
-    ) {
+    private fun updateEntryValue(entry: HoldingHistoryEntry, value: Double,) {
         viewModelScope.launch {
             updateFixedIncomeAndFundsHistoryValueUseCase(
                 UpdateFixedIncomeAndFundsHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)

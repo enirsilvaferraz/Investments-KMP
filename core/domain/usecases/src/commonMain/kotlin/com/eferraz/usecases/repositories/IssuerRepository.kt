@@ -7,4 +7,3 @@ public interface IssuerRepository {
     public suspend fun getByName(name: String): Issuer?
     public suspend fun create(name: String): Issuer
 }
-

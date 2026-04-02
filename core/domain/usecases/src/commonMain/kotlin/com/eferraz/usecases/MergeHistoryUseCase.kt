@@ -1,9 +1,9 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.holdings.AssetHolding
-import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.holdings.Appreciation
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.holdings.CreateHistoryUseCase
@@ -48,7 +48,8 @@ public class MergeHistoryUseCase(
         val previos = mapByReferenceDate(param.referenceDate.minusMonth(), holdings)
         val current = mapByReferenceDate(param.referenceDate, holdings)
 
-        return holdings.map { holding -> // TODO melhorar a performance
+        return holdings.map { holding ->
+            // TODO melhorar a performance
 
             val currentEntry = current[holding] ?: create(param.referenceDate, holding)
             val previousEntry = previos[holding] ?: create(param.referenceDate.minusMonth(), holding)
@@ -73,9 +74,14 @@ public class MergeHistoryUseCase(
     private suspend fun create(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry =
         createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
 
-    private suspend fun mapByReferenceDate(referenceDate: YearMonth, holdings: List<AssetHolding>): Map<AssetHolding, HoldingHistoryEntry?> {
+    private suspend fun mapByReferenceDate(
+        referenceDate: YearMonth,
+        holdings: List<AssetHolding>
+    ): Map<AssetHolding, HoldingHistoryEntry?> {
 
-        val histories: Map<AssetHolding, HoldingHistoryEntry> = holdingHistoryRepository.getByReferenceDate(referenceDate).associateBy(
+        val histories: Map<AssetHolding, HoldingHistoryEntry> = holdingHistoryRepository.getByReferenceDate(
+            referenceDate
+        ).associateBy(
             keySelector = { historyEntry -> historyEntry.holding },
             valueTransform = { historyEntry -> historyEntry }
         )

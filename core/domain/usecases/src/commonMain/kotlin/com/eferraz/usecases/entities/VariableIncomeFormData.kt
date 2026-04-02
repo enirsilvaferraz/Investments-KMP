@@ -16,4 +16,3 @@ public data class VariableIncomeFormData(
     override val brokerageName: String? = null,
     override val goalName: String? = null,
 ) : AssetFormData()
-

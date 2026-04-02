@@ -31,16 +31,16 @@ private val CELL_PADDING = 0.dp
 private val FOOTER_PADDING = 4.dp
 
 @Composable
-private fun headerFooterTextStyle() = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+private fun headerFooterTextStyle() =
+    MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
 
-private fun Alignment.Horizontal.toBoxAlignment(): Alignment {
-    return when (this) {
+private fun Alignment.Horizontal.toBoxAlignment(): Alignment =
+    when (this) {
         Alignment.Start -> Alignment.CenterStart
         Alignment.CenterHorizontally -> Alignment.Center
         Alignment.End -> Alignment.CenterEnd
         else -> Alignment.CenterStart
     }
-}
 
 // ============================================================================
 // INTERFACE DE RENDERIZAÇÃO DE CÉLULAS
@@ -57,16 +57,10 @@ internal interface CellRenderer<T> {
     )
 
     @Composable
-    fun renderCell(
-        column: ColumnData<T>,
-        item: T,
-    )
+    fun renderCell(column: ColumnData<T>, item: T,)
 
     @Composable
-    fun renderFooter(
-        column: ColumnData<T>,
-        data: List<T>,
-    )
+    fun renderFooter(column: ColumnData<T>, data: List<T>,)
 }
 
 // ============================================================================
@@ -159,4 +153,3 @@ internal class DefaultCellRenderer<T> : CellRenderer<T> {
         }
     }
 }
-

@@ -39,15 +39,16 @@ internal interface AssetHoldingDao {
 
     @Transaction
     @RewriteQueriesToDropUnusedColumns
-    @Query("""
+    @Query(
+        """
         SELECT * FROM asset_holdings
         INNER JOIN assets ON asset_holdings.assetId = assets.id
         WHERE assets.category = :category
-    """)
+    """
+    )
     suspend fun getAllWithAssetByCategory(category: InvestmentCategory): List<AssetHoldingWithDetails>
 
     @Transaction
     @Query("SELECT * FROM asset_holdings WHERE goalId = :goalId")
     suspend fun getAllWithAssetByGoalId(goalId: Long): List<AssetHoldingWithDetails>
 }
-

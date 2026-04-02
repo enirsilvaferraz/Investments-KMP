@@ -36,9 +36,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.design_system.components.segmented_control.SegmentedControl
 import com.eferraz.design_system.components.segmented_control.SegmentedControlChoice
-import com.eferraz.design_system.core.StableList
 import com.eferraz.design_system.components.table.UiTableDataColumn
 import com.eferraz.design_system.components.table.UiTableV3
+import com.eferraz.design_system.core.StableList
 import com.eferraz.design_system.scaffolds.AppScreenPane
 import com.eferraz.design_system.scaffolds.AppScreenScaffold
 import com.eferraz.entities.assets.InvestmentCategory
@@ -70,7 +70,11 @@ public fun HoldingHistoryRoute() {
     val state by vm.state.collectAsStateWithLifecycle()
 
     val onValueChange = remember(vm) {
-        { entry: HoldingHistoryView, value: Double -> vm.processIntent(HistoryIntent.UpdateEntryValue(entry.entry, value)) }
+        { entry: HoldingHistoryView, value: Double ->
+            vm.processIntent(
+                HistoryIntent.UpdateEntryValue(entry.entry, value)
+            )
+        }
     }
     val onBrokerageChange = remember(vm) {
         { b: Brokerage -> vm.processIntent(HistoryIntent.SelectBrokerage(b)) }
@@ -114,7 +118,6 @@ public fun HoldingHistoryRoute() {
     )
 }
 
-
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun HoldingHistoryScreen(
@@ -140,7 +143,8 @@ internal fun HoldingHistoryScreen(
 ) {
 
     val scope = rememberCoroutineScope()
-    val navigator: ThreePaneScaffoldNavigator<HoldingHistoryEntry> = rememberSupportingPaneScaffoldNavigator<HoldingHistoryEntry>()
+    val navigator: ThreePaneScaffoldNavigator<HoldingHistoryEntry> =
+        rememberSupportingPaneScaffoldNavigator<HoldingHistoryEntry>()
 
     AppScreenScaffold(
         title = "Posicionamento no Período",
@@ -156,7 +160,14 @@ internal fun HoldingHistoryScreen(
             Table(
                 data = dataRows,
                 onValueChange = onValueChange,
-                onSelect = { it: HoldingHistoryEntry -> scope.launch { navigator.navigateTo(ThreePaneScaffoldRole.Tertiary, it) } }
+                onSelect = { entry: HoldingHistoryEntry ->
+                    scope.launch {
+                        navigator.navigateTo(
+                            ThreePaneScaffoldRole.Tertiary,
+                            entry
+                        )
+                    }
+                }
             )
         },
         subMainPane = {
@@ -200,15 +211,19 @@ private fun Actions(
     onCloseClick: () -> Unit,
 ) {
 
-    if (showClose) IconButton(onClick = { onCloseClick() }) {
+    if (showClose) {
+        IconButton(onClick = { onCloseClick() }) {
         Icon(
-            imageVector = Icons.Default.Close, contentDescription = "Fechar"
+            imageVector = Icons.Default.Close,
+            contentDescription = "Fechar"
         )
+    }
     }
 
     IconButton(onClick = onSyncClick) {
         Icon(
-            imageVector = Icons.Default.Sync, contentDescription = "Sincronizar"
+            imageVector = Icons.Default.Sync,
+            contentDescription = "Sincronizar"
         )
     }
 }
@@ -227,92 +242,92 @@ private fun Table(
         StableList(
             listOf<UiTableDataColumn<HoldingHistoryView>>(
 
-            UiTableDataColumn(
-                text = "",
-                width = TableColumnWidth.MaxIntrinsic,
-                comparable = { it.category },
-                content = {
-                    Row {
-                        it.category.BuildIcon()
-                        it.liquidity?.BuildIcon()
+                UiTableDataColumn(
+                    text = "",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    comparable = { it.category },
+                    content = {
+                        Row {
+                            it.category.BuildIcon()
+                            it.liquidity?.BuildIcon()
+                        }
                     }
-                }
-            ),
+                ),
 
-            UiTableDataColumn(
-                text = "Corretora",
-                width = TableColumnWidth.MaxIntrinsic,
-                comparable = { it.brokerageName }
-            ),
+                UiTableDataColumn(
+                    text = "Corretora",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    comparable = { it.brokerageName }
+                ),
 
-            UiTableDataColumn(
-                text = "Display Name",
-                width = TableColumnWidth.Flex(1f),
-                comparable = { it.displayName },
-            ),
+                UiTableDataColumn(
+                    text = "Display Name",
+                    width = TableColumnWidth.Flex(1f),
+                    comparable = { it.displayName },
+                ),
 
-            UiTableDataColumn(
-                text = "Observação",
-                width = TableColumnWidth.MaxIntrinsic,
-                comparable = { it.observations },
-            ),
+                UiTableDataColumn(
+                    text = "Observação",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    comparable = { it.observations },
+                ),
 
-            UiTableDataColumn(
-                text = "Valor Anterior",
-                width = TableColumnWidth.MaxIntrinsic,
-                alignment = Alignment.CenterEnd,
-                comparable = { it.previousValue },
-                content = { Text(it.previousValue.currencyFormat()) }
-            ),
+                UiTableDataColumn(
+                    text = "Valor Anterior",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.CenterEnd,
+                    comparable = { it.previousValue },
+                    content = { Text(it.previousValue.currencyFormat()) }
+                ),
 
-            UiTableDataColumn(
-                text = "Valor Atual",
-                width = TableColumnWidth.MaxIntrinsic,
-                alignment = Alignment.CenterEnd,
-                comparable = { it.currentValue },
-                content = { rowData ->
-                    TableInputMoney(
-                        value = rowData.currentValue,
-                        onValueChange = { value -> onValueChange(rowData, value ?: 0.0) },
-                        enabled = rowData.isCurrentValueEnabled()
-                    )
-                }
-            ),
+                UiTableDataColumn(
+                    text = "Valor Atual",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.CenterEnd,
+                    comparable = { it.currentValue },
+                    content = { rowData ->
+                        TableInputMoney(
+                            value = rowData.currentValue,
+                            onValueChange = { value -> onValueChange(rowData, value ?: 0.0) },
+                            enabled = rowData.isCurrentValueEnabled()
+                        )
+                    }
+                ),
 
-            UiTableDataColumn(
-                text = "Balanço",
-                width = TableColumnWidth.MaxIntrinsic,
-                alignment = Alignment.CenterEnd,
-                comparable = { it.totalBalance },
-                content = {
-                    Text(
-                        text = it.totalBalance.currencyFormat(),
-                        color = when {
-                            it.totalBalance < 0 -> getWarningColor()
-                            it.totalBalance > 0 -> getInfoColor()
-                            else -> Color.Gray.copy(alpha = .5f)
-                        }
-                    )
-                }
-            ),
+                UiTableDataColumn(
+                    text = "Balanço",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.CenterEnd,
+                    comparable = { it.totalBalance },
+                    content = {
+                        Text(
+                            text = it.totalBalance.currencyFormat(),
+                            color = when {
+                                it.totalBalance < 0 -> getWarningColor()
+                                it.totalBalance > 0 -> getInfoColor()
+                                else -> Color.Gray.copy(alpha = .5f)
+                            }
+                        )
+                    }
+                ),
 
-            UiTableDataColumn(
-                text = "%",
-                width = TableColumnWidth.MaxIntrinsic,
-                alignment = Alignment.CenterEnd,
-                comparable = { it.appreciation },
-                content = {
-                    Text(
-                        text = it.appreciation.toPercentage(),
-                        color = when {
-                            it.appreciation < 0 -> MaterialTheme.colorScheme.error
-                            it.appreciation > 0 -> getSuccessColor()
-                            else -> Color.Gray.copy(alpha = .5f)
-                        }
-                    )
-                }
-            ),
-        )
+                UiTableDataColumn(
+                    text = "%",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.CenterEnd,
+                    comparable = { it.appreciation },
+                    content = {
+                        Text(
+                            text = it.appreciation.toPercentage(),
+                            color = when {
+                                it.appreciation < 0 -> MaterialTheme.colorScheme.error
+                                it.appreciation > 0 -> getSuccessColor()
+                                else -> Color.Gray.copy(alpha = .5f)
+                            }
+                        )
+                    }
+                ),
+            )
         )
     }
 
@@ -423,26 +438,26 @@ private fun Transactions(transactions: List<AssetTransaction>) {
                 columns = StableList(
                     listOf(
 
-                    UiTableDataColumn(
-                        text = "Data",
-                        width = TableColumnWidth.Flex(1f),
-                        comparable = { it.date },
-                        content = { Text(it.date.formated()) }
-                    ),
+                        UiTableDataColumn(
+                            text = "Data",
+                            width = TableColumnWidth.Flex(1f),
+                            comparable = { it.date },
+                            content = { Text(it.date.formated()) }
+                        ),
 
-                    UiTableDataColumn(
-                        text = "Transação",
-                        width = TableColumnWidth.Flex(1f),
-                        comparable = { it.type },
-                        content = { Text(it.type.formated()) }
-                    ),
+                        UiTableDataColumn(
+                            text = "Transação",
+                            width = TableColumnWidth.Flex(1f),
+                            comparable = { it.type },
+                            content = { Text(it.type.formated()) }
+                        ),
 
-                    UiTableDataColumn(
-                        text = "Valor",
-                        width = TableColumnWidth.Flex(1f),
-                        comparable = { it.totalValue },
-                        content = { Text(it.totalValue.currencyFormat()) }
-                    )
+                        UiTableDataColumn(
+                            text = "Valor",
+                            width = TableColumnWidth.Flex(1f),
+                            comparable = { it.totalValue },
+                            content = { Text(it.totalValue.currencyFormat()) }
+                        )
                     )
                 ),
                 footer = {
@@ -492,9 +507,10 @@ private fun Summary(rows: List<HoldingHistoryView>) { // TODO mover calculos par
                 ) {
 
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f))
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                        )
                     ) {
-
 
                         Column(
                             modifier = Modifier.padding(16.dp),
@@ -507,7 +523,6 @@ private fun Summary(rows: List<HoldingHistoryView>) { // TODO mover calculos par
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center
                             )
-
 
                             Text(
                                 value,

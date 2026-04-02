@@ -1,7 +1,7 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +20,9 @@ public class UpdateFixedIncomeAndFundsHistoryValueUseCase(
 
     override suspend fun execute(param: Params): Long {
 
-        if (param.entry.holding.asset is VariableIncomeAsset) throw IllegalArgumentException("Asset must not be a VariableIncomeAsset")
+        if (param.entry.holding.asset is VariableIncomeAsset) {
+            throw IllegalArgumentException("Asset must not be a VariableIncomeAsset")
+        }
 
         return repository.upsert(
             param.entry.copy(

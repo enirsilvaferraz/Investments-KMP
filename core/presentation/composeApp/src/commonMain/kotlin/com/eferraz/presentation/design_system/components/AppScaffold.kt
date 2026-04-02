@@ -52,7 +52,10 @@ internal fun AppScaffold(
 
                     SupportingPaneScaffold(
                         modifier = Modifier.padding(it).padding(end = 32.dp, bottom = 32.dp),
-                        directive = navigator.scaffoldDirective.copy(horizontalPartitionSpacerSize = 24.dp, defaultPanePreferredWidth = paneWidth),
+                        directive = navigator.scaffoldDirective.copy(
+                            horizontalPartitionSpacerSize = 24.dp,
+                            defaultPanePreferredWidth = paneWidth
+                        ),
                         value = navigator.scaffoldValue,
                         mainPane = {
                             Pane {

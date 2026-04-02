@@ -49,8 +49,10 @@ internal fun <T> groupData(
     }
     val grouped = data.groupBy(groupBy)
     return grouped.entries.flatMap { (key, items) ->
-        listOf(TableItem.GroupHeader(key, groupDisplay(key), items)) +
-            items.map { TableItem.DataRow(it, key) }
+        listOf(
+            TableItem.GroupHeader(key, groupDisplay(key), items)
+        ) +
+                items.map { TableItem.DataRow(it, key) }
     }
 }
 
@@ -152,12 +154,14 @@ internal fun <T> UiTable(
             }
         }
 
-        if (hasFooter) TableFooter(
-            data = data,
-            columns = columns,
-            responsiveState = responsiveState,
-            cellRenderer = cellRenderer
-        )
+        if (hasFooter) {
+            TableFooter(
+                data = data,
+                columns = columns,
+                responsiveState = responsiveState,
+                cellRenderer = cellRenderer
+            )
+        }
     }
 }
 
@@ -182,7 +186,13 @@ internal fun UITablePreview() {
                 onSelect = { println("Selected: $it") }
             ) {
                 column(header = "Header 1", sortedBy = { it.text1 }, weight = 1.0f, cellValue = { it.text1 })
-                column(header = "Header 2", sortedBy = { it.text2 }, weight = 2.0f, cellValue = { it.text2 }, footer = { "Footer teste" })
+                column(
+                    header = "Header 2",
+                    sortedBy = { it.text2 },
+                    weight = 2.0f,
+                    cellValue = { it.text2 },
+                    footer = { "Footer teste" }
+                )
                 column(header = "Header 3", sortedBy = { it.text3 }, weight = 1.5f, cellValue = { it.text3 })
                 column(header = "Header 4", weight = 1.0f, cellValue = { it.text1 }, footer = { it.size.toString() })
             }

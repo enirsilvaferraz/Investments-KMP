@@ -158,12 +158,9 @@ internal class TransactionViewModel(
         }
     }
 
-    private fun createTransaction(
-        holding: AssetHolding,
-        formData: TransactionFormData,
-    ): AssetTransaction {
+    private fun createTransaction(holding: AssetHolding, formData: TransactionFormData,): AssetTransaction {
 
-        val date = LocalDate.parse(formData.date) //parseDate(formData.date) ?: throw IllegalArgumentException("Data inválida")
+        val date = LocalDate.parse(formData.date) // parseDate(formData.date) ?: throw IllegalArgumentException("Data inválida")
         val type = formData.type ?: throw IllegalArgumentException("Tipo de transação obrigatório")
 
         return when (holding.asset) {
@@ -211,10 +208,7 @@ internal class TransactionViewModel(
         }
     }
 
-    private fun validateFormData(
-        formData: TransactionFormData,
-        holding: AssetHolding?,
-    ): Map<String, String> {
+    private fun validateFormData(formData: TransactionFormData, holding: AssetHolding?,): Map<String, String> {
         val errors = mutableMapOf<String, String>()
 
         if (formData.type == null) {
@@ -308,4 +302,3 @@ internal class TransactionViewModel(
         }
     }
 }
-

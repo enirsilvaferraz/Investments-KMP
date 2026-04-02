@@ -1,8 +1,8 @@
 package com.eferraz.entities.holdings
 
+import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.Owner
-import com.eferraz.entities.assets.Asset
 
 /**
  * Representa a posse de um ativo por um proprietário em uma corretora.

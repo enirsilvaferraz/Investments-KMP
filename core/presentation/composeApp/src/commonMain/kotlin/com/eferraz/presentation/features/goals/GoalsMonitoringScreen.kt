@@ -111,7 +111,8 @@ private fun GoalsMonitoringScreen(
 @Composable
 private fun GoalsHistoryTable(data: List<GoalsMonitoringTableData>) {
 
-    fun Double.getValid() = takeIf { it != 0.0 }
+    fun Double.getValid() =
+        takeIf { it != 0.0 }
 
     UiTable(data = data) {
 
@@ -176,7 +177,7 @@ private fun GoalsHistoryTable(data: List<GoalsMonitoringTableData>) {
         column(
             header = "Saldo",
             alignment = Alignment.End,
-            cellValue = { it.balance.getValid()?.currencyFormat().orEmpty()  }
+            cellValue = { it.balance.getValid()?.currencyFormat().orEmpty() }
         )
     }
 }
@@ -269,7 +270,8 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
-private fun PeriodType.label(): String = when (this) {
-    PeriodType.MENSAL -> "Mensal"
-    PeriodType.ANUAL -> "Anual"
-}
+private fun PeriodType.label(): String =
+    when (this) {
+        PeriodType.MENSAL -> "Mensal"
+        PeriodType.ANUAL -> "Anual"
+    }

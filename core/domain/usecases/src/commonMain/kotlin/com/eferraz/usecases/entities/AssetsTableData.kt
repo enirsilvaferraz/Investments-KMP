@@ -162,4 +162,3 @@ public data class InvestmentFundAssetsTableData(
     public val issuerId: Long,
     override val observations: String,
 ) : AssetsTableData
-

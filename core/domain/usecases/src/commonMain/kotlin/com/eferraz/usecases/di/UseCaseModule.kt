@@ -9,7 +9,8 @@ import org.koin.core.annotation.Single
 @Module
 @ComponentScan("com.eferraz.usecases")
 public class UseCaseModule {
-    
+
     @Single
-    public fun provideCoroutineDispatcher(): CoroutineDispatcher = Dispatchers.Default
+    public fun provideCoroutineDispatcher(): CoroutineDispatcher =
+        Dispatchers.Default
 }

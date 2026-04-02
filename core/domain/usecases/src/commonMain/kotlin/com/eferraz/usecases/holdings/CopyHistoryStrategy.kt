@@ -59,7 +59,10 @@ public interface CopyHistoryStrategy {
             holding.asset is FixedIncomeAsset || holding.asset is InvestmentFundAsset
 
         override suspend fun create(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? =
-            holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate.minusMonth(), holding)?.copy(id = null, referenceDate = referenceDate)
+            holdingHistoryRepository.getByHoldingAndReferenceDate(
+                referenceDate.minusMonth(),
+                holding
+            )?.copy(id = null, referenceDate = referenceDate)
     }
 
     /**
@@ -97,7 +100,10 @@ public interface CopyHistoryStrategy {
             }
 
             // Tenta copiar do mês anterior (sem buscar API)
-            holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate.minusMonth(), holding)?.let { previousHistory ->
+            holdingHistoryRepository.getByHoldingAndReferenceDate(
+                referenceDate.minusMonth(),
+                holding
+            )?.let { previousHistory ->
                 return HoldingHistoryEntry(
                     holding = holding,
                     referenceDate = referenceDate,

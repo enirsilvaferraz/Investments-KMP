@@ -23,4 +23,3 @@ internal sealed class TransactionIntent {
 
     data object ClearSelection : TransactionIntent()
 }
-

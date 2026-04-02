@@ -18,8 +18,9 @@ public class GetAssetsUseCase(
     public object All : Param
     public data class ByCategory(val category: InvestmentCategory) : Param
 
-    override suspend fun execute(param: Param): List<Asset> = when (param) {
-        is All -> assetRepository.getAll()
-        is ByCategory -> assetRepository.getByType(param.category)
-    }
+    override suspend fun execute(param: Param): List<Asset> =
+        when (param) {
+            is All -> assetRepository.getAll()
+            is ByCategory -> assetRepository.getByType(param.category)
+        }
 }

@@ -16,7 +16,8 @@ public class GetAssetUseCase(
     public sealed interface Param
     public data class ById(val id: Long) : Param
 
-    override suspend fun execute(param: Param): Asset = when (param) {
-        is ById -> assetRepository.getById(param.id) ?: throw Exception("Asset not found")
-    }
+    override suspend fun execute(param: Param): Asset =
+        when (param) {
+            is ById -> assetRepository.getById(param.id) ?: throw Exception("Asset not found")
+        }
 }

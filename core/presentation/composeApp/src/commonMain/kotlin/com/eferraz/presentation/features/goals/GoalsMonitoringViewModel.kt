@@ -77,10 +77,7 @@ internal class GoalsMonitoringViewModel(
         }
     }
 
-    private fun buildGoalDetails(
-        goal: FinancialGoal,
-        tableData: List<GoalsMonitoringTableData>,
-    ): GoalDetails {
+    private fun buildGoalDetails(goal: FinancialGoal, tableData: List<GoalsMonitoringTableData>,): GoalDetails {
         val lastProjection = tableData.maxByOrNull { it.monthYear }?.monthYear?.formated() ?: "-"
         return GoalDetails(
             name = goal.name,

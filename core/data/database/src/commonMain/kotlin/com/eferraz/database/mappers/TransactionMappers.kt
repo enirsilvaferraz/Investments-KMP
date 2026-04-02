@@ -3,8 +3,8 @@ package com.eferraz.database.mappers
 import com.eferraz.database.entities.transaction.AssetTransactionEntity
 import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.FundsTransactionEntity
-import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.TransactionWithDetails
+import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.FixedIncomeTransaction

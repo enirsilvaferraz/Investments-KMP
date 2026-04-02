@@ -25,5 +25,6 @@ public value class CNPJ(private val value: String) {
     /**
      * Retorna o valor do CNPJ como String.
      */
-    public fun get(): String = value
+    public fun get(): String =
+        value
 }

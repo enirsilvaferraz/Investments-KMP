@@ -8,9 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eferraz.design_system.core.StableList
 import com.eferraz.design_system.components.table.UiTableDataColumn
 import com.eferraz.design_system.components.table.UiTableV3
+import com.eferraz.design_system.core.StableList
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.seanproctor.datatable.TableColumnWidth
@@ -48,8 +48,8 @@ internal fun TransactionTable(
 }
 
 @Composable
-private fun buildVariableIncomeColumns(): List<UiTableDataColumn<TransactionRow>> {
-    return listOf(
+private fun buildVariableIncomeColumns(): List<UiTableDataColumn<TransactionRow>> =
+    listOf(
         UiTableDataColumn(
             text = "Transação",
             width = TableColumnWidth.MaxIntrinsic,
@@ -85,11 +85,10 @@ private fun buildVariableIncomeColumns(): List<UiTableDataColumn<TransactionRow>
             content = { Text(it.formatted.totalValue) }
         ),
     )
-}
 
 @Composable
-private fun buildFixedIncomeOrFundsColumns(): List<UiTableDataColumn<TransactionRow>> {
-    return listOf(
+private fun buildFixedIncomeOrFundsColumns(): List<UiTableDataColumn<TransactionRow>> =
+    listOf(
         UiTableDataColumn(
             text = "Transação",
             width = TableColumnWidth.MaxIntrinsic,
@@ -111,4 +110,3 @@ private fun buildFixedIncomeOrFundsColumns(): List<UiTableDataColumn<Transaction
             content = { Text(it.formatted.totalValue) }
         ),
     )
-}

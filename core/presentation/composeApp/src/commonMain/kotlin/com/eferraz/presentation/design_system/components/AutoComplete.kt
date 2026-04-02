@@ -73,8 +73,11 @@ internal fun AutoComplete(
 
     // Filtra sugestões baseado no texto digitado (case-insensitive, busca parcial)
     val filteredSuggestions = remember(value, suggestions) {
-        if (value.isBlank()) emptyList()
-        else suggestions.filter { it.contains(value, ignoreCase = true) }.take(maxSuggestions)
+        if (value.isBlank()) {
+            emptyList()
+        } else {
+            suggestions.filter { it.contains(value, ignoreCase = true) }.take(maxSuggestions)
+        }
     }
 
     // Validação com debounce
@@ -135,7 +138,9 @@ internal fun AutoComplete(
                 }
             },
             label = { Text(label) },
-            placeholder = if (placeholder.isNotBlank()) { { Text(placeholder) } } else null,
+            placeholder = if (placeholder.isNotBlank()) {
+                { Text(placeholder) }
+            } else null,
             enabled = enabled,
             modifier = Modifier
                 .menuAnchor()

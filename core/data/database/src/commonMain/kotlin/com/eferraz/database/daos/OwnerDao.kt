@@ -22,4 +22,3 @@ internal interface OwnerDao {
     @Query("SELECT * FROM owners WHERE id = :id")
     suspend fun getById(id: Long): OwnerEntity?
 }
-

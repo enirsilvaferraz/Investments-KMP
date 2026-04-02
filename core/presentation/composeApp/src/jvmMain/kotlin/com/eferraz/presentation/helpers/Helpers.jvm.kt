@@ -7,4 +7,5 @@ import androidx.compose.runtime.Composable
 
 @Composable
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-internal actual fun shouldUseNavRail(): Boolean = calculateWindowSizeClass().widthSizeClass >= WindowWidthSizeClass.Medium
+internal actual fun shouldUseNavRail(): Boolean =
+    calculateWindowSizeClass().widthSizeClass >= WindowWidthSizeClass.Medium

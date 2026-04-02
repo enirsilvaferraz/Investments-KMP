@@ -6,7 +6,6 @@ import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.AssetTransaction
-import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.entities.HoldingHistoryView
 import kotlinx.datetime.YearMonth
 

@@ -12,7 +12,7 @@ internal interface SortStrategy<T> {
      * @return Lista ordenada
      */
     fun sort(data: List<T>, ascending: Boolean): List<T>
-    
+
     /**
      * Indica se a coluna é ordenável
      */
@@ -25,7 +25,7 @@ internal interface SortStrategy<T> {
 internal class ColumnSortStrategy<T>(
     private val extractor: (T) -> Comparable<*>?
 ) : SortStrategy<T> {
-    
+
     override fun sort(data: List<T>, ascending: Boolean): List<T> {
         val comparator = Comparator<T> { a, b ->
             val aValue = extractor(a)
@@ -40,21 +40,24 @@ internal class ColumnSortStrategy<T>(
                 }
             }
         }
-        
+
         return if (ascending) {
             data.sortedWith(comparator)
         } else {
             data.sortedWith(comparator.reversed())
         }
     }
-    
-    override fun isSortable(): Boolean = true
+
+    override fun isSortable(): Boolean =
+        true
 }
 
 /**
  * Estratégia que indica que a coluna não é ordenável
  */
 internal class NotSortableStrategy<T> : SortStrategy<T> {
-    override fun sort(data: List<T>, ascending: Boolean): List<T> = data
-    override fun isSortable(): Boolean = false
+    override fun sort(data: List<T>, ascending: Boolean): List<T> =
+        data
+    override fun isSortable(): Boolean =
+        false
 }

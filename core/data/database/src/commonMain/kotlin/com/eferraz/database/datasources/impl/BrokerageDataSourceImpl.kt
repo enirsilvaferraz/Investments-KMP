@@ -11,19 +11,17 @@ internal class BrokerageDataSourceImpl(
     private val brokerageDao: BrokerageDao,
 ) : BrokerageDataSource {
 
-    override suspend fun getAll(): List<Brokerage> {
-        return brokerageDao.getAll().map { it.toModel() }
-    }
+    override suspend fun getAll(): List<Brokerage> =
+        brokerageDao.getAll().map { it.toModel() }
 
-    override suspend fun getByName(name: String): Brokerage? {
-        return brokerageDao.getAll()
+    override suspend fun getByName(name: String): Brokerage? =
+        brokerageDao.getAll()
             .firstOrNull { it.name.equals(name, ignoreCase = true) }
             ?.toModel()
-    }
 
-    private fun BrokerageEntity.toModel() = Brokerage(
-        id = id,
-        name = name
-    )
+    private fun BrokerageEntity.toModel() =
+        Brokerage(
+            id = id,
+            name = name
+        )
 }
-

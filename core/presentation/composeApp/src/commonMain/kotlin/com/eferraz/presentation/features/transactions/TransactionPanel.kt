@@ -133,4 +133,3 @@ internal fun TransactionPanel(
         }
     }
 }
-

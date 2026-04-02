@@ -77,7 +77,11 @@ internal interface AssetTransactionDao {
         ORDER BY asset_transactions.transactionDate DESC
     """
     )
-    suspend fun getByGoalAndDateRange(goalId: Long, startDate: LocalDate, endDate: LocalDate): List<TransactionWithDetails>
+    suspend fun getByGoalAndDateRange(
+        goalId: Long,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<TransactionWithDetails>
 
     @Transaction
     @Query(

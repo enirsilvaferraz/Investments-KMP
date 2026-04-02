@@ -19,39 +19,42 @@ internal class KtorClientConfig : ClientConfig {
 
     override val client: HttpClient by lazy { configure() }
 
-    private fun configure(): HttpClient = HttpClient(httpEngine()) {
+    private fun configure(): HttpClient =
+        HttpClient(httpEngine()) {
 
-        //Timeout plugin to set up timeout milliseconds for client
-        install(HttpTimeout) {
-            socketTimeoutMillis = 60_000
-            requestTimeoutMillis = 60_000
-        }
+            // Timeout plugin to set up timeout milliseconds for client
+            install(HttpTimeout) {
+                socketTimeoutMillis = 60_000
+                requestTimeoutMillis = 60_000
+            }
 
-        //Logging plugin combined with kermit(KMP Logger library)
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
-            logger = object : Logger {
-                override fun log(message: String) {
-                    co.touchlab.kermit.Logger.d(tag = "KtorClient", throwable = null, messageString = message)
+            // Logging plugin combined with kermit(KMP Logger library)
+            install(Logging) {
+                logger = Logger.DEFAULT
+                level = LogLevel.ALL
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        co.touchlab.kermit.Logger.d(tag = "KtorClient", throwable = null, messageString = message)
+                    }
                 }
             }
-        }
 
-        //We can configure the BASE_URL and also
-        //the deafult headers by defaultRequest builder
-        defaultRequest {
-            header("Content-Type", "application/json")
-        }
+            // We can configure the BASE_URL and also
+            // the deafult headers by defaultRequest builder
+            defaultRequest {
+                header("Content-Type", "application/json")
+            }
 
-        //ContentNegotiation plugin for negotiationing media types between the client and server
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
-                explicitNulls = false
-            })
+            // ContentNegotiation plugin for negotiationing media types between the client and server
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        prettyPrint = true
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                        explicitNulls = false
+                    }
+                )
+            }
         }
-    }
 }

@@ -102,7 +102,7 @@ private fun <T> TableInputSelect(
     // O TableInputLookAndFeel coletará internamente para a borda.
     val isHoveredState by interactionSource.collectIsHoveredAsState()
     val isFocusedState by interactionSource.collectIsFocusedAsState()
-    
+
     val actualIsHovered = isHovered ?: isHoveredState
     val actualIsFocused = isFocused ?: isFocusedState
 
@@ -335,4 +335,3 @@ private fun TableInputSelectErrorPreview() {
         }
     }
 }
-

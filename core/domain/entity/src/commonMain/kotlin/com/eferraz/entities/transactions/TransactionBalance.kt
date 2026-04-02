@@ -60,12 +60,11 @@ public data class TransactionBalance private constructor(
          * - Renda Fixa: totalValue
          * - Fundos: totalValue
          */
-        private fun calculateTransactionValue(transaction: AssetTransaction): Double {
-            return when (transaction) {
+        private fun calculateTransactionValue(transaction: AssetTransaction): Double =
+            when (transaction) {
                 is VariableIncomeTransaction -> transaction.quantity * transaction.unitPrice
                 is FixedIncomeTransaction -> transaction.totalValue
                 is FundsTransaction -> transaction.totalValue
             }
-        }
     }
 }

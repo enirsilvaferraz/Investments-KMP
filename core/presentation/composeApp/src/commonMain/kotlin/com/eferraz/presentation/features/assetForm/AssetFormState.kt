@@ -13,4 +13,3 @@ internal data class AssetFormState(
     val isEditMode: Boolean = false,
     val shouldCloseForm: Boolean = false,
 )
-

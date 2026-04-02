@@ -23,20 +23,24 @@ internal class AssetHoldingDataSourceImpl(
     private val financialGoalDataSource: FinancialGoalDataSource,
 ) : AssetHoldingDataSource {
 
-    override suspend fun getById(holdingId: Long): AssetHolding = assetHoldingDao.getById(holdingId)?.let {
+    override suspend fun getById(holdingId: Long): AssetHolding =
+        assetHoldingDao.getById(holdingId)?.let {
 
-        val owner = ownerDao.getById(it.ownerId) ?: throw IllegalArgumentException("Owner not found")
-        val brokerage = brokerageDao.getById(it.brokerageId) ?: throw IllegalArgumentException("Brokerage not found")
+            val owner = ownerDao.getById(it.ownerId)
+                ?: throw IllegalArgumentException("Owner not found")
 
-        AssetHolding(
-            id = it.id,
-            asset = assetDataSource.getByID(it.assetId) ?: throw IllegalArgumentException("Asset not found"),
-            owner = Owner(id = owner.id, name = owner.name),
-            brokerage = Brokerage(id = brokerage.id, name = brokerage.name),
-            goal = it.goalId?.let { financialGoalDataSource.getById(it) }
-        )
+            val brokerage = brokerageDao.getById(it.brokerageId)
+                ?: throw IllegalArgumentException("Brokerage not found")
 
-    } ?: throw IllegalArgumentException("Holding not found")
+            AssetHolding(
+                id = it.id,
+                asset = assetDataSource.getByID(it.assetId) ?: throw IllegalArgumentException("Asset not found"),
+                owner = Owner(id = owner.id, name = owner.name),
+                brokerage = Brokerage(id = brokerage.id, name = brokerage.name),
+                goal = it.goalId?.let { financialGoalDataSource.getById(it) }
+            )
+
+        } ?: throw IllegalArgumentException("Holding not found")
 
     override suspend fun save(assetHolding: AssetHolding): Long {
         val entity = assetHolding.toEntity()
@@ -134,12 +138,12 @@ internal class AssetHoldingDataSourceImpl(
         assetHoldingDao.deleteById(id)
     }
 
-    private fun AssetHolding.toEntity() = AssetHoldingEntity(
-        id = id,
-        assetId = asset.id,
-        ownerId = owner.id,
-        brokerageId = brokerage.id,
-        goalId = goal?.id
-    )
+    private fun AssetHolding.toEntity() =
+        AssetHoldingEntity(
+            id = id,
+            assetId = asset.id,
+            ownerId = owner.id,
+            brokerageId = brokerage.id,
+            goalId = goal?.id
+        )
 }
-

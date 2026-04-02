@@ -18,7 +18,7 @@ public class SetGoalToHoldingUseCase(
     )
 
     override suspend fun execute(param: Param) {
-        
+
         val existingHolding = assetHoldingRepository.getByAssetId(param.assetId)
 
         // Só atualiza se já existir um AssetHolding

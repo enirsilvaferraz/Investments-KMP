@@ -15,10 +15,10 @@ public class GetQuotesUseCase(
 
     public data class Params(val ticker: String, val referenceDate: YearMonth? = null)
 
-    override suspend fun execute(param: Params): StockQuoteHistory {
-        return if (param.referenceDate != null)
+    override suspend fun execute(param: Params): StockQuoteHistory =
+        if (param.referenceDate != null) {
             repository.getQuote(ticker = param.ticker, referenceDate = param.referenceDate)
-        else
+        } else {
             repository.getQuote(ticker = param.ticker)
-    }
+        }
 }

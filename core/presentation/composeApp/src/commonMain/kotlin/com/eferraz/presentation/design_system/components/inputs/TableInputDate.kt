@@ -29,8 +29,8 @@ import com.eferraz.presentation.design_system.components.inputs.state.rememberDa
  * Enum para definir o formato de data
  */
 internal enum class DateFormat {
-    YYYY_MM_DD,  // YYYY-MM-DD
-    DD_MM_YYYY   // dd/MM/YYYY
+    YYYY_MM_DD, // YYYY-MM-DD
+    DD_MM_YYYY // dd/MM/YYYY
 }
 
 /**
@@ -116,10 +116,7 @@ internal class DateVisualTransformation(
 }
 
 @Composable
-internal fun TableInputDate(
-    value: String,
-    onChange: (String) -> Unit,
-) {
+internal fun TableInputDate(value: String, onChange: (String) -> Unit,) {
 
     val (value, setValue) = remember(value) { mutableStateOf(value) }
     val (isError, setError) = remember { mutableStateOf(false) }
@@ -275,7 +272,6 @@ private fun TableInputDateFocusedPreview() {
     }
 }
 
-
 @Preview
 @Composable
 private fun TableInputDateDisabledPreview() {
@@ -295,7 +291,6 @@ private fun TableInputDateDisabledPreview() {
         }
     }
 }
-
 
 @Preview
 @Composable

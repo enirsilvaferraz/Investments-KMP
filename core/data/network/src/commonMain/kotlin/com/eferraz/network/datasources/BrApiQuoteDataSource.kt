@@ -23,6 +23,10 @@ public interface BrApiQuoteDataSource {
      * @return Última cotação disponível do mês de referência
      * @throws IllegalStateException se não houver dados históricos disponíveis para o mês de referência
      */
-    public suspend fun getQuote(ticker: String, referenceDate: YearMonth, range: String = "3mo", interval: String = "1d"): StockQuoteHistory
+    public suspend fun getQuote(
+        ticker: String,
+        referenceDate: YearMonth,
+        range: String = "3mo",
+        interval: String = "1d"
+    ): StockQuoteHistory
 }
-

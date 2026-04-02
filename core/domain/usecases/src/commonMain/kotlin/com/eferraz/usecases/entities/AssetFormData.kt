@@ -16,11 +16,11 @@ public sealed class AssetFormData {
 
     public companion object {
 
-        public fun build(category: InvestmentCategory): AssetFormData = when (category) {
-            InvestmentCategory.FIXED_INCOME -> FixedIncomeFormData(category = category)
-            InvestmentCategory.INVESTMENT_FUND -> InvestmentFundFormData(category = category)
-            InvestmentCategory.VARIABLE_INCOME -> VariableIncomeFormData(category = category)
-        }
+        public fun build(category: InvestmentCategory): AssetFormData =
+            when (category) {
+                InvestmentCategory.FIXED_INCOME -> FixedIncomeFormData(category = category)
+                InvestmentCategory.INVESTMENT_FUND -> InvestmentFundFormData(category = category)
+                InvestmentCategory.VARIABLE_INCOME -> VariableIncomeFormData(category = category)
+            }
     }
 }
-

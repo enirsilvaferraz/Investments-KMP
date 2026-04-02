@@ -15,7 +15,6 @@ public class GetTransactionsByHoldingUseCase(
 
     public data class Param(val holding: AssetHolding)
 
-    override suspend fun execute(param: Param): List<AssetTransaction> {
-        return assetTransactionRepository.getAllByHolding(param.holding)
-    }
+    override suspend fun execute(param: Param): List<AssetTransaction> =
+        assetTransactionRepository.getAllByHolding(param.holding)
 }

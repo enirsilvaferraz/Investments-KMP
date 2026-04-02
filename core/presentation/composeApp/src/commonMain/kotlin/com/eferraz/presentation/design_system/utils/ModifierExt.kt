@@ -6,4 +6,5 @@ public fun Modifier.thenIf(
     condition: Boolean,
     ifTrue: () -> Modifier = { Modifier },
     ifFalse: () -> Modifier = { Modifier },
-): Modifier = then(if (condition) ifTrue() else ifFalse())
+): Modifier =
+    then(if (condition) ifTrue() else ifFalse())

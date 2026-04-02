@@ -22,10 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun TableInputText(
-    value: String,
-    onChange: (String) -> Unit,
-) {
+internal fun TableInputText(value: String, onChange: (String) -> Unit,) {
 
     val (value, setValue) = remember(value) { mutableStateOf(value) }
     val (isError, setError) = remember { mutableStateOf(false) }
@@ -253,4 +250,3 @@ private fun TableInputTextErrorPreview() {
         }
     }
 }
-

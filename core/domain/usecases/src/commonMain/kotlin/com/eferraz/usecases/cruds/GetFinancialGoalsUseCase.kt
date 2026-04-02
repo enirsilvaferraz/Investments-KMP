@@ -17,8 +17,9 @@ public class GetFinancialGoalsUseCase(
     public data object All : Param
     public data class ByOwnerId(val ownerId: Long) : Param
 
-    override suspend fun execute(param: Param): List<FinancialGoal> = when (param) {
-        is All -> financialGoalRepository.getAll()
-        is ByOwnerId -> financialGoalRepository.getByOwnerId(param.ownerId)
-    }
+    override suspend fun execute(param: Param): List<FinancialGoal> =
+        when (param) {
+            is All -> financialGoalRepository.getAll()
+            is ByOwnerId -> financialGoalRepository.getByOwnerId(param.ownerId)
+        }
 }

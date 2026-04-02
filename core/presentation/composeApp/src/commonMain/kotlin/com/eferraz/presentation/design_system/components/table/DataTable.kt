@@ -125,9 +125,10 @@ internal fun <T> DataTable(
     }
 }
 
-internal fun <T> alignment(column: TableColumn<T>): Alignment = when (column.alignment) {
-    Alignment.Start -> Alignment.CenterStart
-    Alignment.CenterHorizontally -> Alignment.Center
-    Alignment.End -> Alignment.CenterEnd
-    else -> Alignment.CenterStart
-}
+internal fun <T> alignment(column: TableColumn<T>): Alignment =
+    when (column.alignment) {
+        Alignment.Start -> Alignment.CenterStart
+        Alignment.CenterHorizontally -> Alignment.Center
+        Alignment.End -> Alignment.CenterEnd
+        else -> Alignment.CenterStart
+    }

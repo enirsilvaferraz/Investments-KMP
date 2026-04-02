@@ -9,10 +9,12 @@ internal class IssuerRepositoryImpl(
     private val dataSource: IssuerDataSource,
 ) : IssuerRepository {
 
-    override suspend fun getAll() = dataSource.getAll()
+    override suspend fun getAll() =
+        dataSource.getAll()
 
-    override suspend fun getByName(name: String) = dataSource.getByName(name)
+    override suspend fun getByName(name: String) =
+        dataSource.getByName(name)
 
-    override suspend fun create(name: String) = dataSource.create(name)
+    override suspend fun create(name: String) =
+        dataSource.create(name)
 }
-

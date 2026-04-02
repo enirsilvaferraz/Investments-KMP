@@ -21,4 +21,3 @@ internal data class IssuerEntity(
     @ColumnInfo(name = "is_in_liquidation", defaultValue = "0")
     val isInLiquidation: Boolean = false
 )
-

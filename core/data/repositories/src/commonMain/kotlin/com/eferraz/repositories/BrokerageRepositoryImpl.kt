@@ -9,8 +9,9 @@ internal class BrokerageRepositoryImpl(
     private val dataSource: BrokerageDataSource,
 ) : BrokerageRepository {
 
-    override suspend fun getAll() = dataSource.getAll()
+    override suspend fun getAll() =
+        dataSource.getAll()
 
-    override suspend fun getByName(name: String) = dataSource.getByName(name)
+    override suspend fun getByName(name: String) =
+        dataSource.getByName(name)
 }
-

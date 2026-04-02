@@ -20,4 +20,3 @@ internal data class TransactionFormData(
     val unitPrice: String = "",
     val totalValue: String = "",
 )
-

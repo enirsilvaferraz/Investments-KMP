@@ -33,8 +33,13 @@ public class SyncVariableIncomeValuesUseCase(
                     ?: throw IllegalStateException("Asset is not a VariableIncomeAsset")
 
                 // Buscar histórico existente do mês corrente (se houver) para preservar campos
-                val existingHistory = holdingHistoryRepository.getByHoldingAndReferenceDate(param.referenceDate, holding)
-                    ?: throw IllegalStateException("History not found for holding ${holding.id} and reference date ${param.referenceDate}")
+                val existingHistory = holdingHistoryRepository.getByHoldingAndReferenceDate(
+                    param.referenceDate,
+                    holding
+                )
+                    ?: throw IllegalStateException(
+                        "History not found for holding ${holding.id} and reference date ${param.referenceDate}"
+                    )
 
                 // Buscar cotação atual da BR API (sem histórico, para o dia de hoje)
                 val quoteHistory = getQuotesUseCase(GetQuotesUseCase.Params(asset.ticker, null))
@@ -42,7 +47,7 @@ public class SyncVariableIncomeValuesUseCase(
 
                 // Obter valor de fechamento (prioridade: close, fallback: adjustedClose)
                 val endOfMonthValue = quoteHistory.close ?: quoteHistory.adjustedClose
-                ?: throw IllegalStateException("Cotação não possui valor de fechamento disponível")
+                    ?: throw IllegalStateException("Cotação não possui valor de fechamento disponível")
 
                 // Atualizar HoldingHistoryEntry
                 val historyEntry = existingHistory.copy(endOfMonthValue = endOfMonthValue)

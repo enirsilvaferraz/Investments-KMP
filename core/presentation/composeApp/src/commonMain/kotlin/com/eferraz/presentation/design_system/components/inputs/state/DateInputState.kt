@@ -56,8 +56,7 @@ internal class DateInputState(
 }
 
 @Composable
-internal fun rememberDateInputState(initialValue: String): DateInputState {
-    return rememberSaveable(saver = DateInputState.Saver) {
+internal fun rememberDateInputState(initialValue: String): DateInputState =
+    rememberSaveable(saver = DateInputState.Saver) {
         DateInputState(initialValue)
     }
-}

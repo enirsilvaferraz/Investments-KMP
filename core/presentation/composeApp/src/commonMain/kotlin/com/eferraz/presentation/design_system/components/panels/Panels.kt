@@ -17,7 +17,10 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-internal fun ThreePaneScaffoldPaneScope.Pane(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+internal fun ThreePaneScaffoldPaneScope.Pane(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
     AnimatedPane(modifier = Modifier.safeContentPadding()) {
         Column(verticalArrangement = spacedBy(8.dp)) {
             content()
@@ -27,5 +30,9 @@ internal fun ThreePaneScaffoldPaneScope.Pane(modifier: Modifier = Modifier, cont
 
 @Composable
 internal fun Section(modifier: Modifier = Modifier, content: @Composable (() -> Unit)) {
-    Surface(modifier = modifier.clip(RoundedCornerShape(12.dp)), content = content, color = MaterialTheme.colorScheme.surfaceContainerHigh)
+    Surface(
+        modifier = modifier.clip(RoundedCornerShape(12.dp)),
+        content = content,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh
+    )
 }

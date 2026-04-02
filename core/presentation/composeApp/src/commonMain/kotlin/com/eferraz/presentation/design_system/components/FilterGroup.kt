@@ -38,7 +38,9 @@ internal data class FilterGroup(
     val visibleOnColapse: Boolean = true
 ) {
     enum class Level {
-        PRIMARY, SECONDARY, TERTIARY
+        PRIMARY,
+        SECONDARY,
+        TERTIARY
     }
 
     sealed interface SelectedRule
@@ -159,9 +161,13 @@ internal fun HistoryFilter(
 
                         FilterChip(
                             onClick = {
-                                if (isSelected) selected.remove(current)
-                                else if (it.selectRule is FilterGroup.MultiChoice) selected.add(current)
-                                else if (it.selectRule is FilterGroup.SingleChoice) selected[0] = current
+                                if (isSelected) {
+                                    selected.remove(current)
+                                } else if (it.selectRule is FilterGroup.MultiChoice) {
+                                    selected.add(current)
+                                } else if (it.selectRule is FilterGroup.SingleChoice) {
+                                    selected[0] = current
+                                }
                             },
                             label = { Text(current) },
                             selected = isSelected,

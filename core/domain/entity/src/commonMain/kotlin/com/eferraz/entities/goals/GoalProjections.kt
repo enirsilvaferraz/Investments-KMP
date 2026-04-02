@@ -20,7 +20,8 @@ public class GoalProjections private constructor(
      * @param month Mês a ser consultado.
      * @return ProjectedGoal do mês ou null se não existir projeção para o mês.
      */
-    public operator fun get(month: YearMonth): ProjectedGoal? = map[month]
+    public operator fun get(month: YearMonth): ProjectedGoal? =
+        map[month]
 
     public companion object {
         private const val DEFAULT_MAX_MONTHS = 120
@@ -36,10 +37,7 @@ public class GoalProjections private constructor(
          * @return GoalProjections com o mapa ordenado cronologicamente.
          * @throws IllegalArgumentException se maxMonths for menor que 1 ou se os parâmetros forem inválidos.
          */
-        public fun calculate(
-            plan: GoalInvestmentPlan,
-            maxMonths: Int = DEFAULT_MAX_MONTHS,
-        ): GoalProjections {
+        public fun calculate(plan: GoalInvestmentPlan, maxMonths: Int = DEFAULT_MAX_MONTHS,): GoalProjections {
 
             // Extrai valores do plano para evitar múltiplos acessos de propriedades
             val targetValue = plan.goal.targetValue
@@ -105,7 +103,7 @@ public class GoalProjections private constructor(
 
             require(contribution > 0 || appreciationRate > 0) {
                 "Contribuição ou taxa de rentabilidade devem ser maiores que zero. " +
-                "Valores recebidos: contribution=$contribution, appreciationRate=$appreciationRate"
+                    "Valores recebidos: contribution=$contribution, appreciationRate=$appreciationRate"
             }
 
             // Pré-aloca capacidade estimada para melhor performance

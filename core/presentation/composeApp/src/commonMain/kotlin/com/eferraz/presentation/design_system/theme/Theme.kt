@@ -244,15 +244,19 @@ private data class ColorFamily(
 )
 
 private val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
+    Color.Unspecified,
+    Color.Unspecified,
+    Color.Unspecified,
+    Color.Unspecified
 )
 
 @Composable
 internal fun AppTheme(
-    darkTheme: Boolean = false, //isSystemInDarkTheme(),
+    darkTheme: Boolean = false, // isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
-    content: @Composable() () -> Unit,
+    content:
+    @Composable() () -> Unit,
 ) {
 
     val colorScheme = when {
@@ -276,53 +280,41 @@ internal fun AppTheme(
  * Extensões do ColorScheme para acessar cores semânticas
  * Nota: Por enquanto, a aplicação usa apenas light theme, mas as funções estão preparadas para dark theme
  */
-internal fun getSuccessColor(isDark: Boolean = false): Color {
-    return if (isDark) successDark else successLight
-}
+internal fun getSuccessColor(isDark: Boolean = false): Color =
+    if (isDark) successDark else successLight
 
-internal fun getOnSuccessColor(isDark: Boolean = false): Color {
-    return if (isDark) onSuccessDark else onSuccessLight
-}
+internal fun getOnSuccessColor(isDark: Boolean = false): Color =
+    if (isDark) onSuccessDark else onSuccessLight
 
-internal fun getSuccessContainerColor(isDark: Boolean = false): Color {
-    return if (isDark) successContainerDark else successContainerLight
-}
+internal fun getSuccessContainerColor(isDark: Boolean = false): Color =
+    if (isDark) successContainerDark else successContainerLight
 
-internal fun getOnSuccessContainerColor(isDark: Boolean = false): Color {
-    return if (isDark) onSuccessContainerDark else onSuccessContainerLight
-}
+internal fun getOnSuccessContainerColor(isDark: Boolean = false): Color =
+    if (isDark) onSuccessContainerDark else onSuccessContainerLight
 
-internal fun getWarningColor(isDark: Boolean = false): Color {
-    return if (isDark) warningDark else warningLight
-}
+internal fun getWarningColor(isDark: Boolean = false): Color =
+    if (isDark) warningDark else warningLight
 
-internal fun getOnWarningColor(isDark: Boolean = false): Color {
-    return if (isDark) onWarningDark else onWarningLight
-}
+internal fun getOnWarningColor(isDark: Boolean = false): Color =
+    if (isDark) onWarningDark else onWarningLight
 
-internal fun getWarningContainerColor(isDark: Boolean = false): Color {
-    return if (isDark) warningContainerDark else warningContainerLight
-}
+internal fun getWarningContainerColor(isDark: Boolean = false): Color =
+    if (isDark) warningContainerDark else warningContainerLight
 
-internal fun getOnWarningContainerColor(isDark: Boolean = false): Color {
-    return if (isDark) onWarningContainerDark else onWarningContainerLight
-}
+internal fun getOnWarningContainerColor(isDark: Boolean = false): Color =
+    if (isDark) onWarningContainerDark else onWarningContainerLight
 
-internal fun getInfoColor(isDark: Boolean = false): Color {
-    return if (isDark) infoDark else infoLight
-}
+internal fun getInfoColor(isDark: Boolean = false): Color =
+    if (isDark) infoDark else infoLight
 
-internal fun getOnInfoColor(isDark: Boolean = false): Color {
-    return if (isDark) onInfoDark else onInfoLight
-}
+internal fun getOnInfoColor(isDark: Boolean = false): Color =
+    if (isDark) onInfoDark else onInfoLight
 
-internal fun getInfoContainerColor(isDark: Boolean = false): Color {
-    return if (isDark) infoContainerDark else infoContainerLight
-}
+internal fun getInfoContainerColor(isDark: Boolean = false): Color =
+    if (isDark) infoContainerDark else infoContainerLight
 
-internal fun getOnInfoContainerColor(isDark: Boolean = false): Color {
-    return if (isDark) onInfoContainerDark else onInfoContainerLight
-}
+internal fun getOnInfoContainerColor(isDark: Boolean = false): Color =
+    if (isDark) onInfoContainerDark else onInfoContainerLight
 
 /**
  * Funções helper para cores de valorização financeira
@@ -375,4 +367,3 @@ internal fun getSituationTextColor(situation: String?): Color {
         else -> colors.onSurface
     }
 }
-

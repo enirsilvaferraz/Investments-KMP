@@ -28,14 +28,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
-import com.eferraz.entities.assets.VariableIncomeAssetType
-import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.MaturityDate
+import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.presentation.FixedIncomeAssetRouting
 import com.eferraz.presentation.FundsAssetRouting
 import com.eferraz.presentation.VariableIncomeAssetRouting
@@ -86,48 +86,54 @@ internal fun AssetsRoute() {
                             val category = InvestmentCategory.FIXED_INCOME
                             val tableVm = koinViewModel<AssetsViewModel>(key = category.name) { parametersOf(category) }
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
-                            
+
 //                            LaunchedEffect(category) {
 //                                tableVm.loadAssets(category)
 //                            }
 
-                            if (tableState!= null)    AssetsScreenFixedIncome(
+                            if (tableState != null) {
+                                AssetsScreenFixedIncome(
                                 state = tableState!!,
                                 category = category,
                                 viewModel = tableVm
                             )
+                            }
                         }
 
                         entry<VariableIncomeAssetRouting> {
                             val category = InvestmentCategory.VARIABLE_INCOME
-                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name){ parametersOf(category) }
+                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name) { parametersOf(category) }
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
-                            
+
 //                            LaunchedEffect(category) {
 //                                tableVm.loadAssets(category)
 //                            }
 
-                         if (tableState!= null)   AssetsScreenVariableIncome(
+                            if (tableState != null) {
+                                AssetsScreenVariableIncome(
                                 state = tableState!!,
                                 category = category,
                                 viewModel = tableVm
                             )
+                            }
                         }
 
                         entry<FundsAssetRouting> {
                             val category = InvestmentCategory.INVESTMENT_FUND
-                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name){ parametersOf(category) }
+                            val tableVm = koinViewModel<AssetsViewModel>(key = category.name) { parametersOf(category) }
                             val tableState by tableVm.state.collectAsStateWithLifecycle()
-                            
+
 //                            LaunchedEffect(category) {
 //                                tableVm.loadAssets(category)
 //                            }
 
-                            if (tableState!= null)    AssetsScreenFunds(
+                            if (tableState != null) {
+                                AssetsScreenFunds(
                                 state = tableState!!,
                                 category = category,
                                 viewModel = tableVm
                             )
+                            }
                         }
                     }
                 )
@@ -193,15 +199,17 @@ private fun AssetsActions(
                 }
             }
         },
-        colors = if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary)
+        colors = if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
             IconButtonDefaults.filledTonalIconButtonColors()
-        else
+        } else {
             IconButtonDefaults.filledIconButtonColors()
+        }
     ) {
-        if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary)
+        if (navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary) {
             Icon(imageVector = Icons.Default.Close, contentDescription = null)
-        else
+        } else {
             Icon(imageVector = Icons.Default.Add, contentDescription = null)
+        }
     }
 }
 
@@ -213,7 +221,7 @@ private fun AssetsScreenFixedIncome(
     viewModel: AssetsViewModel,
 ) {
     val fixedIncomeData = state.tableData.filterIsInstance<FixedIncomeAssetsTableData>()
-    
+
     // Capturar goals em uma variável local para garantir recomposição
     val goals = state.goals
 
@@ -247,7 +255,7 @@ private fun AssetsScreenFixedIncome(
                 // Usar variável local capturada
                 val goal = state.goals.find { it.id == row.goalId }
                 val options = listOf(null) + goals
-                
+
                 TableInputSelect(
                     value = goal,
                     onValueChange = { value ->
@@ -394,7 +402,6 @@ private fun AssetsScreenFixedIncome(
     }
 }
 
-
 @Composable
 private fun AssetsScreenVariableIncome(
     modifier: Modifier = Modifier,
@@ -403,7 +410,7 @@ private fun AssetsScreenVariableIncome(
     viewModel: AssetsViewModel,
 ) {
     val variableIncomeData = state.tableData.filterIsInstance<VariableIncomeAssetsTableData>()
-    
+
     // Capturar goals em uma variável local para garantir recomposição
     val goals = state.goals
 
@@ -437,7 +444,7 @@ private fun AssetsScreenVariableIncome(
                 // Usar variável local capturada
                 val goal = goals.find { it.id == row.goalId }
                 val options = listOf(null) + goals
-                
+
                 TableInputSelect(
                     value = goal,
                     onValueChange = { value ->
@@ -537,7 +544,6 @@ private fun AssetsScreenVariableIncome(
     }
 }
 
-
 @Composable
 private fun AssetsScreenFunds(
     modifier: Modifier = Modifier,
@@ -546,7 +552,7 @@ private fun AssetsScreenFunds(
     viewModel: AssetsViewModel,
 ) {
     val fundsData = state.tableData.filterIsInstance<InvestmentFundAssetsTableData>()
-    
+
     // Capturar goals em uma variável local para garantir recomposição
     val goals = state.goals
 
@@ -579,7 +585,7 @@ private fun AssetsScreenFunds(
                 // Usar variável local capturada
                 val goal = goals.find { it.id == row.goalId }
                 val options = listOf(null) + goals
-                
+
                 TableInputSelect(
                     value = goal,
                     onValueChange = { value ->
@@ -708,5 +714,3 @@ private fun AssetsScreenFunds(
         )
     }
 }
-
-

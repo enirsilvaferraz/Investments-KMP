@@ -42,8 +42,8 @@ public fun <T> SegmentedControl(
         options.items.forEachIndexed { index, option ->
 
             val textLength = option.label.length
-            val baseWeight = 3f  // peso mínimo para todos
-            val proportionalWeight = textLength * 0.5f  // fator de proporção reduzido
+            val baseWeight = 3f // peso mínimo para todos
+            val proportionalWeight = textLength * 0.5f // fator de proporção reduzido
 
             val internalModifier = if (fill) Modifier.weight(baseWeight + proportionalWeight) else Modifier
 
@@ -82,7 +82,9 @@ private fun SegmentedControlPreview() {
 
                 SegmentedControl(
                     selected = r1,
-                    options = StableList(listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) }),
+                    options = StableList(
+                        listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) }
+                    ),
                     onSelect = { r1 = it }
                 )
 
@@ -90,7 +92,9 @@ private fun SegmentedControlPreview() {
 
                 SegmentedControl(
                     selected = r2,
-                    options = StableList(listOf("Liquidez Diária", "No Vencimento").map { SegmentedControlChoice(it, it) }),
+                    options = StableList(
+                        listOf("Liquidez Diária", "No Vencimento").map { SegmentedControlChoice(it, it) }
+                    ),
                     onSelect = { r2 = it },
                     colors = ToggleButtonDefaults.toggleButtonColors(
                         checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -102,7 +106,9 @@ private fun SegmentedControlPreview() {
 
                 SegmentedControl(
                     selected = r3,
-                    options = StableList(listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) }),
+                    options = StableList(
+                        listOf("Renda Fixa", "Renda Variável", "Fundos").map { SegmentedControlChoice(it, it) }
+                    ),
                     onSelect = { r3 = it },
                     colors = ToggleButtonDefaults.toggleButtonColors(
                         checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,

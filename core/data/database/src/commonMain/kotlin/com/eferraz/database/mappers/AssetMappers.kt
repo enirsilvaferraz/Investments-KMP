@@ -1,11 +1,11 @@
 package com.eferraz.database.mappers
 
-import com.eferraz.database.entities.supports.IssuerEntity
 import com.eferraz.database.entities.assets.AssetEntity
 import com.eferraz.database.entities.assets.AssetWithDetails
 import com.eferraz.database.entities.assets.FixedIncomeAssetEntity
 import com.eferraz.database.entities.assets.InvestmentFundAssetEntity
 import com.eferraz.database.entities.assets.VariableIncomeAssetEntity
+import com.eferraz.database.entities.supports.IssuerEntity
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentFundAsset
@@ -16,9 +16,8 @@ import com.eferraz.entities.assets.VariableIncomeAsset
  * Mappers para conversão entre entidades de domínio e entidades de banco de dados de ativos.
  */
 
-internal fun AssetWithDetails.toDomain(): Asset {
-
-    return when {
+internal fun AssetWithDetails.toDomain(): Asset =
+    when {
 
         fixedIncome != null -> FixedIncomeAsset(
             id = asset.id,
@@ -54,15 +53,20 @@ internal fun AssetWithDetails.toDomain(): Asset {
 
         else -> throw IllegalStateException("AssetWithDetails must have at least one specific asset type")
     }
-}
 
-private fun IssuerEntity.toDomain(): Issuer = Issuer(
-    id = id, name = name, isInLiquidation = isInLiquidation
-)
+private fun IssuerEntity.toDomain(): Issuer =
+    Issuer(
+        id = id,
+        name = name,
+        isInLiquidation = isInLiquidation
+    )
 
-internal fun Issuer.toEntity() = IssuerEntity(
-    id = id, name = name, isInLiquidation = isInLiquidation
-)
+internal fun Issuer.toEntity() =
+    IssuerEntity(
+        id = id,
+        name = name,
+        isInLiquidation = isInLiquidation
+    )
 
 internal fun Asset.toEntity(): AssetWithDetails {
 
@@ -118,4 +122,3 @@ internal fun Asset.toEntity(): AssetWithDetails {
         )
     }
 }
-

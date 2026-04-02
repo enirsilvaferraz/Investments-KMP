@@ -17,19 +17,16 @@ import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Owner
 import com.eferraz.presentation.design_system.theme.AppTheme
-import com.eferraz.presentation.features.transactions.TransactionForm
 import com.eferraz.presentation.features.transactions.TransactionPanel
 
 @Composable
-internal fun AssetForm(
-    modifier: Modifier = Modifier,
-) {
+internal fun AssetForm(modifier: Modifier = Modifier,) {
 
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Column (
+        Column(
             modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
         ) {
 
@@ -40,7 +37,7 @@ internal fun AssetForm(
                     id = 1,
                     asset = VariableIncomeAsset(
                         name = "A",
-                        issuer = Issuer(1,"1"),
+                        issuer = Issuer(1, "1"),
                         type = VariableIncomeAssetType.ETF,
                         ticker = ""
                     ),

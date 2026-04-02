@@ -57,7 +57,7 @@ internal data class SequenceMonths private constructor(
                 if (months.size > maxMonths) {
                     throw IllegalArgumentException(
                         "O intervalo entre $start e $end excede o limite de $maxMonths meses. " +
-                        "Total de meses calculados: ${months.size}"
+                            "Total de meses calculados: ${months.size}"
                     )
                 }
             }

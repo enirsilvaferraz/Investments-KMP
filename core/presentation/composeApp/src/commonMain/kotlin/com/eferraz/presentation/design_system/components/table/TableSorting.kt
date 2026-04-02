@@ -15,14 +15,14 @@ internal fun <T> sortData(
 ): List<T> {
 
     val columnIndex = sortState.columnIndex ?: return data
-    
+
     // Validação de índice
     if (columnIndex < 0 || columnIndex >= columns.size) return data
-    
+
     val column = columns[columnIndex]
-    
+
     // Verifica se a coluna é ordenável
     if (!column.isSortable) return data
-    
+
     return column.sortStrategy.sort(data, sortState.ascending)
 }

@@ -59,10 +59,9 @@ import com.eferraz.design_system.components.segmented_control.SegmentedControl
 import com.eferraz.design_system.components.segmented_control.SegmentedControlChoice
 import com.eferraz.design_system.core.StableList
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-public fun <T>AppScreenScaffold(
+public fun <T> AppScreenScaffold(
     modifier: Modifier = Modifier,
     title: String,
     actions: @Composable RowScope.() -> Unit = {},
@@ -100,7 +99,9 @@ public fun <T>AppScreenScaffold(
             BoxWithConstraints {
 
                 SupportingPaneScaffold(
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest).padding(end = cornerPadding.dp),
+                    modifier = Modifier.background(
+                        MaterialTheme.colorScheme.surfaceContainerLowest
+                    ).padding(end = cornerPadding.dp),
                     directive = navigator.scaffoldDirective.copy(
                         horizontalPartitionSpacerSize = cornerPadding.dp,
                         defaultPanePreferredWidth = maxWidth * supportingPaneWidthRate
@@ -153,7 +154,6 @@ public fun <T>AppScreenScaffold(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Preview(widthDp = 2000, heightDp = 1000)
 @Preview(widthDp = 1300, heightDp = 600)
@@ -189,7 +189,8 @@ private fun ApplicationScaffold() {
             actions = {
                 IconButton(onClick = {}) {
                     Icon(
-                        imageVector = Icons.Default.Menu, contentDescription = "Ativos"
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Ativos"
                     )
                 }
             },

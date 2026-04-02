@@ -78,8 +78,7 @@ internal class MoneyInputState(
 }
 
 @Composable
-internal fun rememberMoneyInputState(initialValue: Double): MoneyInputState {
-    return rememberSaveable(saver = MoneyInputState.Saver) {
+internal fun rememberMoneyInputState(initialValue: Double): MoneyInputState =
+    rememberSaveable(saver = MoneyInputState.Saver) {
         MoneyInputState(initialValue)
     }
-}

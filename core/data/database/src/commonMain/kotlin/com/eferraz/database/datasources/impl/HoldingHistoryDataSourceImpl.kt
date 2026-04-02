@@ -15,15 +15,20 @@ internal class HoldingHistoryDataSourceImpl(
     private val assetHoldingDataSource: AssetHoldingDataSource,
 ) : HoldingHistoryDataSource {
 
-    override suspend fun getAllHoldings(): List<AssetHolding> {
-        return assetHoldingDataSource.getAll()
-    }
+    override suspend fun getAllHoldings(): List<AssetHolding> =
+        assetHoldingDataSource.getAll()
 
     override suspend fun getByReferenceDate(referenceDate: YearMonth) =
         holdingHistoryDao.getByReferenceDate(referenceDate).map { it.history.toModel() }
 
-    override suspend fun getByHoldingAndReferenceDate(referenceDate: YearMonth, holding: AssetHolding): HoldingHistoryEntry? {
-        val historyWithDetails = holdingHistoryDao.getByHoldingAndReferenceDate(referenceDate, holding.id) ?: return null
+    override suspend fun getByHoldingAndReferenceDate(
+        referenceDate: YearMonth,
+        holding: AssetHolding
+    ): HoldingHistoryEntry? {
+        val historyWithDetails = holdingHistoryDao.getByHoldingAndReferenceDate(
+            referenceDate,
+            holding.id
+        ) ?: return null
         return historyWithDetails.history.toModel()
     }
 

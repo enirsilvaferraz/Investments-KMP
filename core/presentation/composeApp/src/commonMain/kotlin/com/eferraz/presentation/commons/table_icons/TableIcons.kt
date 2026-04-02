@@ -16,7 +16,6 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.presentation.design_system.theme.getSuccessColor
@@ -55,7 +54,7 @@ internal fun Liquidity.BuildIcon() {
         Icon(
             imageVector = icon,
             contentDescription = formated(),
-            modifier = Modifier.alpha(0.5f),//.size(18.dp),
+            modifier = Modifier.alpha(0.5f), // .size(18.dp),
             tint = color
         )
     }
@@ -87,7 +86,7 @@ internal fun InvestmentCategory.BuildIcon() {
         Icon(
             imageVector = icon,
             contentDescription = tooltipText,
-            modifier = Modifier.alpha(0.5f),//.size(18.dp),
+            modifier = Modifier.alpha(0.5f), // .size(18.dp),
             tint = color
         )
     }

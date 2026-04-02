@@ -8,9 +8,10 @@ public abstract class AppUseCase<in P, out R>(
     private val context: CoroutineDispatcher
 ) {
 
-    public suspend operator fun invoke(param: P): Result<R> = withContext(context) {
-        result { execute(param) }
-    }
+    public suspend operator fun invoke(param: P): Result<R> =
+        withContext(context) {
+            result { execute(param) }
+        }
 
     protected abstract suspend fun execute(param: P): R
 

@@ -58,7 +58,12 @@ public class GetHistoryTableDataUseCase(
             }
             .filter { param.brokerage == null || it.holding.brokerage == param.brokerage }
             .filter { param.goal == null || it.holding.goal == param.goal }
-            .filter { param.liquidity == null || (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity || (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity || (it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity }
+            .filter {
+                param.liquidity == null ||
+                    (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity ||
+                    (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity ||
+                    (it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity
+            }
             .map { result ->
 
                 val asset = result.holding.asset
@@ -67,7 +72,9 @@ public class GetHistoryTableDataUseCase(
                 val appreciation = result.profitOrLoss.percentage
 
                 // Obter transações do holding e calcular balanço
-                val transactions = getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(result.holding))
+                val transactions = getTransactionsByHoldingUseCase(
+                    GetTransactionsByHoldingUseCase.Param(result.holding)
+                )
                     .getOrNull()
                     ?.filter { it.date.month == param.referenceDate.month && it.date.year == param.referenceDate.year }
                     ?: emptyList()
@@ -144,13 +151,16 @@ public class GetHistoryTableDataUseCase(
             .sortedBy { it.category }
     }
 
-    internal fun FixedIncomeAsset.formated(): String = when (type) {
-        FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI (venc: $expirationDate)"
-        FixedIncomeAssetType.PRE_FIXED -> "${subType.name} de $contractedYield% a.a. (venc: $expirationDate)"
-        FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield% (venc: $expirationDate)"
-    }
+    internal fun FixedIncomeAsset.formated(): String =
+        when (type) {
+            FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI (venc: $expirationDate)"
+            FixedIncomeAssetType.PRE_FIXED -> "${subType.name} de $contractedYield% a.a. (venc: $expirationDate)"
+            FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield% (venc: $expirationDate)"
+        }
 
-    internal fun VariableIncomeAsset.formated(): String = "${type.name} - $ticker"
+    internal fun VariableIncomeAsset.formated(): String =
+        "${type.name} - $ticker"
 
-    internal fun InvestmentFundAsset.formated(): String = type.name
+    internal fun InvestmentFundAsset.formated(): String =
+        type.name
 }

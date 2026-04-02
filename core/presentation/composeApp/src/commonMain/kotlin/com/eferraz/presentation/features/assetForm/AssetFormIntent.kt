@@ -41,4 +41,3 @@ internal sealed class AssetFormIntent {
     data object ClearForm : AssetFormIntent()
     data object ResetCloseFlag : AssetFormIntent()
 }
-

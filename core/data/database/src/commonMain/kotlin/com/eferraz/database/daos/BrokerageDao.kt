@@ -22,4 +22,3 @@ internal interface BrokerageDao {
     @Query("SELECT * FROM brokerages WHERE id = :id")
     suspend fun getById(id: Long): BrokerageEntity?
 }
-

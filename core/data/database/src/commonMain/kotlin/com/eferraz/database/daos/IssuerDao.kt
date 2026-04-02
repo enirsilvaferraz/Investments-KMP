@@ -25,4 +25,3 @@ internal interface IssuerDao {
     @Query("SELECT * FROM issuers WHERE name = :name LIMIT 1")
     suspend fun getByName(name: String): IssuerEntity?
 }
-

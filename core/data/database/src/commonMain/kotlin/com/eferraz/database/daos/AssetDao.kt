@@ -5,10 +5,10 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import com.eferraz.database.entities.assets.AssetEntity
+import com.eferraz.database.entities.assets.AssetWithDetails
 import com.eferraz.database.entities.assets.FixedIncomeAssetEntity
 import com.eferraz.database.entities.assets.InvestmentFundAssetEntity
 import com.eferraz.database.entities.assets.VariableIncomeAssetEntity
-import com.eferraz.database.entities.assets.AssetWithDetails
 import com.eferraz.entities.assets.InvestmentCategory
 
 /**
@@ -56,12 +56,14 @@ internal interface AssetDao {
     suspend fun getByType(category: InvestmentCategory): List<AssetWithDetails>
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT * FROM assets 
         WHERE category = 'VARIABLE_INCOME' 
         AND id IN (
             SELECT assetId FROM variable_income_assets WHERE ticker = :ticker
         )
-    """)
+    """
+    )
     suspend fun findByTicker(ticker: String): AssetWithDetails?
 }

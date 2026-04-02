@@ -50,97 +50,111 @@ internal class AssetsViewModel(
         loadAssets(category)
     }
 
-    internal fun onIntent(intent: AssetsIntent) = viewModelScope.launch {
+    internal fun onIntent(intent: AssetsIntent) =
+        viewModelScope.launch {
 
-        when (intent) {
+            when (intent) {
 
-            is AssetsIntent.UpdateAsset -> {
-                saveAssetUseCase(Params(intent.asset))
-                // Recarregar dados após atualização
-                loadAssets(intent.category)
-            }
+                is AssetsIntent.UpdateAsset -> {
+                    saveAssetUseCase(Params(intent.asset))
+                    // Recarregar dados após atualização
+                    loadAssets(intent.category)
+                }
 
-            is AssetsIntent.UpdateBrokerage -> {
-                setBrokerageToHoldingUseCase(SetBrokerageToHoldingUseCase.Param(assetId = intent.assetId, brokerage = intent.brokerage))
-                // Recarregar dados após atualização
-                loadAssets(intent.category)
-            }
+                is AssetsIntent.UpdateBrokerage -> {
+                    setBrokerageToHoldingUseCase(
+                        SetBrokerageToHoldingUseCase.Param(assetId = intent.assetId, brokerage = intent.brokerage)
+                    )
+                    // Recarregar dados após atualização
+                    loadAssets(intent.category)
+                }
 
-            is AssetsIntent.UpdateGoal -> {
-                setGoalToHoldingUseCase(SetGoalToHoldingUseCase.Param(assetId = intent.assetId, goal = intent.goal))
-                // Recarregar dados após atualização
-                loadAssets(intent.category)
+                is AssetsIntent.UpdateGoal -> {
+                    setGoalToHoldingUseCase(SetGoalToHoldingUseCase.Param(assetId = intent.assetId, goal = intent.goal))
+                    // Recarregar dados após atualização
+                    loadAssets(intent.category)
+                }
             }
         }
-    }
 
-    internal fun loadAssets(category: InvestmentCategory) = viewModelScope.launch {
+    internal fun loadAssets(category: InvestmentCategory) =
+        viewModelScope.launch {
 
-        val tableData =
-            getAssetsTableDataUseCase(GetAssetsTableDataUseCase.Param(category)).getOrNull() ?: emptyList()
+            val tableData =
+                getAssetsTableDataUseCase(GetAssetsTableDataUseCase.Param(category)).getOrNull() ?: emptyList()
 
-        val issuers =
-            getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList()
+            val issuers =
+                getIssuersUseCase(GetIssuersUseCase.Param).getOrNull() ?: emptyList()
 
-        val brokerages =
-            getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull() ?: emptyList()
+            val brokerages =
+                getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull() ?: emptyList()
 
-        val goals =
-            getFinancialGoalsUseCase(GetFinancialGoalsUseCase.All).getOrNull() ?: emptyList()
-
+            val goals =
+                getFinancialGoalsUseCase(GetFinancialGoalsUseCase.All).getOrNull() ?: emptyList()
 
 //        val tableData1 = tableData.await()
 //        val issuers1 = issuers.await()
 //        val brokerages1 = brokerages.await()
 //        val goals1 = goals.await()
 
-        _state.update {
-            AssetsState(
-                tableData = tableData,
-                issuers = issuers,
-                brokerages = brokerages,
-                goals = goals,
-            )
+            _state.update {
+                AssetsState(
+                    tableData = tableData,
+                    issuers = issuers,
+                    brokerages = brokerages,
+                    goals = goals,
+                )
+            }
         }
-    }
 
     internal fun updateFixedIncomeAsset(
         assetId: Long,
         category: InvestmentCategory,
         update: (FixedIncomeAsset) -> FixedIncomeAsset,
-    ) = viewModelScope.launch {
-        val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? FixedIncomeAsset
-        asset?.let { updatedAsset ->
-            onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+    ) =
+        viewModelScope.launch {
+            val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? FixedIncomeAsset
+            asset?.let { updatedAsset ->
+                onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+            }
         }
-    }
 
     internal fun updateVariableIncomeAsset(
         assetId: Long,
         category: InvestmentCategory,
         update: (VariableIncomeAsset) -> VariableIncomeAsset,
-    ) = viewModelScope.launch {
-        val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? VariableIncomeAsset
-        asset?.let { updatedAsset ->
-            onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+    ) =
+        viewModelScope.launch {
+            val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? VariableIncomeAsset
+            asset?.let { updatedAsset ->
+                onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+            }
         }
-    }
 
     internal fun updateInvestmentFundAsset(
         assetId: Long,
         category: InvestmentCategory,
         update: (InvestmentFundAsset) -> InvestmentFundAsset,
-    ) = viewModelScope.launch {
-        val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? InvestmentFundAsset
-        asset?.let { updatedAsset ->
-            onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+    ) =
+        viewModelScope.launch {
+            val asset = getAssetUseCase(GetAssetUseCase.ById(assetId)).getOrNull() as? InvestmentFundAsset
+            asset?.let { updatedAsset ->
+                onIntent(AssetsIntent.UpdateAsset(update(updatedAsset), category))
+            }
         }
-    }
 
     internal sealed interface AssetsIntent {
         data class UpdateAsset(val asset: Asset, val category: InvestmentCategory) : AssetsIntent
-        data class UpdateBrokerage(val assetId: Long, val brokerage: Brokerage?, val category: InvestmentCategory) : AssetsIntent
-        data class UpdateGoal(val assetId: Long, val goal: FinancialGoal?, val category: InvestmentCategory) : AssetsIntent
+        data class UpdateBrokerage(
+            val assetId: Long,
+            val brokerage: Brokerage?,
+            val category: InvestmentCategory
+        ) : AssetsIntent
+        data class UpdateGoal(
+            val assetId: Long,
+            val goal: FinancialGoal?,
+            val category: InvestmentCategory
+        ) : AssetsIntent
     }
 
     internal data class AssetsState(

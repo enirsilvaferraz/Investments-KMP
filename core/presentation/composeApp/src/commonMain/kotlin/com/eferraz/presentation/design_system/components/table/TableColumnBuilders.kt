@@ -30,8 +30,8 @@ internal fun <T> textColumn(
     weight: Float = 1f,
     alignment: Alignment.Horizontal = Alignment.Start,
     sortable: Boolean = true
-): TableColumn<T> {
-    return TableColumn(
+): TableColumn<T> =
+    TableColumn(
         title = title,
         weight = weight,
         alignment = alignment,
@@ -45,7 +45,6 @@ internal fun <T> textColumn(
             )
         }
     )
-}
 
 /**
  * Cria uma coluna com conteúdo editável genérico.
@@ -62,8 +61,8 @@ internal fun <T> editableColumn(
     alignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable RowScope.(T) -> Unit,
     footerOperation: ((List<T>) -> String?)? = null
-): TableColumn<T> {
-    return TableColumn(
+): TableColumn<T> =
+    TableColumn(
         title = title,
         weight = weight,
         alignment = alignment,
@@ -71,7 +70,6 @@ internal fun <T> editableColumn(
         cellContent = content,
         footerOperation = footerOperation
     )
-}
 
 // --- Builders Específicos para Inputs ---
 
@@ -93,7 +91,7 @@ internal fun <T, I> inputTextColumn(
     alignment: Alignment.Horizontal = Alignment.Start,
     sortableValue: ((T) -> Comparable<*>?)? = null
 ): TableColumn<T> {
-    
+
     val strategy = if (sortableValue != null) ColumnSortStrategy(sortableValue) else NotSortableStrategy<T>()
 
     return TableColumn(
@@ -126,7 +124,7 @@ internal fun <T> inputTextColumn(
     alignment: Alignment.Horizontal = Alignment.Start,
     sortableValue: ((T) -> Comparable<*>?)? = null
 ): TableColumn<T> {
-    
+
     val strategy = if (sortableValue != null) ColumnSortStrategy(sortableValue) else NotSortableStrategy<T>()
 
     return TableColumn(
@@ -161,7 +159,7 @@ internal fun <T, V> inputSelectColumn(
     alignment: Alignment.Horizontal = Alignment.Start,
     sortableValue: ((T) -> Comparable<*>?)? = null
 ): TableColumn<T> {
-    
+
     val strategy = if (sortableValue != null) ColumnSortStrategy(sortableValue) else NotSortableStrategy<T>()
 
     return TableColumn(
@@ -195,7 +193,7 @@ internal fun <T> inputDateColumn(
     alignment: Alignment.Horizontal = Alignment.Start,
     sortableValue: ((T) -> Comparable<*>?)? = null // Opcional: permite ordenar por data real se fornecido
 ): TableColumn<T> {
-    
+
     val strategy = if (sortableValue != null) ColumnSortStrategy(sortableValue) else NotSortableStrategy<T>()
 
     return TableColumn(
@@ -233,7 +231,7 @@ internal fun <T> inputMoneyColumn(
     sortableValue: ((T) -> Comparable<*>?)? = null,
     footerOperation: ((List<T>) -> String?)? = null
 ): TableColumn<T> {
-    
+
     val strategy = if (sortableValue != null) ColumnSortStrategy(sortableValue) else NotSortableStrategy<T>()
 
     return TableColumn(
@@ -260,11 +258,8 @@ internal fun <T> inputMoneyColumn(
  * @param footerOperation Função que calcula o valor do footer a partir da lista de dados
  * @return Nova coluna com o footer adicionado
  */
-internal fun <T> TableColumn<T>.withFooter(
-    footerOperation: (List<T>) -> String?
-): TableColumn<T> {
-    return this.copy(footerOperation = footerOperation)
-}
+internal fun <T> TableColumn<T>.withFooter(footerOperation: (List<T>) -> String?): TableColumn<T> =
+    this.copy(footerOperation = footerOperation)
 
 /**
  * Adiciona um footer de soma numérica a uma coluna.
@@ -276,14 +271,16 @@ internal fun <T> TableColumn<T>.withFooter(
 internal fun <T> TableColumn<T>.withSumFooter(
     extractor: (T) -> Number,
     formatter: (Double) -> String = { it.toString() }
-): TableColumn<T> {
-    return this.copy(
+): TableColumn<T> =
+    this.copy(
         footerOperation = { data ->
-            if (data.isEmpty()) null
-            else formatter(data.sumOf { extractor(it).toDouble() })
+            if (data.isEmpty()) {
+                null
+            } else {
+                formatter(data.sumOf { extractor(it).toDouble() })
+            }
         }
     )
-}
 
 /**
  * Adiciona um footer de média numérica a uma coluna.
@@ -295,14 +292,16 @@ internal fun <T> TableColumn<T>.withSumFooter(
 internal fun <T> TableColumn<T>.withAverageFooter(
     extractor: (T) -> Number,
     formatter: (Double) -> String = { it.toString() }
-): TableColumn<T> {
-    return this.copy(
+): TableColumn<T> =
+    this.copy(
         footerOperation = { data ->
-            if (data.isEmpty()) null
-            else formatter(data.map { extractor(it).toDouble() }.average())
+            if (data.isEmpty()) {
+                null
+            } else {
+                formatter(data.map { extractor(it).toDouble() }.average())
+            }
         }
     )
-}
 
 /**
  * Adiciona um footer de contagem a uma coluna.
@@ -310,16 +309,16 @@ internal fun <T> TableColumn<T>.withAverageFooter(
  * @param formatter Função opcional para formatar o resultado (padrão: toString())
  * @return Nova coluna com o footer de contagem
  */
-internal fun <T> TableColumn<T>.withCountFooter(
-    formatter: (Int) -> String = { it.toString() }
-): TableColumn<T> {
-    return this.copy(
+internal fun <T> TableColumn<T>.withCountFooter(formatter: (Int) -> String = { it.toString() }): TableColumn<T> =
+    this.copy(
         footerOperation = { data ->
-            if (data.isEmpty()) null
-            else formatter(data.size)
+            if (data.isEmpty()) {
+                null
+            } else {
+                formatter(data.size)
+            }
         }
     )
-}
 
 /**
  * Adiciona um footer de texto customizado a uma coluna.
@@ -327,13 +326,10 @@ internal fun <T> TableColumn<T>.withCountFooter(
  * @param text Texto fixo a exibir no footer
  * @return Nova coluna com o footer de texto
  */
-internal fun <T> TableColumn<T>.withTextFooter(
-    text: String
-): TableColumn<T> {
-    return this.copy(
+internal fun <T> TableColumn<T>.withTextFooter(text: String): TableColumn<T> =
+    this.copy(
         footerOperation = { if (it.isEmpty()) null else text }
     )
-}
 
 /**
  * Versão de textColumn com suporte a footer.
@@ -354,8 +350,8 @@ internal fun <T> textColumn(
     alignment: Alignment.Horizontal = Alignment.Start,
     sortable: Boolean = true,
     footerOperation: ((List<T>) -> String?)? = null
-): TableColumn<T> {
-    return TableColumn(
+): TableColumn<T> =
+    TableColumn(
         title = title,
         weight = weight,
         alignment = alignment,
@@ -370,4 +366,3 @@ internal fun <T> textColumn(
         },
         footerOperation = footerOperation
     )
-}

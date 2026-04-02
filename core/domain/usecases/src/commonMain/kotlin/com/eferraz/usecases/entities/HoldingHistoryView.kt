@@ -32,5 +32,6 @@ public data class HoldingHistoryView(
         totalBalance = it.totalBalance
     )
 
-    public fun isCurrentValueEnabled(): Boolean = category != InvestmentCategory.VARIABLE_INCOME
+    public fun isCurrentValueEnabled(): Boolean =
+        category != InvestmentCategory.VARIABLE_INCOME
 }

@@ -9,4 +9,3 @@ public interface StockQuoteHistoryRepository {
 
     public suspend fun getQuote(ticker: String, referenceDate: YearMonth): StockQuoteHistory
 }
-

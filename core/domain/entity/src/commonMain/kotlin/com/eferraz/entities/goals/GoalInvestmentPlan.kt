@@ -23,7 +23,7 @@ public data class GoalInvestmentPlan(
 ) {
 
     init {
-        require(contribution != 0.0 || appreciationRate != 0.0 ) {
+        require(contribution != 0.0 || appreciationRate != 0.0) {
             "Meta inalcançável: sem aporte e sem rentabilidade"
         }
     }

@@ -104,8 +104,9 @@ internal data class ColumnData<T>(
     val footer: ((List<T>) -> String)?,
 ) {
 
-    fun isSortable() = sortedBy != null
+    fun isSortable() =
+        sortedBy != null
 
-    fun hasFooter() = footer != null
+    fun hasFooter() =
+        footer != null
 }
-

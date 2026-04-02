@@ -18,4 +18,3 @@ internal data class BrokerageEntity(
     @ColumnInfo(name = "name")
     val name: String
 )
-

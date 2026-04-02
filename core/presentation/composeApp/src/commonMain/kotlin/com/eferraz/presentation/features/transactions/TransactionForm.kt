@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentFundAsset
-import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.presentation.design_system.components.EnumDropdown
 import com.eferraz.presentation.design_system.components.FormTextField
 import com.eferraz.presentation.helpers.currencyFormat
@@ -172,10 +172,12 @@ internal fun TransactionForm(
 
         // Botão Salvar
         val isFormValid = validationErrors.isEmpty() &&
-                formData.type != null &&
-                formData.date.isNotBlank() &&
-                ((isVariableIncome && formData.quantity.isNotBlank() && formData.unitPrice.isNotBlank()) ||
-                        (isFixedIncomeOrFunds && formData.totalValue.isNotBlank()))
+            formData.type != null &&
+            formData.date.isNotBlank() &&
+            (
+                (isVariableIncome && formData.quantity.isNotBlank() && formData.unitPrice.isNotBlank()) ||
+                (isFixedIncomeOrFunds && formData.totalValue.isNotBlank())
+            )
 
         Button(
             onClick = onSave,
@@ -186,4 +188,3 @@ internal fun TransactionForm(
         }
     }
 }
-

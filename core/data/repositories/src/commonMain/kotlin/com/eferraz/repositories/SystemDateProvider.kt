@@ -16,5 +16,7 @@ import kotlin.time.ExperimentalTime
 public class SystemDateProvider : DateProvider {
 
     override fun getCurrentYearMonth(): YearMonth =
-        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).let { now -> YearMonth(now.year, now.month) }
+        Clock.System.now().toLocalDateTime(
+            TimeZone.currentSystemDefault()
+        ).let { now -> YearMonth(now.year, now.month) }
 }

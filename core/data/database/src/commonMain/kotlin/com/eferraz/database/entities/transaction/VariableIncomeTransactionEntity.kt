@@ -33,4 +33,4 @@ internal data class VariableIncomeTransactionEntity(
     @ColumnInfo(name = "unitPrice")
     val unitPrice: Double,
 
-    ) : BaseTransactionEntity
+) : BaseTransactionEntity

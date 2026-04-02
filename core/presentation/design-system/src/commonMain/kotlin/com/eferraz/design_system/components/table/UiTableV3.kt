@@ -173,9 +173,7 @@ public fun <T> UiTableV3(
 private object Material3CellContentProvider : CellContentProvider {
 
     @Composable
-    override fun RowCellContent(
-        content: @Composable () -> Unit,
-    ) {
+    override fun RowCellContent(content: @Composable () -> Unit,) {
 
         CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.bodyMedium) {
             content()

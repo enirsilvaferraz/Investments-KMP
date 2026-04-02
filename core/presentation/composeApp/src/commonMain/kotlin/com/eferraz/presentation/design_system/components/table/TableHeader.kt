@@ -48,7 +48,10 @@ internal fun <T> TableHeader(
                 modifier = Modifier
                     .weight(column.weight)
                     .heightIn(min = 52.dp)
-                    .thenIf(column.isSortable, { Modifier.clickable { onSort(index, if (isSorted) !sortState.ascending else true) } }),
+                    .thenIf(
+                        column.isSortable,
+                        { Modifier.clickable { onSort(index, if (isSorted) !sortState.ascending else true) } }
+                    ),
                 contentAlignment = alignment(column)
             ) {
 
@@ -64,13 +67,14 @@ internal fun <T> TableHeader(
                         color = theme.headerText
                     )
 
-                    if (isSorted && column.isSortable)
+                    if (isSorted && column.isSortable) {
                         Icon(
                             imageVector = if (sortState.ascending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = theme.sortIcon
                         )
+                    }
                 }
             }
         }

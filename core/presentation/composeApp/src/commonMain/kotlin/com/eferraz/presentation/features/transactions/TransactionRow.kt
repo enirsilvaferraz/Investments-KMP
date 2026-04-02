@@ -104,7 +104,5 @@ private fun formatDate(date: LocalDate): String {
     return "$day/$month/$year"
 }
 
-private fun formatQuantity(quantity: Double): String {
-    return quantity.toInt().toString()
-}
-
+private fun formatQuantity(quantity: Double): String =
+    quantity.toInt().toString()

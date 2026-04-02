@@ -3,8 +3,8 @@ package com.eferraz.usecases.holdings
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.AppUseCase
-import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import com.eferraz.usecases.holdings.CopyHistoryStrategy
+import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.YearMonth
@@ -110,15 +110,11 @@ public class CreateHistoryUseCase(
      * @param referenceDate A data de referência
      * @return Registro de histórico vazio com valores padrão
      */
-    private fun createEmptyHistoryEntry(
-        holding: AssetHolding,
-        referenceDate: YearMonth
-    ): HoldingHistoryEntry {
-        return HoldingHistoryEntry(
+    private fun createEmptyHistoryEntry(holding: AssetHolding, referenceDate: YearMonth): HoldingHistoryEntry =
+        HoldingHistoryEntry(
             holding = holding,
             referenceDate = referenceDate
         )
-    }
 
     /**
      * Encontra a estratégia apropriada para o tipo de ativo da posição.
@@ -126,9 +122,10 @@ public class CreateHistoryUseCase(
      * @param holding A posição de ativo
      * @return A estratégia que pode lidar com o tipo de ativo, ou null se nenhuma for encontrada
      */
-    private fun findStrategyForHolding(holding: AssetHolding): CopyHistoryStrategy? {
-        return strategies.firstOrNull { it.canHandle(holding) }
-    }
+    private fun findStrategyForHolding(holding: AssetHolding): CopyHistoryStrategy? =
+        strategies.firstOrNull {
+            it.canHandle(holding)
+        }
 
     private companion object {
         /**

@@ -11,11 +11,9 @@ internal class StockQuoteHistoryRepositoryImpl(
     private val dataSource: BrApiQuoteDataSource,
 ) : StockQuoteHistoryRepository {
 
-    override suspend fun getQuote(ticker: String): StockQuoteHistory {
-        return dataSource.getQuote(ticker)
-    }
+    override suspend fun getQuote(ticker: String): StockQuoteHistory =
+        dataSource.getQuote(ticker)
 
-    override suspend fun getQuote(ticker: String, referenceDate: YearMonth): StockQuoteHistory {
-        return dataSource.getQuote(ticker, referenceDate)
-    }
+    override suspend fun getQuote(ticker: String, referenceDate: YearMonth): StockQuoteHistory =
+        dataSource.getQuote(ticker, referenceDate)
 }
