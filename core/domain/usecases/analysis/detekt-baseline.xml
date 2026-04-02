@@ -2,176 +2,17 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>ArgumentListWrapping:CopyHistoryStrategy.kt:CopyHistoryStrategy.FixedIncomeHistoryStrategy$(id = null, referenceDate = referenceDate)</ID>
-    <ID>ArgumentListWrapping:CopyHistoryStrategy.kt:CopyHistoryStrategy.FixedIncomeHistoryStrategy$(referenceDate.minusMonth(), holding)</ID>
-    <ID>ArgumentListWrapping:CopyHistoryStrategy.kt:CopyHistoryStrategy.VariableIncomeHistoryStrategy$(referenceDate.minusMonth(), holding)</ID>
-    <ID>ArgumentListWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$(GetTransactionsByHoldingUseCase.Param(result.holding))</ID>
-    <ID>ArgumentListWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$(result.holding)</ID>
-    <ID>ArgumentListWrapping:MergeHistoryUseCase.kt:MergeHistoryUseCase$(referenceDate)</ID>
-    <ID>ArgumentListWrapping:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$("History not found for holding ${holding.id} and reference date ${param.referenceDate}")</ID>
-    <ID>ArgumentListWrapping:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$(param.referenceDate, holding)</ID>
-    <ID>ArgumentListWrapping:UpdateFixedIncomeAndFundsHistoryValueUseCase.kt:UpdateFixedIncomeAndFundsHistoryValueUseCase$("Asset must not be a VariableIncomeAsset")</ID>
-    <ID>BinaryExpressionWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$(it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity</ID>
-    <ID>BinaryExpressionWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$(it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity</ID>
-    <ID>BinaryExpressionWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$(it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity</ID>
-    <ID>BinaryExpressionWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(result.holding)) .getOrNull() ?.filter { it.date.month == param.referenceDate.month &amp;&amp; it.date.year == param.referenceDate.year } ?: emptyList()</ID>
-    <ID>BinaryExpressionWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$param.liquidity == null || (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity</ID>
-    <ID>BinaryExpressionWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$param.liquidity == null || (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity || (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity</ID>
-    <ID>BinaryExpressionWrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$param.liquidity == null || (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity || (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity || (it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity</ID>
-    <ID>BinaryExpressionWrapping:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$holdingHistoryRepository.getByHoldingAndReferenceDate(param.referenceDate, holding) ?: throw IllegalStateException("History not found for holding ${holding.id} and reference date ${param.referenceDate}")</ID>
     <ID>CyclomaticComplexMethod:GetAssetsTableDataUseCase.kt:GetAssetsTableDataUseCase$override suspend fun execute: List&lt;AssetsTableData&gt;</ID>
     <ID>CyclomaticComplexMethod:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$override suspend fun execute: List&lt;HistoryTableData&gt;</ID>
     <ID>CyclomaticComplexMethod:SaveAssetUseCase.kt:SaveAssetUseCase$override suspend fun execute: Long</ID>
-    <ID>FinalNewline:AppCrudRepository.kt:com.eferraz.usecases.repositories.AppCrudRepository.kt</ID>
-    <ID>FinalNewline:AppUseCase.kt:com.eferraz.usecases.AppUseCase.kt</ID>
-    <ID>FinalNewline:AssetRepository.kt:com.eferraz.usecases.repositories.AssetRepository.kt</ID>
-    <ID>FinalNewline:CopyHistoryStrategy.kt:com.eferraz.usecases.holdings.CopyHistoryStrategy.kt</ID>
-    <ID>FinalNewline:CreateHistoryUseCase.kt:com.eferraz.usecases.holdings.CreateHistoryUseCase.kt</ID>
-    <ID>FinalNewline:DateProvider.kt:com.eferraz.usecases.repositories.DateProvider.kt</ID>
-    <ID>FinalNewline:FixedIncomeFormData.kt:com.eferraz.usecases.entities.FixedIncomeFormData.kt</ID>
-    <ID>FinalNewline:GetAssetUseCase.kt:com.eferraz.usecases.cruds.GetAssetUseCase.kt</ID>
-    <ID>FinalNewline:GetAssetsTableDataUseCase.kt:com.eferraz.usecases.screens.GetAssetsTableDataUseCase.kt</ID>
-    <ID>FinalNewline:GetAssetsUseCase.kt:com.eferraz.usecases.cruds.GetAssetsUseCase.kt</ID>
-    <ID>FinalNewline:GetBrokeragesUseCase.kt:com.eferraz.usecases.cruds.GetBrokeragesUseCase.kt</ID>
-    <ID>FinalNewline:GetDataPeriodUseCase.kt:com.eferraz.usecases.GetDataPeriodUseCase.kt</ID>
-    <ID>FinalNewline:GetFinancialGoalsUseCase.kt:com.eferraz.usecases.cruds.GetFinancialGoalsUseCase.kt</ID>
-    <ID>FinalNewline:GetGoalHistoryUseCase.kt:com.eferraz.usecases.GetGoalHistoryUseCase.kt</ID>
-    <ID>FinalNewline:GetGoalsMonitoringTableDataUseCase.kt:com.eferraz.usecases.screens.GetGoalsMonitoringTableDataUseCase.kt</ID>
-    <ID>FinalNewline:GetHistoryTableDataUseCase.kt:com.eferraz.usecases.screens.GetHistoryTableDataUseCase.kt</ID>
-    <ID>FinalNewline:GetIssuersUseCase.kt:com.eferraz.usecases.cruds.GetIssuersUseCase.kt</ID>
-    <ID>FinalNewline:GetOwnerUseCase.kt:com.eferraz.usecases.cruds.GetOwnerUseCase.kt</ID>
-    <ID>FinalNewline:GetQuotesUseCase.kt:com.eferraz.usecases.GetQuotesUseCase.kt</ID>
-    <ID>FinalNewline:GetTransactionsUseCase.kt:com.eferraz.usecases.cruds.GetTransactionsUseCase.kt</ID>
-    <ID>FinalNewline:HoldingHistoryResult.kt:com.eferraz.usecases.entities.HoldingHistoryResult.kt</ID>
-    <ID>FinalNewline:HoldingHistoryView.kt:com.eferraz.usecases.entities.HoldingHistoryView.kt</ID>
-    <ID>FinalNewline:MergeHistoryUseCase.kt:com.eferraz.usecases.MergeHistoryUseCase.kt</ID>
-    <ID>FinalNewline:SaveAssetUseCase2.kt:com.eferraz.usecases.SaveAssetUseCase2.kt</ID>
-    <ID>FinalNewline:SequenceMonths.kt:com.eferraz.usecases.SequenceMonths.kt</ID>
-    <ID>FinalNewline:SyncVariableIncomeValuesUseCase.kt:com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase.kt</ID>
-    <ID>FinalNewline:UpdateFixedIncomeAndFundsHistoryValueUseCase.kt:com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase.kt</ID>
-    <ID>FinalNewline:UseCaseModule.kt:com.eferraz.usecases.di.UseCaseModule.kt</ID>
-    <ID>FinalNewline:ValidateException.kt:com.eferraz.usecases.exceptions.ValidateException.kt</ID>
-    <ID>FunctionExpressionBody:CreateHistoryUseCase.kt:CreateHistoryUseCase${ return HoldingHistoryEntry( holding = holding, referenceDate = referenceDate ) }</ID>
-    <ID>FunctionExpressionBody:CreateHistoryUseCase.kt:CreateHistoryUseCase${ return strategies.firstOrNull { it.canHandle(holding) } }</ID>
-    <ID>FunctionExpressionBody:GetQuotesUseCase.kt:GetQuotesUseCase${ return if (param.referenceDate != null) repository.getQuote(ticker = param.ticker, referenceDate = param.referenceDate) else repository.getQuote(ticker = param.ticker) }</ID>
-    <ID>FunctionExpressionBody:GetTransactionsByHoldingUseCase.kt:GetTransactionsByHoldingUseCase${ return assetTransactionRepository.getAllByHolding(param.holding) }</ID>
-    <ID>FunctionExpressionBody:SaveTransactionUseCase.kt:SaveTransactionUseCase${ return assetTransactionRepository.upsert(param.transaction) }</ID>
-    <ID>FunctionLiteral:CopyHistoryStrategy.kt:CopyHistoryStrategy.VariableIncomeHistoryStrategy$&lt;anonymous&gt;</ID>
-    <ID>FunctionLiteral:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$&lt;anonymous&gt;</ID>
-    <ID>FunctionLiteral:MergeHistoryUseCase.kt:MergeHistoryUseCase$&lt;anonymous&gt;</ID>
-    <ID>FunctionSignature:AppUseCase.kt:AppUseCase$public suspend operator fun invoke: Result&lt;R&gt;</ID>
-    <ID>FunctionSignature:AssetFormData.kt:AssetFormData.Companion$public fun build: AssetFormData</ID>
-    <ID>FunctionSignature:AssetTransactionRepository.kt:AssetTransactionRepository$public suspend fun getAllByHoldingAndDateRange: List&lt;AssetTransaction&gt;</ID>
-    <ID>FunctionSignature:CreateHistoryUseCase.kt:CreateHistoryUseCase$private fun createEmptyHistoryEntry: HoldingHistoryEntry</ID>
-    <ID>FunctionSignature:GetAssetUseCase.kt:GetAssetUseCase$override suspend fun execute: Asset</ID>
-    <ID>FunctionSignature:GetAssetsUseCase.kt:GetAssetsUseCase$override suspend fun execute: List&lt;Asset&gt;</ID>
-    <ID>FunctionSignature:GetFinancialGoalsUseCase.kt:GetFinancialGoalsUseCase$override suspend fun execute: List&lt;FinancialGoal&gt;</ID>
-    <ID>FunctionSignature:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$internal fun FixedIncomeAsset.formated: String</ID>
-    <ID>FunctionSignature:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$internal fun InvestmentFundAsset.formated: String</ID>
-    <ID>FunctionSignature:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$internal fun VariableIncomeAsset.formated: String</ID>
-    <ID>FunctionSignature:GetTransactionsUseCase.kt:GetTransactionsUseCase$override suspend fun execute: List&lt;AssetTransaction&gt;</ID>
-    <ID>FunctionSignature:HoldingHistoryRepository.kt:HoldingHistoryRepository$public suspend fun getByGoalAndReferenceDate: List&lt;HoldingHistoryEntry&gt;</ID>
-    <ID>FunctionSignature:HoldingHistoryRepository.kt:HoldingHistoryRepository$public suspend fun getByHoldingAndReferenceDate: HoldingHistoryEntry?</ID>
-    <ID>FunctionSignature:HoldingHistoryView.kt:HoldingHistoryView$public fun isCurrentValueEnabled: Boolean</ID>
-    <ID>FunctionSignature:MergeHistoryUseCase.kt:MergeHistoryUseCase$private suspend fun mapByReferenceDate: Map&lt;AssetHolding, HoldingHistoryEntry?&gt;</ID>
-    <ID>FunctionSignature:UseCaseModule.kt:UseCaseModule$@Single public fun provideCoroutineDispatcher: CoroutineDispatcher</ID>
-    <ID>ImportOrdering:AssetHoldingRepository.kt:import com.eferraz.entities.holdings.AssetHolding import com.eferraz.entities.assets.InvestmentCategory</ID>
-    <ID>ImportOrdering:CreateHistoryUseCase.kt:import com.eferraz.entities.holdings.AssetHolding import com.eferraz.entities.holdings.HoldingHistoryEntry import com.eferraz.usecases.AppUseCase import com.eferraz.usecases.repositories.HoldingHistoryRepository import com.eferraz.usecases.holdings.CopyHistoryStrategy import kotlinx.coroutines.CoroutineDispatcher import kotlinx.coroutines.Dispatchers import kotlinx.datetime.YearMonth import org.koin.core.annotation.Factory</ID>
-    <ID>ImportOrdering:HistoryTableData.kt:import com.eferraz.entities.assets.FixedIncomeAssetType import com.eferraz.entities.assets.FixedIncomeSubType import com.eferraz.entities.assets.InvestmentCategory import com.eferraz.entities.holdings.HoldingHistoryEntry import com.eferraz.entities.assets.InvestmentFundAssetType import com.eferraz.entities.assets.Liquidity import com.eferraz.entities.assets.VariableIncomeAssetType import kotlinx.datetime.LocalDate</ID>
-    <ID>ImportOrdering:HoldingHistoryResult.kt:import com.eferraz.entities.holdings.AssetHolding import com.eferraz.entities.holdings.HoldingHistoryEntry import com.eferraz.entities.holdings.Appreciation</ID>
-    <ID>ImportOrdering:MergeHistoryUseCase.kt:import com.eferraz.entities.holdings.AssetHolding import com.eferraz.entities.holdings.HoldingHistoryEntry import com.eferraz.entities.assets.InvestmentCategory import com.eferraz.entities.holdings.Appreciation import com.eferraz.entities.transactions.TransactionBalance import com.eferraz.usecases.entities.HoldingHistoryResult import com.eferraz.usecases.holdings.CreateHistoryUseCase import com.eferraz.usecases.repositories.AssetHoldingRepository import com.eferraz.usecases.repositories.AssetTransactionRepository import com.eferraz.usecases.repositories.HoldingHistoryRepository import kotlinx.coroutines.CoroutineDispatcher import kotlinx.coroutines.Dispatchers import kotlinx.datetime.DatePeriod import kotlinx.datetime.LocalDate import kotlinx.datetime.YearMonth import kotlinx.datetime.minus import kotlinx.datetime.minusMonth import kotlinx.datetime.plus import org.koin.core.annotation.Factory</ID>
-    <ID>ImportOrdering:SaveAssetUseCase.kt:import com.eferraz.entities.holdings.AssetHolding import com.eferraz.entities.assets.FixedIncomeAsset import com.eferraz.entities.assets.InvestmentFundAsset import com.eferraz.entities.assets.Liquidity import com.eferraz.entities.assets.VariableIncomeAsset import com.eferraz.usecases.entities.AssetFormData import com.eferraz.usecases.entities.FixedIncomeFormData import com.eferraz.usecases.entities.InvestmentFundFormData import com.eferraz.usecases.entities.VariableIncomeFormData import com.eferraz.usecases.exceptions.ValidateException import com.eferraz.usecases.repositories.AssetHoldingRepository import com.eferraz.usecases.repositories.AssetRepository import com.eferraz.usecases.repositories.BrokerageRepository import com.eferraz.usecases.repositories.FinancialGoalRepository import com.eferraz.usecases.repositories.OwnerRepository import kotlinx.coroutines.CoroutineDispatcher import kotlinx.coroutines.Dispatchers import kotlinx.datetime.LocalDate import kotlinx.datetime.TimeZone import kotlinx.datetime.toLocalDateTime import org.koin.core.annotation.Factory import kotlin.time.Clock import kotlin.time.ExperimentalTime</ID>
-    <ID>ImportOrdering:UpdateFixedIncomeAndFundsHistoryValueUseCase.kt:import com.eferraz.entities.holdings.HoldingHistoryEntry import com.eferraz.entities.assets.VariableIncomeAsset import com.eferraz.usecases.repositories.HoldingHistoryRepository import kotlinx.coroutines.CoroutineDispatcher import kotlinx.coroutines.Dispatchers import org.koin.core.annotation.Factory</ID>
-    <ID>Indentation:SequenceMonths.kt:SequenceMonths.Companion$ </ID>
-    <ID>Indentation:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$ </ID>
     <ID>LongMethod:GetAssetsTableDataUseCase.kt:GetAssetsTableDataUseCase$override suspend fun execute: List&lt;AssetsTableData&gt;</ID>
     <ID>LongMethod:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$override suspend fun execute: List&lt;HistoryTableData&gt;</ID>
     <ID>LongMethod:SaveAssetUseCase.kt:SaveAssetUseCase$override suspend fun execute: Long</ID>
-    <ID>MaxLineLength:AssetTransactionRepository.kt:AssetTransactionRepository$public suspend fun getAllByHoldingAndDateRange: List&lt;AssetTransaction&gt;</ID>
-    <ID>MaxLineLength:CopyHistoryStrategy.kt:CopyHistoryStrategy.FixedIncomeHistoryStrategy$holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate.minusMonth(), holding)?.copy(id = null, referenceDate = referenceDate)</ID>
-    <ID>MaxLineLength:CopyHistoryStrategy.kt:CopyHistoryStrategy.VariableIncomeHistoryStrategy$holdingHistoryRepository.getByHoldingAndReferenceDate(referenceDate.minusMonth(), holding)</ID>
-    <ID>MaxLineLength:CreateHistoryUseCase.kt:CreateHistoryUseCase$*</ID>
     <ID>MaxLineLength:CreateHistoryUseCase.kt:CreateHistoryUseCase.Companion$*</ID>
-    <ID>MaxLineLength:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$.</ID>
-    <ID>MaxLineLength:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$val</ID>
-    <ID>MaxLineLength:HoldingHistoryRepository.kt:HoldingHistoryRepository$public suspend fun getByGoalAndReferenceDate: List&lt;HoldingHistoryEntry&gt;</ID>
-    <ID>MaxLineLength:HoldingHistoryRepository.kt:HoldingHistoryRepository$public suspend fun getByHoldingAndReferenceDate: HoldingHistoryEntry?</ID>
     <ID>MaxLineLength:MergeHistoryUseCase.kt:MergeHistoryUseCase$// is FixedIncomeAsset -&gt; asset.expirationDate &lt; LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY || asset.issuer.isInLiquidation || asset.observations?.contains("FGTS") ?: false</ID>
-    <ID>MaxLineLength:MergeHistoryUseCase.kt:MergeHistoryUseCase$private suspend</ID>
-    <ID>MaxLineLength:MergeHistoryUseCase.kt:MergeHistoryUseCase$val</ID>
-    <ID>MaxLineLength:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$?:</ID>
-    <ID>MaxLineLength:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$val</ID>
-    <ID>MaxLineLength:UpdateFixedIncomeAndFundsHistoryValueUseCase.kt:UpdateFixedIncomeAndFundsHistoryValueUseCase$if (param.entry.holding.asset is VariableIncomeAsset) throw IllegalArgumentException("Asset must not be a VariableIncomeAsset")</ID>
-    <ID>MaximumLineLength:AssetTransactionRepository.kt:AssetTransactionRepository$&gt;</ID>
-    <ID>MaximumLineLength:CopyHistoryStrategy.kt:CopyHistoryStrategy.FixedIncomeHistoryStrategy$)</ID>
-    <ID>MaximumLineLength:CopyHistoryStrategy.kt:CopyHistoryStrategy.VariableIncomeHistoryStrategy$-&gt;</ID>
-    <ID>MaximumLineLength:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$)</ID>
-    <ID>MaximumLineLength:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$}</ID>
-    <ID>MaximumLineLength:HoldingHistoryRepository.kt:HoldingHistoryRepository$&gt;</ID>
-    <ID>MaximumLineLength:HoldingHistoryRepository.kt:HoldingHistoryRepository$?</ID>
-    <ID>MaximumLineLength:MergeHistoryUseCase.kt:MergeHistoryUseCase$(</ID>
-    <ID>MaximumLineLength:MergeHistoryUseCase.kt:MergeHistoryUseCase${</ID>
-    <ID>MaximumLineLength:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$)</ID>
-    <ID>MaximumLineLength:UpdateFixedIncomeAndFundsHistoryValueUseCase.kt:UpdateFixedIncomeAndFundsHistoryValueUseCase$)</ID>
-    <ID>MultiLineIfElse:GetQuotesUseCase.kt:GetQuotesUseCase$repository.getQuote(ticker = param.ticker)</ID>
-    <ID>MultiLineIfElse:GetQuotesUseCase.kt:GetQuotesUseCase$repository.getQuote(ticker = param.ticker, referenceDate = param.referenceDate)</ID>
-    <ID>MultiLineIfElse:SaveAssetUseCase.kt:SaveAssetUseCase$null</ID>
-    <ID>NewLineAtEndOfFile:AppCrudRepository.kt:com.eferraz.usecases.repositories.AppCrudRepository.kt</ID>
-    <ID>NewLineAtEndOfFile:AppUseCase.kt:com.eferraz.usecases.AppUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:AssetRepository.kt:com.eferraz.usecases.repositories.AssetRepository.kt</ID>
-    <ID>NewLineAtEndOfFile:CopyHistoryStrategy.kt:com.eferraz.usecases.holdings.CopyHistoryStrategy.kt</ID>
-    <ID>NewLineAtEndOfFile:CreateHistoryUseCase.kt:com.eferraz.usecases.holdings.CreateHistoryUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:DateProvider.kt:com.eferraz.usecases.repositories.DateProvider.kt</ID>
-    <ID>NewLineAtEndOfFile:FixedIncomeFormData.kt:com.eferraz.usecases.entities.FixedIncomeFormData.kt</ID>
-    <ID>NewLineAtEndOfFile:GetAssetUseCase.kt:com.eferraz.usecases.cruds.GetAssetUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetAssetsTableDataUseCase.kt:com.eferraz.usecases.screens.GetAssetsTableDataUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetAssetsUseCase.kt:com.eferraz.usecases.cruds.GetAssetsUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetBrokeragesUseCase.kt:com.eferraz.usecases.cruds.GetBrokeragesUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetDataPeriodUseCase.kt:com.eferraz.usecases.GetDataPeriodUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetFinancialGoalsUseCase.kt:com.eferraz.usecases.cruds.GetFinancialGoalsUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetGoalHistoryUseCase.kt:com.eferraz.usecases.GetGoalHistoryUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetGoalsMonitoringTableDataUseCase.kt:com.eferraz.usecases.screens.GetGoalsMonitoringTableDataUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetHistoryTableDataUseCase.kt:com.eferraz.usecases.screens.GetHistoryTableDataUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetIssuersUseCase.kt:com.eferraz.usecases.cruds.GetIssuersUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetOwnerUseCase.kt:com.eferraz.usecases.cruds.GetOwnerUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetQuotesUseCase.kt:com.eferraz.usecases.GetQuotesUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:GetTransactionsUseCase.kt:com.eferraz.usecases.cruds.GetTransactionsUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:HoldingHistoryResult.kt:com.eferraz.usecases.entities.HoldingHistoryResult.kt</ID>
-    <ID>NewLineAtEndOfFile:HoldingHistoryView.kt:com.eferraz.usecases.entities.HoldingHistoryView.kt</ID>
-    <ID>NewLineAtEndOfFile:MergeHistoryUseCase.kt:com.eferraz.usecases.MergeHistoryUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:SaveAssetUseCase2.kt:com.eferraz.usecases.SaveAssetUseCase2.kt</ID>
-    <ID>NewLineAtEndOfFile:SequenceMonths.kt:com.eferraz.usecases.SequenceMonths.kt</ID>
-    <ID>NewLineAtEndOfFile:SyncVariableIncomeValuesUseCase.kt:com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:UpdateFixedIncomeAndFundsHistoryValueUseCase.kt:com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase.kt</ID>
-    <ID>NewLineAtEndOfFile:UseCaseModule.kt:com.eferraz.usecases.di.UseCaseModule.kt</ID>
-    <ID>NewLineAtEndOfFile:ValidateException.kt:com.eferraz.usecases.exceptions.ValidateException.kt</ID>
-    <ID>NoConsecutiveBlankLines:AssetFormData.kt: </ID>
-    <ID>NoConsecutiveBlankLines:AssetHoldingRepository.kt: </ID>
-    <ID>NoConsecutiveBlankLines:AssetsTableData.kt: </ID>
-    <ID>NoConsecutiveBlankLines:BrokerageRepository.kt: </ID>
-    <ID>NoConsecutiveBlankLines:GetOrCreateIssuerUseCase.kt: </ID>
-    <ID>NoConsecutiveBlankLines:HistoryTableData.kt: </ID>
-    <ID>NoConsecutiveBlankLines:HoldingHistoryRepository.kt: </ID>
-    <ID>NoConsecutiveBlankLines:InvestmentFundFormData.kt: </ID>
-    <ID>NoConsecutiveBlankLines:IssuerRepository.kt: </ID>
-    <ID>NoConsecutiveBlankLines:OwnerRepository.kt: </ID>
-    <ID>NoConsecutiveBlankLines:PerformanceUtils.kt: </ID>
-    <ID>NoConsecutiveBlankLines:SetBrokerageToHoldingUseCase.kt: </ID>
-    <ID>NoConsecutiveBlankLines:StockQuoteHistoryRepository.kt: </ID>
-    <ID>NoConsecutiveBlankLines:VariableIncomeFormData.kt: </ID>
-    <ID>NoTrailingSpaces:SetBrokerageToHoldingUseCase.kt:SetBrokerageToHoldingUseCase$ </ID>
-    <ID>NoTrailingSpaces:SetGoalToHoldingUseCase.kt:SetGoalToHoldingUseCase$ </ID>
-    <ID>NoTrailingSpaces:UseCaseModule.kt:UseCaseModule$ </ID>
-    <ID>ParameterListWrapping:AssetTransactionRepository.kt:AssetTransactionRepository$(holding: AssetHolding, startDate: LocalDate, endDate: LocalDate)</ID>
-    <ID>ParameterListWrapping:HoldingHistoryRepository.kt:HoldingHistoryRepository$(referenceDate: YearMonth, goal: FinancialGoal)</ID>
-    <ID>ParameterListWrapping:HoldingHistoryRepository.kt:HoldingHistoryRepository$(referenceDate: YearMonth, holding: AssetHolding)</ID>
     <ID>ReturnCount:CopyHistoryStrategy.kt:CopyHistoryStrategy.VariableIncomeHistoryStrategy$override suspend fun create: HoldingHistoryEntry?</ID>
     <ID>ReturnCount:GetOrCreateIssuerUseCase.kt:GetOrCreateIssuerUseCase$override suspend fun execute: Issuer?</ID>
     <ID>ReturnCount:SaveAssetUseCase.kt:SaveAssetUseCase$override suspend fun execute: Long</ID>
-    <ID>SpacingAroundColon:AssetHoldingRepository.kt:AssetHoldingRepository$:</ID>
-    <ID>SpacingAroundColon:AssetRepository.kt:AssetRepository$:</ID>
-    <ID>SpacingAroundColon:GoalInvestmentPlanRepository.kt:GoalInvestmentPlanRepository$:</ID>
-    <ID>SpacingBetweenDeclarationsWithComments:HistoryTableData.kt:HistoryTableData$/** * Total de saldo no período. */</ID>
     <ID>SwallowedException:GetOrCreateIssuerUseCase.kt:GetOrCreateIssuerUseCase$e: Exception</ID>
     <ID>SwallowedException:SaveAssetUseCase.kt:SaveAssetUseCase$e: Exception</ID>
     <ID>ThrowsCount:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$override suspend fun execute</ID>
@@ -180,6 +21,5 @@
     <ID>TooGenericExceptionCaught:SaveAssetUseCase.kt:SaveAssetUseCase$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SyncVariableIncomeValuesUseCase.kt:SyncVariableIncomeValuesUseCase$e: Exception</ID>
     <ID>TooGenericExceptionThrown:GetAssetUseCase.kt:GetAssetUseCase$throw Exception("Asset not found")</ID>
-    <ID>Wrapping:GetHistoryTableDataUseCase.kt:GetHistoryTableDataUseCase$param.liquidity == null || (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity || (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity || (it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity</ID>
   </CurrentIssues>
 </SmellBaseline>

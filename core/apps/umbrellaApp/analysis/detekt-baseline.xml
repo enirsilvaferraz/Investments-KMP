@@ -2,14 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FinalNewline:App.kt:com.eferraz.investments.App.kt</ID>
-    <ID>FinalNewline:MainViewController.kt:com.eferraz.investments.MainViewController.kt</ID>
-    <ID>FinalNewline:MyKoinApp.kt:com.eferraz.investments.MyKoinApp.kt</ID>
     <ID>FunctionNaming:MainViewController.kt:public fun MainViewController: UIViewController</ID>
-    <ID>FunctionSignature:MainViewController.kt:public fun MainViewController: UIViewController</ID>
-    <ID>NewLineAtEndOfFile:App.kt:com.eferraz.investments.App.kt</ID>
-    <ID>NewLineAtEndOfFile:MainViewController.kt:com.eferraz.investments.MainViewController.kt</ID>
-    <ID>NewLineAtEndOfFile:MyKoinApp.kt:com.eferraz.investments.MyKoinApp.kt</ID>
     <ID>PreviewPublic:App.kt:@Composable @Preview public fun App</ID>
   </CurrentIssues>
 </SmellBaseline>

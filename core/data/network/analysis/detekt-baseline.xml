@@ -2,40 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CommentSpacing:KtorClientConfig.kt:KtorClientConfig$//ContentNegotiation plugin for negotiationing media types between the client and server</ID>
-    <ID>CommentSpacing:KtorClientConfig.kt:KtorClientConfig$//Logging plugin combined with kermit(KMP Logger library)</ID>
-    <ID>CommentSpacing:KtorClientConfig.kt:KtorClientConfig$//Timeout plugin to set up timeout milliseconds for client</ID>
-    <ID>CommentSpacing:KtorClientConfig.kt:KtorClientConfig$//We can configure the BASE_URL and also</ID>
-    <ID>CommentSpacing:KtorClientConfig.kt:KtorClientConfig$//the deafult headers by defaultRequest builder</ID>
-    <ID>FinalNewline:BrApiQuoteResponse.kt:com.eferraz.network.responses.BrApiQuoteResponse.kt</ID>
-    <ID>FinalNewline:ClientConfig.kt:com.eferraz.network.core.ClientConfig.kt</ID>
-    <ID>FinalNewline:KtorClientConfig.kt:com.eferraz.network.core.KtorClientConfig.kt</ID>
-    <ID>FinalNewline:NetworkModule.kt:com.eferraz.network.di.NetworkModule.kt</ID>
-    <ID>FinalNewline:Platform.android.kt:com.eferraz.network.Platform.android.kt</ID>
-    <ID>FinalNewline:Platform.ios.kt:com.eferraz.network.Platform.ios.kt</ID>
-    <ID>FinalNewline:Platform.jvm.kt:com.eferraz.network.Platform.jvm.kt</ID>
-    <ID>FinalNewline:Platform.kt:com.eferraz.network.Platform.kt</ID>
-    <ID>FunctionSignature:BrApiQuoteDataSource.kt:BrApiQuoteDataSource$public suspend fun getQuote: StockQuoteHistory</ID>
-    <ID>FunctionSignature:BrApiQuoteDataSourceImpl.kt:BrApiQuoteDataSourceImpl$private fun QuoteResult.toModel: StockQuoteHistory</ID>
-    <ID>FunctionSignature:KtorClientConfig.kt:KtorClientConfig$private fun configure: HttpClient</ID>
-    <ID>FunctionSignature:Platform.android.kt:internal actual fun httpEngine: HttpClientEngineFactory&lt;*&gt;</ID>
-    <ID>FunctionSignature:Platform.ios.kt:internal actual fun httpEngine: HttpClientEngineFactory&lt;*&gt;</ID>
-    <ID>FunctionSignature:Platform.jvm.kt:internal actual fun httpEngine: HttpClientEngineFactory&lt;*&gt;</ID>
     <ID>MagicNumber:KtorClientConfig.kt:KtorClientConfig$60_000</ID>
-    <ID>MaxLineLength:BrApiQuoteDataSource.kt:BrApiQuoteDataSource$public suspend</ID>
-    <ID>MaximumLineLength:BrApiQuoteDataSource.kt:BrApiQuoteDataSource$StockQuoteHistory</ID>
-    <ID>MultiLineIfElse:BrApiQuoteDataSourceImpl.kt:BrApiQuoteDataSourceImpl$throw IllegalStateException("Nenhuma cotação encontrada para o mês $yearMonth")</ID>
-    <ID>NewLineAtEndOfFile:BrApiQuoteResponse.kt:com.eferraz.network.responses.BrApiQuoteResponse.kt</ID>
-    <ID>NewLineAtEndOfFile:ClientConfig.kt:com.eferraz.network.core.ClientConfig.kt</ID>
-    <ID>NewLineAtEndOfFile:KtorClientConfig.kt:com.eferraz.network.core.KtorClientConfig.kt</ID>
-    <ID>NewLineAtEndOfFile:NetworkModule.kt:com.eferraz.network.di.NetworkModule.kt</ID>
-    <ID>NewLineAtEndOfFile:Platform.android.kt:com.eferraz.network.Platform.android.kt</ID>
-    <ID>NewLineAtEndOfFile:Platform.ios.kt:com.eferraz.network.Platform.ios.kt</ID>
-    <ID>NewLineAtEndOfFile:Platform.jvm.kt:com.eferraz.network.Platform.jvm.kt</ID>
-    <ID>NewLineAtEndOfFile:Platform.kt:com.eferraz.network.Platform.kt</ID>
-    <ID>NoConsecutiveBlankLines:BrApiQuoteDataSource.kt: </ID>
-    <ID>ParameterListWrapping:BrApiQuoteDataSource.kt:BrApiQuoteDataSource$(ticker: String, referenceDate: YearMonth, range: String = "3mo", interval: String = "1d")</ID>
     <ID>ThrowsCount:BrApiQuoteDataSourceImpl.kt:BrApiQuoteDataSourceImpl$private fun QuoteResult.toModel: StockQuoteHistory</ID>
-    <ID>Wrapping:KtorClientConfig.kt:KtorClientConfig$(</ID>
   </CurrentIssues>
 </SmellBaseline>
