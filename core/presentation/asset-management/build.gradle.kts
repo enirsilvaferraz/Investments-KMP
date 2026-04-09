@@ -10,12 +10,12 @@ kotlin {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
-        implementation(projects.features.assetManagement)
-        implementation(projects.features.composeApp)
+
         implementation(projects.domain.entity)
         implementation(projects.domain.usecases)
-        implementation(projects.data.repositories)
-        implementation(projects.data.network)
-        implementation(projects.data.database)
+        implementation(projects.features.designSystem)
+
+        implementation(libs.androidx.lifecycle.viewmodel)
+        implementation(libs.androidx.lifecycle.runtimeCompose)
     }
 }

@@ -32,9 +32,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
+import com.eferraz.asset_management.AssetManagementScreen
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
-import com.eferraz.presentation.features.form.AssetForm
 import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
 import com.eferraz.presentation.features.history.HoldingHistoryRoute
 
@@ -56,89 +56,73 @@ private fun AppNavigationHost() {
         navigationItems = navRailMenus(backStack),
         navigationItemVerticalArrangement = Arrangement.Center,
         content = appNavDisplay(backStack),
-//        primaryActionContent = {
-//            ActionButton {
-//                // Push FormRouting em vez de substituir - diálogos precisam de conteúdo por baixo (overlaidEntries)
-//                backStack += FormRouting
-//            }
-//        },
+        primaryActionContent = {
+            ActionButton(
+                onClick = {
+                    // Push em vez de substituir - diálogos precisam de conteúdo por baixo (overlaidEntries)
+                    backStack += AssetManagementRouting
+                }
+            )
+        },
     )
 }
 
-private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Unit =
-    {
+@Suppress("FunctionSignature")
+private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Unit = {
 
-        NavigationSuiteItem(
-            icon = { Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "Ativos") },
-            label = { Text("Ativos") },
-            selected = backStack.lastOrNull() == AssetsRouting,
-            onClick = { backStack[0] = AssetsRouting }
-        )
+    NavigationSuiteItem(
+        icon = { Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "Ativos") },
+        label = { Text("Ativos") },
+        selected = backStack.lastOrNull() == AssetsRouting,
+        onClick = { backStack[0] = AssetsRouting }
+    )
 
-        NavigationSuiteItem(
-            icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Histórico") },
-            label = { Text("Histórico") },
-            selected = backStack.lastOrNull() == HistoryRouting,
-            onClick = { backStack[0] = HistoryRouting }
-        )
+    NavigationSuiteItem(
+        icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Histórico") },
+        label = { Text("Histórico") },
+        selected = backStack.lastOrNull() == HistoryRouting,
+        onClick = { backStack[0] = HistoryRouting }
+    )
 
-        NavigationSuiteItem(
-            icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Metas") },
-            label = { Text("Metas") },
-            selected = backStack.lastOrNull() == GoalsMonitoringRouting,
-            onClick = { backStack[0] = GoalsMonitoringRouting }
-        )
+    NavigationSuiteItem(
+        icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Metas") },
+        label = { Text("Metas") },
+        selected = backStack.lastOrNull() == GoalsMonitoringRouting,
+        onClick = { backStack[0] = GoalsMonitoringRouting }
+    )
+}
 
-//    NavigationSuiteItem(
-//        icon = { Icon(imageVector = Icons.Default.DeveloperMode, contentDescription = "Histórico") },
-//        label = { Text("Histórico") },
-//        selected = backStack.lastOrNull() == HistoryRoutingV2,
-//        onClick = { backStack[0] = HistoryRoutingV2 }
-//    )
+@Suppress("FunctionSignature")
+private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Unit = {
 
-//    NavigationSuiteItem(
-//        icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Test") },
-//        label = { Text("Test") },
-//        selected = backStack.lastOrNull() == TestRouting,
-//        onClick = { backStack[0] = TestRouting }
-//    )
-    }
+    val dialogStrategy = remember { DialogSceneStrategy<NavKey>() }
 
-private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Unit =
-    {
+    NavDisplay(
+        backStack = backStack,
+        sceneStrategies = listOf(dialogStrategy),
+        entryProvider = entryProvider {
 
-        val dialogStrategy = remember { DialogSceneStrategy<NavKey>() }
-
-        NavDisplay(
-            backStack = backStack,
-            sceneStrategies = listOf(dialogStrategy),
-            entryProvider = entryProvider {
-
-                entry<AssetsRouting> {
-                    AssetsRoute()
-                }
-
-                entry<HistoryRouting> {
-                    HoldingHistoryRoute()
-                }
-
-                entry<GoalsMonitoringRouting> {
-                    GoalsMonitoringRoute()
-                }
-
-                entry<FormRouting>(metadata = DialogSceneStrategy.dialog()) {
-                    AssetForm()
-                }
-
-//            entry<TestRouting> {
-//                UITablePreview()
-//            }
+            entry<AssetsRouting> {
+                AssetsRoute()
             }
-        )
-    }
+
+            entry<HistoryRouting> {
+                HoldingHistoryRoute()
+            }
+
+            entry<GoalsMonitoringRouting> {
+                GoalsMonitoringRoute()
+            }
+
+            entry<AssetManagementRouting>(metadata = DialogSceneStrategy.dialog()) {
+                AssetManagementScreen()
+            }
+        }
+    )
+}
 
 @Composable
-private fun ActionButton(onClick: () -> Unit,) {
+private fun ActionButton(onClick: () -> Unit) {
 
     Box(contentAlignment = Alignment.Center, modifier = Modifier.size(96.dp).padding(top = 25.dp)) {
 
