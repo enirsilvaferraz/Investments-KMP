@@ -1,8 +1,8 @@
 package com.eferraz.database.core
 
 import android.content.Context
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
 import org.koin.core.component.inject
 
 internal actual object PlatformDataBaseBuilder : DataBaseBuilder {

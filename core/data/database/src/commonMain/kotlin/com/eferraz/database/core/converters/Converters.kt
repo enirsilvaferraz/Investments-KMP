@@ -1,6 +1,6 @@
 package com.eferraz.database.core.converters
 
-import androidx.room.TypeConverter
+import androidx.room3.TypeConverter
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 

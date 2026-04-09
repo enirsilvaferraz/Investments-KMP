@@ -1,7 +1,7 @@
 package com.eferraz.database.entities.transaction
 
-import androidx.room.Embedded
-import androidx.room.Relation
+import androidx.room3.Embedded
+import androidx.room3.Relation
 
 /**
  * Data class intermediária que representa uma transação completa com seus detalhes específicos.

@@ -1,7 +1,7 @@
 package com.eferraz.database.entities.histories
 
-import androidx.room.Embedded
-import androidx.room.Relation
+import androidx.room3.Embedded
+import androidx.room3.Relation
 import com.eferraz.database.entities.assets.AssetEntity
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.database.entities.supports.BrokerageEntity

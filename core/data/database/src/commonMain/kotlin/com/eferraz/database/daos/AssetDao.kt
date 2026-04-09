@@ -1,9 +1,9 @@
 package com.eferraz.database.daos
 
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Upsert
+import androidx.room3.Dao
+import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Upsert
 import com.eferraz.database.entities.assets.AssetEntity
 import com.eferraz.database.entities.assets.AssetWithDetails
 import com.eferraz.database.entities.assets.FixedIncomeAssetEntity

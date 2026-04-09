@@ -1,6 +1,6 @@
 package com.eferraz.database.core
 
-import androidx.room.RoomDatabase
+import androidx.room3.RoomDatabase
 
 internal expect object PlatformDataBaseBuilder : DataBaseBuilder {
 

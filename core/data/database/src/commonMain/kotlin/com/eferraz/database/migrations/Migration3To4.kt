@@ -1,7 +1,7 @@
 package com.eferraz.database.migrations
 
-import androidx.room.DeleteColumn
-import androidx.room.migration.AutoMigrationSpec
+import androidx.room3.DeleteColumn
+import androidx.room3.migration.AutoMigrationSpec
 
 @DeleteColumn(tableName = "asset_holdings", columnName = "quantity")
 @DeleteColumn(tableName = "asset_holdings", columnName = "averageCost")

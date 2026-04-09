@@ -1,7 +1,7 @@
 package com.eferraz.database.entities.assets
 
-import androidx.room.Embedded
-import androidx.room.Relation
+import androidx.room3.Embedded
+import androidx.room3.Relation
 import com.eferraz.database.entities.supports.IssuerEntity
 
 /**

@@ -1,8 +1,8 @@
 package com.eferraz.database.daos
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.Query
 import com.eferraz.database.entities.supports.OwnerEntity
 /**
  * DAO para operações CRUD na tabela owners.
