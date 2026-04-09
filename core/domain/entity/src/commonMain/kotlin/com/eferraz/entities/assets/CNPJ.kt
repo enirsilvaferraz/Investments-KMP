@@ -16,9 +16,11 @@ import kotlin.jvm.JvmInline
 public value class CNPJ(private val value: String) {
 
     init {
+
         val cnpjPattern = Regex("""^(\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}|\d{14})$""")
-        if (!cnpjPattern.matches(value)) {
-            throw IllegalArgumentException("CNPJ inválido: formato deve ser XX.XXX.XXX/XXXX-XX ou 14 dígitos")
+
+        require(cnpjPattern.matches(value)) {
+            "CNPJ inválido: formato deve ser XX.XXX.XXX/XXXX-XX ou 14 dígitos"
         }
     }
 

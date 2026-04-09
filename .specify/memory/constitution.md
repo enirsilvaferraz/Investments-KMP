@@ -60,8 +60,9 @@ Escolher a **visibilidade mais restrita** que ainda permita uso legítimo **no g
 
 ### V. Padrões de teste e evidência
 
-**Referência operacional:** **`.cursor/rules/test-patterns.mdc`** (nomenclatura, KDoc, `// GIVEN`/`// WHEN`/`// THEN`, source sets, `Double`, corrotinas, MockK, dados inline). Testes **novos ou alterados** **DEVEM** seguir esse ficheiro; desvios **NÃO DEVEM** ocorrer sem justificativa no PR; mudança permanente **DEVE** atualizar o `.mdc` (IX).
+**Referência operacional:** **`.cursor/rules/test-patterns.mdc`** (pacote espelhado da unidade sob teste só em *source set* de teste, nomenclatura, KDoc, `// GIVEN`/`// WHEN`/`// THEN`, source sets, `Double`, corrotinas, MockK, dados inline). Testes **novos ou alterados** **DEVEM** seguir esse ficheiro; desvios **NÃO DEVEM** ocorrer sem justificativa no PR; mudança permanente **DEVE** atualizar o `.mdc` (IX).
 
+- **Pacote:** ficheiros `*Test.kt` **DEVEM** declarar o **mesmo** `package` que a classe, object ou ficheiro de produção sob teste (unidade principal); o código **DEVE** residir **apenas** no *source set* de teste do módulo. **Não** colocar testes em *main* de produção.
 - **Idioma (inglês):** em `*Test.kt`, texto descritivo do teste (classe, métodos em *backticks*, comentários de cenário, asserções **definidas no teste**) **DEVE** ser **inglês**. Mensagens de exceção de **produção** **não** estão cobertas. Legado em PT **DEVERIA** migrar ao tocar no ficheiro.
 - **Nomes GIVEN / WHEN / THEN:** métodos **novos ou alterados** **DEVEM** usar **GIVEN**, **WHEN**, **THEN** em maiúsculas no nome; **GIVEN … WHEN … THEN …** ou **GIVEN … THEN …** conforme haja passo intermediário. **Não** usar estilo `should …` / `when …` em testes novos ou alterados; legado **DEVERIA** migrar ao tocar no ficheiro.
 - **KDoc e corpo:** **DEVERIA** KDoc em inglês acima de `@Test`; **DEVERIA** `// GIVEN` / `// WHEN` / `// THEN` (ou só GIVEN/THEN) com **linha em branco** antes de cada marcador. Testes triviais: mantém KDoc; comentários de secção **podem** omitir-se se só duplicarem o nome.

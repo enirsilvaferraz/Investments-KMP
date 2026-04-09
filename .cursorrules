@@ -12,6 +12,8 @@ Ao criar ou alterar ficheiros **`.kt`** (produção ou testes em módulos com `e
 
 Ao criar ou alterar testes unitários (`*Test.kt`), **deve** seguir **`.cursor/rules/test-patterns.mdc`**, conforme `.specify/memory/constitution.md` princípio **V**. Desvios exigem justificativa no PR; mudanças permanentes de padrão **devem** atualizar o `.mdc` (princípio IX).
 
+O `package` do ficheiro de teste **deve** coincidir com o da unidade principal sob teste em produção; o ficheiro **deve** ficar só no *source set* de teste (`jvmTest`, `commonTest`, etc.), nunca em *main*.
+
 Alterações em **`core/domain/usecases/`** que modifiquem código executável **devem** incluir ou atualizar testes no módulo **`:usecases`** (`jvmTest`) no mesmo PR; validar com `./gradlew :usecases:jvmTest` quando aplicável.
 
 Texto dos testes (nomes de métodos com **GIVEN / WHEN / THEN**, **KDoc** `/** … */` em inglês, comentários **`// GIVEN`**, **`// WHEN`**, **`// THEN`** no corpo quando aplicável (**linha em branco** antes de cada um), restantes comentários de cenário em `*Test.kt`) **deve** estar em **inglês**, conforme `.specify/memory/constitution.md` princípio V e `.cursor/rules/test-patterns.mdc`. Para colaboradores externos à classe sob teste (ports, repositórios, *clients*, etc.), **deve** usar **MockK** quando aplicável. **DEVERIA** criar os objetos necessários **no próprio método de teste** e **evitar** *factories* centralizadas de teste (ex. `TestDataFactory`) para código novo, conforme o mesmo princípio e o `.mdc`.

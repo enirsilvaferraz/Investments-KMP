@@ -1,4 +1,4 @@
-package com.eferraz.entities.value
+package com.eferraz.entities.assets
 
 import com.eferraz.entities.assets.CNPJ
 import kotlin.test.Test

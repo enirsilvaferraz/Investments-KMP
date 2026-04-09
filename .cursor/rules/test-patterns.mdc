@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Padrões de Testes Automatizados
 
-Norma geral: **`.specify/memory/constitution.md`** (princípios IV–V, VIII–IX). Resumo: **inglês** em `*Test.kt`; **GIVEN/WHEN/THEN** no nome e no corpo; **KDoc**; **MockK** para colaboradores; dados **inline** (sem novas entradas em `TestDataFactory`); **`core/domain/usecases/`** → testes em **`:usecases`** (`jvmTest`).
+Norma geral: **`.specify/memory/constitution.md`** (princípios IV–V, VIII–IX). Resumo: **pacote** igual ao da unidade sob teste (só em *source set* de teste); **inglês** em `*Test.kt`; **GIVEN/WHEN/THEN** no nome e no corpo; **KDoc**; **MockK** para colaboradores; dados **inline** (sem novas entradas em `TestDataFactory`); **`core/domain/usecases/`** → testes em **`:usecases`** (`jvmTest`).
 
 ## Onde vivem os testes
 
@@ -14,6 +14,13 @@ Norma geral: **`.specify/memory/constitution.md`** (princípios IV–V, VIII–I
 |--------|------------|----------------------|
 | `entity`, `usecases` | `src/jvmTest/kotlin/...` | `:entity:jvmTest`, `:usecases:jvmTest` |
 | `composeApp` | `src/commonTest/kotlin/...` | `:composeApp:commonTest` |
+
+## Pacote (package)
+
+- **`package` do ficheiro de teste:** **DEVE** ser **exatamente o mesmo** `package` Kotlin da **classe, object ou ficheiro de produção** que é a unidade principal sob teste (inclui *top-level* no mesmo ficheiro `.kt` de produção).
+- **Localização:** o `*Test.kt` **DEVE** residir **apenas** no *source set* de teste do módulo (`jvmTest`, `commonTest`, `androidUnitTest`, etc.), **nunca** em `commonMain`, `jvmMain`, `androidMain` nem outro *source set* de código de produção.
+- **Estrutura de pastas:** o caminho sob `src/<…>Test/kotlin/` **DEVE** espelhar o pacote (ex.: produção em `com/eferraz/entities/assets/CNPJ.kt` → teste em `jvmTest/kotlin/com/eferraz/entities/assets/CNPJTest.kt`).
+- **Exceções:** desvios (ex.: teste de integração que não tem uma única classe “donas”) **NÃO DEVEM** ocorrer sem justificativa no PR; quando existir uma unidade principal óbvia, **DEVE** prevalecer o seu pacote.
 
 ## Idioma, classe e nome do método
 
