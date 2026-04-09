@@ -14,9 +14,9 @@ description: "Modelo de lista de tarefas para implementação de features (Inves
 
 **Usecases:** Tarefas que alterem **`core/domain/usecases/`** **devem** incluir subtarefas de teste em `:usecases` (`jvmTest`) no mesmo lote de trabalho (princípio V).
 
-**Kotlin (`explicitApi`):** Tarefas que adicionem ou alterem ficheiros **`.kt`** em módulos com convenção **explicitApi** **devem** respeitar **`.cursor/rules/explicit-api.mdc`** (modificadores explícitos; visibilidade mínima — princípio IV).
+**Kotlin (`explicitApi`):** Tarefas que adicionem ou alterem ficheiros **`.kt`** em módulos com convenção **explicitApi** **devem** respeitar **`~/.cursor/rules/explicit-api.mdc`** (modificadores explícitos; visibilidade mínima — princípio IV).
 
-**Testes:** Quando existirem, **devem** seguir **`.cursor/rules/test-patterns.mdc`** (inglês; nomes **GIVEN / WHEN / THEN**; **KDoc**; **`// GIVEN` / `// WHEN` / `// THEN`** no corpo quando aplicável (**linha em branco** antes de cada marcador); **MockK** para colaboradores externos quando aplicável; **objetos criados no próprio teste** — **evitar** *factories* de teste para código novo). Os exemplos abaixo incluem tarefas de teste. Testes são **opcionais** — incluir apenas se a especificação da feature pedir ou a constitution exigir evidência para a lógica.
+**Testes:** Quando existirem, **devem** seguir **`~/.cursor/rules/test-patterns.mdc`** (inglês; nomes **GIVEN / WHEN / THEN**; **KDoc**; **`// GIVEN` / `// WHEN` / `// THEN`** no corpo quando aplicável (**linha em branco** antes de cada marcador); **MockK** para colaboradores externos quando aplicável; **objetos criados no próprio teste** — **evitar** *factories* de teste para código novo). Os exemplos abaixo incluem tarefas de teste. Testes são **opcionais** — incluir apenas se a especificação da feature pedir ou a constitution exigir evidência para a lógica.
 
 **Organização:** Tarefas agrupadas por história de utilizador para permitir implementação e teste independentes.
 
@@ -33,7 +33,7 @@ description: "Modelo de lista de tarefas para implementação de features (Inves
 - **Web:** `backend/src/`, `frontend/src/`
 - Ajustar conforme a estrutura definida em `plan.md`
 
-**Tarefas de teste:** Incluir quando a spec ou a constitution exigirem evidência automatizada para domínio ou casos de uso (ver `.cursor/rules/test-patterns.mdc`).
+**Tarefas de teste:** Incluir quando a spec ou a constitution exigirem evidência automatizada para domínio ou casos de uso (ver `~/.cursor/rules/test-patterns.mdc`).
 
 <!--
   ============================================================================
