@@ -68,6 +68,18 @@ class CNPJTest {
     }
 
     /**
+     * Null string is rejected.
+     */
+    @Test
+    fun `GIVEN null string THEN throws IllegalArgumentException`() {
+
+        // WHEN / THEN
+        assertFailsWith<IllegalArgumentException> {
+            CNPJ(null)
+        }
+    }
+
+    /**
      * Fewer than 14 digits is rejected.
      */
     @Test
