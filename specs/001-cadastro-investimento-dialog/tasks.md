@@ -15,6 +15,8 @@ description: "Lista de tarefas — Diálogo de cadastro de investimento (Investm
 
 **Kotlin (`explicitApi`):** Respeitar `~/.cursor/rules/explicit-api.mdc` em todos os `.kt` novos ou alterados (princípio IV).
 
+**Compose (`@Preview`):** Pré-visualizações **no mesmo ficheiro** que o composable ou formulário; **não** ficheiros dedicados só a previews (princípio VI; `.cursorrules`).
+
 **Testes:** Seguir `~/.cursor/rules/test-patterns.mdc` (inglês, GIVEN/WHEN/THEN, MockK, dados inline).
 
 **Refinamentos (análise de consistência):** Cobertura explícita de **CNPJ** opcional (RF-006 / edge case), **nome + ticker** distintos em renda variável, **liquidez em fundos** alinhada ao domínio, **sem inputs de liquidez** para renda variável (RF-006), decisão documentada sobre **`AssetHolding`/corretora/meta** no `UpsertInvestmentAssetUseCase`, e ordem **T009 → T010** (sem paralelizar modelo UI antes do ViewModel).
@@ -34,8 +36,8 @@ Raiz do repositório: `/Users/enirferraz/AndroidStudioProjects/Investments-KMP/`
 
 **Objetivo:** Garantir módulo feature e dependências Gradle prontos para MVI + Koin.
 
-- [ ] T001 [P] Rever e completar dependências Compose/ViewModel/Material3 em `core/presentation/asset-management/build.gradle.kts` conforme `plan.md`
-- [ ] T002 [P] Confirmar `implementation(projects.features.assetManagement)` em `core/apps/umbrellaApp/build.gradle.kts`
+- [x] T001 [P] Rever e completar dependências Compose/ViewModel/Material3 em `core/presentation/asset-management/build.gradle.kts` conforme `plan.md`
+- [x] T002 [P] Confirmar `implementation(projects.features.assetManagement)` em `core/apps/umbrellaApp/build.gradle.kts`
 
 ---
 
@@ -45,12 +47,12 @@ Raiz do repositório: `/Users/enirferraz/AndroidStudioProjects/Investments-KMP/`
 
 **⚠️ CRÍTICO:** Nenhuma história de utilizador fica completa até `UpsertInvestmentAssetUseCase` + `getById` + testes estarem implementados (excepto trabalho puramente visual sem persistência).
 
-- [ ] T003 Adicionar `getById(id: Long): Issuer?` em `core/data/database/src/commonMain/kotlin/com/eferraz/database/datasources/IssuerDataSource.kt` e implementar em `core/data/database/src/commonMain/kotlin/com/eferraz/database/datasources/impl/IssuerDataSourceImpl.kt` usando `core/data/database/src/commonMain/kotlin/com/eferraz/database/daos/IssuerDao.kt`
-- [ ] T004 Adicionar `getById(id: Long): Issuer?` em `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/repositories/IssuerRepository.kt` e em `core/data/repositories/src/commonMain/kotlin/com/eferraz/repositories/IssuerRepositoryImpl.kt`
-- [ ] T005 Implementar `UpsertInvestmentAssetUseCase` em `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/UpsertInvestmentAssetUseCase.kt`: emissor **apenas** via `issuerRepository.getById`, **sem** `GetOrCreateIssuerUseCase` (**RF-012**); validação de negócio alinhada a `SaveAssetUseCase` onde aplicável; `assetRepository.upsert` para o `Asset`. **Decisão de âmbito (registar no PR):** este fluxo do diálogo **não** recolhe corretora/meta — **não** criar nem actualizar `AssetHolding` neste use case (apenas persistência do ativo), **salvo** alteração explícita de âmbito acordada na equipa. **Renda variável:** mapear **nome do ativo** e **ticker** como campos distintos para `VariableIncomeAsset` (**RF-006** / entidade). **Fundos:** preencher `liquidity` e `liquidityDays` conforme `InvestmentFundAsset` e **RF-007** (evitar assumir só o hardcode legado de `SaveAssetUseCase` sem cruzar com o domínio). Incluir testes de regra para estes mapeamentos em **T006** onde couber.
-- [ ] T006 [P] Adicionar `UpsertInvestmentAssetUseCaseTest.kt` em `core/domain/usecases/src/jvmTest/kotlin/com/eferraz/usecases/UpsertInvestmentAssetUseCaseTest.kt` com MockK e cenários GIVEN/WHEN/THEN (**depende de T005** concluída; em paralelo **apenas** com **T007**/**T008** após **T005** estar estável)
-- [ ] T007 Criar `AssetManagementModule.kt` em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/di/AssetManagementModule.kt` com `@Module` e `@ComponentScan("com.eferraz.asset_management")`
-- [ ] T008 Incluir `AssetManagementModule::class` no array `modules` de `core/apps/umbrellaApp/src/commonMain/kotlin/com/eferraz/investments/MyKoinApp.kt`
+- [x] T003 Adicionar `getById(id: Long): Issuer?` em `core/data/database/src/commonMain/kotlin/com/eferraz/database/datasources/IssuerDataSource.kt` e implementar em `core/data/database/src/commonMain/kotlin/com/eferraz/database/datasources/impl/IssuerDataSourceImpl.kt` usando `core/data/database/src/commonMain/kotlin/com/eferraz/database/daos/IssuerDao.kt`
+- [x] T004 Adicionar `getById(id: Long): Issuer?` em `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/repositories/IssuerRepository.kt` e em `core/data/repositories/src/commonMain/kotlin/com/eferraz/repositories/IssuerRepositoryImpl.kt`
+- [x] T005 Implementar `UpsertInvestmentAssetUseCase` em `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/UpsertInvestmentAssetUseCase.kt`: emissor **apenas** via `issuerRepository.getById`, **sem** `GetOrCreateIssuerUseCase` (**RF-012**); validação de negócio alinhada a `SaveAssetUseCase` onde aplicável; `assetRepository.upsert` para o `Asset`. **Decisão de âmbito (registar no PR):** este fluxo do diálogo **não** recolhe corretora/meta — **não** criar nem actualizar `AssetHolding` neste use case (apenas persistência do ativo), **salvo** alteração explícita de âmbito acordada na equipa. **Renda variável:** mapear **nome do ativo** e **ticker** como campos distintos para `VariableIncomeAsset` (**RF-006** / entidade). **Fundos:** preencher `liquidity` e `liquidityDays` conforme `InvestmentFundAsset` e **RF-007** (evitar assumir só o hardcode legado de `SaveAssetUseCase` sem cruzar com o domínio). Incluir testes de regra para estes mapeamentos em **T006** onde couber.
+- [x] T006 [P] Adicionar `UpsertInvestmentAssetUseCaseTest.kt` em `core/domain/usecases/src/jvmTest/kotlin/com/eferraz/usecases/UpsertInvestmentAssetUseCaseTest.kt` com MockK e cenários GIVEN/WHEN/THEN (**depende de T005** concluída; em paralelo **apenas** com **T007**/**T008** após **T005** estar estável)
+- [x] T007 Criar `AssetManagementModule.kt` em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/di/AssetManagementModule.kt` com `@Module` e `@ComponentScan("com.eferraz.asset_management")`
+- [x] T008 Incluir `AssetManagementModule::class` no array `modules` de `core/apps/umbrellaApp/src/commonMain/kotlin/com/eferraz/investments/MyKoinApp.kt`
 
 **Checkpoint:** `./gradlew :data:repositories:compileKotlinJvm`, `./gradlew :domain:usecases:compileKotlinJvm`, `./gradlew :domain:usecases:jvmTest` com sucesso.
 
@@ -64,12 +66,12 @@ Raiz do repositório: `/Users/enirferraz/AndroidStudioProjects/Investments-KMP/`
 
 ### Implementação da US1
 
-- [ ] T009 [US1] Definir modelos `@Immutable`, validação de **formato** e mensagens por campo em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementFormUi.kt` (campos por categoria conforme `data-model.md` e **RF-005**–**RF-007**). Incluir: **renda variável** com **nome** e **ticker** separados; **CNPJ** opcional com aceitação de entrada com ou sem máscara e normalização/validação claras para o utilizador (edge case da spec), mapeando para o tipo de domínio `CNPJ` quando preenchido. **Não** marcar como [P] — **T010** depende dos tipos/campos definidos aqui.
-- [ ] T010 [US1] Implementar MVI (`UiState`, `Intent`, `dispatch`) e carregamento com `GetIssuersUseCase` em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementViewModel.kt` com `@KoinViewModel` e `@Provided` para use cases (**depende de T009** para alinhar estado aos modelos `FormUi`)
-- [ ] T011 [US1] Implementar UI de campos e dropdown de categoria em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementFormView.kt`: primeiro controlo = categoria (**RF-002**/**RF-003**); rodapé **Salvar**/**Cancelar** (**RF-008**); controlo **X** no canto superior direito com o mesmo fluxo que Cancelar (**RF-009**). **Renda variável:** **não** apresentar liquidez como input editável (valores fixos no domínio — **RF-006** e caso extremo da spec); verificação de aceitação antes de fechar **T014**.
-- [ ] T012 [US1] Implementar composição do diálogo e `when (UiState)` em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementScreen.kt`
-- [ ] T013 [US1] Actualizar ponto de entrada público em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementContract.kt` (`koinViewModel`, `modifier`, callbacks de fecho alinhados a `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/App.kt`)
-- [ ] T014 [US1] Executar `./gradlew :features:asset-management:compileKotlinJvm` e corrigir erros de compilação
+- [x] T009 [US1] Definir modelos `@Immutable`, validação de **formato** e mensagens por campo em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementFormUi.kt` (campos por categoria conforme `data-model.md` e **RF-005**–**RF-007**). Incluir: **renda variável** com **nome** e **ticker** separados; **CNPJ** opcional com aceitação de entrada com ou sem máscara e normalização/validação claras para o utilizador (edge case da spec), mapeando para o tipo de domínio `CNPJ` quando preenchido. **Não** marcar como [P] — **T010** depende dos tipos/campos definidos aqui.
+- [x] T010 [US1] Implementar MVI (`UiState`, `Intent`, `dispatch`) e carregamento com `GetIssuersUseCase` em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementViewModel.kt` com `@KoinViewModel` e `@Provided` para use cases (**depende de T009** para alinhar estado aos modelos `FormUi`)
+- [x] T011 [US1] Implementar UI de campos e dropdown de categoria em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementFormView.kt`: primeiro controlo = categoria (**RF-002**/**RF-003**); rodapé **Salvar**/**Cancelar** (**RF-008**); controlo **X** no canto superior direito com o mesmo fluxo que Cancelar (**RF-009**). **Renda variável:** **não** apresentar liquidez como input editável (valores fixos no domínio — **RF-006** e caso extremo da spec); verificação de aceitação antes de fechar **T014**.
+- [x] T012 [US1] Implementar composição do diálogo e `when (UiState)` em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementScreen.kt`
+- [x] T013 [US1] Actualizar ponto de entrada público em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementContract.kt` (`koinViewModel`, `modifier`, callbacks de fecho alinhados a `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/App.kt`)
+- [x] T014 [US1] Executar `./gradlew :features:asset-management:compileKotlinJvm` e corrigir erros de compilação
 
 **Checkpoint:** US1 verificável manualmente: categorias e campos visíveis corretos; emissores listados.
 
@@ -83,12 +85,12 @@ Raiz do repositório: `/Users/enirferraz/AndroidStudioProjects/Investments-KMP/`
 
 ### Implementação da US2
 
-- [ ] T015 [US2] Integrar `UpsertInvestmentAssetUseCase` no fluxo `Intent.Save` em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementViewModel.kt` mapeando erros de validação (`ValidateException` e chaves de campo) para o estado da UI; garantir que **CNPJ** (se aplicável) e restantes campos passam pela validação de UI antes do use case e que o payload só contém dados da **categoria corrente**
-- [ ] T016 [US2] Implementar `RequestClose`, confirmação de descarte e `onDismiss` em `AssetManagementViewModel.kt` e `AssetManagementFormView.kt` (comparação com estado inicial **RF-013**/**RF-014**)
-- [ ] T017 [US2] Implementar flag de gravação, impedir double submit e indicador visual em `AssetManagementViewModel.kt` e `AssetManagementFormView.kt` (**RF-016**)
-- [ ] T018 [US2] Tratar excepções/falha de gravação sem fechar o diálogo e com mensagem clara em `AssetManagementViewModel.kt` (**RF-015**)
-- [ ] T019 [US2] Tratar lista de emissores vazia (desactivar Salvar e mensagem) em `AssetManagementViewModel.kt` e `AssetManagementFormView.kt`
-- [ ] T020 [US2] Executar `./gradlew :domain:usecases:jvmTest` e `./gradlew :features:asset-management:compileKotlinJvm`
+- [x] T015 [US2] Integrar `UpsertInvestmentAssetUseCase` no fluxo `Intent.Save` em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementViewModel.kt` mapeando erros de validação (`ValidateException` e chaves de campo) para o estado da UI; garantir que **CNPJ** (se aplicável) e restantes campos passam pela validação de UI antes do use case e que o payload só contém dados da **categoria corrente**
+- [x] T016 [US2] Implementar `RequestClose`, confirmação de descarte e `onDismiss` em `AssetManagementViewModel.kt` e `AssetManagementFormView.kt` (comparação com estado inicial **RF-013**/**RF-014**)
+- [x] T017 [US2] Implementar flag de gravação, impedir double submit e indicador visual em `AssetManagementViewModel.kt` e `AssetManagementFormView.kt` (**RF-016**)
+- [x] T018 [US2] Tratar excepções/falha de gravação sem fechar o diálogo e com mensagem clara em `AssetManagementViewModel.kt` (**RF-015**)
+- [x] T019 [US2] Tratar lista de emissores vazia (desactivar Salvar e mensagem) em `AssetManagementViewModel.kt` e `AssetManagementFormView.kt`
+- [x] T020 [US2] Executar `./gradlew :domain:usecases:jvmTest` e `./gradlew :features:asset-management:compileKotlinJvm`
 
 **Checkpoint:** Fluxo completo de salvar/cancelar/fechar conforme US2.
 
@@ -102,8 +104,8 @@ Raiz do repositório: `/Users/enirferraz/AndroidStudioProjects/Investments-KMP/`
 
 ### Implementação da US3
 
-- [ ] T021 [US3] Actualizar lógica de `SelectCategory` / limpeza de estado em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementViewModel.kt` preservando emissor e observações
-- [ ] T022 [US3] Garantir mapeamento seguro para `UpsertInvestmentAssetUseCase` (apenas dados da categoria corrente; **sem** valores “presos” de outra categoria após `SelectCategory`) em `AssetManagementViewModel.kt` e, se necessário, validação defensiva em `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/UpsertInvestmentAssetUseCase.kt`. Confirmar explicitamente **nome**/**ticker**/**CNPJ** em RV e campos de **liquidez**/**dias**/**vencimento** em fundos conforme **T005**/**T009**
+- [x] T021 [US3] Actualizar lógica de `SelectCategory` / limpeza de estado em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/AssetManagementViewModel.kt` preservando emissor e observações
+- [x] T022 [US3] Garantir mapeamento seguro para `UpsertInvestmentAssetUseCase` (apenas dados da categoria corrente; **sem** valores “presos” de outra categoria após `SelectCategory`) em `AssetManagementViewModel.kt` e, se necessário, validação defensiva em `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/UpsertInvestmentAssetUseCase.kt`. Confirmar explicitamente **nome**/**ticker**/**CNPJ** em RV e campos de **liquidez**/**dias**/**vencimento** em fundos conforme **T005**/**T009**
 
 **Checkpoint:** Cenários P3 da spec verificáveis.
 
@@ -113,9 +115,9 @@ Raiz do repositório: `/Users/enirferraz/AndroidStudioProjects/Investments-KMP/`
 
 **Objetivo:** Documentação de domínio alinhada, quickstart validado, integração compilada.
 
-- [ ] T023 [P] Actualizar `core/domain/entity/docs/DOMAIN.md` se o formulário do diálogo alterar invariantes ou vocabulário documentado
-- [ ] T024 [P] Revisar e ajustar `specs/001-cadastro-investimento-dialog/quickstart.md` face aos comandos e classes finais; opcionalmente documentar **passos manuais** para critérios **CS-002** e **CS-004** (usabilidade / tempo de fluxo), por serem métricas de ensaio e não tarefas de build
-- [ ] T025 Executar `./gradlew :apps:umbrellaApp:compileKotlinJvm` para validar `MyKoinApp`, `composeApp` e feature integrados
+- [x] T023 [P] Actualizar `core/domain/entity/docs/DOMAIN.md` se o formulário do diálogo alterar invariantes ou vocabulário documentado
+- [x] T024 [P] Revisar e ajustar `specs/001-cadastro-investimento-dialog/quickstart.md` face aos comandos e classes finais; opcionalmente documentar **passos manuais** para critérios **CS-002** e **CS-004** (usabilidade / tempo de fluxo), por serem métricas de ensaio e não tarefas de build
+- [x] T025 Executar `./gradlew :apps:umbrellaApp:compileKotlinJvm` para validar `MyKoinApp`, `composeApp` e feature integrados
 
 ---
 

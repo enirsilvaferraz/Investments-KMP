@@ -79,7 +79,7 @@
 - **`issuerId: Long`** (obrigatório para sucesso; se inválido → erro de validação).
 - **Dados específicos** por categoria (sealed ou `AssetFormData` estendido com `issuerId` em vez de `issuerName` só para este fluxo — decisão técnica na implementação; ver [plan.md](./plan.md)).
 
-Regras de negócio (datas futuras, valores positivos, emissor existente) devem estar no **use case** e ser cobertas por testes em `:usecases`.
+Regras de negócio (datas futuras, valores positivos, emissor existente) devem estar no **use case** e ser cobertas por testes em **`:domain:usecases`**.
 
 ## 5. Transições relevantes
 

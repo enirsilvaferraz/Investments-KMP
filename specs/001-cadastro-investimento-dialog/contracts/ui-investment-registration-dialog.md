@@ -49,7 +49,7 @@ Estados globais sugeridos:
 | `AssetManagementViewModel.kt` | `StateFlow`, `Intent`, `dispatch`, `viewModelScope`. |
 | `AssetManagementScreen.kt` | `when (UiState)`, `Dialog`/`Surface`, ligação a `FormView`. |
 | `AssetManagementFormUi.kt` | Modelos `@Immutable`, `toXxxUi()`, validação de formato. |
-| `AssetManagementFormView.kt` | Dropdowns, campos condicionais, botões Salvar/Cancelar/X. |
+| `AssetManagementFormView.kt` | Dropdowns, campos condicionais, botões Salvar/Cancelar/X; **`@Preview`** do formulário no mesmo ficheiro. |
 
 ## 4. Acessibilidade e UX (constitution VI)
 
@@ -58,4 +58,5 @@ Estados globais sugeridos:
 
 ## 5. Evidência
 
-- Testes de UI: opcional / manual na primeira versão; **obrigatório** em `usecases` para `UpsertInvestmentAssetUseCase` (princípio V).
+- Testes de UI: opcional / manual na primeira versão; **obrigatório** em **`:domain:usecases`** para `UpsertInvestmentAssetUseCase` (princípio V).
+- Pré-visualizações **`@Preview`**: **no mesmo ficheiro** que o composable ou formulário correspondente (ex.: previews do formulário em `AssetManagementFormView.kt`), conforme constitution (princípio VI) e `.cursorrules`.

@@ -17,6 +17,8 @@
 | Repositórios | `core/data/repositories/`, `core/domain/usecases/.../repositories/`                      |
 | Entidades    | `core/domain/entity/`                                                                    |
 
+**Pré-visualizações (`@Preview`):** no mesmo ficheiro que o composable ou formulário (ex.: previews do formulário em `AssetManagementFormView.kt`), conforme `.specify/memory/constitution.md` (princípio VI) e `.cursorrules`.
+
 ## Módulos Gradle relevantes
 
 - `:features:asset-management` — UI do diálogo.

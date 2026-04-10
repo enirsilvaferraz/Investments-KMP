@@ -32,7 +32,7 @@ Implementar um **diálogo modal** de cadastro de investimento com **formulário 
 
 - [x] **Domínio:** impacto em `DOMAIN.md` se o modelo de formulário ou invariantes mudarem (ex.: nome vs ticker em renda variável, liquidez em fundos).
 - [x] **Qualidade de código:** camadas `entity` / `usecases` / `presentation`; `explicitApi` e visibilidade mínima (`private`/`internal` por defeito, `public` só no contrato e API entre módulos).
-- [x] **Testes:** `UpsertInvestmentAssetUseCase` com testes em `:usecases` (`jvmTest`); UI com estratégia de evidência definida (testes de VM ou manual documentado para fluxos visuais).
+- [x] **Testes:** `UpsertInvestmentAssetUseCase` com testes em `:domain:usecases` (`jvmTest`); UI com estratégia de evidência definida (testes de VM ou manual documentado para fluxos visuais).
 - [x] **UX:** estados de carregamento, erro de gravação (**RF-015**), confirmação de descarte (**RF-013**), bloqueio de double submit (**RF-016**).
 - [x] **Desempenho:** operações assíncronas no ViewModel; sem bloquear UI principal.
 - [x] **Build:** `./gradlew :features:asset-management:compileKotlinJvm` e `:domain:usecases:jvmTest` quando aplicável.

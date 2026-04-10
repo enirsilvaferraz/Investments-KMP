@@ -20,6 +20,8 @@
 
 **Racional:** Separa estado/intenção (ViewModel) de renderização (Screen/View) e de modelos de apresentação (FormUi), facilitando testes e pré-visualizações. O padrão já existe em Pokedex (`PokedexScreen` / `PokemonItemListUi` / `PokemonItemListView`).
 
+**Pré-visualizações (`@Preview`):** funções de preview **no mesmo ficheiro** que o composable que ilustram (ex.: formulário em `AssetManagementFormView.kt`), **sem** ficheiros `*Previews.kt` dedicados — constitution (princípio VI) e `.cursorrules`.
+
 **Alternativas consideradas:** MVVM só com estado solto (menos explícito para eventos); um único ficheiro gigante (pior para `explicitApi` e revisão).
 
 ---
@@ -39,7 +41,7 @@
 - **UI (`AssetManagementFormUi` / ViewModel):** validação de **formato**, campos obrigatórios visíveis na categoria corrente, mensagens de erro por campo; estado “sujo” vs estado inicial (**RF-013**, **RF-014**); desactivar “Salvar” quando catálogo de emissores vazio (**edge case** da spec).
 - **Domínio (`usecases`):** novo caso de uso de **upsert** com invariantes de negócio (datas futuras, valores positivos, emissor **obrigatório** resolvido por ID, **sem** criar emissor — **RF-012**), reutilizando regras alinhadas a `SaveAssetUseCase` onde fizer sentido.
 
-**Racional:** A spec permite mensagens na UI; a constitution (princípio V) exige testes em `usecases` para regras de negócio repetíveis.
+**Racional:** A spec permite mensagens na UI; a constitution (princípio V) exige testes em **`:domain:usecases`** para regras de negócio repetíveis.
 
 **Alternativa recusada:** Confiar só na UI — não gera evidência em `jvmTest` para invariantes críticas.
 
@@ -82,7 +84,7 @@
 |-------------------|----------------------------------------------------------------------------------|
 | Stack UI          | Compose Multiplatform + ViewModel + Koin (já no módulo)                          |
 | Persistência      | Via `AssetRepository` / `IssuerRepository` existentes + extensão `getById`       |
-| Testes `usecases` | `jvmTest` para o novo caso de uso + eventual extração de validadores partilhados |
+| Testes `:domain:usecases` | `jvmTest` para o novo caso de uso + eventual extração de validadores partilhados |
 
 ---
 
