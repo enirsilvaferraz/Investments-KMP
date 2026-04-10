@@ -1,15 +1,20 @@
 package com.eferraz.asset_management
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
+/**
+ * Ponto de entrada público do módulo: diálogo de cadastro de investimento.
+ *
+ * @param onDismiss Chamado quando o fluxo deve fechar o diálogo (sucesso, cancelamento ou descarte).
+ */
 @Composable
 public fun AssetManagementScreen(
-    modifier: Modifier = Modifier
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        Text("Text")
-    }
+    AssetManagementScreenContent(
+        onDismiss = onDismiss,
+        modifier = modifier,
+    )
 }

@@ -1,6 +1,5 @@
 package com.eferraz.presentation.design_system.components.inputs
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,103 +16,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.eferraz.design_system.input.date.DateFormat
+import com.eferraz.design_system.input.date.DateVisualTransformation
 import com.eferraz.presentation.design_system.components.inputs.state.rememberDateInputState
-
-/**
- * Enum para definir o formato de data
- */
-internal enum class DateFormat {
-    YYYY_MM_DD, // YYYY-MM-DD
-    DD_MM_YYYY // dd/MM/YYYY
-}
-
-/**
- * VisualTransformation para formatar datas conforme o padrão especificado
- */
-@VisibleForTesting
-internal class DateVisualTransformation(
-    private val format: DateFormat,
-) : VisualTransformation {
-
-    override fun filter(text: AnnotatedString): TransformedText {
-
-        val digits = text.text.filter { it.isDigit() }.take(8)
-
-        val (separator, insertAfterIndices) = when (format) {
-            DateFormat.YYYY_MM_DD -> "-" to listOf(3, 5) // Após índices 3 e 5 (YYYY-MM-DD: após 4º e 6º dígitos)
-            DateFormat.DD_MM_YYYY -> "/" to listOf(1, 3) // Após índices 1 e 3 (DD/MM/YYYY: após 2º e 4º dígitos)
-        }
-
-        val formatted = buildString {
-
-            digits.forEachIndexed { index, char ->
-
-                append(char)
-
-                // Só insere separador se houver mais dígitos após este índice
-                if (index in insertAfterIndices && index < digits.length - 1) {
-                    append(separator)
-                }
-            }
-        }
-
-        val offsetMapping = createOffsetMapping(insertAfterIndices, separator.length, digits.length, formatted.length)
-
-        return TransformedText(text = AnnotatedString(text = formatted), offsetMapping = offsetMapping)
-    }
-
-    private fun createOffsetMapping(
-        insertAfterIndices: List<Int>,
-        separatorLength: Int,
-        originalLength: Int,
-        transformedLength: Int,
-    ): OffsetMapping {
-
-        // Calcula onde os separadores aparecem no texto transformado
-        val separatorPositions = insertAfterIndices.mapIndexed { i, index ->
-            index + 1 + (i * separatorLength)
-        }
-
-        return object : OffsetMapping {
-
-            override fun originalToTransformed(offset: Int): Int {
-
-                if (offset <= 0) return 0
-                var result = offset
-
-                insertAfterIndices.forEach { index ->
-                    // Se o offset está após ou no índice especificado, adiciona o separador
-                    // offset 4 significa "após o 4º dígito" (índice 3), então offset >= 3 + 1 = 4 >= 4 é true
-                    if (offset >= index + 1) result += separatorLength
-                }
-
-                return result.coerceIn(0, transformedLength)
-            }
-
-            override fun transformedToOriginal(offset: Int): Int {
-
-                if (offset <= 0) return 0
-
-                // Verifica se o offset está em um separador
-                separatorPositions.forEachIndexed { i, sepPos ->
-                    if (offset > sepPos && offset <= sepPos + separatorLength) {
-                        return (insertAfterIndices[i] + 1).coerceIn(0, originalLength)
-                    }
-                }
-
-                // Conta quantos separadores estão antes do offset
-                val separatorsBefore = separatorPositions.count { offset > it + separatorLength }
-                return (offset - separatorsBefore * separatorLength).coerceIn(0, originalLength)
-            }
-        }
-    }
-}
 
 @Composable
 internal fun TableInputDate(value: String, onChange: (String) -> Unit,) {

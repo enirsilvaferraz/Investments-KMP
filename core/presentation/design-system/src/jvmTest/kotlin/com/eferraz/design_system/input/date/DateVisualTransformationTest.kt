@@ -1,8 +1,6 @@
-package com.eferraz.presentation.design_system.components
+package com.eferraz.design_system.input.date
 
 import androidx.compose.ui.text.AnnotatedString
-import com.eferraz.presentation.design_system.components.inputs.DateFormat
-import com.eferraz.presentation.design_system.components.inputs.DateVisualTransformation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -10,13 +8,14 @@ import kotlin.test.assertTrue
 /**
  * Unit tests for [DateVisualTransformation] formatting and offset mapping.
  */
-class DateVisualTransformationTest {
+internal class DateVisualTransformationTest {
 
     /**
      * Empty input yields empty display text for YYYY-MM-DD.
      */
     @Test
     fun `GIVEN empty text WHEN filter YYYY_MM_DD THEN returns empty formatted text`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("")
@@ -33,6 +32,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN empty text WHEN filter DD_MM_YYYY THEN returns empty formatted text`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("")
@@ -49,6 +49,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN 8 digits WHEN filter YYYY_MM_DD THEN formats correctly`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("20240115")
@@ -65,6 +66,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN 8 digits WHEN filter DD_MM_YYYY THEN formats correctly`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("15012024")
@@ -81,6 +83,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN less than 8 digits WHEN filter YYYY_MM_DD THEN formats partially`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("2024")
@@ -97,6 +100,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN less than 8 digits WHEN filter DD_MM_YYYY THEN formats partially`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("15")
@@ -113,6 +117,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN more than 8 digits WHEN filter YYYY_MM_DD THEN formats only first 8 digits`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("20240115123")
@@ -129,6 +134,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN more than 8 digits WHEN filter DD_MM_YYYY THEN formats only first 8 digits`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("15012024123")
@@ -145,6 +151,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN text with non-digit characters WHEN filter YYYY_MM_DD THEN filters and formats only digits`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("2024abc0115xyz")
@@ -161,6 +168,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN text with non-digit characters WHEN filter DD_MM_YYYY THEN filters and formats only digits`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("15abc01xyz2024")
@@ -177,6 +185,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN partial date YYYY_MM_DD WHEN filter THEN formats with separators at correct positions`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
 
@@ -206,6 +215,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN partial date DD_MM_YYYY WHEN filter THEN formats with separators at correct positions`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
 
@@ -224,7 +234,7 @@ class DateVisualTransformationTest {
         assertEquals("15", f15)
         assertEquals("15/0", f150)
         assertEquals("15/01", f1501)
-        assertEquals("15/01/2", f15012) // After 4th digit
+        assertEquals("15/01/2", f15012)
         assertEquals("15/01/20", f150120)
         assertEquals("15/01/202", f1501202)
         assertEquals("15/01/2024", f15012024)
@@ -235,6 +245,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN YYYY_MM_DD WHEN originalToTransformed THEN maps offsets correctly`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("20240115")
@@ -242,14 +253,13 @@ class DateVisualTransformationTest {
         val offsetMapping = result.offsetMapping
 
         // WHEN & THEN
-        // Original: 0..8; transformed adds hyphens after indices 3 and 5
         assertEquals(0, offsetMapping.originalToTransformed(0))
         assertEquals(1, offsetMapping.originalToTransformed(1))
         assertEquals(2, offsetMapping.originalToTransformed(2))
         assertEquals(3, offsetMapping.originalToTransformed(3))
-        assertEquals(5, offsetMapping.originalToTransformed(4)) // Skip hyphen after year
+        assertEquals(5, offsetMapping.originalToTransformed(4))
         assertEquals(6, offsetMapping.originalToTransformed(5))
-        assertEquals(8, offsetMapping.originalToTransformed(6)) // Skip hyphen after month
+        assertEquals(8, offsetMapping.originalToTransformed(6))
         assertEquals(9, offsetMapping.originalToTransformed(7))
         assertEquals(10, offsetMapping.originalToTransformed(8))
     }
@@ -259,6 +269,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN DD_MM_YYYY WHEN originalToTransformed THEN maps offsets correctly`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("15012024")
@@ -266,12 +277,11 @@ class DateVisualTransformationTest {
         val offsetMapping = result.offsetMapping
 
         // WHEN & THEN
-        // Original: 0..8; transformed adds slashes after indices 1 and 3
         assertEquals(0, offsetMapping.originalToTransformed(0))
         assertEquals(1, offsetMapping.originalToTransformed(1))
-        assertEquals(3, offsetMapping.originalToTransformed(2)) // Skip slash after day
+        assertEquals(3, offsetMapping.originalToTransformed(2))
         assertEquals(4, offsetMapping.originalToTransformed(3))
-        assertEquals(6, offsetMapping.originalToTransformed(4)) // Skip slash after month
+        assertEquals(6, offsetMapping.originalToTransformed(4))
         assertEquals(7, offsetMapping.originalToTransformed(5))
         assertEquals(8, offsetMapping.originalToTransformed(6))
         assertEquals(9, offsetMapping.originalToTransformed(7))
@@ -283,6 +293,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN YYYY_MM_DD WHEN transformedToOriginal THEN maps offsets correctly`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("20240115")
@@ -295,10 +306,10 @@ class DateVisualTransformationTest {
         assertEquals(2, offsetMapping.transformedToOriginal(2))
         assertEquals(3, offsetMapping.transformedToOriginal(3))
         assertEquals(4, offsetMapping.transformedToOriginal(4))
-        assertEquals(4, offsetMapping.transformedToOriginal(5)) // Hyphen maps to digit index 4
+        assertEquals(4, offsetMapping.transformedToOriginal(5))
         assertEquals(5, offsetMapping.transformedToOriginal(6))
         assertEquals(6, offsetMapping.transformedToOriginal(7))
-        assertEquals(6, offsetMapping.transformedToOriginal(8)) // Hyphen maps to digit index 6
+        assertEquals(6, offsetMapping.transformedToOriginal(8))
         assertEquals(7, offsetMapping.transformedToOriginal(9))
         assertEquals(8, offsetMapping.transformedToOriginal(10))
     }
@@ -308,6 +319,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN DD_MM_YYYY WHEN transformedToOriginal THEN maps offsets correctly`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("15012024")
@@ -318,10 +330,10 @@ class DateVisualTransformationTest {
         assertEquals(0, offsetMapping.transformedToOriginal(0))
         assertEquals(1, offsetMapping.transformedToOriginal(1))
         assertEquals(2, offsetMapping.transformedToOriginal(2))
-        assertEquals(2, offsetMapping.transformedToOriginal(3)) // Slash maps to digit index 2
+        assertEquals(2, offsetMapping.transformedToOriginal(3))
         assertEquals(3, offsetMapping.transformedToOriginal(4))
         assertEquals(4, offsetMapping.transformedToOriginal(5))
-        assertEquals(4, offsetMapping.transformedToOriginal(6)) // Slash maps to digit index 4
+        assertEquals(4, offsetMapping.transformedToOriginal(6))
         assertEquals(5, offsetMapping.transformedToOriginal(7))
         assertEquals(6, offsetMapping.transformedToOriginal(8))
         assertEquals(7, offsetMapping.transformedToOriginal(9))
@@ -333,6 +345,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN YYYY_MM_DD WHEN offset mapping round trip THEN returns original offset`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("20240115")
@@ -360,6 +373,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN DD_MM_YYYY WHEN offset mapping round trip THEN returns original offset`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("15012024")
@@ -387,6 +401,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN partial input YYYY_MM_DD WHEN offset mapping THEN handles correctly`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("2024")
@@ -406,6 +421,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN partial input DD_MM_YYYY WHEN offset mapping THEN handles correctly`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.DD_MM_YYYY)
         val input = AnnotatedString("15")
@@ -423,6 +439,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN offset out of bounds WHEN originalToTransformed THEN clamps to valid range`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("20240115")
@@ -444,6 +461,7 @@ class DateVisualTransformationTest {
      */
     @Test
     fun `GIVEN offset out of bounds WHEN transformedToOriginal THEN clamps to valid range`() {
+
         // GIVEN
         val transformation = DateVisualTransformation(DateFormat.YYYY_MM_DD)
         val input = AnnotatedString("20240115")
