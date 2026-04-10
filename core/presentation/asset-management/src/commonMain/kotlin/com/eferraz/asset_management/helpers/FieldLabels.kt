@@ -4,6 +4,7 @@ import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAssetType
+import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 
 internal fun FixedIncomeAssetType.asLabel(): String =
@@ -45,4 +46,11 @@ internal fun InvestmentCategory.asLabel(): String =
         InvestmentCategory.FIXED_INCOME -> "Renda fixa"
         InvestmentCategory.VARIABLE_INCOME -> "Renda variável"
         InvestmentCategory.INVESTMENT_FUND -> "Fundo de investimento"
+    }
+
+internal fun Liquidity.asLabel(): String =
+    when (this) {
+        Liquidity.DAILY -> "Diária (resgate a qualquer dia útil)"
+        Liquidity.AT_MATURITY -> "No vencimento do título"
+        Liquidity.D_PLUS_DAYS -> "D + dias (conforme contrato)"
     }

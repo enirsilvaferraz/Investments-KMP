@@ -2,6 +2,7 @@ package com.eferraz.asset_management
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
@@ -14,7 +15,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.eferraz.asset_management.helpers.asLabel
 import com.eferraz.design_system.components.dropdown.StableExposedDropdown
-import com.eferraz.design_system.components.dropdown.StableExposedDropdownWithNull
 import com.eferraz.design_system.core.StableList
 import com.eferraz.design_system.core.StableMap
 import com.eferraz.design_system.input.date.DateFormat
@@ -22,42 +22,9 @@ import com.eferraz.design_system.input.date.DateVisualTransformation
 import com.eferraz.design_system.input.date.filterDateMaskDigits
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAssetType
-import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
-
-@Composable
-internal fun CategoryDropdown(
-    selected: InvestmentCategory,
-    onSelect: (InvestmentCategory) -> Unit,
-) {
-    StableExposedDropdown(
-        label = "Categoria do investimento",
-        displayValue = selected.asLabel(),
-        options = StableList(InvestmentCategory.entries.toList()),
-        itemLabel = { it.asLabel() },
-        onItemSelect = onSelect,
-    )
-}
-
-@Composable
-internal fun IssuerDropdown(
-    issuers: StableList<Issuer>,
-    selectedId: Long?,
-    error: String?,
-    onSelect: (Long?) -> Unit,
-) {
-    StableExposedDropdownWithNull(
-        label = "Emissor",
-        displayValue = issuers.items.find { it.id == selectedId }?.name.orEmpty(),
-        options = issuers,
-        itemLabel = { it.name },
-        onItemSelect = { issuer -> onSelect(issuer?.id) },
-        error = error,
-    )
-}
 
 @Composable
 internal fun FixedIncomeFields(
@@ -67,64 +34,82 @@ internal fun FixedIncomeFields(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
-        StableExposedDropdown(
-            label = "Tipo de cálculo",
-            displayValue = draft.fixedType?.asLabel().orEmpty(),
-            options = StableList(FixedIncomeAssetType.entries.toList()),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onDraftChange(draft.copy(fixedType = it)) },
-            error = fieldErrors["fixedType"],
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
 
-        StableExposedDropdown(
-            label = "Subtipo do título",
-            displayValue = draft.fixedSubType?.asLabel().orEmpty(),
-            options = StableList(FixedIncomeSubType.entries.toList()),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onDraftChange(draft.copy(fixedSubType = it)) },
-            error = fieldErrors["fixedSubType"],
-        )
+            StableExposedDropdown(
+                modifier = Modifier.weight(1f),
+                label = "Tipo de cálculo",
+                displayValue = draft.fixedType?.asLabel().orEmpty(),
+                options = StableList(FixedIncomeAssetType.entries.toList()),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onDraftChange(draft.copy(fixedType = it)) },
+                error = fieldErrors["fixedType"],
+            )
 
-        OutlinedTextField(
-            value = draft.fixedExpiration.orEmpty(),
-            onValueChange = { raw -> onDraftChange(draft.copy(fixedExpiration = filterDateMaskDigits(raw))) },
-            label = { Text("Data de vencimento") },
-            placeholder = { Text("AAAA-MM-DD") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
-            isError = fieldErrors["fixedExpiration"] != null,
-            supportingText = fieldErrors["fixedExpiration"]?.let { { Text(it) } },
-            modifier = Modifier.fillMaxWidth(),
-        )
+            StableExposedDropdown(
+                modifier = Modifier.weight(1f),
+                label = "Subtipo do título",
+                displayValue = draft.fixedSubType?.asLabel().orEmpty(),
+                options = StableList(FixedIncomeSubType.entries.toList()),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onDraftChange(draft.copy(fixedSubType = it)) },
+                error = fieldErrors["fixedSubType"],
+            )
+        }
 
-        OutlinedTextField(
-            value = draft.fixedYield.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(fixedYield = it)) },
-            label = { Text("Rentabilidade contratada (% ao ano)") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            isError = fieldErrors["fixedYield"] != null,
-            supportingText = fieldErrors["fixedYield"]?.let { { Text(it) } },
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
 
-        OutlinedTextField(
-            value = draft.fixedCdi.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(fixedCdi = it)) },
-            label = { Text("% em relação ao CDI (opcional)") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            isError = fieldErrors["fixedCdi"] != null,
-            supportingText = fieldErrors["fixedCdi"]?.let { { Text(it) } },
-            modifier = Modifier.fillMaxWidth(),
-        )
+            StableExposedDropdown(
+                label = "Liquidez do título",
+                displayValue = draft.fixedLiquidity?.let { it.asLabel() }.orEmpty(),
+                options = StableList(Liquidity.entries.toList()),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onDraftChange(draft.copy(fixedLiquidity = it)) },
+                error = fieldErrors["fixedLiquidity"],
+                modifier = Modifier.weight(1f),
+            )
 
-        StableExposedDropdown(
-            label = "Liquidez do título",
-            displayValue = draft.fixedLiquidity?.let { liquidityLabel(it) }.orEmpty(),
-            options = StableList(Liquidity.entries.toList()),
-            itemLabel = { liquidityLabel(it) },
-            onItemSelect = { onDraftChange(draft.copy(fixedLiquidity = it)) },
-            error = fieldErrors["fixedLiquidity"],
-        )
+            OutlinedTextField(
+                value = draft.fixedExpiration.orEmpty(),
+                onValueChange = { raw -> onDraftChange(draft.copy(fixedExpiration = filterDateMaskDigits(raw))) },
+                label = { Text("Data de vencimento") },
+                placeholder = { Text("AAAA-MM-DD") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
+                isError = fieldErrors["fixedExpiration"] != null,
+                supportingText = fieldErrors["fixedExpiration"]?.let { { Text(it) } },
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            OutlinedTextField(
+                modifier = Modifier.weight(1f),
+                value = draft.fixedYield.orEmpty(),
+                onValueChange = { onDraftChange(draft.copy(fixedYield = it)) },
+                label = { Text("Rentabilidade (% ao ano)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                isError = fieldErrors["fixedYield"] != null,
+                supportingText = fieldErrors["fixedYield"]?.let { { Text(it) } },
+            )
+
+            OutlinedTextField(
+                modifier = Modifier.weight(1f),
+                value = draft.fixedCdi.orEmpty(),
+                onValueChange = { onDraftChange(draft.copy(fixedCdi = it)) },
+                label = { Text("% em relação ao CDI") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                isError = fieldErrors["fixedCdi"] != null,
+                supportingText = fieldErrors["fixedCdi"]?.let { { Text(it) } },
+            )
+        }
     }
 }
 
@@ -209,9 +194,9 @@ internal fun FundFields(
 
         StableExposedDropdown(
             label = "Liquidez do fundo",
-            displayValue = draft.fundLiquidity?.let { liquidityLabel(it) }.orEmpty(),
+            displayValue = draft.fundLiquidity?.asLabel().orEmpty(),
             options = StableList(Liquidity.entries.toList()),
-            itemLabel = { liquidityLabel(it) },
+            itemLabel = { it.asLabel() },
             onItemSelect = { onDraftChange(draft.copy(fundLiquidity = it)) },
             error = fieldErrors["fundLiquidity"],
         )
@@ -228,9 +213,7 @@ internal fun FundFields(
 
         OutlinedTextField(
             value = draft.fundExpiration.orEmpty(),
-            onValueChange = { raw ->
-                onDraftChange(draft.copy(fundExpiration = filterDateMaskDigits(raw)))
-            },
+            onValueChange = { raw -> onDraftChange(draft.copy(fundExpiration = filterDateMaskDigits(raw))) },
             label = { Text("Data de encerramento do fundo (opcional)") },
             placeholder = { Text("AAAA-MM-DD") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -241,10 +224,3 @@ internal fun FundFields(
         )
     }
 }
-
-internal fun liquidityLabel(l: Liquidity): String =
-    when (l) {
-        Liquidity.DAILY -> "Diária (resgate a qualquer dia útil)"
-        Liquidity.AT_MATURITY -> "No vencimento do título"
-        Liquidity.D_PLUS_DAYS -> "D + dias (conforme contrato)"
-    }
