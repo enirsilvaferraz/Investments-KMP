@@ -35,8 +35,8 @@
 
 - [ ] **Domínio:** Impacto em `DOMAIN.md` identificado se entidades ou invariantes mudarem.
 - [ ] **Qualidade de código:** Camadas respeitadas; **explicitApi** e visibilidade mínima conforme **`~/.cursor/rules/explicit-api.mdc`** (`private`/`internal` por defeito, `public` só para API entre módulos); complexidade justificada se necessário.
-- [ ] **Testes:** Testes unitários **novos ou alterados** cumprem **`~/.cursor/rules/test-patterns.mdc`** — **inglês**, nomes **GIVEN / WHEN / THEN**, **KDoc** no método, comentários **`// GIVEN` / `// WHEN` / `// THEN`** no corpo quando aplicável (**linha em branco** antes de cada marcador), **MockK** para colaboradores externos quando aplicável, **criação de objetos no próprio teste** (**evitar** *factories* de teste como `TestDataFactory` para código novo) (princípio V); alterações em **`core/domain/usecases/`** com código executável **têm** testes em `:usecases` no mesmo PR; estratégia de evidência para lógica relevante definida.
-- [ ] **UX:** Reutilização de componentes/formatos; estados de erro e vazio considerados.
+- [ ] **Testes:** Testes unitários **novos ou alterados** cumprem **`~/.cursor/rules/test-patterns.mdc`** — **inglês**, nomes **GIVEN / WHEN / THEN**, **KDoc** no método, comentários **`// GIVEN` / `// WHEN` / `// THEN`** no corpo quando aplicável (**linha em branco** antes de cada marcador), **MockK** para colaboradores externos quando aplicável, **criação de objetos no próprio teste** (**evitar** *factories* de teste como `TestDataFactory` para código novo) (princípio V); alterações em **`core/domain/usecases/`** com código executável **têm** testes em **`:domain:usecases`** no mesmo PR; estratégia de evidência para lógica relevante definida.
+- [ ] **UX:** Reutilização de componentes/formatos; estados de erro e vazio considerados; **`@Preview`** no mesmo ficheiro que o composable quando houver pré-visualizações (princípio VI).
 - [ ] **Desempenho:** Objetivos ou riscos (listas, rede, agregações) registados quando a spec exigir.
 - [ ] **Build:** Módulos Gradle e `compileKotlinJvm` coerentes com `.cursorrules`.
 - [ ] **Idioma:** Documentos da feature em **pt-BR** (princípio VIII).

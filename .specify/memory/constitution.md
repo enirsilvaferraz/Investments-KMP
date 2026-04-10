@@ -1,11 +1,11 @@
 <!--
   Relatório de impacto (sync)
-  Versão: 1.13.0 → 1.13.1
-  Motivo do PATCH: II — completar arranque de *features* UI com dependência em `:apps:umbrellaApp`.
+  Versão: 1.13.1 → 1.13.2
+  Motivo do PATCH: V — nome Gradle `:domain:usecases`; VI — pré-visualizações Compose no mesmo ficheiro.
 
-  Princípios alterados: II, IX
+  Princípios alterados: V, VI
 
-  Templates: nenhum
+  Templates: plan-template, tasks-template (alinhamento)
 
   Pendências: nenhuma
 -->
@@ -69,18 +69,19 @@ Escolher a **visibilidade mais restrita** que ainda permita uso legítimo **no g
 - **KDoc e corpo:** **DEVERIA** KDoc em inglês acima de `@Test`; **DEVERIA** `// GIVEN` / `// WHEN` / `// THEN` (ou só GIVEN/THEN) com **linha em branco** antes de cada marcador. Testes triviais: mantém KDoc; comentários de secção **podem** omitir-se se só duplicarem o nome.
 - **MockK:** para colaboradores externos à unidade sob teste (ports, repos, *clients*, etc.) **DEVE** usar-se **MockK**, salvo o teste exercitar só funções puras, valores de domínio ou código sem colaboradores substituíveis. **Não** acoplar a infra real (rede, BD, FS).
 - **Dados no teste:** **DEVERIA** evitar *factories* centralizadas (`TestDataFactory`, etc.) e *helpers* `private` no ficheiro; **NÃO DEVE** acrescentar **novos** métodos a factories existentes para código novo; exceções mínimas (ex.: `@BeforeTest`) **DEVERIAM** constar no PR.
-- **Módulo `usecases` (`core/domain/usecases/`):** **toda** alteração a ficheiros **`.kt`** ou **`.kts`** sob esse caminho que **modifique código executável** (lógica de casos de uso, interfaces de repositório, DTOs de aplicação, DI, etc.) **DEVE** ser acompanhada, **no mesmo PR**, de **testes unitários** novos ou de **testes existentes atualizados** no módulo Gradle **`:usecases`** (`src/jvmTest/`), em conformidade com `~/.cursor/rules/test-patterns.mdc`. **NÃO DEVE** integrar-se código em `usecases` sem cobertura de teste apropriada quando a mudança for **testável** (regra geral: se compila e comporta-se diferente, há teste).
+- **Módulo `usecases` (`core/domain/usecases/`):** **toda** alteração a ficheiros **`.kt`** ou **`.kts`** sob esse caminho que **modifique código executável** (lógica de casos de uso, interfaces de repositório, DTOs de aplicação, DI, etc.) **DEVE** ser acompanhada, **no mesmo PR**, de **testes unitários** novos ou de **testes existentes atualizados** no módulo Gradle **`:domain:usecases`** (`src/jvmTest/`), em conformidade com `~/.cursor/rules/test-patterns.mdc`. **NÃO DEVE** integrar-se código em `usecases` sem cobertura de teste apropriada quando a mudança for **testável** (regra geral: se compila e comporta-se diferente, há teste).
 - **Exceções ao parágrafo anterior:** alterações **apenas** a comentários/KDoc **sem** mudar código executável; alterações **apenas** a `build.gradle.kts` do módulo **sem** mudar dependências de teste ou fontes; renomeações mecânicas que **exijam** só atualização espelhada nos testes — neste último caso **DEVE** atualizar-se **também** os ficheiros `*Test.kt` afetados no mesmo PR.
 - **Lógica crítica:** alterações a cálculos financeiros, invariantes de domínio ou contratos de casos de uso **DEVERIAM** incluir ou atualizar testes automatizados no nível adequado (`entity`, `usecases`, `composeApp` conforme o caso), **sempre** respeitando os parágrafos anteriores quando houver teste.
 - **Rastreio:** critérios de aceitação na spec **DEVERIAM** ser verificáveis por teste automatizado ou por passos de verificação explícitos na tarefa.
 
-**Orientação técnica:** ao planear uma feature, identificar **o que prova** que funciona (teste unitário alinhado a `test-patterns.mdc`, ou verificação manual documentada); **NÃO DEVE** fundar segurança só em testes manuais ad hoc para regras de negócio repetíveis. Para `usecases`, validar com `./gradlew :usecases:jvmTest` antes de concluir.
+**Orientação técnica:** ao planear uma feature, identificar **o que prova** que funciona (teste unitário alinhado a `test-patterns.mdc`, ou verificação manual documentada); **NÃO DEVE** fundar segurança só em testes manuais ad hoc para regras de negócio repetíveis. Para `usecases`, validar com `./gradlew :domain:usecases:jvmTest` antes de concluir.
 
 ### VI. Consistência da experiência do utilizador
 
 - **Dados financeiros:** formatação de valores, percentagens e datas **DEVERIA** reutilizar componentes e helpers existentes (inputs, tabelas, tema) para evitar formatos contraditórios entre ecrãs.
 - **Estados:** carregamento, vazio e erro **DEVERIAM** ser tratados de forma previsível; mensagens **DEVERIAM** ser compreensíveis para o utilizador final (sem detalhes técnicos internos em diálogos).
 - **Acessibilidade:** **DEVERIA** manter contraste e alvos tocáveis adequados ao padrão já usado no Compose; novos componentes críticos **DEVERIAM** seguir o mesmo nível de cuidado.
+- **Pré-visualizações Compose (`@Preview`):** funções de pré-visualização **DEVEM** residir **no mesmo ficheiro** `.kt` que o composable, ecrã ou formulário que representam. **NÃO DEVE** criar ficheiros dedicados exclusivamente a previews (ex.: `*Previews.kt`). **DEVERIA** declarar essas funções como `internal` quando as regras de análise estática do projeto o exigirem (superfície pública mínima — alinhado ao IV).
 
 **Orientação técnica:** antes de criar um componente novo de formulário ou lista, **DEVERIA** verificar-se reutilização no *design system* ou em ecrãs semelhantes; desvios **DEVERIAM** ser raros e documentados.
 
@@ -151,4 +152,4 @@ Alterações de código **NÃO DEVEM** deixar o repositório em estado em que **
 - Alterações **DEVERIAM** atualizar **Version** e **Last Amended** (data ISO **YYYY-MM-DD**).
 - PRs que toquem domínio, **`usecases`**, API entre módulos, **testes**, UX crítica, desempenho, **documentação**, **`.specify/`** ou **regras de IA** **DEVERIAM** referir os princípios tocados (incl. **IV**–**V**, **IX**, **VIII** quando aplicável).
 
-**Version**: 1.13.1 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-04-09
+**Version**: 1.13.2 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-04-09
