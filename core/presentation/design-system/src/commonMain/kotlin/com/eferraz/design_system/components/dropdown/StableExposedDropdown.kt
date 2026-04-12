@@ -16,6 +16,7 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,10 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.eferraz.design_system.core.StableList
 
 /**
- * Dropdown só leitura (Material 3 [ExposedDropdownMenuBox]) com opções estáveis para o Compose.
+ * Dropdown só leitura (Material 3 [ExposedDropdownMenuBox]).
  *
  * Pré-visualizações Compose no final deste ficheiro.
  */
@@ -37,11 +37,12 @@ import com.eferraz.design_system.core.StableList
 public fun <T> StableExposedDropdown(
     label: String,
     displayValue: String,
-    options: StableList<T>,
+    options: List<T>,
     itemLabel: (T) -> String,
     onItemSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    required: Boolean = false,
     error: String? = null,
 ) {
     StableExposedDropdownImpl(
@@ -52,37 +53,8 @@ public fun <T> StableExposedDropdown(
         modifier = modifier,
         enabled = enabled,
         error = error,
-        nullOptionLabel = null,
+        required = required,
         onItemSelect = { value -> onItemSelect(value!!) },
-    )
-}
-
-/**
- * Igual a [StableExposedDropdown], com primeira linha opcional que envia `null` (ex.: “nenhum emissor”).
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-public fun <T> StableExposedDropdownWithNull(
-    label: String,
-    displayValue: String,
-    options: StableList<T>,
-    itemLabel: (T) -> String,
-    onItemSelect: (T?) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    error: String? = null,
-    nullOptionLabel: String = "—",
-) {
-    StableExposedDropdownImpl(
-        label = label,
-        displayValue = displayValue,
-        options = options,
-        itemLabel = itemLabel,
-        modifier = modifier,
-        enabled = enabled,
-        error = error,
-        nullOptionLabel = nullOptionLabel,
-        onItemSelect = onItemSelect,
     )
 }
 
@@ -91,11 +63,11 @@ public fun <T> StableExposedDropdownWithNull(
 private fun <T> StableExposedDropdownImpl(
     label: String,
     displayValue: String,
-    options: StableList<T>,
+    options: List<T>,
     itemLabel: (T) -> String,
     enabled: Boolean,
     error: String?,
-    nullOptionLabel: String?,
+    required: Boolean = false,
     onItemSelect: (T?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -107,7 +79,7 @@ private fun <T> StableExposedDropdownImpl(
         modifier = modifier.fillMaxWidth(),
     ) {
 
-        OutlinedTextField(
+        TextField(
             modifier = Modifier
                 .menuAnchor(
                     type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
@@ -120,7 +92,7 @@ private fun <T> StableExposedDropdownImpl(
             label = { Text(label) },
             enabled = enabled,
             isError = error != null,
-            supportingText = error?.let { { Text(it) } },
+            supportingText = error?.let { { Text(it) } } ?: { if (required) Text("Obrigatório") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
         )
 
@@ -139,14 +111,7 @@ private fun <T> StableExposedDropdownImpl(
             }
 
             StableExposedDropdownMenuList {
-                if (nullOptionLabel != null) {
-                    StableExposedDropdownMenuRow(
-                        text = nullOptionLabel,
-                        isSelected = displayValue.isBlank(),
-                        onClick = { collapseAndSelect(null) },
-                    )
-                }
-                options.items.forEach { item ->
+                options.forEach { item ->
                     StableExposedDropdownMenuRow(
                         text = itemLabel(item),
                         isSelected = itemLabel(item) == displayValue,
@@ -225,7 +190,7 @@ internal fun StableExposedDropdownPreview() {
             StableExposedDropdown(
                 label = "Tipo de cálculo",
                 displayValue = selected,
-                options = StableList(listOf("Pré-fixado", "Pós-fixado", "Atrelado à inflação")),
+                options = listOf("Pré-fixado", "Pós-fixado", "Atrelado à inflação"),
                 itemLabel = { it },
                 onItemSelect = { selected = it },
             )
@@ -241,36 +206,10 @@ internal fun StableExposedDropdownErrorPreview() {
             StableExposedDropdown(
                 label = "Campo com erro",
                 displayValue = "",
-                options = StableList(listOf("A", "B")),
+                options = listOf("A", "B"),
                 itemLabel = { it },
                 onItemSelect = {},
                 error = "Selecione uma opção",
-            )
-        }
-    }
-}
-
-private data class StableExposedDropdownPreviewIssuer(val id: Long, val name: String)
-
-@Preview(showBackground = true, widthDp = 360)
-@Composable
-internal fun StableExposedDropdownWithNullPreview() {
-    MaterialTheme {
-        Surface(modifier = Modifier.padding(16.dp)) {
-
-            var selected: StableExposedDropdownPreviewIssuer? by remember { mutableStateOf(null) }
-
-            StableExposedDropdownWithNull(
-                label = "Emissor (cadastro)",
-                displayValue = selected?.name.orEmpty(),
-                options = StableList(
-                    listOf(
-                        StableExposedDropdownPreviewIssuer(1, "Banco Exemplo"),
-                        StableExposedDropdownPreviewIssuer(2, "Tesouro Nacional"),
-                    ),
-                ),
-                itemLabel = { it.name },
-                onItemSelect = { selected = it },
             )
         }
     }
