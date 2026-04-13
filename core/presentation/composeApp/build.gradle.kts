@@ -14,6 +14,7 @@ kotlin {
         implementation(projects.domain.entity)
         implementation(projects.domain.usecases)
         implementation(projects.features.designSystem)
+        implementation(projects.features.assetManagement)
 
         implementation(libs.androidx.lifecycle.viewmodel)
         implementation(libs.androidx.lifecycle.runtimeCompose)

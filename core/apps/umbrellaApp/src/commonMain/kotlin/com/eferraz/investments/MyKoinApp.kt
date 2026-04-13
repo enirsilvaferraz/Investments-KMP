@@ -1,5 +1,6 @@
 package com.eferraz.investments
 
+import com.eferraz.asset_management.di.AssetManagementModule
 import com.eferraz.database.di.DatabaseModule
 import com.eferraz.entities.di.EntityModule
 import com.eferraz.network.di.NetworkModule
@@ -16,7 +17,8 @@ import org.koin.core.annotation.KoinApplication
         EntityModule::class,
         UseCaseModule::class,
         RepositoryModule::class,
-        PresentationModule::class
+        PresentationModule::class,
+        AssetManagementModule::class,
     ]
 )
 @ComponentScan("com.eferraz.investments")

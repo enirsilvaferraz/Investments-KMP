@@ -1,4 +1,3 @@
-import com.eferraz.buildlogic.ext.generateConstants
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
@@ -14,9 +13,3 @@ kotlin {
         implementation(projects.domain.entity)
     }
 }
-
-generateConstants(
-    fileName = "TokenConfig",
-    packageName = "com.eferraz.network",
-    properties = listOf("BRAPI_TOKEN")
-)

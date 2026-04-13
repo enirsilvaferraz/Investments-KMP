@@ -1,9 +1,9 @@
 # Domínio — módulo `entity` (Investments-KMP)
 
 **Documento canônico** do modelo de domínio deste módulo (única fonte para entidades, relacionamentos e vocabulário).  
-**Regras de negócio** (cálculos, fluxos, políticas): serão documentadas no módulo `usecases` (futuro); até lá, referências legadas em `docs/rules/`.
+**Regras de negócio** (cálculos, fluxos, políticas): serão documentadas no módulo `usecases` (Gradle **`:domain:usecases`**, futuro); até lá, referências legadas em `docs/rules/`.
 
-**Gradle:** `:entity` · **Código:** `core/domain/entity/src/commonMain/kotlin/com/eferraz/entities/`
+**Gradle:** `:domain:entity` · **Código:** `core/domain/entity/src/commonMain/kotlin/com/eferraz/entities/`
 
 ---
 
@@ -379,4 +379,4 @@ erDiagram
 
 ## 10. Manutenção
 
-Alterou entidade, relacionamento ou vocabulário em `core/domain/entity/` → **atualizar este arquivo**. Alterou regra de negócio → documentar no **`usecases`** (quando existir) e manter entidades aqui só se o **modelo** mudar.
+Alterou entidade, relacionamento ou vocabulário em `core/domain/entity/` → **atualizar este arquivo**. Alterou regra de negócio → documentar no **`usecases`** (módulo Gradle **`:domain:usecases`**, quando existir) e manter entidades aqui só se o **modelo** mudar.

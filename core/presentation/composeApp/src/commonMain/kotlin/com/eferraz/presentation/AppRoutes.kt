@@ -2,6 +2,7 @@ package com.eferraz.presentation
 
 import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.eferraz.asset_management.AssetManagementRouting
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -58,6 +59,7 @@ internal val config = SavedStateConfiguration {
             subclass(FundsHistoryRouting::class, FundsHistoryRouting.serializer())
             subclass(GoalsMonitoringRouting::class, GoalsMonitoringRouting.serializer())
             subclass(FormRouting::class, FormRouting.serializer())
+            subclass(AssetManagementRouting::class, AssetManagementRouting.serializer())
         }
     }
 }

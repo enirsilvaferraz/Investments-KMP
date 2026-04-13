@@ -60,9 +60,11 @@ project(":apps:umbrellaApp").projectDir = File(settingsDir, "core/apps/umbrellaA
 
 include(":features:composeApp")
 include(":features:design-system")
+include(":features:asset-management")
 project(":features").projectDir = File(settingsDir, "core/presentation")
 project(":features:composeApp").projectDir = File(settingsDir, "core/presentation/composeApp")
 project(":features:design-system").projectDir = File(settingsDir, "core/presentation/design-system")
+project(":features:asset-management").projectDir = File(settingsDir, "core/presentation/asset-management")
 
 
 include(":domain:usecases")

@@ -10,6 +10,7 @@ kotlin {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
+        implementation(projects.features.assetManagement)
         implementation(projects.features.composeApp)
         implementation(projects.domain.entity)
         implementation(projects.domain.usecases)
