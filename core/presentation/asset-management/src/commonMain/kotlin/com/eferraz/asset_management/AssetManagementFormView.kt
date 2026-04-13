@@ -73,6 +73,7 @@ internal fun AssetManagementFormView(
         Column {
 
             TopAppBar(
+                modifier = Modifier.padding(start = 6.dp),
                 title = { Text("Novo investimento") }
             )
 
@@ -224,7 +225,8 @@ internal fun AssetManagementFormVariableIncomePreview() {
                 mutableStateOf(
                     initialAssetDraft().copy(
                         category = InvestmentCategory.VARIABLE_INCOME,
-                        issuerId = 1L,
+                        issuer = Issuer(id = 1L, name = "Banco Preview"),
+                        brokerage = Brokerage(id = 1L, name = "Corretora Preview"),
                         variableName = "Ação exemplo",
                     ),
                 )

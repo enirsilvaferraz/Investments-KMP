@@ -1,15 +1,17 @@
 package com.eferraz.asset_management
 
 import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.Issuer
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.usecases.UpsertInvestmentAssetUseCase
 
 internal fun buildUpsertParam(d: AssetDraft): UpsertInvestmentAssetUseCase.Param? {
-    val issuerId = d.issuerId ?: return null
-    val brokerageId = d.brokerageId ?: return null
+    val issuer = d.issuer ?: return null
+    val brokerage = d.brokerage ?: return null
     return when (d.category) {
-        InvestmentCategory.FIXED_INCOME -> buildFixedIncomeParam(d, issuerId, brokerageId)
-        InvestmentCategory.VARIABLE_INCOME -> buildVariableIncomeParam(d, issuerId, brokerageId)
-        InvestmentCategory.INVESTMENT_FUND -> buildFundParam(d, issuerId, brokerageId)
+        InvestmentCategory.FIXED_INCOME -> buildFixedIncomeParam(d, issuer, brokerage)
+        InvestmentCategory.VARIABLE_INCOME -> buildVariableIncomeParam(d, issuer, brokerage)
+        InvestmentCategory.INVESTMENT_FUND -> buildFundParam(d, issuer, brokerage)
     }
 }
 
@@ -21,7 +23,7 @@ private fun hasCompleteFixedIncomeInputs(d: AssetDraft): Boolean {
     return exp != null && d.fixedYield.orEmpty().toDoubleOrNull() != null
 }
 
-private fun buildFixedIncomeParam(d: AssetDraft, issuerId: Long, brokerageId: Long): UpsertInvestmentAssetUseCase.Param? {
+private fun buildFixedIncomeParam(d: AssetDraft, issuer: Issuer, brokerage: Brokerage): UpsertInvestmentAssetUseCase.Param? {
     if (!hasCompleteFixedIncomeInputs(d)) return null
     val type = d.fixedType!!
     val sub = d.fixedSubType!!
@@ -31,9 +33,9 @@ private fun buildFixedIncomeParam(d: AssetDraft, issuerId: Long, brokerageId: Lo
     val cdi = d.fixedCdi.takeIf { it.isNullOrBlank().not() }?.toDoubleOrNull()
     return UpsertInvestmentAssetUseCase.Param.FixedIncomeRegistration(
         assetId = 0L,
-        issuerId = issuerId,
+        issuer = issuer,
         observations = d.observations.takeIf { it.isNullOrBlank().not() },
-        brokerageId = brokerageId,
+        brokerage = brokerage,
         type = type,
         subType = sub,
         expirationDate = exp,
@@ -43,15 +45,15 @@ private fun buildFixedIncomeParam(d: AssetDraft, issuerId: Long, brokerageId: Lo
     )
 }
 
-private fun buildVariableIncomeParam(d: AssetDraft, issuerId: Long, brokerageId: Long): UpsertInvestmentAssetUseCase.Param? {
+private fun buildVariableIncomeParam(d: AssetDraft, issuer: Issuer, brokerage: Brokerage): UpsertInvestmentAssetUseCase.Param? {
     val t = d.variableType
     return if (t != null) {
         UpsertInvestmentAssetUseCase.Param.VariableIncomeRegistration(
             assetId = 0L,
-            issuerId = issuerId,
+            issuer = issuer,
             observations = d.observations.takeIf { !it.isNullOrBlank() },
-            brokerageId = brokerageId,
-            assetName = d.variableName.orEmpty(),
+            brokerage = brokerage,
+            assetName = d.variableTicker.orEmpty(),
             type = t,
             ticker = d.variableTicker.orEmpty(),
             cnpjRaw = d.variableCnpj.takeIf { !it.isNullOrBlank() },
@@ -69,7 +71,7 @@ private fun hasCompleteFundInputs(d: AssetDraft): Boolean {
     return days != null && days > 0
 }
 
-private fun buildFundParam(d: AssetDraft, issuerId: Long, brokerageId: Long): UpsertInvestmentAssetUseCase.Param? {
+private fun buildFundParam(d: AssetDraft, issuer: Issuer, brokerage: Brokerage): UpsertInvestmentAssetUseCase.Param? {
     if (!hasCompleteFundInputs(d)) return null
     val ft = d.fundType!!
     val fl = d.fundLiquidity!!
@@ -77,9 +79,9 @@ private fun buildFundParam(d: AssetDraft, issuerId: Long, brokerageId: Long): Up
     val exp = d.fundExpiration.takeIf { !it.isNullOrBlank() }?.let { localDateFromIsoDateDigits(it) }
     return UpsertInvestmentAssetUseCase.Param.InvestmentFundRegistration(
         assetId = 0L,
-        issuerId = issuerId,
+        issuer = issuer,
         observations = d.observations.takeIf { !it.isNullOrBlank() },
-        brokerageId = brokerageId,
+        brokerage = brokerage,
         name = d.fundName.orEmpty(),
         type = ft,
         liquidity = fl,

@@ -13,8 +13,6 @@ import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Owner
 import com.eferraz.usecases.exceptions.ValidateException
-import com.eferraz.usecases.repositories.BrokerageRepository
-import com.eferraz.usecases.repositories.IssuerRepository
 import com.eferraz.usecases.repositories.OwnerRepository
 import com.eferraz.usecases.repositories.RegisterInvestmentAssetPersistence
 import io.mockk.coEvery
@@ -35,14 +33,10 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class UpsertInvestmentAssetUseCaseTest {
 
-    private val issuerRepository: IssuerRepository = mockk(relaxed = true)
-    private val brokerageRepository: BrokerageRepository = mockk(relaxed = true)
     private val ownerRepository: OwnerRepository = mockk(relaxed = true)
     private val registerInvestmentAssetPersistence: RegisterInvestmentAssetPersistence = mockk(relaxed = true)
 
     private val useCase: UpsertInvestmentAssetUseCase = UpsertInvestmentAssetUseCase(
-        issuerRepository = issuerRepository,
-        brokerageRepository = brokerageRepository,
         ownerRepository = ownerRepository,
         registerInvestmentAssetPersistence = registerInvestmentAssetPersistence,
         context = Dispatchers.Unconfined,
@@ -54,12 +48,11 @@ internal class UpsertInvestmentAssetUseCaseTest {
     private val futureDate: LocalDate = LocalDate(2030, 6, 1)
     private val pastDate: LocalDate = LocalDate(2000, 1, 15)
 
-    private fun stubBrokerageOwnerAndPersistence(returnedAssetId: Long = 42L) {
+    private fun stubOwnerAndPersistence(returnedAssetId: Long = 42L) {
 
-        coEvery { brokerageRepository.getById(7L) } returns brokerage
         coEvery { ownerRepository.getFirst() } returns owner
         coEvery {
-            registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any())
+            registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any(), any())
         } returns returnedAssetId
     }
 
@@ -71,14 +64,13 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence(42L)
+            stubOwnerAndPersistence(42L)
 
             val param = UpsertInvestmentAssetUseCase.Param.FixedIncomeRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = "nota",
-                brokerageId = 7L,
+                brokerage = brokerage,
                 type = FixedIncomeAssetType.PRE_FIXED,
                 subType = FixedIncomeSubType.CDB,
                 expirationDate = futureDate,
@@ -97,7 +89,8 @@ internal class UpsertInvestmentAssetUseCaseTest {
                 registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(
                     capture(slot),
                     owner.id,
-                    7L,
+                    brokerage,
+                    issuer,
                 )
             }
             val saved = slot.captured
@@ -120,7 +113,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            val param = fixedIncomeParam(issuerId = 0L)
+            val param = fixedIncomeParam(issuer = Issuer(id = 0L, name = "Banco"))
 
             // WHEN
             val error = assertFailsWith<ValidateException> {
@@ -130,7 +123,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
             // THEN
             assertEquals("Selecione um emissor", error.messages["issuer"])
             coVerify(exactly = 0) {
-                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any())
+                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any(), any())
             }
         }
 
@@ -142,7 +135,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            val param = fixedIncomeParam(issuerId = -1L)
+            val param = fixedIncomeParam(issuer = Issuer(id = -1L, name = "Banco"))
 
             // WHEN
             val error = assertFailsWith<ValidateException> {
@@ -154,15 +147,14 @@ internal class UpsertInvestmentAssetUseCaseTest {
         }
 
     /**
-     * Valid positive issuer id but catalog miss.
+     * Issuer with blank name is invalid (no catalog round-trip).
      */
     @Test
-    fun `GIVEN issuer id positive but not in catalog WHEN execute THEN fails with catalog message`() =
+    fun `GIVEN issuer with blank name WHEN execute THEN fails with invalid issuer message`() =
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(99L) } returns null
-            val param = fixedIncomeParam(issuerId = 99L)
+            val param = fixedIncomeParam(issuer = Issuer(id = 99L, name = "   "))
 
             // WHEN
             val error = assertFailsWith<ValidateException> {
@@ -170,9 +162,9 @@ internal class UpsertInvestmentAssetUseCaseTest {
             }
 
             // THEN
-            assertEquals("Emissor não encontrado no catálogo", error.messages["issuer"])
+            assertEquals("Emissor inválido", error.messages["issuer"])
             coVerify(exactly = 0) {
-                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any())
+                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any(), any())
             }
         }
 
@@ -184,8 +176,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = fixedIncomeParam(expirationDate = pastDate)
 
             // WHEN
@@ -205,8 +196,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = fixedIncomeParam(contractedYield = 0.0)
 
             // WHEN
@@ -226,8 +216,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = fixedIncomeParam(cdiRelativeYield = 0.0)
 
             // WHEN
@@ -250,8 +239,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = fixedIncomeParam(
                 expirationDate = pastDate,
                 contractedYield = -1.0,
@@ -275,14 +263,13 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence(7L)
+            stubOwnerAndPersistence(7L)
             val validCnpjDigits = "11222333000181"
             val param = UpsertInvestmentAssetUseCase.Param.VariableIncomeRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = null,
-                brokerageId = 7L,
+                brokerage = brokerage,
                 assetName = "  PETR  ",
                 type = VariableIncomeAssetType.NATIONAL_STOCK,
                 ticker = "  PETR4  ",
@@ -299,7 +286,8 @@ internal class UpsertInvestmentAssetUseCaseTest {
                 registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(
                     capture(slot),
                     owner.id,
-                    7L,
+                    brokerage,
+                    issuer,
                 )
             }
             val saved = slot.captured
@@ -314,13 +302,12 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = UpsertInvestmentAssetUseCase.Param.VariableIncomeRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = null,
-                brokerageId = 7L,
+                brokerage = brokerage,
                 assetName = "   ",
                 type = VariableIncomeAssetType.ETF,
                 ticker = "HASH11",
@@ -341,13 +328,12 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = UpsertInvestmentAssetUseCase.Param.VariableIncomeRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = null,
-                brokerageId = 7L,
+                brokerage = brokerage,
                 assetName = "Ativo",
                 type = VariableIncomeAssetType.ETF,
                 ticker = "",
@@ -368,13 +354,12 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = UpsertInvestmentAssetUseCase.Param.VariableIncomeRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = null,
-                brokerageId = 7L,
+                brokerage = brokerage,
                 assetName = "Ativo",
                 type = VariableIncomeAssetType.ETF,
                 ticker = "T",
@@ -395,13 +380,12 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence(1L)
+            stubOwnerAndPersistence(1L)
             val param = UpsertInvestmentAssetUseCase.Param.VariableIncomeRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = null,
-                brokerageId = 7L,
+                brokerage = brokerage,
                 assetName = "X",
                 type = VariableIncomeAssetType.ETF,
                 ticker = "Y",
@@ -417,7 +401,8 @@ internal class UpsertInvestmentAssetUseCaseTest {
                 registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(
                     capture(slot),
                     owner.id,
-                    7L,
+                    brokerage,
+                    issuer,
                 )
             }
             assertNull(slot.captured.cnpj)
@@ -431,13 +416,12 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence(99L)
+            stubOwnerAndPersistence(99L)
             val param = UpsertInvestmentAssetUseCase.Param.InvestmentFundRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = "obs",
-                brokerageId = 7L,
+                brokerage = brokerage,
                 name = "  Fundo ABC  ",
                 type = InvestmentFundAssetType.MULTIMARKET_FUND,
                 liquidity = Liquidity.D_PLUS_DAYS,
@@ -455,7 +439,8 @@ internal class UpsertInvestmentAssetUseCaseTest {
                 registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(
                     capture(slot),
                     owner.id,
-                    7L,
+                    brokerage,
+                    issuer,
                 )
             }
             val saved = slot.captured
@@ -472,13 +457,12 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = UpsertInvestmentAssetUseCase.Param.InvestmentFundRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = null,
-                brokerageId = 7L,
+                brokerage = brokerage,
                 name = "  ",
                 type = InvestmentFundAssetType.STOCK_FUND,
                 liquidity = Liquidity.DAILY,
@@ -500,13 +484,12 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = UpsertInvestmentAssetUseCase.Param.InvestmentFundRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = null,
-                brokerageId = 7L,
+                brokerage = brokerage,
                 name = "Fundo",
                 type = InvestmentFundAssetType.STOCK_FUND,
                 liquidity = Liquidity.DAILY,
@@ -531,13 +514,12 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            stubBrokerageOwnerAndPersistence()
+            stubOwnerAndPersistence()
             val param = UpsertInvestmentAssetUseCase.Param.InvestmentFundRegistration(
                 assetId = 0L,
-                issuerId = 3L,
+                issuer = issuer,
                 observations = null,
-                brokerageId = 7L,
+                brokerage = brokerage,
                 name = "Fundo",
                 type = InvestmentFundAssetType.PENSION,
                 liquidity = Liquidity.AT_MATURITY,
@@ -555,17 +537,17 @@ internal class UpsertInvestmentAssetUseCaseTest {
         }
 
     private fun fixedIncomeParam(
-        issuerId: Long = 3L,
+        issuer: Issuer = this.issuer,
         expirationDate: LocalDate = futureDate,
         contractedYield: Double = 10.5,
         cdiRelativeYield: Double? = null,
-        brokerageId: Long = 7L,
+        brokerage: Brokerage = this.brokerage,
     ): UpsertInvestmentAssetUseCase.Param.FixedIncomeRegistration =
         UpsertInvestmentAssetUseCase.Param.FixedIncomeRegistration(
             assetId = 0L,
-            issuerId = issuerId,
+            issuer = issuer,
             observations = null,
-            brokerageId = brokerageId,
+            brokerage = brokerage,
             type = FixedIncomeAssetType.PRE_FIXED,
             subType = FixedIncomeSubType.CDB,
             expirationDate = expirationDate,
@@ -579,8 +561,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            val param = fixedIncomeParam(brokerageId = 0L)
+            val param = fixedIncomeParam(brokerage = Brokerage(id = 0L, name = "Corretora"))
 
             // WHEN
             val error = assertFailsWith<ValidateException> {
@@ -590,18 +571,16 @@ internal class UpsertInvestmentAssetUseCaseTest {
             // THEN
             assertEquals("Selecione uma corretora", error.messages["brokerage"])
             coVerify(exactly = 0) {
-                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any())
+                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any(), any())
             }
         }
 
     @Test
-    fun `GIVEN brokerage not in catalog WHEN execute THEN fails with catalog message`() =
+    fun `GIVEN brokerage with blank name WHEN execute THEN fails with invalid brokerage message`() =
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            coEvery { brokerageRepository.getById(7L) } returns null
-            val param = fixedIncomeParam(brokerageId = 7L)
+            val param = fixedIncomeParam(brokerage = Brokerage(id = 7L, name = "   "))
 
             // WHEN
             val error = assertFailsWith<ValidateException> {
@@ -609,9 +588,9 @@ internal class UpsertInvestmentAssetUseCaseTest {
             }
 
             // THEN
-            assertEquals("Corretora não encontrada no catálogo", error.messages["brokerage"])
+            assertEquals("Corretora inválida", error.messages["brokerage"])
             coVerify(exactly = 0) {
-                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any())
+                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any(), any())
             }
         }
 
@@ -620,8 +599,6 @@ internal class UpsertInvestmentAssetUseCaseTest {
         runTest {
 
             // GIVEN
-            coEvery { issuerRepository.getById(3L) } returns issuer
-            coEvery { brokerageRepository.getById(7L) } returns brokerage
             coEvery { ownerRepository.getFirst() } returns null
             val param = fixedIncomeParam()
 
@@ -633,7 +610,7 @@ internal class UpsertInvestmentAssetUseCaseTest {
             // THEN
             assertTrue(error.messages.containsKey("owner"))
             coVerify(exactly = 0) {
-                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any())
+                registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(any(), any(), any(), any())
             }
         }
 }

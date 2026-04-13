@@ -5,8 +5,10 @@ import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAssetType
+import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.holdings.Brokerage
 
 /**
  * Rascunho editável do formulário (strings + enums) para a UI e para comparar com o estado inicial.
@@ -14,8 +16,8 @@ import com.eferraz.entities.assets.VariableIncomeAssetType
 @Immutable
 internal data class AssetDraft(
     val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
-    val issuerId: Long? = null,
-    val brokerageId: Long? = null,
+    val issuer: Issuer? = null,
+    val brokerage: Brokerage? = null,
     val observations: String? = null,
     val fixedType: FixedIncomeAssetType? = null,
     val fixedSubType: FixedIncomeSubType? = null,
@@ -40,7 +42,7 @@ internal fun initialAssetDraft(): AssetDraft =
 internal fun AssetDraft.withCategoryPreservingIssuerAndObs(category: InvestmentCategory): AssetDraft =
     initialAssetDraft().copy(
         category = category,
-        issuerId = issuerId,
-        brokerageId = brokerageId,
+        issuer = issuer,
+        brokerage = brokerage,
         observations = observations,
     )

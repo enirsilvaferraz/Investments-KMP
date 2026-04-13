@@ -48,10 +48,10 @@ internal fun LazyGridScope.baseForm(
     item(span = { GridItemSpan(maxLineSpan) }) {
         StableExposedDropdown(
             label = "Emissor",
-            displayValue = issuers.find { it.id == draft.issuerId }?.name.orEmpty(),
+            displayValue = draft.issuer?.name.orEmpty(),
             options = issuers,
             itemLabel = { it.name },
-            onItemSelect = { issuer -> onDraftChange(draft.copy(issuerId = issuer.id)) },
+            onItemSelect = { issuer -> onDraftChange(draft.copy(issuer = issuer)) },
             error = fieldErrors["issuer"],
             required = true,
         )
@@ -77,10 +77,10 @@ internal fun LazyGridScope.baseForm(
     item(span = { GridItemSpan(maxLineSpan) }) {
         StableExposedDropdown(
             label = BROKERAGE_FIELD_LABEL,
-            displayValue = brokerages.find { it.id == draft.brokerageId }?.name.orEmpty(),
+            displayValue = draft.brokerage?.name.orEmpty(),
             options = brokerages,
             itemLabel = { it.name },
-            onItemSelect = { brokerage -> onDraftChange(draft.copy(brokerageId = brokerage.id)) },
+            onItemSelect = { brokerage -> onDraftChange(draft.copy(brokerage = brokerage)) },
             error = fieldErrors["brokerage"],
             required = true,
         )

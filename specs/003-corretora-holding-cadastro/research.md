@@ -18,13 +18,13 @@
 
 ---
 
-### 2. Corretora por **id** (catálogo), alinhado ao emissor
+### 2. Corretora (catálogo) na UI e no `Param`
 
-**Decisão:** O formulário guarda **`brokerageId: Long?`** (obrigatório para **Salvar**); o domínio valida `brokerageId > 0` e resolve `Brokerage` via **`BrokerageRepository.getById`** — método **novo** na interface `BrokerageRepository`, com implementação em `BrokerageRepositoryImpl` delegando em **`BrokerageDataSource.getById`** (também novo), usando **`BrokerageDao.getById`** já existente.
+**Decisão:** O formulário guarda **`brokerage: Brokerage?`** (linha do catálogo, obrigatória para **Salvar**). `UpsertInvestmentAssetUseCase.Param` inclui **`brokerage: Brokerage`**; o caso de uso valida `id > 0` e nome não vazio e usa **`brokerage.id`** na transação — **sem** `BrokerageRepository.getById` neste fluxo (evita consulta redundante). **`BrokerageRepository.getById`** / **`BrokerageDataSource.getById`** permanecem úteis noutros fluxos (ex. resolução por id noutros ecrãs).
 
-**Racional:** Lista do dropdown deve refletir o catálogo; seleção por id evita ambiguidade de homónimos e coincide com o padrão `issuerId` do mesmo diálogo.
+**Racional:** A UI já carregou o catálogo com `GetBrokeragesUseCase`; passar o objeto mantém coerência com o rascunho e remove ida extra à BD no cadastro.
 
-**Alternativa recusada:** Só `getByName` — já existe no porto, mas é frágil para UI por id e menos eficiente.
+**Alternativa recusada:** Só `getByName` no domínio — frágil; dupla validação só por id sem objeto — possível mas menos alinhado ao estado do formulário.
 
 ---
 
@@ -38,7 +38,7 @@
 
 ### 4. Âmbito do `UpsertInvestmentAssetUseCase`
 
-**Decisão:** **Estender** `UpsertInvestmentAssetUseCase` (e `Param` selado) com **`brokerageId: Long`** em todas as variantes (`FixedIncomeRegistration`, `VariableIncomeRegistration`, `InvestmentFundRegistration`). Após validações actuais do ativo + nova validação da corretora e do owner, delegar na operação **transaccional** ativo+holding em vez de só `assetRepository.upsert`.
+**Decisão:** **Estender** `UpsertInvestmentAssetUseCase` (e `Param` selado) com **`brokerage: Brokerage`** em todas as variantes (`FixedIncomeRegistration`, `VariableIncomeRegistration`, `InvestmentFundRegistration`). Após validações actuais do ativo + validação sintáctica da corretora (`id`, `name`) e do owner, delegar na operação **transaccional** ativo+holding em vez de só `assetRepository.upsert`.
 
 **Racional:** Mantém uma única entrada de negócio para o diálogo; concentra invariantes e testes `jvmTest` no mesmo caso de uso (princípio V). O KDoc actual que diz que **não** cria `AssetHolding` **deve** ser actualizado.
 
@@ -48,7 +48,7 @@
 
 ### 5. UI (`:features:asset-management`)
 
-**Decisão:** Carregar corretoras com **`GetBrokeragesUseCase`** (já existente) no `AssetManagementViewModel` (paralelo a `GetIssuersUseCase`). Acrescentar ao **`AssetDraft`** o campo `brokerageId: Long?`; dropdown no mesmo padrão visual dos restantes (grelha / `baseForm`); validação de UI: corretora obrigatória; estado inicial **sem** selecção (**RF-003**). Catálogo vazio: mensagem análoga à de emissores vazios, sem **Salvar** concluído.
+**Decisão:** Carregar corretoras com **`GetBrokeragesUseCase`** (já existente) no `AssetManagementViewModel` (paralelo a `GetIssuersUseCase`). Acrescentar ao **`AssetDraft`** o campo **`brokerage: Brokerage?`**; dropdown no mesmo padrão visual dos restantes (grelha / `baseForm`); validação de UI: corretora obrigatória; estado inicial **sem** selecção (**RF-003**). Catálogo vazio: mensagem análoga à de emissores vazios, sem **Salvar** concluído.
 
 **Racional:** Reutiliza stack MVI e padrões do módulo (`001`).
 

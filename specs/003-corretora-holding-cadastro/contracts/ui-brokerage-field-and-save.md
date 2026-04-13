@@ -15,24 +15,26 @@
 
 | Campo adicional | Tipo | Significado |
 |-----------------|------|-------------|
-| `brokerages` | `List<Brokerage>` | Catálogo carregado (ex.: no `init` ou `LoadIssuers` alargado a “catálogos”). |
-| `draft.brokerageId` | `Long?` | Selecção actual. |
+| `brokerages` | `List<Brokerage>` | Catálogo carregado (ex.: no `init` ou carga inicial de catálogos). |
+| `draft.issuer` | `Issuer?` | Emissor seleccionado (instância do catálogo `issuers`). |
+| `draft.brokerage` | `Brokerage?` | Corretora seleccionada (instância do catálogo). |
 
 ### 2.2 Intents
 
 | Intent | Efeito |
 |--------|--------|
 | `LoadBrokerages` (ou fusão com carga inicial) | Dispara `GetBrokeragesUseCase`; actualiza `brokerages`; em lista vazia, mensagem global coerente com **RF-005**. |
-| `DraftChanged` | Já existe; passa a incluir `brokerageId` via `AssetDraft`. |
+| `DraftChanged` | Já existe; passa a incluir `issuer` e `brokerage` via `AssetDraft`. |
 
 ### 2.3 Validação antes de `UpsertInvestmentAssetUseCase`
 
-- Se `brokerages.isEmpty()` → comportamento análogo a emissores vazios (mensagem, sem sucesso de gravação).
-- Se `draft.brokerageId == null` → erro de campo `brokerage` (obrigatório).
+- Se `issuers.isEmpty()` ou `brokerages.isEmpty()` → mensagem global e sem gravação bem-sucedida.
+- Se `draft.issuer == null` → erro de campo `issuer` (obrigatório).
+- Se `draft.brokerage == null` → erro de campo `brokerage` (obrigatório).
 
 ### 2.4 Mapeamento para o caso de uso
 
-`buildUpsertParam(AssetDraft)` passa a exigir `brokerageId` não nulo e inclui `brokerageId` em cada `UpsertInvestmentAssetUseCase.Param.*`.
+`buildUpsertParam(AssetDraft)` exige `issuer` e `brokerage` não nulos e inclui `issuer: Issuer` e `brokerage: Brokerage` em cada `UpsertInvestmentAssetUseCase.Param.*`.
 
 ## 3. Composable / layout
 

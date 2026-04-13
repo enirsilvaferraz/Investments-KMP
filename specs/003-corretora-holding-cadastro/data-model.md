@@ -8,7 +8,8 @@
 
 | Entidade | Papel nesta feature |
 |----------|---------------------|
-| `Brokerage` | Opções do dropdown; validação por `id` antes de persistir. |
+| `Issuer` | Opções do dropdown de emissor; o caso de uso recebe o **objeto** (catálogo na UI), valida `id > 0` e nome não vazio — **sem** `IssuerRepository.getById` neste fluxo. |
+| `Brokerage` | Opções do dropdown; o caso de uso recebe o **objeto** (linha do catálogo já carregada na UI), valida `id > 0` e nome não vazio, e usa `brokerage.id` na transação — **sem** `BrokerageRepository.getById` neste fluxo. |
 | `Asset` | Continua a ser construído como hoje em `UpsertInvestmentAssetUseCase` (RF, RV, fundo). |
 | `AssetHolding` | **Nova obrigação** no fluxo do diálogo: uma posição inicial por cada cadastro bem-sucedido, com `goal = null`, `asset` = ativo recém-gravado, `brokerage` = seleção, `owner` = `OwnerRepository.getFirst()`. |
 | `Owner` | Titular da posição; única fonte `getFirst()` até existir escolha de titular na UI. |
@@ -21,26 +22,29 @@ Invariantes já documentadas em **`DOMAIN.md`**: `AssetHolding` liga *quem* / *o
 
 | Campo | Tipo | Inicial | Regra |
 |-------|------|---------|--------|
-| `brokerageId` | `Long?` | `null` | Obrigatório para **Salvar**; integra deteção de “formulário alterado” vs estado inicial. |
+| `issuer` | `Issuer?` | `null` | Obrigatório para **Salvar**; integra deteção de “formulário alterado” vs estado inicial. |
+| `brokerage` | `Brokerage?` | `null` | Obrigatório para **Salvar**; integra deteção de “formulário alterado” vs estado inicial. |
 
 ### 2.2 `withCategoryPreservingIssuerAndObs`
 
-**Decisão:** Ao trocar só a categoria, **preservar** `brokerageId` tal como `issuerId` e `observations` (paridade com história P2 da spec).
+**Decisão:** Ao trocar só a categoria, **preservar** `issuer` e `brokerage` tal como `observations` (paridade com história P2 da spec).
 
 ## 3. Parâmetros do caso de uso `UpsertInvestmentAssetUseCase.Param`
 
-Cada variante selada **inclui** `brokerageId: Long` (obrigatório no construtor; validação `> 0` e existência no repositório).
+Cada variante selada **inclui** `issuer: Issuer` e `brokerage: Brokerage` (obrigatórios; validação no domínio: `id > 0`, `name` não em branco — **sem** nova leitura aos repositórios de catálogo).
 
-Campos existentes (`assetId`, `issuerId`, `observations`, …) **mantêm-se**.
+Campos existentes (`assetId`, `observations`, …) **mantêm-se**.
 
 ## 4. Validação
 
 | Camada | Regras novas |
 |--------|----------------|
-| UI | `brokerageId != null`; lista vazia → mensagem + bloqueio análogo a emissores; erros de campo com chave estável (ex. `brokerage`). |
-| Domínio | `brokerageId` resolvível via `BrokerageRepository.getById`; `OwnerRepository.getFirst() != null`; regras actuais de ativo inalteradas por categoria. |
+| UI | `issuer != null` e `brokerage != null`; listas vazias → mensagens + bloqueio; erros de campo com chaves estáveis (`issuer`, `brokerage`). |
+| Domínio | `issuer` e `brokerage` válidos (ver §3); `OwnerRepository.getFirst() != null`; regras actuais de ativo inalteradas por categoria. |
 
 ## 5. Persistência (transação)
+
+O porto `RegisterInvestmentAssetPersistence` recebe `asset`, `ownerId`, `brokerage` e `issuer`; a implementação confirma `asset.issuer == issuer` antes de gravar.
 
 Ordem dentro da transação Room:
 
@@ -60,4 +64,4 @@ Em qualquer falha antes do *commit*, nenhum dos dois efeitos deve ser visível f
 ## 7. Koin / DI
 
 - Registar implementação do *coordinator* (se for porto novo).
-- `UpsertInvestmentAssetUseCase`: dependências adicionais (`OwnerRepository`, `BrokerageRepository` ampliado, porto transaccional ou equivalente).
+- `UpsertInvestmentAssetUseCase`: `OwnerRepository`, porto transaccional (`RegisterInvestmentAssetPersistence` ou equivalente); **não** depende de `IssuerRepository` nem `BrokerageRepository` (emissor e corretora vêm no `Param`).
