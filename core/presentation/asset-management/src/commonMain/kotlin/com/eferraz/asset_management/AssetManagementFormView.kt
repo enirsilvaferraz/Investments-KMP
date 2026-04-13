@@ -35,11 +35,13 @@ import androidx.compose.ui.window.DialogProperties
 import com.eferraz.design_system.core.StableMap
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Issuer
+import com.eferraz.entities.holdings.Brokerage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AssetManagementFormView(
     issuers: List<Issuer>,
+    brokerages: List<Brokerage>,
     draft: AssetDraft,
     fieldErrors: StableMap<String, String>,
     saveError: String?,
@@ -91,7 +93,7 @@ internal fun AssetManagementFormView(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
 
-                    baseForm(draft, onCategoryChange, issuers, onDraftChange, fieldErrors)
+                    baseForm(draft, onCategoryChange, issuers, brokerages, onDraftChange, fieldErrors)
                 }
 
                 AssetManagementFormActionRow(
@@ -192,6 +194,10 @@ private fun AssetManagementFormPreviewContent() {
                     Issuer(id = 1L, name = "Banco Preview"),
                     Issuer(id = 2L, name = "Tesouro / Selic"),
                 ),
+                brokerages = listOf(
+                    Brokerage(id = 1L, name = "Corretora A"),
+                    Brokerage(id = 2L, name = "Corretora B"),
+                ),
                 draft = draft,
                 fieldErrors = StableMap(emptyMap()),
                 saveError = null,
@@ -225,6 +231,7 @@ internal fun AssetManagementFormVariableIncomePreview() {
             }
             AssetManagementFormView(
                 issuers = listOf(Issuer(id = 1L, name = "Banco Preview")),
+                brokerages = listOf(Brokerage(id = 1L, name = "Corretora Preview")),
                 draft = draft,
                 fieldErrors = StableMap(emptyMap()),
                 saveError = null,

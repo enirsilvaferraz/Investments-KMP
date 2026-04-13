@@ -28,6 +28,7 @@ public fun AssetManagementScreen(
 
     AssetManagementFormView(
         issuers = state.issuers,
+        brokerages = state.brokerages,
         draft = state.draft,
         fieldErrors = StableMap(state.fieldErrors),
         saveError = state.saveError,

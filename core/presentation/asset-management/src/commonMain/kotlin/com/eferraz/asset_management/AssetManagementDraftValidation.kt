@@ -7,6 +7,9 @@ internal fun validateAssetDraft(d: AssetDraft): Map<String, String> {
     if (d.issuerId == null) {
         e["issuer"] = "Selecione um emissor"
     }
+    if (d.brokerageId == null) {
+        e["brokerage"] = "Selecione uma corretora"
+    }
     when (d.category) {
         InvestmentCategory.FIXED_INCOME -> e.putAll(validateFixedIncomeDraft(d))
         InvestmentCategory.VARIABLE_INCOME -> e.putAll(validateVariableIncomeDraft(d))

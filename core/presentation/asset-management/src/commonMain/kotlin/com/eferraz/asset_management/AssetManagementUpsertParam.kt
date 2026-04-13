@@ -5,10 +5,11 @@ import com.eferraz.usecases.UpsertInvestmentAssetUseCase
 
 internal fun buildUpsertParam(d: AssetDraft): UpsertInvestmentAssetUseCase.Param? {
     val issuerId = d.issuerId ?: return null
+    val brokerageId = d.brokerageId ?: return null
     return when (d.category) {
-        InvestmentCategory.FIXED_INCOME -> buildFixedIncomeParam(d, issuerId)
-        InvestmentCategory.VARIABLE_INCOME -> buildVariableIncomeParam(d, issuerId)
-        InvestmentCategory.INVESTMENT_FUND -> buildFundParam(d, issuerId)
+        InvestmentCategory.FIXED_INCOME -> buildFixedIncomeParam(d, issuerId, brokerageId)
+        InvestmentCategory.VARIABLE_INCOME -> buildVariableIncomeParam(d, issuerId, brokerageId)
+        InvestmentCategory.INVESTMENT_FUND -> buildFundParam(d, issuerId, brokerageId)
     }
 }
 
@@ -20,7 +21,7 @@ private fun hasCompleteFixedIncomeInputs(d: AssetDraft): Boolean {
     return exp != null && d.fixedYield.orEmpty().toDoubleOrNull() != null
 }
 
-private fun buildFixedIncomeParam(d: AssetDraft, issuerId: Long): UpsertInvestmentAssetUseCase.Param? {
+private fun buildFixedIncomeParam(d: AssetDraft, issuerId: Long, brokerageId: Long): UpsertInvestmentAssetUseCase.Param? {
     if (!hasCompleteFixedIncomeInputs(d)) return null
     val type = d.fixedType!!
     val sub = d.fixedSubType!!
@@ -32,6 +33,7 @@ private fun buildFixedIncomeParam(d: AssetDraft, issuerId: Long): UpsertInvestme
         assetId = 0L,
         issuerId = issuerId,
         observations = d.observations.takeIf { it.isNullOrBlank().not() },
+        brokerageId = brokerageId,
         type = type,
         subType = sub,
         expirationDate = exp,
@@ -41,13 +43,14 @@ private fun buildFixedIncomeParam(d: AssetDraft, issuerId: Long): UpsertInvestme
     )
 }
 
-private fun buildVariableIncomeParam(d: AssetDraft, issuerId: Long): UpsertInvestmentAssetUseCase.Param? {
+private fun buildVariableIncomeParam(d: AssetDraft, issuerId: Long, brokerageId: Long): UpsertInvestmentAssetUseCase.Param? {
     val t = d.variableType
     return if (t != null) {
         UpsertInvestmentAssetUseCase.Param.VariableIncomeRegistration(
             assetId = 0L,
             issuerId = issuerId,
             observations = d.observations.takeIf { !it.isNullOrBlank() },
+            brokerageId = brokerageId,
             assetName = d.variableName.orEmpty(),
             type = t,
             ticker = d.variableTicker.orEmpty(),
@@ -66,7 +69,7 @@ private fun hasCompleteFundInputs(d: AssetDraft): Boolean {
     return days != null && days > 0
 }
 
-private fun buildFundParam(d: AssetDraft, issuerId: Long): UpsertInvestmentAssetUseCase.Param? {
+private fun buildFundParam(d: AssetDraft, issuerId: Long, brokerageId: Long): UpsertInvestmentAssetUseCase.Param? {
     if (!hasCompleteFundInputs(d)) return null
     val ft = d.fundType!!
     val fl = d.fundLiquidity!!
@@ -76,6 +79,7 @@ private fun buildFundParam(d: AssetDraft, issuerId: Long): UpsertInvestmentAsset
         assetId = 0L,
         issuerId = issuerId,
         observations = d.observations.takeIf { !it.isNullOrBlank() },
+        brokerageId = brokerageId,
         name = d.fundName.orEmpty(),
         type = ft,
         liquidity = fl,

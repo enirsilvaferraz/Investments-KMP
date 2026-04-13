@@ -15,6 +15,7 @@ import com.eferraz.entities.assets.VariableIncomeAssetType
 internal data class AssetDraft(
     val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
     val issuerId: Long? = null,
+    val brokerageId: Long? = null,
     val observations: String? = null,
     val fixedType: FixedIncomeAssetType? = null,
     val fixedSubType: FixedIncomeSubType? = null,
@@ -40,5 +41,6 @@ internal fun AssetDraft.withCategoryPreservingIssuerAndObs(category: InvestmentC
     initialAssetDraft().copy(
         category = category,
         issuerId = issuerId,
+        brokerageId = brokerageId,
         observations = observations,
     )

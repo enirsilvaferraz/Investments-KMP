@@ -19,6 +19,9 @@ internal class BrokerageDataSourceImpl(
             .firstOrNull { it.name.equals(name, ignoreCase = true) }
             ?.toModel()
 
+    override suspend fun getById(id: Long): Brokerage? =
+        brokerageDao.getById(id)?.toModel()
+
     private fun BrokerageEntity.toModel() =
         Brokerage(
             id = id,

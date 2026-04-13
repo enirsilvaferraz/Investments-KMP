@@ -4,8 +4,7 @@ public enum class FixedIncomeSubType {
     CDB,
     LCI,
     LCA,
-    CRA,
-    CRI,
+    LIG,
     DEBENTURE,
     SELIC,
     PRECATORIO

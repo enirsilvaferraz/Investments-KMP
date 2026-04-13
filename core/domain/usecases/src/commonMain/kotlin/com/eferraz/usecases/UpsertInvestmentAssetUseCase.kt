@@ -1,5 +1,6 @@
 package com.eferraz.usecases
 
+import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
@@ -10,9 +11,12 @@ import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.holdings.Owner
 import com.eferraz.usecases.exceptions.ValidateException
-import com.eferraz.usecases.repositories.AssetRepository
+import com.eferraz.usecases.repositories.BrokerageRepository
 import com.eferraz.usecases.repositories.IssuerRepository
+import com.eferraz.usecases.repositories.OwnerRepository
+import com.eferraz.usecases.repositories.RegisterInvestmentAssetPersistence
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDate
@@ -24,12 +28,15 @@ import kotlin.time.ExperimentalTime
 
 /**
  * Persiste um ativo a partir do diálogo de cadastro: emissor **apenas** por id de catálogo (**RF-012**).
- * Não cria nem actualiza [com.eferraz.entities.holdings.AssetHolding] (corretora/meta fora deste fluxo).
+ * Cria também a [com.eferraz.entities.holdings.AssetHolding] inicial (corretora obrigatória, meta nula)
+ * na mesma transação que o ativo (cadastro via diálogo — **RF-004**, **RF-007**).
  */
 @Factory
 public class UpsertInvestmentAssetUseCase(
-    private val assetRepository: AssetRepository,
     private val issuerRepository: IssuerRepository,
+    private val brokerageRepository: BrokerageRepository,
+    private val ownerRepository: OwnerRepository,
+    private val registerInvestmentAssetPersistence: RegisterInvestmentAssetPersistence,
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<UpsertInvestmentAssetUseCase.Param, Long>(context) {
 
@@ -38,11 +45,13 @@ public class UpsertInvestmentAssetUseCase(
         public abstract val assetId: Long
         public abstract val issuerId: Long
         public abstract val observations: String?
+        public abstract val brokerageId: Long
 
         public data class FixedIncomeRegistration(
             override val assetId: Long,
             override val issuerId: Long,
             override val observations: String?,
+            override val brokerageId: Long,
             public val type: FixedIncomeAssetType,
             public val subType: FixedIncomeSubType,
             public val expirationDate: LocalDate,
@@ -55,6 +64,7 @@ public class UpsertInvestmentAssetUseCase(
             override val assetId: Long,
             override val issuerId: Long,
             override val observations: String?,
+            override val brokerageId: Long,
             public val assetName: String,
             public val type: VariableIncomeAssetType,
             public val ticker: String,
@@ -65,6 +75,7 @@ public class UpsertInvestmentAssetUseCase(
             override val assetId: Long,
             override val issuerId: Long,
             override val observations: String?,
+            override val brokerageId: Long,
             public val name: String,
             public val type: InvestmentFundAssetType,
             public val liquidity: Liquidity,
@@ -77,6 +88,8 @@ public class UpsertInvestmentAssetUseCase(
     override suspend fun execute(param: Param): Long {
 
         val issuer = resolveIssuerOrThrow(param)
+        resolveBrokerageOrThrow(param)
+        val owner = resolveOwnerOrThrow()
 
         val specificErrors: Map<String, String> = when (param) {
             is Param.FixedIncomeRegistration -> validateFixedIncome(param)
@@ -88,7 +101,12 @@ public class UpsertInvestmentAssetUseCase(
             throw ValidateException(specificErrors)
         }
 
-        return persistAsset(param, issuer)
+        val asset = buildAsset(param, issuer)
+        return registerInvestmentAssetPersistence.persistNewAssetAndInitialHolding(
+            asset = asset,
+            ownerId = owner.id,
+            brokerageId = param.brokerageId,
+        )
     }
 
     private suspend fun resolveIssuerOrThrow(param: Param): Issuer {
@@ -108,9 +126,35 @@ public class UpsertInvestmentAssetUseCase(
         )
     }
 
-    private suspend fun persistAsset(param: Param, issuer: Issuer): Long {
+    private suspend fun resolveBrokerageOrThrow(param: Param) {
 
-        val asset = when (param) {
+        val brokerage = when {
+            param.brokerageId <= 0L -> null
+            else -> brokerageRepository.getById(param.brokerageId)
+        }
+
+        if (brokerage == null) {
+            throw ValidateException(
+                mapOf(
+                    "brokerage" to when {
+                        param.brokerageId <= 0L -> "Selecione uma corretora"
+                        else -> "Corretora não encontrada no catálogo"
+                    },
+                ),
+            )
+        }
+    }
+
+    private suspend fun resolveOwnerOrThrow(): Owner {
+
+        val owner = ownerRepository.getFirst()
+        return owner ?: throw ValidateException(
+            mapOf("owner" to "Não há titular configurado. Registe um titular antes de guardar."),
+        )
+    }
+
+    private fun buildAsset(param: Param, issuer: Issuer): Asset =
+        when (param) {
 
             is Param.FixedIncomeRegistration -> FixedIncomeAsset(
                 id = param.assetId,
@@ -145,9 +189,6 @@ public class UpsertInvestmentAssetUseCase(
                 observations = param.observations,
             )
         }
-
-        return assetRepository.upsert(asset)
-    }
 
     @OptIn(ExperimentalTime::class)
     private fun validateFixedIncome(param: Param.FixedIncomeRegistration): Map<String, String> {

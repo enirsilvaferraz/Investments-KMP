@@ -14,4 +14,7 @@ internal class BrokerageRepositoryImpl(
 
     override suspend fun getByName(name: String) =
         dataSource.getByName(name)
+
+    override suspend fun getById(id: Long) =
+        dataSource.getById(id)
 }

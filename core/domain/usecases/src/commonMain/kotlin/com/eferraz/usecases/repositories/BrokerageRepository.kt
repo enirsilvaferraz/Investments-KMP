@@ -5,4 +5,5 @@ import com.eferraz.entities.holdings.Brokerage
 public interface BrokerageRepository {
     public suspend fun getAll(): List<Brokerage>
     public suspend fun getByName(name: String): Brokerage?
+    public suspend fun getById(id: Long): Brokerage?
 }
