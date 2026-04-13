@@ -12,6 +12,9 @@ internal class IssuerRepositoryImpl(
     override suspend fun getAll() =
         dataSource.getAll()
 
+    override suspend fun getById(id: Long) =
+        dataSource.getById(id)
+
     override suspend fun getByName(name: String) =
         dataSource.getByName(name)
 

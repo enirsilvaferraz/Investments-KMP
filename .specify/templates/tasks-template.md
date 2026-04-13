@@ -12,11 +12,13 @@ description: "Modelo de lista de tarefas para implementação de features (Inves
 
 **Coerência:** Se uma tarefa alterar código com impacto em domínio ou convenções, incluir subtarefas ou critérios de conclusão para atualizar `*.md`, `.specify/` ou `.cursor*` quando aplicável (princípio IX).
 
-**Usecases:** Tarefas que alterem **`core/domain/usecases/`** **devem** incluir subtarefas de teste em `:usecases` (`jvmTest`) no mesmo lote de trabalho (princípio V).
+**Usecases:** Tarefas que alterem **`core/domain/usecases/`** **devem** incluir subtarefas de teste em **`:domain:usecases`** (`jvmTest`) no mesmo lote de trabalho (princípio V).
 
-**Kotlin (`explicitApi`):** Tarefas que adicionem ou alterem ficheiros **`.kt`** em módulos com convenção **explicitApi** **devem** respeitar **`.cursor/rules/explicit-api.mdc`** (modificadores explícitos; visibilidade mínima — princípio IV).
+**Kotlin (`explicitApi`):** Tarefas que adicionem ou alterem ficheiros **`.kt`** em módulos com convenção **explicitApi** **devem** respeitar **`~/.cursor/rules/explicit-api.mdc`** (modificadores explícitos; visibilidade mínima — princípio IV).
 
-**Testes:** Quando existirem, **devem** seguir **`.cursor/rules/test-patterns.mdc`** (inglês; nomes **GIVEN / WHEN / THEN**; **KDoc**; **`// GIVEN` / `// WHEN` / `// THEN`** no corpo quando aplicável (**linha em branco** antes de cada marcador); **MockK** para colaboradores externos quando aplicável; **objetos criados no próprio teste** — **evitar** *factories* de teste para código novo). Os exemplos abaixo incluem tarefas de teste. Testes são **opcionais** — incluir apenas se a especificação da feature pedir ou a constitution exigir evidência para a lógica.
+**Compose (`@Preview`):** Pré-visualizações **devem** ficar **no mesmo ficheiro** que o composable ou ecrã que ilustram; **não** criar ficheiros só para previews (princípio VI; `.cursorrules`).
+
+**Testes:** Quando existirem, **devem** seguir **`~/.cursor/rules/test-patterns.mdc`** (inglês; nomes **GIVEN / WHEN / THEN**; **KDoc**; **`// GIVEN` / `// WHEN` / `// THEN`** no corpo quando aplicável (**linha em branco** antes de cada marcador); **MockK** para colaboradores externos quando aplicável; **objetos criados no próprio teste** — **evitar** *factories* de teste para código novo). Os exemplos abaixo incluem tarefas de teste. Testes são **opcionais** — incluir apenas se a especificação da feature pedir ou a constitution exigir evidência para a lógica.
 
 **Organização:** Tarefas agrupadas por história de utilizador para permitir implementação e teste independentes.
 
@@ -28,12 +30,12 @@ description: "Modelo de lista de tarefas para implementação de features (Inves
 
 ## Convenções de caminhos
 
-- **Investments-KMP (KMP):** `core/domain/entity/`, `core/domain/usecases/`, `core/data/`, `core/presentation/` — usar caminhos do `plan.md` e nomes Gradle (`:entity`, `:usecases`, …).
+- **Investments-KMP (KMP):** `core/domain/entity/`, `core/domain/usecases/`, `core/data/`, `core/presentation/` — usar caminhos do `plan.md` e nomes Gradle reais (ex.: **`:domain:entity`**, **`:domain:usecases`**, **`:features:*`**, **`:data:*`**, **`:apps:*`**), confirmados com `./gradlew projects`.
 - **Projeto único (outros):** `src/`, `tests/` na raiz
 - **Web:** `backend/src/`, `frontend/src/`
 - Ajustar conforme a estrutura definida em `plan.md`
 
-**Tarefas de teste:** Incluir quando a spec ou a constitution exigirem evidência automatizada para domínio ou casos de uso (ver `.cursor/rules/test-patterns.mdc`).
+**Tarefas de teste:** Incluir quando a spec ou a constitution exigirem evidência automatizada para domínio ou casos de uso (ver `~/.cursor/rules/test-patterns.mdc`).
 
 <!--
   ============================================================================

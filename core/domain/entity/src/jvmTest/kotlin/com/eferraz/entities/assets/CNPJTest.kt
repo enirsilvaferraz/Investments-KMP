@@ -1,4 +1,4 @@
-package com.eferraz.entities.value
+package com.eferraz.entities.assets
 
 import com.eferraz.entities.assets.CNPJ
 import kotlin.test.Test
@@ -64,6 +64,18 @@ class CNPJTest {
         // WHEN / THEN
         assertFailsWith<IllegalArgumentException> {
             CNPJ("")
+        }
+    }
+
+    /**
+     * Null string is rejected.
+     */
+    @Test
+    fun `GIVEN null string THEN throws IllegalArgumentException`() {
+
+        // WHEN / THEN
+        assertFailsWith<IllegalArgumentException> {
+            CNPJ(null)
         }
     }
 

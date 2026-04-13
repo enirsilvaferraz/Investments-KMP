@@ -1,7 +1,7 @@
 package com.eferraz.network.datasources
 
 import com.eferraz.entities.holdings.StockQuoteHistory
-import com.eferraz.network.TokenConfig
+import com.eferraz.entities.runtime.RuntimeConfig
 import com.eferraz.network.core.ClientConfig
 import com.eferraz.network.responses.BrApiQuoteResponse
 import com.eferraz.network.responses.QuoteResult
@@ -25,7 +25,7 @@ internal class BrApiQuoteDataSourceImpl(
         val url = "https://brapi.dev/api/quote/$ticker"
 
         return clientConfig.client.get(url) {
-            header(HttpHeaders.Authorization, "Bearer ${TokenConfig.BRAPI_TOKEN}")
+            header(HttpHeaders.Authorization, "Bearer ${RuntimeConfig.BRAPI_TOKEN}")
         }.body<BrApiQuoteResponse>().results.first().toModel()
     }
 
@@ -39,7 +39,7 @@ internal class BrApiQuoteDataSourceImpl(
         val url = "https://brapi.dev/api/quote/$ticker?range=$range&interval=$interval"
 
         return clientConfig.client.get(url) {
-            header(HttpHeaders.Authorization, "Bearer ${TokenConfig.BRAPI_TOKEN}")
+            header(HttpHeaders.Authorization, "Bearer ${RuntimeConfig.BRAPI_TOKEN}")
         }.body<BrApiQuoteResponse>().results.first().toModel(referenceDate)
     }
 

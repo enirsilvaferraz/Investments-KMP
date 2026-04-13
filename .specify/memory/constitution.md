@@ -1,12 +1,11 @@
 <!--
   Relatório de impacto (sync)
-  Versão: 1.12.2 → 1.12.3
-  Motivo do PATCH: redução de redundância (intro vs. precedência; IV visibilidade; V testes + `.mdc`);
-  secção «Orientação de decisões técnicas» condensada; sem alteração normativa de fundo.
+  Versão: 1.13.1 → 1.13.2
+  Motivo do PATCH: V — nome Gradle `:domain:usecases`; VI — pré-visualizações Compose no mesmo ficheiro.
 
-  Princípios alterados: IV, V (redação)
+  Princípios alterados: V, VI
 
-  Templates: nenhum (texto anterior já alinhado)
+  Templates: plan-template, tasks-template (alinhamento)
 
   Pendências: nenhuma
 -->
@@ -28,6 +27,8 @@ Aplicação de **carteira de investimentos**. O modelo em **`core/domain/entity/
 ### II. Arquitetura (Kotlin Multiplatform)
 
 **DEVE** respeitar módulos **`entity`**, **`usecases`**, **`data`**, **`presentation`**. Dependências **apontam para dentro**; o domínio **NÃO DEVE** depender de UI nem de detalhes de infraestrutura.
+
+Novos módulos de apresentação sob **`:features:*`** com Compose Multiplatform (exceto **`design-system`**) **DEVEM** incluir em **`commonMain`** o ficheiro **`*Contract.kt`** no pacote raiz do módulo e a *Composable* **`*Screen(modifier: Modifier)`**, e **DEVEM** declarar **`implementation(projects.features.<accessorCamelCase>)`** correspondente em **`core/apps/umbrellaApp/build.gradle.kts`** no mesmo ciclo, conforme **`~/.cursor/rules/kmp-module-patterns.mdc`** (*Arranque — ficheiro `*Contract`* e *umbrellaApp*).
 
 ### III. Build e verificação contínua
 
@@ -56,29 +57,31 @@ Escolher a **visibilidade mais restrita** que ainda permita uso legítimo **no g
 
 **`expect` / `actual`:** mesma visibilidade na declaração `expect` e em **todas** as `actual`.
 
-**Cursor:** **`.cursor/rules/explicit-api.mdc`** (IX); **resto de IV:** em dúvida, preferir a solução **mais simples de ler, testar e alterar** sem alargar API nem quebrar módulos.
+**Cursor:** **`~/.cursor/rules/explicit-api.mdc`** (IX); **resto de IV:** em dúvida, preferir a solução **mais simples de ler, testar e alterar** sem alargar API nem quebrar módulos.
 
 ### V. Padrões de teste e evidência
 
-**Referência operacional:** **`.cursor/rules/test-patterns.mdc`** (nomenclatura, KDoc, `// GIVEN`/`// WHEN`/`// THEN`, source sets, `Double`, corrotinas, MockK, dados inline). Testes **novos ou alterados** **DEVEM** seguir esse ficheiro; desvios **NÃO DEVEM** ocorrer sem justificativa no PR; mudança permanente **DEVE** atualizar o `.mdc` (IX).
+**Referência operacional:** **`~/.cursor/rules/test-patterns.mdc`** (pacote espelhado da unidade sob teste só em *source set* de teste, nomenclatura, KDoc, `// GIVEN`/`// WHEN`/`// THEN`, source sets, `Double`, corrotinas, MockK, dados inline). Testes **novos ou alterados** **DEVEM** seguir esse ficheiro; desvios **NÃO DEVEM** ocorrer sem justificativa no PR; mudança permanente **DEVE** atualizar o `.mdc` (IX).
 
+- **Pacote:** ficheiros `*Test.kt` **DEVEM** declarar o **mesmo** `package` que a classe, object ou ficheiro de produção sob teste (unidade principal); o código **DEVE** residir **apenas** no *source set* de teste do módulo. **Não** colocar testes em *main* de produção.
 - **Idioma (inglês):** em `*Test.kt`, texto descritivo do teste (classe, métodos em *backticks*, comentários de cenário, asserções **definidas no teste**) **DEVE** ser **inglês**. Mensagens de exceção de **produção** **não** estão cobertas. Legado em PT **DEVERIA** migrar ao tocar no ficheiro.
 - **Nomes GIVEN / WHEN / THEN:** métodos **novos ou alterados** **DEVEM** usar **GIVEN**, **WHEN**, **THEN** em maiúsculas no nome; **GIVEN … WHEN … THEN …** ou **GIVEN … THEN …** conforme haja passo intermediário. **Não** usar estilo `should …` / `when …` em testes novos ou alterados; legado **DEVERIA** migrar ao tocar no ficheiro.
 - **KDoc e corpo:** **DEVERIA** KDoc em inglês acima de `@Test`; **DEVERIA** `// GIVEN` / `// WHEN` / `// THEN` (ou só GIVEN/THEN) com **linha em branco** antes de cada marcador. Testes triviais: mantém KDoc; comentários de secção **podem** omitir-se se só duplicarem o nome.
 - **MockK:** para colaboradores externos à unidade sob teste (ports, repos, *clients*, etc.) **DEVE** usar-se **MockK**, salvo o teste exercitar só funções puras, valores de domínio ou código sem colaboradores substituíveis. **Não** acoplar a infra real (rede, BD, FS).
 - **Dados no teste:** **DEVERIA** evitar *factories* centralizadas (`TestDataFactory`, etc.) e *helpers* `private` no ficheiro; **NÃO DEVE** acrescentar **novos** métodos a factories existentes para código novo; exceções mínimas (ex.: `@BeforeTest`) **DEVERIAM** constar no PR.
-- **Módulo `usecases` (`core/domain/usecases/`):** **toda** alteração a ficheiros **`.kt`** ou **`.kts`** sob esse caminho que **modifique código executável** (lógica de casos de uso, interfaces de repositório, DTOs de aplicação, DI, etc.) **DEVE** ser acompanhada, **no mesmo PR**, de **testes unitários** novos ou de **testes existentes atualizados** no módulo Gradle **`:usecases`** (`src/jvmTest/`), em conformidade com `.cursor/rules/test-patterns.mdc`. **NÃO DEVE** integrar-se código em `usecases` sem cobertura de teste apropriada quando a mudança for **testável** (regra geral: se compila e comporta-se diferente, há teste).
+- **Módulo `usecases` (`core/domain/usecases/`):** **toda** alteração a ficheiros **`.kt`** ou **`.kts`** sob esse caminho que **modifique código executável** (lógica de casos de uso, interfaces de repositório, DTOs de aplicação, DI, etc.) **DEVE** ser acompanhada, **no mesmo PR**, de **testes unitários** novos ou de **testes existentes atualizados** no módulo Gradle **`:domain:usecases`** (`src/jvmTest/`), em conformidade com `~/.cursor/rules/test-patterns.mdc`. **NÃO DEVE** integrar-se código em `usecases` sem cobertura de teste apropriada quando a mudança for **testável** (regra geral: se compila e comporta-se diferente, há teste).
 - **Exceções ao parágrafo anterior:** alterações **apenas** a comentários/KDoc **sem** mudar código executável; alterações **apenas** a `build.gradle.kts` do módulo **sem** mudar dependências de teste ou fontes; renomeações mecânicas que **exijam** só atualização espelhada nos testes — neste último caso **DEVE** atualizar-se **também** os ficheiros `*Test.kt` afetados no mesmo PR.
 - **Lógica crítica:** alterações a cálculos financeiros, invariantes de domínio ou contratos de casos de uso **DEVERIAM** incluir ou atualizar testes automatizados no nível adequado (`entity`, `usecases`, `composeApp` conforme o caso), **sempre** respeitando os parágrafos anteriores quando houver teste.
 - **Rastreio:** critérios de aceitação na spec **DEVERIAM** ser verificáveis por teste automatizado ou por passos de verificação explícitos na tarefa.
 
-**Orientação técnica:** ao planear uma feature, identificar **o que prova** que funciona (teste unitário alinhado a `test-patterns.mdc`, ou verificação manual documentada); **NÃO DEVE** fundar segurança só em testes manuais ad hoc para regras de negócio repetíveis. Para `usecases`, validar com `./gradlew :usecases:jvmTest` antes de concluir.
+**Orientação técnica:** ao planear uma feature, identificar **o que prova** que funciona (teste unitário alinhado a `test-patterns.mdc`, ou verificação manual documentada); **NÃO DEVE** fundar segurança só em testes manuais ad hoc para regras de negócio repetíveis. Para `usecases`, validar com `./gradlew :domain:usecases:jvmTest` antes de concluir.
 
 ### VI. Consistência da experiência do utilizador
 
 - **Dados financeiros:** formatação de valores, percentagens e datas **DEVERIA** reutilizar componentes e helpers existentes (inputs, tabelas, tema) para evitar formatos contraditórios entre ecrãs.
 - **Estados:** carregamento, vazio e erro **DEVERIAM** ser tratados de forma previsível; mensagens **DEVERIAM** ser compreensíveis para o utilizador final (sem detalhes técnicos internos em diálogos).
 - **Acessibilidade:** **DEVERIA** manter contraste e alvos tocáveis adequados ao padrão já usado no Compose; novos componentes críticos **DEVERIAM** seguir o mesmo nível de cuidado.
+- **Pré-visualizações Compose (`@Preview`):** funções de pré-visualização **DEVEM** residir **no mesmo ficheiro** `.kt` que o composable, ecrã ou formulário que representam. **NÃO DEVE** criar ficheiros dedicados exclusivamente a previews (ex.: `*Previews.kt`). **DEVERIA** declarar essas funções como `internal` quando as regras de análise estática do projeto o exigirem (superfície pública mínima — alinhado ao IV).
 
 **Orientação técnica:** antes de criar um componente novo de formulário ou lista, **DEVERIA** verificar-se reutilização no *design system* ou em ecrãs semelhantes; desvios **DEVERIAM** ser raros e documentados.
 
@@ -107,7 +110,7 @@ Alterações de código **NÃO DEVEM** deixar o repositório em estado em que **
 
 - **Documentos Markdown (`*.md`):** quando a alteração **mudar** modelo de domínio, invariantes, regras de negócio, fluxos ou decisões já descritas, **DEVE** atualizar-se o **Markdown aplicável** na **mesma alteração** ou no **mesmo PR** (preferencialmente): em especial **`DOMAIN.md`**, ficheiros em **`docs/`**, e specs/planos/tarefas em **`specs/`** que estejam ativos para a feature. Se não couber no mesmo PR, **DEVE** existir **PR de seguimento imediato** só para documentação, referenciado no original.
 - **Specify (`.specify/`):** quando a alteração **mudar** princípios de governança, gates de plano, formato de artefatos ou convenções que os **templates** ou **`memory`** formalizam, **DEVE** atualizar-se **`.specify/memory/constitution.md`** e, se necessário, **`.specify/templates/**`, scripts em **`.specify/scripts/`** e **`init-options.json`**, para que comandos `/speckit.*` e novas features **não herdem** texto obsoleto.
-- **Configuração da IA (Cursor e afins):** quando a alteração **mudar** regras operacionais já espelhadas em **`.cursorrules`**, **`.cursor/rules/*.mdc`** (ex.: **`explicit-api.mdc`**, **`test-patterns.mdc`**) ou comandos **`.cursor/commands/`** personalizados ao projeto (build, testes, domínio), **DEVE** atualizar-se o **ficheiro correspondente** na **mesma alteração** ou no **mesmo PR**, de modo que agentes e revisores **leiam** a mesma regra que o código exige.
+- **Configuração da IA (Cursor e afins):** quando a alteração **mudar** regras operacionais já espelhadas em **`.cursorrules`**, **`~/.cursor/rules/*.mdc`** (ex.: **`explicit-api.mdc`**, **`test-patterns.mdc`**) ou comandos **`.cursor/commands/`** personalizados ao projeto (build, testes, domínio), **DEVE** atualizar-se o **ficheiro correspondente** na **mesma alteração** ou no **mesmo PR**, de modo que agentes e revisores **leiam** a mesma regra que o código exige.
 
 **Âmbito:** alterações **puramente internas** (refactor sem mudança de comportamento, correção de *typo*, formatação) **NÃO EXIGEM** atualização de documentos nem de configuradores **salvo** se corrigirem informação **explicitamente falsa** na documentação.
 
@@ -119,7 +122,7 @@ Alterações de código **NÃO DEVEM** deixar o repositório em estado em que **
 
 1. **Spec e plano:** decisões relevantes **DEVERIAM** ser legíveis à luz desta constitution (domínio, qualidade, testes, UX, desempenho, idioma).
 2. **Trade-offs:** sacrificar qualidade ou testes **DEVERIA** ficar explícito no plano ou PR (risco, follow-up).
-3. **Implementação:** **`.cursorrules`** (build); **`.cursor/rules/explicit-api.mdc`** (IV); **`.cursor/rules/test-patterns.mdc`** (V); resto conforme princípios II–IV.
+3. **Implementação:** **`.cursorrules`** (build); **`~/.cursor/rules/explicit-api.mdc`** (IV); **`~/.cursor/rules/test-patterns.mdc`** (V); **`~/.cursor/rules/kmp-module-patterns.mdc`** (II, estrutura Gradle / `build-logic`); resto conforme princípios II–IV.
 4. **Features financeiras:** cruzar **`DOMAIN.md`** e documentação quando cálculos ou persistência mudarem.
 5. **Coerência (IX):** `*.md` aplicável, `.specify/` e `.cursor*` no mesmo ciclo quando o código o exigir.
 
@@ -132,10 +135,11 @@ Alterações de código **NÃO DEVEM** deixar o repositório em estado em que **
 1. Constitution  
 2. **`DOMAIN.md`** (modelo de domínio)  
 3. **`.cursorrules`**  
-4. **`.cursor/rules/explicit-api.mdc`** (visibilidade e `explicitApi`)  
-5. **`.cursor/rules/test-patterns.mdc`** (detalhe de testes)  
-6. **`.specify/memory/`** e templates (governança Spec Kit)  
-7. Acordos de equipa em PRs  
+4. **`~/.cursor/rules/explicit-api.mdc`** (visibilidade e `explicitApi`)  
+5. **`~/.cursor/rules/test-patterns.mdc`** (detalhe de testes)  
+6. **`~/.cursor/rules/kmp-module-patterns.mdc`** (novos módulos KMP / plugins `foundation`)  
+7. **`.specify/memory/`** e templates (governança Spec Kit)  
+8. Acordos de equipa em PRs  
 
 ### Versionamento desta constitution
 
@@ -148,4 +152,4 @@ Alterações de código **NÃO DEVEM** deixar o repositório em estado em que **
 - Alterações **DEVERIAM** atualizar **Version** e **Last Amended** (data ISO **YYYY-MM-DD**).
 - PRs que toquem domínio, **`usecases`**, API entre módulos, **testes**, UX crítica, desempenho, **documentação**, **`.specify/`** ou **regras de IA** **DEVERIAM** referir os princípios tocados (incl. **IV**–**V**, **IX**, **VIII** quando aplicável).
 
-**Version**: 1.12.3 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-03-28
+**Version**: 1.13.2 | **Ratified**: 2026-03-28 | **Last Amended**: 2026-04-09

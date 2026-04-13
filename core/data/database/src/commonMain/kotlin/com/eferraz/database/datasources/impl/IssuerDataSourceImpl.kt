@@ -14,6 +14,9 @@ internal class IssuerDataSourceImpl(
     override suspend fun getAll(): List<Issuer> =
         issuerDao.getAll().map { it.toModel() }
 
+    override suspend fun getById(id: Long): Issuer? =
+        issuerDao.getById(id)?.toModel()
+
     override suspend fun getByName(name: String): Issuer? =
         issuerDao.getByName(name)?.toModel()
 
