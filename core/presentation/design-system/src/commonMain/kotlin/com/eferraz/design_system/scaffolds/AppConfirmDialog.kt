@@ -22,7 +22,7 @@ public fun AppConfirmDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = DialogProperties(usePlatformDefaultWidth = true),
         title = { Text(title) },
         text = { Text(description) },
         confirmButton = {
