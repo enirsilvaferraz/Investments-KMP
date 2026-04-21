@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -115,7 +116,13 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                 GoalsMonitoringRoute()
             }
 
-            entry<AssetManagementRouting>(metadata = DialogSceneStrategy.dialog()) {
+            entry<AssetManagementRouting>(metadata = DialogSceneStrategy.dialog(
+                DialogProperties(
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false,
+                    usePlatformDefaultWidth = true
+                )
+            )) {
                 AssetManagementScreen(
                     onDismiss = { backStack.removeLastOrNull() },
                 )

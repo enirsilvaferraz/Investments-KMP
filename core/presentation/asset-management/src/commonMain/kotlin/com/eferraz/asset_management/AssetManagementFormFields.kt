@@ -9,6 +9,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.asLabel
 import com.eferraz.design_system.components.dropdown.StableExposedDropdown
 import com.eferraz.design_system.core.StableMap
@@ -22,11 +23,13 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.holdings.Brokerage
 
 internal fun LazyGridScope.baseForm(
     draft: AssetDraft,
     onCategoryChange: (InvestmentCategory) -> Unit,
     issuers: List<Issuer>,
+    brokerages: List<Brokerage>,
     onDraftChange: (AssetDraft) -> Unit,
     fieldErrors: StableMap<String, String>,
 ) {
@@ -45,10 +48,10 @@ internal fun LazyGridScope.baseForm(
     item(span = { GridItemSpan(maxLineSpan) }) {
         StableExposedDropdown(
             label = "Emissor",
-            displayValue = issuers.find { it.id == draft.issuerId }?.name.orEmpty(),
+            displayValue = draft.issuer?.name.orEmpty(),
             options = issuers,
             itemLabel = { it.name },
-            onItemSelect = { issuer -> onDraftChange(draft.copy(issuerId = issuer.id)) },
+            onItemSelect = { issuer -> onDraftChange(draft.copy(issuer = issuer)) },
             error = fieldErrors["issuer"],
             required = true,
         )
@@ -68,6 +71,18 @@ internal fun LazyGridScope.baseForm(
             placeholder = { Text("Ex.: estratégia, lembretes, ISIN…") },
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
+        )
+    }
+
+    item(span = { GridItemSpan(maxLineSpan) }) {
+        StableExposedDropdown(
+            label = BROKERAGE_FIELD_LABEL,
+            displayValue = draft.brokerage?.name.orEmpty(),
+            options = brokerages,
+            itemLabel = { it.name },
+            onItemSelect = { brokerage -> onDraftChange(draft.copy(brokerage = brokerage)) },
+            error = fieldErrors["brokerage"],
+            required = true,
         )
     }
 }

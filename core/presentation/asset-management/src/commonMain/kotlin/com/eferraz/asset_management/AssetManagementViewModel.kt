@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Issuer
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.usecases.UpsertInvestmentAssetUseCase
+import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetIssuersUseCase
 import com.eferraz.usecases.exceptions.ValidateException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,18 +18,18 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 internal class AssetManagementViewModel(
     private val getIssuersUseCase: GetIssuersUseCase,
+    private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val upsertInvestmentAssetUseCase: UpsertInvestmentAssetUseCase,
 ) : ViewModel() {
 
     internal val state: StateFlow<UiState.Form> field = MutableStateFlow<UiState.Form>(UiState.Form())
 
     init {
-        dispatch(Intent.LoadIssuers)
+        loadIssuersAndBrokerages()
     }
 
     internal fun dispatch(intent: Intent) {
         when (intent) {
-            Intent.LoadIssuers -> loadIssuers()
             is Intent.DraftChanged -> onDraftChanged(intent.draft)
             is Intent.CategoryChanged -> onCategoryChanged(intent.category)
             Intent.Save -> onSave()
@@ -38,10 +40,12 @@ internal class AssetManagementViewModel(
         }
     }
 
-    private fun loadIssuers() {
+    private fun loadIssuersAndBrokerages() {
         viewModelScope.launch {
+            val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrNull().orEmpty()
+            val brokerages = getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty()
             state.update {
-                it.copy(issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrNull().orEmpty())
+                it.copy(issuers = issuers, brokerages = brokerages)
             }
         }
     }
@@ -104,6 +108,10 @@ internal class AssetManagementViewModel(
                 s.copy(saveError = "Cadastre um emissor noutro ecrã antes de guardar."),
             )
 
+            s.brokerages.isEmpty() -> SaveAction.SetForm(
+                s.copy(saveError = "Cadastre uma corretora noutro ecrã antes de guardar."),
+            )
+
             uiErrors.isNotEmpty() -> SaveAction.SetForm(s.copy(fieldErrors = uiErrors))
 
             else -> {
@@ -152,6 +160,7 @@ internal class AssetManagementViewModel(
     internal sealed interface UiState {
         data class Form(
             val issuers: List<Issuer> = emptyList(),
+            val brokerages: List<Brokerage> = emptyList(),
             val draft: AssetDraft = initialAssetDraft(),
             val fieldErrors: Map<String, String> = emptyMap(),
             val saveError: String? = null,
@@ -162,7 +171,6 @@ internal class AssetManagementViewModel(
     }
 
     internal sealed interface Intent {
-        data object LoadIssuers : Intent
         data class DraftChanged(val draft: AssetDraft) : Intent
         data class CategoryChanged(val category: InvestmentCategory) : Intent
         data object Save : Intent

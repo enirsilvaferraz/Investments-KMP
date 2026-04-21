@@ -7,6 +7,9 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 
+/** Rótulo do dropdown de corretora no cadastro de investimento. */
+internal const val BROKERAGE_FIELD_LABEL: String = "Corretora"
+
 internal fun FixedIncomeAssetType.asLabel(): String =
     when (this) {
         FixedIncomeAssetType.POST_FIXED -> "Pós-fixado"
@@ -19,8 +22,7 @@ internal fun FixedIncomeSubType.asLabel(): String =
         FixedIncomeSubType.CDB -> "CDB"
         FixedIncomeSubType.LCI -> "LCI"
         FixedIncomeSubType.LCA -> "LCA"
-        FixedIncomeSubType.CRA -> "CRA"
-        FixedIncomeSubType.CRI -> "CRI"
+        FixedIncomeSubType.LIG -> "LIG"
         FixedIncomeSubType.DEBENTURE -> "Debênture"
         FixedIncomeSubType.SELIC -> "Tesouro Selic"
         FixedIncomeSubType.PRECATORIO -> "Precatório"

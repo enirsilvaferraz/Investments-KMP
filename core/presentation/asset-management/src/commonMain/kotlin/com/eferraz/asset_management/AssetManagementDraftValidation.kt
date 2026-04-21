@@ -4,8 +4,11 @@ import com.eferraz.entities.assets.InvestmentCategory
 
 internal fun validateAssetDraft(d: AssetDraft): Map<String, String> {
     val e = mutableMapOf<String, String>()
-    if (d.issuerId == null) {
+    if (d.issuer == null) {
         e["issuer"] = "Selecione um emissor"
+    }
+    if (d.brokerage == null) {
+        e["brokerage"] = "Selecione uma corretora"
     }
     when (d.category) {
         InvestmentCategory.FIXED_INCOME -> e.putAll(validateFixedIncomeDraft(d))
@@ -41,7 +44,7 @@ private fun validateFixedIncomeDraft(d: AssetDraft): Map<String, String> {
 
 private fun validateVariableIncomeDraft(d: AssetDraft): Map<String, String> {
     val e = mutableMapOf<String, String>()
-    if (d.variableName.orEmpty().isBlank()) e["variableName"] = "Obrigatório"
+//    if (d.variableName.orEmpty().isBlank()) e["variableName"] = "Obrigatório"
     if (d.variableType == null) e["variableType"] = "Obrigatório"
     if (d.variableTicker.orEmpty().isBlank()) e["variableTicker"] = "Obrigatório"
     return e
