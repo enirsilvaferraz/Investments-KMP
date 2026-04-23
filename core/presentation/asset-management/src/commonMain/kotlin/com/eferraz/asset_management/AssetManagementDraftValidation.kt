@@ -2,68 +2,80 @@ package com.eferraz.asset_management
 
 import com.eferraz.entities.assets.InvestmentCategory
 
-internal fun validateAssetDraft(d: AssetDraft): AssetFormErrors {
-    var e = AssetFormErrors()
-    if (d.issuer == null) e = e.copy(issuer = "Selecione um emissor")
-    if (d.brokerage == null) e = e.copy(brokerage = "Selecione uma corretora")
-    when (d.category) {
-        InvestmentCategory.FIXED_INCOME -> e = e.merge(validateFixedIncomeDraft(d))
-        InvestmentCategory.VARIABLE_INCOME -> e = e.merge(validateVariableIncomeDraft(d))
-        InvestmentCategory.INVESTMENT_FUND -> e = e.merge(validateFundDraft(d))
-    }
-    return e
-}
-
-private fun AssetFormErrors.merge(other: AssetFormErrors) = copy(
-    issuer = other.issuer ?: issuer,
-    brokerage = other.brokerage ?: brokerage,
-    fixedType = other.fixedType ?: fixedType,
-    fixedSubType = other.fixedSubType ?: fixedSubType,
-    fixedExpiration = other.fixedExpiration ?: fixedExpiration,
-    fixedYield = other.fixedYield ?: fixedYield,
-    fixedCdi = other.fixedCdi ?: fixedCdi,
-    fixedLiquidity = other.fixedLiquidity ?: fixedLiquidity,
-    variableType = other.variableType ?: variableType,
-    variableTicker = other.variableTicker ?: variableTicker,
-    cnpj = other.cnpj ?: cnpj,
-    fundName = other.fundName ?: fundName,
-    fundType = other.fundType ?: fundType,
-    fundLiquidity = other.fundLiquidity ?: fundLiquidity,
-    fundLiquidityDays = other.fundLiquidityDays ?: fundLiquidityDays,
-    fundExpiration = other.fundExpiration ?: fundExpiration,
+/**
+ * Aplica o resultado de um ramo categoria (apenas [UiState] com `*Error` preenchidos nesse conjunto) sobre o estado
+ * alinhado, preferindo a mensagem mais específica quando a mesma célula for definida nos dois sítios.
+ */
+private fun mergeFieldErrors(base: UiState, branch: UiState) = base.copy(
+    issuerError = branch.issuerError ?: base.issuerError,
+    brokerageError = branch.brokerageError ?: base.brokerageError,
+    fixedTypeError = branch.fixedTypeError ?: base.fixedTypeError,
+    fixedSubTypeError = branch.fixedSubTypeError ?: base.fixedSubTypeError,
+    fixedExpirationError = branch.fixedExpirationError ?: base.fixedExpirationError,
+    fixedYieldError = branch.fixedYieldError ?: base.fixedYieldError,
+    fixedCdiError = branch.fixedCdiError ?: base.fixedCdiError,
+    fixedLiquidityError = branch.fixedLiquidityError ?: base.fixedLiquidityError,
+    variableTypeError = branch.variableTypeError ?: base.variableTypeError,
+    variableTickerError = branch.variableTickerError ?: base.variableTickerError,
+    cnpjError = branch.cnpjError ?: base.cnpjError,
+    fundNameError = branch.fundNameError ?: base.fundNameError,
+    fundTypeError = branch.fundTypeError ?: base.fundTypeError,
+    fundLiquidityError = branch.fundLiquidityError ?: base.fundLiquidityError,
+    fundLiquidityDaysError = branch.fundLiquidityDaysError ?: base.fundLiquidityDaysError,
+    fundExpirationError = branch.fundExpirationError ?: base.fundExpirationError,
 )
 
-private fun validateFixedIncomeDraft(d: AssetDraft): AssetFormErrors {
-    val expRaw = d.fixedExpiration.orEmpty()
-    val yieldRaw = d.fixedYield.orEmpty()
-    val cdiRaw = d.fixedCdi.orEmpty()
-    var e = AssetFormErrors()
-    if (d.fixedType == null) e = e.copy(fixedType = "Obrigatório")
-    if (d.fixedSubType == null) e = e.copy(fixedSubType = "Obrigatório")
-    if (expRaw.isBlank()) e = e.copy(fixedExpiration = "Obrigatório")
-    if (yieldRaw.isBlank()) e = e.copy(fixedYield = "Obrigatório")
-    if (d.fixedLiquidity == null) e = e.copy(fixedLiquidity = "Obrigatório")
-    if (expRaw.isNotBlank() && localDateFromIsoDateDigits(expRaw) == null) e = e.copy(fixedExpiration = "Data inválida")
-    if (yieldRaw.isNotBlank() && yieldRaw.toDoubleOrNull() == null) e = e.copy(fixedYield = "Número inválido")
-    if (cdiRaw.isNotBlank() && cdiRaw.toDoubleOrNull() == null) e = e.copy(fixedCdi = "Número inválido")
-    return e
+internal fun validateUiState(s: UiState): UiState {
+    val withCommon = s.withClearedFieldErrors().copy(
+        issuerError = if (s.issuer == null) "Selecione um emissor" else null,
+        brokerageError = if (s.brokerage == null) "Selecione uma corretora" else null,
+    )
+    return when (s.category) {
+        InvestmentCategory.FIXED_INCOME -> mergeFieldErrors(withCommon, validateFixedIncome(s))
+        InvestmentCategory.VARIABLE_INCOME -> mergeFieldErrors(withCommon, validateVariableIncome(s))
+        InvestmentCategory.INVESTMENT_FUND -> mergeFieldErrors(withCommon, validateFund(s))
+    }
 }
 
-private fun validateVariableIncomeDraft(d: AssetDraft): AssetFormErrors {
-    var e = AssetFormErrors()
-    if (d.variableType == null) e = e.copy(variableType = "Obrigatório")
-    if (d.variableTicker.orEmpty().isBlank()) e = e.copy(variableTicker = "Obrigatório")
-    return e
+private fun validateFixedIncome(s: UiState): UiState {
+    val expRaw = s.fixedExpiration.orEmpty()
+    val yieldRaw = s.fixedYield.orEmpty()
+    val cdiRaw = s.fixedCdi.orEmpty()
+    var fixedExpirationError: String? = if (expRaw.isBlank()) "Obrigatório" else null
+    if (expRaw.isNotBlank() && localDateFromIsoDateDigits(expRaw) == null) fixedExpirationError = "Data inválida"
+    var fixedYieldError: String? = if (yieldRaw.isBlank()) "Obrigatório" else null
+    if (yieldRaw.isNotBlank() && yieldRaw.toDoubleOrNull() == null) fixedYieldError = "Número inválido"
+    val fixedCdiError =
+        if (cdiRaw.isNotBlank() && cdiRaw.toDoubleOrNull() == null) "Número inválido" else null
+    return s.withClearedFieldErrors().copy(
+        fixedTypeError = if (s.fixedType == null) "Obrigatório" else null,
+        fixedSubTypeError = if (s.fixedSubType == null) "Obrigatório" else null,
+        fixedExpirationError = fixedExpirationError,
+        fixedYieldError = fixedYieldError,
+        fixedCdiError = fixedCdiError,
+        fixedLiquidityError = if (s.fixedLiquidity == null) "Obrigatório" else null,
+    )
 }
 
-private fun validateFundDraft(d: AssetDraft): AssetFormErrors {
-    val fundExp = d.fundExpiration.orEmpty()
-    var e = AssetFormErrors()
-    if (d.fundName.orEmpty().isBlank()) e = e.copy(fundName = "Obrigatório")
-    if (d.fundType == null) e = e.copy(fundType = "Obrigatório")
-    if (d.fundLiquidity == null) e = e.copy(fundLiquidity = "Obrigatório")
-    val days = d.fundLiquidityDays.orEmpty().toIntOrNull()
-    if (days == null || days <= 0) e = e.copy(fundLiquidityDays = "Valor inválido")
-    if (fundExp.isNotBlank() && localDateFromIsoDateDigits(fundExp) == null) e = e.copy(fundExpiration = "Data inválida")
-    return e
+private fun validateVariableIncome(s: UiState) = s.withClearedFieldErrors().copy(
+    variableTypeError = if (s.variableType == null) "Obrigatório" else null,
+    variableTickerError = if (s.variableTicker.orEmpty().isBlank()) "Obrigatório" else null,
+)
+
+private fun validateFund(s: UiState): UiState {
+    val fundExp = s.fundExpiration.orEmpty()
+    val fundExpirationError = if (fundExp.isNotBlank() && localDateFromIsoDateDigits(fundExp) == null) {
+        "Data inválida"
+    } else {
+        null
+    }
+    val days = s.fundLiquidityDays.orEmpty().toIntOrNull()
+    val fundLiquidityDaysError = if (days == null || days <= 0) "Valor inválido" else null
+    return s.withClearedFieldErrors().copy(
+        fundNameError = if (s.fundName.orEmpty().isBlank()) "Obrigatório" else null,
+        fundTypeError = if (s.fundType == null) "Obrigatório" else null,
+        fundLiquidityError = if (s.fundLiquidity == null) "Obrigatório" else null,
+        fundLiquidityDaysError = fundLiquidityDaysError,
+        fundExpirationError = fundExpirationError,
+    )
 }

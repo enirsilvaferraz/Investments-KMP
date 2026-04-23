@@ -15,23 +15,19 @@ public fun AssetManagementScreen(
 ) {
 
     val viewModel: AssetManagementViewModel = koinViewModel()
-    val state by viewModel.state.collectAsState()
+    val ui by viewModel.state.collectAsState()
 
     val onDismissUpdated = rememberUpdatedState(onDismiss)
-    LaunchedEffect(state.navigateAway) {
-        if (state.navigateAway) {
+    LaunchedEffect(ui.navigateAway) {
+        if (ui.navigateAway) {
             onDismissUpdated.value()
             viewModel.dispatch(AssetManagementEvent.NavigationConsumed)
         }
     }
 
     AssetManagementFormView(
-        issuers = state.issuers,
-        brokerages = state.brokerages,
-        draft = state.draft,
-        saveError = state.saveError,
-        isSaving = state.isSaving,
-        showDiscardDialog = state.showDiscardDialog,
+        ui = ui,
         onEvent = viewModel::dispatch,
+        modifier = modifier,
     )
 }
