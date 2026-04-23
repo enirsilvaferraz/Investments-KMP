@@ -10,7 +10,7 @@ import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
 
 /**
- * Ações do ecrã de registo (formulário + diálogos e navegação) — ponto de entrada único [AssetManagementViewModel.dispatch].
+ * Ações do ecrã de registo (formulário e navegação) — ponto de entrada único [AssetManagementViewModel.dispatch].
  */
 internal sealed class AssetManagementEvent {
     // Formulário
@@ -37,7 +37,5 @@ internal sealed class AssetManagementEvent {
 
     data object Save : AssetManagementEvent()
     data object RequestDismiss : AssetManagementEvent()
-    data object ConfirmDiscard : AssetManagementEvent()
-    data object CancelDiscard : AssetManagementEvent()
     data object NavigationConsumed : AssetManagementEvent()
 }

@@ -3,26 +3,26 @@ package com.eferraz.asset_management
 import com.eferraz.entities.assets.InvestmentCategory
 
 /**
- * Aplica o resultado de um ramo categoria (apenas [UiState] com `*Error` preenchidos nesse conjunto) sobre o estado
- * alinhado, preferindo a mensagem mais específica quando a mesma célula for definida nos dois sítios.
+ * Combina erros de emissor/corretora com os de categoria: cada [UiState] traz um subconjunto de `*Error`;
+ * valores não nulos em [category] prevalecem face a [withIssuerAndBrokerageErrors] quando o mesmo campo existe nos dois.
  */
-private fun mergeFieldErrors(base: UiState, branch: UiState) = base.copy(
-    issuerError = branch.issuerError ?: base.issuerError,
-    brokerageError = branch.brokerageError ?: base.brokerageError,
-    fixedTypeError = branch.fixedTypeError ?: base.fixedTypeError,
-    fixedSubTypeError = branch.fixedSubTypeError ?: base.fixedSubTypeError,
-    fixedExpirationError = branch.fixedExpirationError ?: base.fixedExpirationError,
-    fixedYieldError = branch.fixedYieldError ?: base.fixedYieldError,
-    fixedCdiError = branch.fixedCdiError ?: base.fixedCdiError,
-    fixedLiquidityError = branch.fixedLiquidityError ?: base.fixedLiquidityError,
-    variableTypeError = branch.variableTypeError ?: base.variableTypeError,
-    variableTickerError = branch.variableTickerError ?: base.variableTickerError,
-    cnpjError = branch.cnpjError ?: base.cnpjError,
-    fundNameError = branch.fundNameError ?: base.fundNameError,
-    fundTypeError = branch.fundTypeError ?: base.fundTypeError,
-    fundLiquidityError = branch.fundLiquidityError ?: base.fundLiquidityError,
-    fundLiquidityDaysError = branch.fundLiquidityDaysError ?: base.fundLiquidityDaysError,
-    fundExpirationError = branch.fundExpirationError ?: base.fundExpirationError,
+private fun mergeFieldErrors(withIssuerAndBrokerageErrors: UiState, category: UiState) = withIssuerAndBrokerageErrors.copy(
+    issuerError = category.issuerError ?: withIssuerAndBrokerageErrors.issuerError,
+    brokerageError = category.brokerageError ?: withIssuerAndBrokerageErrors.brokerageError,
+    fixedTypeError = category.fixedTypeError ?: withIssuerAndBrokerageErrors.fixedTypeError,
+    fixedSubTypeError = category.fixedSubTypeError ?: withIssuerAndBrokerageErrors.fixedSubTypeError,
+    fixedExpirationError = category.fixedExpirationError ?: withIssuerAndBrokerageErrors.fixedExpirationError,
+    fixedYieldError = category.fixedYieldError ?: withIssuerAndBrokerageErrors.fixedYieldError,
+    fixedCdiError = category.fixedCdiError ?: withIssuerAndBrokerageErrors.fixedCdiError,
+    fixedLiquidityError = category.fixedLiquidityError ?: withIssuerAndBrokerageErrors.fixedLiquidityError,
+    variableTypeError = category.variableTypeError ?: withIssuerAndBrokerageErrors.variableTypeError,
+    variableTickerError = category.variableTickerError ?: withIssuerAndBrokerageErrors.variableTickerError,
+    cnpjError = category.cnpjError ?: withIssuerAndBrokerageErrors.cnpjError,
+    fundNameError = category.fundNameError ?: withIssuerAndBrokerageErrors.fundNameError,
+    fundTypeError = category.fundTypeError ?: withIssuerAndBrokerageErrors.fundTypeError,
+    fundLiquidityError = category.fundLiquidityError ?: withIssuerAndBrokerageErrors.fundLiquidityError,
+    fundLiquidityDaysError = category.fundLiquidityDaysError ?: withIssuerAndBrokerageErrors.fundLiquidityDaysError,
+    fundExpirationError = category.fundExpirationError ?: withIssuerAndBrokerageErrors.fundExpirationError,
 )
 
 internal fun validateUiState(s: UiState): UiState {

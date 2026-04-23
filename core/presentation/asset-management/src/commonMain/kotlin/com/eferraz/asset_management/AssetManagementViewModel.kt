@@ -20,7 +20,7 @@ internal class AssetManagementViewModel(
     private val upsertInvestmentAssetUseCase: UpsertInvestmentAssetUseCase,
 ) : ViewModel() {
 
-    internal val state: StateFlow<UiState> field = MutableStateFlow(initialUiState())
+    internal val state: StateFlow<UiState> field = MutableStateFlow(UiState())
 
     init {
         loadIssuersAndBrokerages()
@@ -28,27 +28,25 @@ internal class AssetManagementViewModel(
 
     internal fun dispatch(event: AssetManagementEvent) {
         when (event) {
-            is AssetManagementEvent.CategoryChanged -> state.update { it.withCategoryPreservingIssuerAndObs(event.category).copy(saveError = null) }
-            is AssetManagementEvent.IssuerChanged -> state.update { it.copy(issuer = event.issuer, issuerError = null, saveError = null) }
-            is AssetManagementEvent.ObservationsChanged -> state.update { it.copy(observations = event.value, saveError = null) }
-            is AssetManagementEvent.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null, saveError = null) }
-            is AssetManagementEvent.FixedTypeChanged -> state.update { it.copy(fixedType = event.type, fixedTypeError = null, saveError = null) }
-            is AssetManagementEvent.FixedSubTypeChanged -> state.update { it.copy(fixedSubType = event.subType, fixedSubTypeError = null, saveError = null) }
-            is AssetManagementEvent.FixedExpirationChanged -> state.update { it.copy(fixedExpiration = filterDateMaskDigits(event.raw), fixedExpirationError = null, saveError = null) }
-            is AssetManagementEvent.FixedYieldChanged -> state.update { it.copy(fixedYield = event.value, fixedYieldError = null, saveError = null) }
-            is AssetManagementEvent.FixedCdiChanged -> state.update { it.copy(fixedCdi = event.value, fixedCdiError = null, saveError = null) }
-            is AssetManagementEvent.FixedLiquidityChanged -> state.update { it.copy(fixedLiquidity = event.liquidity, fixedLiquidityError = null, saveError = null) }
-            is AssetManagementEvent.VariableTypeChanged -> state.update { it.copy(variableType = event.type, variableTypeError = null, saveError = null) }
-            is AssetManagementEvent.VariableTickerChanged -> state.update { it.copy(variableTicker = event.value, variableTickerError = null, saveError = null) }
-            is AssetManagementEvent.VariableCnpjChanged -> state.update { it.copy(variableCnpj = event.value, cnpjError = null, saveError = null) }
-            is AssetManagementEvent.FundNameChanged -> state.update { it.copy(fundName = event.value, fundNameError = null, saveError = null) }
-            is AssetManagementEvent.FundTypeChanged -> state.update { it.copy(fundType = event.type, fundTypeError = null, saveError = null) }
-            is AssetManagementEvent.FundLiquidityDaysChanged -> state.update { it.copy(fundLiquidityDays = event.value, fundLiquidityDaysError = null, saveError = null) }
-            is AssetManagementEvent.FundExpirationChanged -> state.update { it.copy(fundExpiration = filterDateMaskDigits(event.raw), fundExpirationError = null, saveError = null) }
+            is AssetManagementEvent.CategoryChanged -> state.update { it.withCategoryPreservingIssuerAndObs(event.category) }
+            is AssetManagementEvent.IssuerChanged -> state.update { it.copy(issuer = event.issuer, issuerError = null) }
+            is AssetManagementEvent.ObservationsChanged -> state.update { it.copy(observations = event.value) }
+            is AssetManagementEvent.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
+            is AssetManagementEvent.FixedTypeChanged -> state.update { it.copy(fixedType = event.type, fixedTypeError = null) }
+            is AssetManagementEvent.FixedSubTypeChanged -> state.update { it.copy(fixedSubType = event.subType, fixedSubTypeError = null) }
+            is AssetManagementEvent.FixedExpirationChanged -> state.update { it.copy(fixedExpiration = filterDateMaskDigits(event.raw), fixedExpirationError = null) }
+            is AssetManagementEvent.FixedYieldChanged -> state.update { it.copy(fixedYield = event.value, fixedYieldError = null) }
+            is AssetManagementEvent.FixedCdiChanged -> state.update { it.copy(fixedCdi = event.value, fixedCdiError = null) }
+            is AssetManagementEvent.FixedLiquidityChanged -> state.update { it.copy(fixedLiquidity = event.liquidity, fixedLiquidityError = null) }
+            is AssetManagementEvent.VariableTypeChanged -> state.update { it.copy(variableType = event.type, variableTypeError = null) }
+            is AssetManagementEvent.VariableTickerChanged -> state.update { it.copy(variableTicker = event.value, variableTickerError = null) }
+            is AssetManagementEvent.VariableCnpjChanged -> state.update { it.copy(variableCnpj = event.value, cnpjError = null) }
+            is AssetManagementEvent.FundNameChanged -> state.update { it.copy(fundName = event.value, fundNameError = null) }
+            is AssetManagementEvent.FundTypeChanged -> state.update { it.copy(fundType = event.type, fundTypeError = null) }
+            is AssetManagementEvent.FundLiquidityDaysChanged -> state.update { it.copy(fundLiquidityDays = event.value, fundLiquidityDaysError = null) }
+            is AssetManagementEvent.FundExpirationChanged -> state.update { it.copy(fundExpiration = filterDateMaskDigits(event.raw), fundExpirationError = null) }
             AssetManagementEvent.Save -> onSave()
             AssetManagementEvent.RequestDismiss -> onRequestDismiss()
-            AssetManagementEvent.ConfirmDiscard -> onConfirmDiscard()
-            AssetManagementEvent.CancelDiscard -> onCancelDiscard()
             AssetManagementEvent.NavigationConsumed -> onNavigationConsumed()
         }
     }
@@ -68,61 +66,29 @@ internal class AssetManagementViewModel(
     }
 
     private fun onRequestDismiss() {
-        if (state.value.formContentMatchesInitial()) {
-            state.update { it.copy(navigateAway = true) }
-        } else {
-            state.update { it.copy(showDiscardDialog = true) }
-        }
-    }
-
-    private fun onConfirmDiscard() {
         state.update { s ->
-            initialUiState()
-                .copy(issuers = s.issuers, brokerages = s.brokerages, showDiscardDialog = false, navigateAway = true)
+            UiState(issuers = s.issuers, brokerages = s.brokerages, navigateAway = true)
         }
-    }
-
-    private fun onCancelDiscard() {
-        state.update { it.copy(showDiscardDialog = false) }
     }
 
     private fun onSave() {
         val s = state.value
         if (s.isSaving) return
+        if (s.issuers.isEmpty() || s.brokerages.isEmpty()) return
 
         val validated = validateUiState(s)
-
-        val action: SaveAction = when {
-            s.issuers.isEmpty() -> SaveAction.Set(
-                s.copy(saveError = "Cadastre um emissor noutro ecrã antes de guardar."),
-            )
-
-            s.brokerages.isEmpty() -> SaveAction.Set(
-                s.copy(saveError = "Cadastre uma corretora noutro ecrã antes de guardar."),
-            )
-
-            validated.hasAnyFieldError() -> SaveAction.Set(
-                validated.copy(saveError = null),
-            )
-
-            else -> {
-                val param = buildUpsertParam(s)
-                if (param == null) {
-                    SaveAction.Set(s.copy(saveError = "Dados incompletos."))
-                } else {
-                    SaveAction.RunUpsert(s, param)
-                }
-            }
+        if (validated.hasAnyFieldError()) {
+            state.update { validated }
+            return
         }
-        when (action) {
-            is SaveAction.Set -> state.update { action.ui }
-            is SaveAction.RunUpsert -> runUpsert(action.ui, action.param)
-        }
+
+        val param = buildUpsertParam(s) ?: return
+        runUpsert(s, param)
     }
 
     private fun runUpsert(ui: UiState, param: UpsertInvestmentAssetUseCase.Param) {
         viewModelScope.launch {
-            state.update { it.withClearedFieldErrors().copy(isSaving = true, saveError = null) }
+            state.update { it.withClearedFieldErrors().copy(isSaving = true) }
             val result = upsertInvestmentAssetUseCase(param)
             result.fold(
                 onSuccess = {
@@ -137,21 +103,11 @@ internal class AssetManagementViewModel(
                         }
 
                         else -> {
-                            state.update {
-                                it.copy(
-                                    isSaving = false,
-                                    saveError = "Não foi possível guardar. Tente novamente.",
-                                )
-                            }
+                            state.update { it.copy(isSaving = false) }
                         }
                     }
                 },
             )
         }
-    }
-
-    private sealed interface SaveAction {
-        data class Set(val ui: UiState) : SaveAction
-        data class RunUpsert(val ui: UiState, val param: UpsertInvestmentAssetUseCase.Param) : SaveAction
     }
 }

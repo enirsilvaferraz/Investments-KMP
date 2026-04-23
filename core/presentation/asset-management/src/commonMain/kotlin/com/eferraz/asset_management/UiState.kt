@@ -18,9 +18,7 @@ import com.eferraz.entities.holdings.Brokerage
 internal data class UiState(
     val issuers: List<Issuer> = emptyList(),
     val brokerages: List<Brokerage> = emptyList(),
-    val saveError: String? = null,
     val isSaving: Boolean = false,
-    val showDiscardDialog: Boolean = false,
     val navigateAway: Boolean = false,
     val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
     val issuer: Issuer? = null,
@@ -59,8 +57,6 @@ internal data class UiState(
     val fundExpiration: String? = null,
 )
 
-internal fun initialUiState(): UiState = UiState()
-
 internal fun UiState.hasAnyFieldError(): Boolean =
     issuerError != null || brokerageError != null ||
         fixedTypeError != null || fixedSubTypeError != null || fixedExpirationError != null ||
@@ -93,13 +89,12 @@ internal fun UiState.withClearedFieldErrors() = copy(
 
 /**
  * Aplica [ValidateException.messages] (chaves do [com.eferraz.usecases.UpsertInvestmentAssetUseCase]
- * e de emissor/corretora) nos campos `*Error` e em [UiState.saveError] para o titular (`owner`).
+ * e de emissor/corretora) nos campos `*Error`.
  * Chave inexistente → `null` nesse alvo; erros de campo de categorias fora de [s.category] ignoram-se.
  */
 internal fun Map<String, String>.remoteFieldErrorsOn(s: UiState) =
     s.withClearedFieldErrors().run {
         val common = copy(
-            saveError = this@remoteFieldErrorsOn["owner"],
             issuerError = this@remoteFieldErrorsOn["issuer"],
             brokerageError = this@remoteFieldErrorsOn["brokerage"],
         )
@@ -125,20 +120,6 @@ internal fun Map<String, String>.remoteFieldErrorsOn(s: UiState) =
             )
         }
     }
-
-/**
- * `true` quando o conteúdo editável do formulário coincide com [initialUiState] (ignorando [UiState.issuers] e [UiState.brokerages] carregados).
- */
-internal fun UiState.formContentMatchesInitial(): Boolean {
-    val b = initialUiState()
-    return category == b.category && issuer == b.issuer && brokerage == b.brokerage &&
-        observations == b.observations && !hasAnyFieldError() &&
-        fixedType == b.fixedType && fixedSubType == b.fixedSubType &&
-        fixedExpiration == b.fixedExpiration && fixedYield == b.fixedYield && fixedCdi == b.fixedCdi &&
-        fixedLiquidity == b.fixedLiquidity && variableName == b.variableName && variableType == b.variableType &&
-        variableTicker == b.variableTicker && variableCnpj == b.variableCnpj && fundName == b.fundName && fundType == b.fundType &&
-        fundLiquidity == b.fundLiquidity && fundLiquidityDays == b.fundLiquidityDays && fundExpiration == b.fundExpiration
-}
 
 internal fun UiState.withCategoryPreservingIssuerAndObs(category: InvestmentCategory) = withClearedFieldErrors().copy(
     category = category,

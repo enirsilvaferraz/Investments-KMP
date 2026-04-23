@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eferraz.design_system.scaffolds.AppConfirmDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,18 +29,6 @@ internal fun AssetManagementFormView(
     onEvent: (AssetManagementEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
-    if (ui.showDiscardDialog) {
-        AppConfirmDialog(
-            title = "Descartar alterações?",
-            description = "As alterações não guardadas serão perdidas.",
-            confirmText = "Descartar",
-            onConfirm = { onEvent(AssetManagementEvent.ConfirmDiscard) },
-            dismissText = "Continuar a editar",
-            onDismiss = { onEvent(AssetManagementEvent.CancelDiscard) },
-        )
-    }
-
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -56,21 +43,13 @@ internal fun AssetManagementFormView(
                 title = { Text("Novo investimento") }
             )
 
-            ui.saveError?.let { msg ->
-                Text(
-                    text = msg,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
-                )
-            }
-
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(horizontal = 24.dp)
             ) {
-                baseForm(ui, ui.issuers, ui.brokerages, onEvent)
+                assetManagementForm(ui, ui.issuers, ui.brokerages, onEvent)
             }
 
             Row(

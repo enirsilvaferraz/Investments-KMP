@@ -56,7 +56,7 @@ internal fun FormTextField(
 
 private const val fullRowSpan = 2
 
-internal fun LazyGridScope.baseForm(
+internal fun LazyGridScope.assetManagementForm(
     ui: UiState,
     issuers: List<Issuer>,
     brokerages: List<Brokerage>,
