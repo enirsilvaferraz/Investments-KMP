@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.eferraz.design_system.core.StableMap
 import com.eferraz.design_system.scaffolds.AppConfirmDialog
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Issuer
@@ -40,16 +39,10 @@ internal fun AssetManagementFormView(
     issuers: List<Issuer>,
     brokerages: List<Brokerage>,
     draft: AssetDraft,
-    fieldErrors: StableMap<String, String>,
     saveError: String?,
     isSaving: Boolean,
     showDiscardDialog: Boolean,
-    onDraftChange: (AssetDraft) -> Unit,
-    onCategoryChange: (InvestmentCategory) -> Unit,
-    onSave: () -> Unit,
-    onDismissRequest: () -> Unit,
-    onConfirmDiscard: () -> Unit,
-    onCancelDiscard: () -> Unit,
+    onEvent: (AssetManagementEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -58,9 +51,9 @@ internal fun AssetManagementFormView(
             title = "Descartar alterações?",
             description = "As alterações não guardadas serão perdidas.",
             confirmText = "Descartar",
-            onConfirm = onConfirmDiscard,
+            onConfirm = { onEvent(AssetManagementEvent.ConfirmDiscard) },
             dismissText = "Continuar a editar",
-            onDismiss = onCancelDiscard,
+            onDismiss = { onEvent(AssetManagementEvent.CancelDiscard) },
         )
     }
 
@@ -78,13 +71,21 @@ internal fun AssetManagementFormView(
                 title = { Text("Novo investimento") }
             )
 
+            saveError?.let { msg ->
+                Text(
+                    text = msg,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
+                )
+            }
+
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(horizontal = 24.dp)
             ) {
-                baseForm(draft, onCategoryChange, issuers, brokerages, onDraftChange, fieldErrors)
+                baseForm(draft, issuers, brokerages, onEvent)
             }
 
             Row(
@@ -93,14 +94,14 @@ internal fun AssetManagementFormView(
             ) {
 
                 TextButton(
-                    onClick = onDismissRequest,
+                    onClick = { onEvent(AssetManagementEvent.RequestDismiss) },
                     enabled = !isSaving
                 ) {
                     Text("Cancelar")
                 }
 
                 Button(
-                    onClick = onSave,
+                    onClick = { onEvent(AssetManagementEvent.Save) },
                     enabled = !isSaving,
                 ) {
                     Text("Salvar")
@@ -109,7 +110,6 @@ internal fun AssetManagementFormView(
         }
     }
 }
-
 
 /**
  * Pré-visualização do formulário (Android Studio), sem Koin nem ViewModel.
@@ -126,6 +126,12 @@ private fun AssetManagementFormPreviewContent() {
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             var draft by remember { mutableStateOf(initialAssetDraft()) }
+            val onEvent: (AssetManagementEvent) -> Unit = { e ->
+                when (e) {
+                    is AssetManagementEvent.ConfirmDiscard -> { draft = initialAssetDraft() }
+                    else -> draft.applyFormEvent(e)?.let { draft = it }
+                }
+            }
             AssetManagementFormView(
                 issuers = listOf(
                     Issuer(id = 1L, name = "Banco Preview"),
@@ -136,16 +142,10 @@ private fun AssetManagementFormPreviewContent() {
                     Brokerage(id = 2L, name = "Corretora B"),
                 ),
                 draft = draft,
-                fieldErrors = StableMap(emptyMap()),
                 saveError = null,
                 isSaving = false,
                 showDiscardDialog = false,
-                onDraftChange = { draft = it },
-                onCategoryChange = { draft = draft.withCategoryPreservingIssuerAndObs(it) },
-                onSave = {},
-                onDismissRequest = {},
-                onConfirmDiscard = {},
-                onCancelDiscard = {},
+                onEvent = onEvent,
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -167,20 +167,20 @@ internal fun AssetManagementFormVariableIncomePreview() {
                     ),
                 )
             }
+            val onEvent: (AssetManagementEvent) -> Unit = { e ->
+                when (e) {
+                    is AssetManagementEvent.ConfirmDiscard -> { draft = initialAssetDraft() }
+                    else -> draft.applyFormEvent(e)?.let { draft = it }
+                }
+            }
             AssetManagementFormView(
                 issuers = listOf(Issuer(id = 1L, name = "Banco Preview")),
                 brokerages = listOf(Brokerage(id = 1L, name = "Corretora Preview")),
                 draft = draft,
-                fieldErrors = StableMap(emptyMap()),
                 saveError = null,
                 isSaving = false,
                 showDiscardDialog = false,
-                onDraftChange = { draft = it },
-                onCategoryChange = { draft = draft.withCategoryPreservingIssuerAndObs(it) },
-                onSave = {},
-                onDismissRequest = {},
-                onConfirmDiscard = {},
-                onCancelDiscard = {},
+                onEvent = onEvent,
                 modifier = Modifier.fillMaxSize(),
             )
         }

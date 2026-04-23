@@ -6,7 +6,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import com.eferraz.design_system.core.StableMap
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -22,7 +21,7 @@ public fun AssetManagementScreen(
     LaunchedEffect(state.navigateAway) {
         if (state.navigateAway) {
             onDismissUpdated.value()
-            viewModel.dispatch(AssetManagementViewModel.Intent.NavigationConsumed)
+            viewModel.dispatch(AssetManagementEvent.NavigationConsumed)
         }
     }
 
@@ -30,15 +29,9 @@ public fun AssetManagementScreen(
         issuers = state.issuers,
         brokerages = state.brokerages,
         draft = state.draft,
-        fieldErrors = StableMap(state.fieldErrors),
         saveError = state.saveError,
         isSaving = state.isSaving,
         showDiscardDialog = state.showDiscardDialog,
-        onDraftChange = { viewModel.dispatch(AssetManagementViewModel.Intent.DraftChanged(it)) },
-        onCategoryChange = { viewModel.dispatch(AssetManagementViewModel.Intent.CategoryChanged(it)) },
-        onSave = { viewModel.dispatch(AssetManagementViewModel.Intent.Save) },
-        onDismissRequest = { viewModel.dispatch(AssetManagementViewModel.Intent.RequestDismiss) },
-        onConfirmDiscard = { viewModel.dispatch(AssetManagementViewModel.Intent.ConfirmDiscard) },
-        onCancelDiscard = { viewModel.dispatch(AssetManagementViewModel.Intent.CancelDiscard) },
+        onEvent = viewModel::dispatch,
     )
 }

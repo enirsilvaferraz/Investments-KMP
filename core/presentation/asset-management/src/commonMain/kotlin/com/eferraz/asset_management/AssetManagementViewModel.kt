@@ -2,7 +2,6 @@ package com.eferraz.asset_management
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.usecases.UpsertInvestmentAssetUseCase
@@ -22,21 +21,41 @@ internal class AssetManagementViewModel(
     private val upsertInvestmentAssetUseCase: UpsertInvestmentAssetUseCase,
 ) : ViewModel() {
 
-    internal val state: StateFlow<UiState.Form> field = MutableStateFlow<UiState.Form>(UiState.Form())
+    internal val state: StateFlow<UiState.Form> field = MutableStateFlow(UiState.Form())
 
     init {
         loadIssuersAndBrokerages()
     }
 
-    internal fun dispatch(intent: Intent) {
-        when (intent) {
-            is Intent.DraftChanged -> onDraftChanged(intent.draft)
-            is Intent.CategoryChanged -> onCategoryChanged(intent.category)
-            Intent.Save -> onSave()
-            Intent.RequestDismiss -> onRequestDismiss()
-            Intent.ConfirmDiscard -> onConfirmDiscard()
-            Intent.CancelDiscard -> onCancelDiscard()
-            Intent.NavigationConsumed -> onNavigationConsumed()
+    internal fun dispatch(event: AssetManagementEvent) {
+        when (event) {
+            is AssetManagementEvent.CategoryChanged,
+            is AssetManagementEvent.IssuerChanged,
+            is AssetManagementEvent.ObservationsChanged,
+            is AssetManagementEvent.BrokerageChanged,
+            is AssetManagementEvent.FixedTypeChanged,
+            is AssetManagementEvent.FixedSubTypeChanged,
+            is AssetManagementEvent.FixedExpirationChanged,
+            is AssetManagementEvent.FixedYieldChanged,
+            is AssetManagementEvent.FixedCdiChanged,
+            is AssetManagementEvent.FixedLiquidityChanged,
+            is AssetManagementEvent.VariableTypeChanged,
+            is AssetManagementEvent.VariableTickerChanged,
+            is AssetManagementEvent.VariableCnpjChanged,
+            is AssetManagementEvent.FundNameChanged,
+            is AssetManagementEvent.FundTypeChanged,
+            is AssetManagementEvent.FundLiquidityDaysChanged,
+            is AssetManagementEvent.FundExpirationChanged,
+            -> {
+                val next = state.value.draft.applyFormEvent(event) ?: return
+                state.update { it.copy(draft = next, saveError = null) }
+            }
+
+            AssetManagementEvent.Save -> onSave()
+            AssetManagementEvent.RequestDismiss -> onRequestDismiss()
+            AssetManagementEvent.ConfirmDiscard -> onConfirmDiscard()
+            AssetManagementEvent.CancelDiscard -> onCancelDiscard()
+            AssetManagementEvent.NavigationConsumed -> onNavigationConsumed()
         }
     }
 
@@ -44,66 +63,46 @@ internal class AssetManagementViewModel(
         viewModelScope.launch {
             val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrNull().orEmpty()
             val brokerages = getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty()
-            state.update {
-                it.copy(issuers = issuers, brokerages = brokerages)
-            }
+            state.update { it.copy(issuers = issuers, brokerages = brokerages) }
         }
     }
 
     private fun onNavigationConsumed() {
         if (state.value.navigateAway) {
-            state.update {
-                it.copy(navigateAway = false)
-            }
+            state.update { it.copy(navigateAway = false) }
         }
     }
 
-    private fun onDraftChanged(draft: AssetDraft) {
+    private fun onRequestDismiss() {
+        if (state.value.draft == initialAssetDraft()) {
+            state.update { it.copy(navigateAway = true) }
+        } else {
+            state.update { it.copy(showDiscardDialog = true) }
+        }
+    }
+
+    private fun onConfirmDiscard() {
         state.update {
             it.copy(
-                draft = draft,
-                fieldErrors = emptyMap(),
+                showDiscardDialog = false,
+                navigateAway = true,
+                draft = initialAssetDraft(),
                 saveError = null,
             )
         }
     }
 
-    private fun onCategoryChanged(category: InvestmentCategory) {
-        val next = state.value.draft.withCategoryPreservingIssuerAndObs(category)
-        state.value = state.value.copy(draft = next, fieldErrors = emptyMap(), saveError = null)
-    }
-
-    private fun onRequestDismiss() {
-        if (state.value.draft == initialAssetDraft()) {
-            state.value = state.value.copy(navigateAway = true)
-        } else {
-            state.value = state.value.copy(showDiscardDialog = true)
-        }
-    }
-
-    private fun onConfirmDiscard() {
-        state.value = state.value.copy(
-            showDiscardDialog = false,
-            navigateAway = true,
-            draft = initialAssetDraft(),
-            fieldErrors = emptyMap(),
-            saveError = null,
-        )
-    }
-
     private fun onCancelDiscard() {
-        state.value = state.value.copy(showDiscardDialog = false)
+        state.update { it.copy(showDiscardDialog = false) }
     }
 
     private fun onSave() {
-
         val s = state.value
         if (s.isSaving) return
 
         val uiErrors = validateAssetDraft(s.draft)
 
         val action: SaveAction = when {
-
             s.issuers.isEmpty() -> SaveAction.SetForm(
                 s.copy(saveError = "Cadastre um emissor noutro ecrã antes de guardar."),
             )
@@ -112,7 +111,9 @@ internal class AssetManagementViewModel(
                 s.copy(saveError = "Cadastre uma corretora noutro ecrã antes de guardar."),
             )
 
-            uiErrors.isNotEmpty() -> SaveAction.SetForm(s.copy(fieldErrors = uiErrors))
+            uiErrors.hasAnyError() -> SaveAction.SetForm(
+                s.copy(draft = s.draft.copy(errors = uiErrors), saveError = null),
+            )
 
             else -> {
                 val param = buildUpsertParam(s.draft)
@@ -124,32 +125,37 @@ internal class AssetManagementViewModel(
             }
         }
         when (action) {
-            is SaveAction.SetForm -> state.value = action.form
+            is SaveAction.SetForm -> state.update { action.form }
             is SaveAction.RunUpsert -> runUpsert(action.form, action.param)
         }
     }
 
     private fun runUpsert(s: UiState.Form, param: UpsertInvestmentAssetUseCase.Param) {
         viewModelScope.launch {
-            state.value = s.copy(isSaving = true, saveError = null, fieldErrors = emptyMap())
+            state.update { it.copy(isSaving = true, saveError = null, draft = it.draft.copy(errors = AssetFormErrors.Empty)) }
             val result = upsertInvestmentAssetUseCase(param)
             result.fold(
                 onSuccess = {
-                    val latest = state.value
-                    state.value = latest.copy(isSaving = false, navigateAway = true)
+                    state.update { it.copy(isSaving = false, navigateAway = true) }
                 },
                 onFailure = { e ->
-                    val latest = state.value
                     when (e) {
                         is ValidateException -> {
-                            state.value = latest.copy(isSaving = false, fieldErrors = e.messages)
+                            state.update {
+                                it.copy(
+                                    isSaving = false,
+                                    draft = it.draft.copy(errors = e.messages.toAssetFormErrors()),
+                                )
+                            }
                         }
 
                         else -> {
-                            state.value = latest.copy(
-                                isSaving = false,
-                                saveError = "Não foi possível guardar. Tente novamente.",
-                            )
+                            state.update {
+                                it.copy(
+                                    isSaving = false,
+                                    saveError = "Não foi possível guardar. Tente novamente.",
+                                )
+                            }
                         }
                     }
                 },
@@ -162,22 +168,11 @@ internal class AssetManagementViewModel(
             val issuers: List<Issuer> = emptyList(),
             val brokerages: List<Brokerage> = emptyList(),
             val draft: AssetDraft = initialAssetDraft(),
-            val fieldErrors: Map<String, String> = emptyMap(),
             val saveError: String? = null,
             val isSaving: Boolean = false,
             val showDiscardDialog: Boolean = false,
             val navigateAway: Boolean = false,
         ) : UiState
-    }
-
-    internal sealed interface Intent {
-        data class DraftChanged(val draft: AssetDraft) : Intent
-        data class CategoryChanged(val category: InvestmentCategory) : Intent
-        data object Save : Intent
-        data object RequestDismiss : Intent
-        data object ConfirmDiscard : Intent
-        data object CancelDiscard : Intent
-        data object NavigationConsumed : Intent
     }
 
     private sealed interface SaveAction {

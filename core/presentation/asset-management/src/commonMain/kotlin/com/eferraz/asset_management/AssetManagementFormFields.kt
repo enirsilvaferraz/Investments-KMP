@@ -6,16 +6,16 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.asLabel
 import com.eferraz.design_system.components.dropdown.StableExposedDropdown
-import com.eferraz.design_system.core.StableMap
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
-import com.eferraz.design_system.input.date.filterDateMaskDigits
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
@@ -25,48 +25,77 @@ import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
 
+@Composable
+internal fun FormTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    errorMessage: String?,
+    modifier: Modifier = Modifier,
+    placeholder: @Composable (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions? = null,
+    visualTransformation: VisualTransformation? = null,
+    supportingTextWhenNoError: @Composable (() -> Unit)? = null,
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        placeholder = placeholder,
+        modifier = modifier,
+        isError = errorMessage != null,
+        supportingText = if (errorMessage != null) {
+            { Text(errorMessage) }
+        } else {
+            supportingTextWhenNoError
+        },
+        keyboardOptions = keyboardOptions ?: KeyboardOptions.Default,
+        visualTransformation = visualTransformation ?: VisualTransformation.None,
+    )
+}
+
+private const val fullRowSpan = 2
+
 internal fun LazyGridScope.baseForm(
     draft: AssetDraft,
-    onCategoryChange: (InvestmentCategory) -> Unit,
     issuers: List<Issuer>,
     brokerages: List<Brokerage>,
-    onDraftChange: (AssetDraft) -> Unit,
-    fieldErrors: StableMap<String, String>,
+    onEvent: (AssetManagementEvent) -> Unit,
 ) {
 
-    item(span = { GridItemSpan(maxLineSpan) }) {
+    item(span = { GridItemSpan(fullRowSpan) }) {
         StableExposedDropdown(
             label = "Categoria do investimento",
             displayValue = draft.category.asLabel(),
             options = InvestmentCategory.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = onCategoryChange,
+            onItemSelect = { onEvent(AssetManagementEvent.CategoryChanged(it)) },
             required = true,
         )
     }
 
-    item(span = { GridItemSpan(maxLineSpan) }) {
+    item(span = { GridItemSpan(fullRowSpan) }) {
         StableExposedDropdown(
             label = "Emissor",
             displayValue = draft.issuer?.name.orEmpty(),
             options = issuers,
             itemLabel = { it.name },
-            onItemSelect = { issuer -> onDraftChange(draft.copy(issuer = issuer)) },
-            error = fieldErrors["issuer"],
+            onItemSelect = { issuer -> onEvent(AssetManagementEvent.IssuerChanged(issuer)) },
+            error = draft.errors.issuer,
             required = true,
         )
     }
 
     when (draft.category) {
-        InvestmentCategory.FIXED_INCOME -> fixedIncomeFields(draft, fieldErrors, onDraftChange)
-        InvestmentCategory.VARIABLE_INCOME -> variableIncomeFields(draft, fieldErrors, onDraftChange)
-        InvestmentCategory.INVESTMENT_FUND -> fundFields(draft, fieldErrors, onDraftChange)
+        InvestmentCategory.FIXED_INCOME -> fixedIncomeFields(draft, onEvent)
+        InvestmentCategory.VARIABLE_INCOME -> variableIncomeFields(draft, onEvent)
+        InvestmentCategory.INVESTMENT_FUND -> fundFields(draft, onEvent)
     }
 
-    item(span = { GridItemSpan(maxLineSpan) }) {
+    item(span = { GridItemSpan(fullRowSpan) }) {
         TextField(
             value = draft.observations.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(observations = it)) },
+            onValueChange = { onEvent(AssetManagementEvent.ObservationsChanged(it)) },
             label = { Text("Observações gerais") },
             placeholder = { Text("Ex.: estratégia, lembretes, ISIN…") },
             modifier = Modifier.fillMaxWidth(),
@@ -74,14 +103,14 @@ internal fun LazyGridScope.baseForm(
         )
     }
 
-    item(span = { GridItemSpan(maxLineSpan) }) {
+    item(span = { GridItemSpan(fullRowSpan) }) {
         StableExposedDropdown(
             label = BROKERAGE_FIELD_LABEL,
             displayValue = draft.brokerage?.name.orEmpty(),
             options = brokerages,
             itemLabel = { it.name },
-            onItemSelect = { brokerage -> onDraftChange(draft.copy(brokerage = brokerage)) },
-            error = fieldErrors["brokerage"],
+            onItemSelect = { brokerage -> onEvent(AssetManagementEvent.BrokerageChanged(brokerage)) },
+            error = draft.errors.brokerage,
             required = true,
         )
     }
@@ -89,8 +118,7 @@ internal fun LazyGridScope.baseForm(
 
 private fun LazyGridScope.fixedIncomeFields(
     draft: AssetDraft,
-    fieldErrors: StableMap<String, String>,
-    onDraftChange: (AssetDraft) -> Unit,
+    onEvent: (AssetManagementEvent) -> Unit,
 ) {
 
     item {
@@ -99,8 +127,8 @@ private fun LazyGridScope.fixedIncomeFields(
             displayValue = draft.fixedType?.asLabel().orEmpty(),
             options = FixedIncomeAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onDraftChange(draft.copy(fixedType = it)) },
-            error = fieldErrors["fixedType"],
+            onItemSelect = { onEvent(AssetManagementEvent.FixedTypeChanged(it)) },
+            error = draft.errors.fixedType,
             required = true,
         )
     }
@@ -111,8 +139,8 @@ private fun LazyGridScope.fixedIncomeFields(
             displayValue = draft.fixedSubType?.asLabel().orEmpty(),
             options = FixedIncomeSubType.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onDraftChange(draft.copy(fixedSubType = it)) },
-            error = fieldErrors["fixedSubType"],
+            onItemSelect = { onEvent(AssetManagementEvent.FixedSubTypeChanged(it)) },
+            error = draft.errors.fixedSubType,
             required = true,
         )
     }
@@ -123,52 +151,50 @@ private fun LazyGridScope.fixedIncomeFields(
             displayValue = draft.fixedLiquidity?.asLabel().orEmpty(),
             options = Liquidity.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onDraftChange(draft.copy(fixedLiquidity = it)) },
-            error = fieldErrors["fixedLiquidity"],
+            onItemSelect = { onEvent(AssetManagementEvent.FixedLiquidityChanged(it)) },
+            error = draft.errors.fixedLiquidity,
             required = true,
         )
     }
 
     item {
-        TextField(
+        FormTextField(
+            label = "Data de vencimento",
             value = draft.fixedExpiration.orEmpty(),
-            onValueChange = { raw -> onDraftChange(draft.copy(fixedExpiration = filterDateMaskDigits(raw))) },
-            label = { Text("Data de vencimento") },
+            onValueChange = { raw -> onEvent(AssetManagementEvent.FixedExpirationChanged(raw)) },
+            errorMessage = draft.errors.fixedExpiration,
+            supportingTextWhenNoError = { Text("Obrigatório") },
             placeholder = { Text("AAAA-MM-DD") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
-            isError = fieldErrors["fixedExpiration"] != null,
-            supportingText = fieldErrors["fixedExpiration"]?.let { { Text(it) } } ?: { Text("Obrigatório") },
         )
     }
 
     item {
-        TextField(
+        FormTextField(
+            label = "Rentabilidade (% ao ano)",
             value = draft.fixedYield.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(fixedYield = it)) },
-            label = { Text("Rentabilidade (% ao ano)") },
+            onValueChange = { onEvent(AssetManagementEvent.FixedYieldChanged(it)) },
+            errorMessage = draft.errors.fixedYield,
+            supportingTextWhenNoError = { Text("Obrigatório") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            isError = fieldErrors["fixedYield"] != null,
-            supportingText = fieldErrors["fixedYield"]?.let { { Text(it) } } ?: { Text("Obrigatório") },
         )
     }
 
     item {
-        TextField(
+        FormTextField(
+            label = "% em relação ao CDI",
             value = draft.fixedCdi.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(fixedCdi = it)) },
-            label = { Text("% em relação ao CDI") },
+            onValueChange = { onEvent(AssetManagementEvent.FixedCdiChanged(it)) },
+            errorMessage = draft.errors.fixedCdi,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            isError = fieldErrors["fixedCdi"] != null,
-            supportingText = fieldErrors["fixedCdi"]?.let { { Text(it) } },
         )
     }
 }
 
 private fun LazyGridScope.variableIncomeFields(
     draft: AssetDraft,
-    fieldErrors: StableMap<String, String>,
-    onDraftChange: (AssetDraft) -> Unit,
+    onEvent: (AssetManagementEvent) -> Unit,
 ) {
 
     item {
@@ -177,29 +203,27 @@ private fun LazyGridScope.variableIncomeFields(
             displayValue = draft.variableType?.asLabel().orEmpty(),
             options = VariableIncomeAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onDraftChange(draft.copy(variableType = it)) },
-            error = fieldErrors["variableType"],
+            onItemSelect = { onEvent(AssetManagementEvent.VariableTypeChanged(it)) },
+            error = draft.errors.variableType,
         )
     }
 
     item {
-        TextField(
+        FormTextField(
+            label = "Ticker (código na bolsa)",
             value = draft.variableTicker.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(variableTicker = it)) },
-            label = { Text("Ticker (código na bolsa)") },
-            isError = fieldErrors["variableTicker"] != null,
-            supportingText = fieldErrors["variableTicker"]?.let { { Text(it) } },
+            onValueChange = { onEvent(AssetManagementEvent.VariableTickerChanged(it)) },
+            errorMessage = draft.errors.variableTicker,
             modifier = Modifier.fillMaxWidth(),
         )
     }
 
-    item(span = { GridItemSpan(maxLineSpan) }) {
-        TextField(
+    item(span = { GridItemSpan(fullRowSpan) }) {
+        FormTextField(
+            label = "CNPJ do emissor (opcional)",
             value = draft.variableCnpj.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(variableCnpj = it)) },
-            label = { Text("CNPJ do emissor (opcional)") },
-            isError = fieldErrors["cnpj"] != null,
-            supportingText = fieldErrors["cnpj"]?.let { { Text(it) } },
+            onValueChange = { onEvent(AssetManagementEvent.VariableCnpjChanged(it)) },
+            errorMessage = draft.errors.cnpj,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -207,17 +231,15 @@ private fun LazyGridScope.variableIncomeFields(
 
 private fun LazyGridScope.fundFields(
     draft: AssetDraft,
-    fieldErrors: StableMap<String, String>,
-    onDraftChange: (AssetDraft) -> Unit,
+    onEvent: (AssetManagementEvent) -> Unit,
 ) {
 
     item {
-        TextField(
+        FormTextField(
+            label = "Identificação",
             value = draft.fundName.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(fundName = it)) },
-            label = { Text("Identificação") },
-            isError = fieldErrors["fundName"] != null,
-            supportingText = fieldErrors["fundName"]?.let { { Text(it) } },
+            onValueChange = { onEvent(AssetManagementEvent.FundNameChanged(it)) },
+            errorMessage = draft.errors.fundName,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -228,33 +250,31 @@ private fun LazyGridScope.fundFields(
             displayValue = draft.fundType?.asLabel().orEmpty(),
             options = InvestmentFundAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onDraftChange(draft.copy(fundType = it)) },
-            error = fieldErrors["fundType"],
+            onItemSelect = { onEvent(AssetManagementEvent.FundTypeChanged(it)) },
+            error = draft.errors.fundType,
         )
     }
 
     item {
-        TextField(
+        FormTextField(
+            label = "Resgate em (dias úteis)",
             value = draft.fundLiquidityDays.orEmpty(),
-            onValueChange = { onDraftChange(draft.copy(fundLiquidityDays = it)) },
-            label = { Text("Resgate em (dias úteis)") },
+            onValueChange = { onEvent(AssetManagementEvent.FundLiquidityDaysChanged(it)) },
+            errorMessage = draft.errors.fundLiquidityDays,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            isError = fieldErrors["fundLiquidityDays"] != null,
-            supportingText = fieldErrors["fundLiquidityDays"]?.let { { Text(it) } },
             modifier = Modifier.fillMaxWidth(),
         )
     }
 
     item {
-        TextField(
+        FormTextField(
+            label = "Data de vencimento",
             value = draft.fundExpiration.orEmpty(),
-            onValueChange = { raw -> onDraftChange(draft.copy(fundExpiration = filterDateMaskDigits(raw))) },
-            label = { Text("Data de vencimento") },
+            onValueChange = { raw -> onEvent(AssetManagementEvent.FundExpirationChanged(raw)) },
+            errorMessage = draft.errors.fundExpiration,
             placeholder = { Text("AAAA-MM-DD") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
-            isError = fieldErrors["fundExpiration"] != null,
-            supportingText = fieldErrors["fundExpiration"]?.let { { Text(it) } },
             modifier = Modifier.fillMaxWidth(),
         )
     }
