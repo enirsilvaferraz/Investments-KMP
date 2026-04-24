@@ -13,7 +13,7 @@ import com.eferraz.entities.holdings.Brokerage
  * Ações do ecrã de registo (formulário e navegação) — ponto de entrada único [AssetManagementViewModel.dispatch].
  */
 internal sealed class AssetManagementEvent {
-    // Formulário
+
     data class CategoryChanged(val category: InvestmentCategory) : AssetManagementEvent()
     data class IssuerChanged(val issuer: Issuer) : AssetManagementEvent()
     data class ObservationsChanged(val value: String) : AssetManagementEvent()

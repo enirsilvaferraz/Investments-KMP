@@ -11,13 +11,13 @@ private const val DAY_START: Int = 6
 /**
  * Parses [digits] as YYYYMMDD when it has exactly eight digits and represents a valid calendar date.
  */
-internal fun localDateFromIsoDateDigits(digits: String): LocalDate? =
-    if (digits.length != ISO_DATE_DIGIT_COUNT) {
+internal fun localDateFromIsoDateDigits(digits: String?): LocalDate? =
+    if (digits.orEmpty().length != ISO_DATE_DIGIT_COUNT) {
         null
     } else {
-        val y = digits.substring(0, YEAR_END_EXCLUSIVE).toIntOrNull()
-        val month = digits.substring(MONTH_START, MONTH_END_EXCLUSIVE).toIntOrNull()
-        val day = digits.substring(DAY_START, ISO_DATE_DIGIT_COUNT).toIntOrNull()
+        val y = digits.orEmpty().substring(0, YEAR_END_EXCLUSIVE).toIntOrNull()
+        val month = digits.orEmpty().substring(MONTH_START, MONTH_END_EXCLUSIVE).toIntOrNull()
+        val day = digits.orEmpty().substring(DAY_START, ISO_DATE_DIGIT_COUNT).toIntOrNull()
         if (y == null || month == null || day == null) {
             null
         } else {

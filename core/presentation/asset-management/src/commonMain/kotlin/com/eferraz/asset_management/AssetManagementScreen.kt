@@ -21,7 +21,7 @@ public fun AssetManagementScreen(
     LaunchedEffect(ui.navigateAway) {
         if (ui.navigateAway) {
             onDismissUpdated.value()
-            viewModel.dispatch(AssetManagementEvent.NavigationConsumed)
+            viewModel.dispatch(AssetManagementEvent.NavigationConsumed) // TODO Verificar uma maneira de limpar completamente o state
         }
     }
 

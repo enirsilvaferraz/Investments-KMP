@@ -1,91 +1,80 @@
 package com.eferraz.asset_management
 
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.CNPJ
+import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentCategory
-import com.eferraz.entities.assets.Issuer
+import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
-import com.eferraz.usecases.UpsertInvestmentAssetUseCase
+import com.eferraz.entities.holdings.Owner
 
-internal fun buildUpsertParam(s: UiState): UpsertInvestmentAssetUseCase.Param? {
-    val issuer = s.issuer ?: return null
-    val brokerage = s.brokerage ?: return null
+internal fun buildAsset(s: UiState): Asset {
     return when (s.category) {
-        InvestmentCategory.FIXED_INCOME -> buildFixedIncomeParam(s, issuer, brokerage)
-        InvestmentCategory.VARIABLE_INCOME -> buildVariableIncomeParam(s, issuer, brokerage)
-        InvestmentCategory.INVESTMENT_FUND -> buildFundParam(s, issuer, brokerage)
+        InvestmentCategory.FIXED_INCOME -> buildFixedIncomeAsset(s)
+        InvestmentCategory.VARIABLE_INCOME -> buildVariableIncomeAsset(s)
+        InvestmentCategory.INVESTMENT_FUND -> buildFundAsset(s)
     }
 }
 
-private fun hasCompleteFixedIncomeInputs(s: UiState): Boolean {
-    if (s.fixedType == null || s.fixedSubType == null || s.fixedLiquidity == null) {
-        return false
-    }
-    val exp = localDateFromIsoDateDigits(s.fixedExpiration.orEmpty())
-    return exp != null && s.fixedYield.orEmpty().toDoubleOrNull() != null
-}
-
-private fun buildFixedIncomeParam(s: UiState, issuer: Issuer, brokerage: Brokerage): UpsertInvestmentAssetUseCase.Param? {
-    if (!hasCompleteFixedIncomeInputs(s)) return null
-    val type = s.fixedType!!
-    val sub = s.fixedSubType!!
-    val liq = s.fixedLiquidity!!
-    val exp = localDateFromIsoDateDigits(s.fixedExpiration.orEmpty())!!
-    val y = s.fixedYield.orEmpty().toDoubleOrNull()!!
-    val cdi = s.fixedCdi.takeIf { it.isNullOrBlank().not() }?.toDoubleOrNull()
-    return UpsertInvestmentAssetUseCase.Param.FixedIncomeRegistration(
-        assetId = 0L,
-        issuer = issuer,
-        observations = s.observations.takeIf { it.isNullOrBlank().not() },
-        brokerage = brokerage,
-        type = type,
-        subType = sub,
-        expirationDate = exp,
-        contractedYield = y,
-        cdiRelativeYield = cdi,
-        liquidity = liq,
+private fun buildFixedIncomeAsset(s: UiState): FixedIncomeAsset {
+    return FixedIncomeAsset(
+        id = 0L,
+        issuer = s.issuer!!,
+        type = s.fixedType!!,
+        subType = s.fixedSubType!!,
+        expirationDate = localDateFromIsoDateDigits(s.fixedExpiration)!!,
+        contractedYield = s.fixedYield?.toDoubleOrNull()!!,
+        cdiRelativeYield = s.fixedCdi?.toDoubleOrNull(),
+        liquidity = s.fixedLiquidity!!,
+        observations = s.observations
     )
 }
 
-private fun buildVariableIncomeParam(s: UiState, issuer: Issuer, brokerage: Brokerage): UpsertInvestmentAssetUseCase.Param? {
-    val t = s.variableType
-    return if (t != null) {
-        UpsertInvestmentAssetUseCase.Param.VariableIncomeRegistration(
-            assetId = 0L,
-            issuer = issuer,
-            observations = s.observations.takeIf { !it.isNullOrBlank() },
-            brokerage = brokerage,
-            assetName = s.variableTicker.orEmpty(),
-            type = t,
-            ticker = s.variableTicker.orEmpty(),
-            cnpjRaw = s.variableCnpj.takeIf { !it.isNullOrBlank() },
-        )
-    } else {
-        null
-    }
-}
-
-private fun hasCompleteFundInputs(s: UiState): Boolean {
-    if (s.fundType == null || s.fundLiquidity == null) {
-        return false
-    }
-    val days = s.fundLiquidityDays.orEmpty().toIntOrNull()
-    return days != null && days > 0
-}
-
-private fun buildFundParam(s: UiState, issuer: Issuer, brokerage: Brokerage): UpsertInvestmentAssetUseCase.Param? {
-    if (!hasCompleteFundInputs(s)) return null
-    val ft = s.fundType!!
-    val fl = s.fundLiquidity!!
-    val days = s.fundLiquidityDays.orEmpty().toIntOrNull()!!
-    val exp = s.fundExpiration.takeIf { !it.isNullOrBlank() }?.let { localDateFromIsoDateDigits(it) }
-    return UpsertInvestmentAssetUseCase.Param.InvestmentFundRegistration(
-        assetId = 0L,
-        issuer = issuer,
-        observations = s.observations.takeIf { !it.isNullOrBlank() },
-        brokerage = brokerage,
-        name = s.fundName.orEmpty(),
-        type = ft,
-        liquidity = fl,
-        liquidityDays = days,
-        expirationDate = exp,
+private fun buildVariableIncomeAsset(s: UiState): VariableIncomeAsset {
+    return VariableIncomeAsset(
+        id = 0L,
+        name = s.variableTicker.orEmpty().trim(),
+        issuer = s.issuer!!,
+        type = s.variableType!!,
+        ticker = s.variableTicker.orEmpty().trim(),
+        cnpj = CNPJ(s.variableCnpj),
+        observations = s.observations,
     )
 }
+
+private fun buildFundAsset(s: UiState): InvestmentFundAsset {
+    return InvestmentFundAsset(
+        id = 0L,
+        name = s.fundName.orEmpty().trim(),
+        issuer = s.issuer!!,
+        type = s.fundType!!,
+        liquidity = s.fundLiquidity!!,
+        liquidityDays = s.fundLiquidityDays?.toIntOrNull()!!,
+        expirationDate = localDateFromIsoDateDigits(s.fundExpiration),
+        observations = s.observations,
+    )
+}
+
+internal fun buildHolding(
+    baseAsset: Asset,
+    assetId: Long,
+    owner: Owner,
+    brokerage: Brokerage,
+): AssetHolding {
+    return AssetHolding(
+        id = 0L,
+        asset = baseAsset.withSavedId(assetId),
+        owner = owner,
+        brokerage = brokerage,
+        goal = null
+    )
+}
+
+private fun Asset.withSavedId(newId: Long): Asset =
+    when (this) {
+        is FixedIncomeAsset -> copy(id = newId)
+        is VariableIncomeAsset -> copy(id = newId)
+        is InvestmentFundAsset -> copy(id = newId)
+    }

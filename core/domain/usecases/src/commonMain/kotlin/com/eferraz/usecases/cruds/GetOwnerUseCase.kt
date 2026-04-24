@@ -11,10 +11,11 @@ import org.koin.core.annotation.Factory
 public class GetOwnerUseCase(
     private val ownerRepository: OwnerRepository,
     context: CoroutineDispatcher = Dispatchers.Default
-) : AppUseCase<GetOwnerUseCase.Param, Owner?>(context) {
+) : AppUseCase<GetOwnerUseCase.Param, Owner>(context) {
 
     public object Param
 
-    override suspend fun execute(param: Param): Owner? =
+    override suspend fun execute(param: Param): Owner =
         ownerRepository.getFirst()
+            ?: throw Exception("Owner not found")
 }

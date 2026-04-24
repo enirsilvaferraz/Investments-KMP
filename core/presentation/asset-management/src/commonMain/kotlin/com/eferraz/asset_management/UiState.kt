@@ -55,40 +55,48 @@ internal data class UiState(
     val fundLiquidity: Liquidity? = null,
     val fundLiquidityDays: String? = null,
     val fundExpiration: String? = null,
-)
+) {
 
-internal fun UiState.hasAnyFieldError(): Boolean =
-    issuerError != null || brokerageError != null ||
-        fixedTypeError != null || fixedSubTypeError != null || fixedExpirationError != null ||
-        fixedYieldError != null || fixedCdiError != null || fixedLiquidityError != null ||
-        variableTypeError != null || variableTickerError != null || cnpjError != null ||
-        fundNameError != null || fundTypeError != null || fundLiquidityError != null ||
-        fundLiquidityDaysError != null || fundExpirationError != null
+    /**
+     * Todos os erros de campo a `null` (ex. antes de `runUpsert` ou ao trocar categoria).
+     */
+    internal fun withClearedFieldErrors() = copy(
+        issuerError = null,
+        brokerageError = null,
+        fixedTypeError = null,
+        fixedSubTypeError = null,
+        fixedExpirationError = null,
+        fixedYieldError = null,
+        fixedCdiError = null,
+        fixedLiquidityError = null,
+        variableTypeError = null,
+        variableTickerError = null,
+        cnpjError = null,
+        fundNameError = null,
+        fundTypeError = null,
+        fundLiquidityError = null,
+        fundLiquidityDaysError = null,
+        fundExpirationError = null,
+    )
+
+    internal fun changeCategory(category: InvestmentCategory) = UiState().copy(
+        category = category,
+        issuer = issuer,
+        brokerage = brokerage,
+        observations = observations
+    )
+
+    internal fun hasAnyFieldError(): Boolean =
+        issuerError != null || brokerageError != null ||
+                fixedTypeError != null || fixedSubTypeError != null || fixedExpirationError != null ||
+                fixedYieldError != null || fixedCdiError != null || fixedLiquidityError != null ||
+                variableTypeError != null || variableTickerError != null || cnpjError != null ||
+                fundNameError != null || fundTypeError != null || fundLiquidityError != null ||
+                fundLiquidityDaysError != null || fundExpirationError != null
+}
 
 /**
- * Todos os erros de campo a `null` (ex. antes de `runUpsert` ou ao trocar categoria).
- */
-internal fun UiState.withClearedFieldErrors() = copy(
-    issuerError = null,
-    brokerageError = null,
-    fixedTypeError = null,
-    fixedSubTypeError = null,
-    fixedExpirationError = null,
-    fixedYieldError = null,
-    fixedCdiError = null,
-    fixedLiquidityError = null,
-    variableTypeError = null,
-    variableTickerError = null,
-    cnpjError = null,
-    fundNameError = null,
-    fundTypeError = null,
-    fundLiquidityError = null,
-    fundLiquidityDaysError = null,
-    fundExpirationError = null,
-)
-
-/**
- * Aplica [ValidateException.messages] (chaves do [com.eferraz.usecases.UpsertInvestmentAssetUseCase]
+ * Aplica [ValidateException.messages] (chaves do [com.eferraz.usecases.cruds.UpsertAssetUseCase]
  * e de emissor/corretora) nos campos `*Error`.
  * Chave inexistente → `null` nesse alvo; erros de campo de categorias fora de [s.category] ignoram-se.
  */
@@ -120,25 +128,3 @@ internal fun Map<String, String>.remoteFieldErrorsOn(s: UiState) =
             )
         }
     }
-
-internal fun UiState.withCategoryPreservingIssuerAndObs(category: InvestmentCategory) = withClearedFieldErrors().copy(
-    category = category,
-    issuer = issuer,
-    brokerage = brokerage,
-    observations = observations,
-    fixedType = null,
-    fixedSubType = null,
-    fixedExpiration = null,
-    fixedYield = null,
-    fixedCdi = null,
-    fixedLiquidity = null,
-    variableName = null,
-    variableType = null,
-    variableTicker = null,
-    variableCnpj = null,
-    fundName = null,
-    fundType = null,
-    fundLiquidity = null,
-    fundLiquidityDays = null,
-    fundExpiration = null,
-)
