@@ -38,8 +38,7 @@ private fun UiState.validateFixedIncome(): UiState = copy(
 private fun UiState.validateVariableIncome(): UiState = copy(
     variableTypeError = if (variableType == null) "Obrigatório" else null,
     variableTickerError = if (variableTicker.orEmpty().isBlank()) "Obrigatório" else null,
-    cnpjError = if (variableCnpj.isNullOrBlank().not() && runCatching { CNPJ(variableCnpj) }.isFailure
-    ) "CNPJ inválido" else null,
+    cnpjError = if (variableCnpj.isNullOrBlank().not() && runCatching { CNPJ(variableCnpj) }.isFailure) "CNPJ inválido" else null,
 )
 
 private fun UiState.validateFund(): UiState = copy(

@@ -99,14 +99,13 @@ internal class AssetManagementViewModel(
     }
 
     private fun resetState(holdingId: Long?) = viewModelScope.launch {
+
         val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrNull().orEmpty()
         val brokerages = getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty()
-        val editable = holdingId?.let {
-            getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(it)).getOrNull()
-        }
+        val editableHolding = holdingId?.let { getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(it)).getOrNull() }
+
         state.update {
-            editable?.toUiState(issuers = issuers, brokerages = brokerages)
-                ?: UiState(issuers = issuers, brokerages = brokerages)
+            (editableHolding?.toUiState() ?: UiState()).copy(issuers = issuers, brokerages = brokerages)
         }
     }
 

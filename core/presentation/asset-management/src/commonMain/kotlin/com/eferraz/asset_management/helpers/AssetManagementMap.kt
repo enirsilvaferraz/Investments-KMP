@@ -82,17 +82,13 @@ private fun Asset.withSavedId(newId: Long): Asset =
         is InvestmentFundAsset -> copy(id = newId)
     }
 
-internal fun AssetHolding.toUiState(
-    issuers: List<Issuer>,
-    brokerages: List<Brokerage>,
-): UiState {
-    val currentAsset = asset
-    return when (currentAsset) {
+internal fun AssetHolding.toUiState(): UiState {
+
+    return when (val currentAsset = asset) {
+
         is FixedIncomeAsset -> UiState(
             editingHoldingId = id,
             editingAssetId = currentAsset.id,
-            issuers = issuers,
-            brokerages = brokerages,
             category = InvestmentCategory.FIXED_INCOME,
             issuer = currentAsset.issuer,
             brokerage = brokerage,
@@ -108,8 +104,6 @@ internal fun AssetHolding.toUiState(
         is VariableIncomeAsset -> UiState(
             editingHoldingId = id,
             editingAssetId = currentAsset.id,
-            issuers = issuers,
-            brokerages = brokerages,
             category = InvestmentCategory.VARIABLE_INCOME,
             issuer = currentAsset.issuer,
             brokerage = brokerage,
@@ -123,8 +117,6 @@ internal fun AssetHolding.toUiState(
         is InvestmentFundAsset -> UiState(
             editingHoldingId = id,
             editingAssetId = currentAsset.id,
-            issuers = issuers,
-            brokerages = brokerages,
             category = InvestmentCategory.INVESTMENT_FUND,
             issuer = currentAsset.issuer,
             brokerage = brokerage,
