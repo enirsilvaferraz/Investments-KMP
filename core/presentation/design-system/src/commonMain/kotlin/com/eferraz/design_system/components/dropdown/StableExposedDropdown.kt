@@ -79,7 +79,7 @@ private fun <T> StableExposedDropdownImpl(
         modifier = modifier.fillMaxWidth(),
     ) {
 
-        TextField(
+        OutlinedTextField(
             modifier = Modifier
                 .menuAnchor(
                     type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,

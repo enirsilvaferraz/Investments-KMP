@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -46,7 +47,7 @@ internal fun FormTextField(
         supportingTextWhenNoError
     }
 
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
@@ -98,13 +99,11 @@ internal fun LazyGridScope.assetManagementForm(
     }
 
     item(span = { GridItemSpan(fullRowSpan) }) {
-        TextField(
+        FormTextField(
+            label = "Observações gerais",
             value = ui.observations.orEmpty(),
             onValueChange = { onEvent(VMEvents.ObservationsChanged(it)) },
-            label = { Text("Observações gerais") },
-            placeholder = { Text("Ex.: estratégia, lembretes, ISIN…") },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 2,
+            errorMessage = null,
         )
     }
 

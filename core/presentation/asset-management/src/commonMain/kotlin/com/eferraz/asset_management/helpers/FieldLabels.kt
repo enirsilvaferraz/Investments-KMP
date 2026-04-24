@@ -52,7 +52,7 @@ internal fun InvestmentCategory.asLabel(): String =
 
 internal fun Liquidity.asLabel(): String =
     when (this) {
-        Liquidity.DAILY -> "Diária (resgate a qualquer dia útil)"
-        Liquidity.AT_MATURITY -> "No vencimento do título"
-        Liquidity.D_PLUS_DAYS -> "D + dias (conforme contrato)"
+        Liquidity.DAILY -> "Diária"
+        Liquidity.AT_MATURITY -> "No vencimento"
+        Liquidity.D_PLUS_DAYS -> "D + dias"
     }
