@@ -19,11 +19,15 @@ public fun AssetManagementScreen(
     val viewModel: AssetManagementViewModel = koinViewModel()
     val ui by viewModel.state.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.dispatch(VMEvents.ScreenEntered)
+    }
+
     val onDismissUpdated = rememberUpdatedState(onDismiss)
     LaunchedEffect(ui.navigateAway) {
         if (ui.navigateAway) {
             onDismissUpdated.value()
-            viewModel.dispatch(VMEvents.NavigationConsumed) // TODO Verificar uma maneira de limpar completamente o state
+            viewModel.dispatch(VMEvents.NavigationConsumed)
         }
     }
 

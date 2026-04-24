@@ -30,11 +30,10 @@ internal class AssetManagementViewModel(
 
     internal val state: StateFlow<UiState> field = MutableStateFlow(UiState())
 
-    init {
-        loadIssuersAndBrokerages()
-    }
-
     internal fun dispatch(event: VMEvents) = when (event) {
+
+        VMEvents.ScreenEntered ->
+            resetState()
 
         is VMEvents.CategoryChanged ->
             state.update { UiState(issuers = it.issuers, brokerages = it.brokerages, category = event.category) }
@@ -88,7 +87,7 @@ internal class AssetManagementViewModel(
             state.update { it.copy(fundExpiration = filterDateMaskDigits(event.raw), fundExpirationError = null) }
 
         VMEvents.RequestDismiss ->
-            state.update { UiState(issuers = it.issuers, brokerages = it.brokerages, navigateAway = true) }
+            state.update { it.copy(navigateAway = true) }
 
         VMEvents.NavigationConsumed ->
             state.update { it.copy(navigateAway = it.navigateAway.not()) }
@@ -96,10 +95,10 @@ internal class AssetManagementViewModel(
         VMEvents.Save -> onSave()
     }
 
-    private fun loadIssuersAndBrokerages() = viewModelScope.launch {
+    private fun resetState() = viewModelScope.launch {
         val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrNull().orEmpty()
         val brokerages = getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty()
-        state.update { it.copy(issuers = issuers, brokerages = brokerages) }
+        state.update { UiState(issuers = issuers, brokerages = brokerages) }
     }
 
     private fun onSave() {
