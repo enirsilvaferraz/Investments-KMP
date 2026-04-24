@@ -1,4 +1,4 @@
-package com.eferraz.asset_management
+package com.eferraz.asset_management.vm
 
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType

@@ -1,4 +1,4 @@
-package com.eferraz.asset_management
+package com.eferraz.asset_management.view
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -13,6 +13,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.asLabel
+import com.eferraz.asset_management.vm.AssetManagementEvent
+import com.eferraz.asset_management.vm.UiState
 import com.eferraz.design_system.components.dropdown.StableExposedDropdown
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation

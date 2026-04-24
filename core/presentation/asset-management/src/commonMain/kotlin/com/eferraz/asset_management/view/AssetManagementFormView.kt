@@ -1,4 +1,4 @@
-package com.eferraz.asset_management
+package com.eferraz.asset_management.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.eferraz.asset_management.vm.AssetManagementEvent
+import com.eferraz.asset_management.vm.UiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

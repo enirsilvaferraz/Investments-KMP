@@ -1,4 +1,4 @@
-package com.eferraz.asset_management
+package com.eferraz.asset_management.vm
 
 import androidx.compose.runtime.Immutable
 import com.eferraz.entities.assets.FixedIncomeAssetType
@@ -10,10 +10,6 @@ import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
 
-/**
- * Estado do ecrã de gestão de activos: listas, fluxo (guardar, navegação) e campos de formulário unificados
- * (incl. mensagens de validação em campos, [validateUiState]).
- */
 @Immutable
 internal data class UiState(
     val issuers: List<Issuer> = emptyList(),
@@ -79,13 +75,6 @@ internal data class UiState(
         fundExpirationError = null,
     )
 
-    internal fun changeCategory(category: InvestmentCategory) = UiState().copy(
-        category = category,
-        issuer = issuer,
-        brokerage = brokerage,
-        observations = observations
-    )
-
     internal fun hasAnyFieldError(): Boolean =
         issuerError != null || brokerageError != null ||
                 fixedTypeError != null || fixedSubTypeError != null || fixedExpirationError != null ||
@@ -94,37 +83,3 @@ internal data class UiState(
                 fundNameError != null || fundTypeError != null || fundLiquidityError != null ||
                 fundLiquidityDaysError != null || fundExpirationError != null
 }
-
-/**
- * Aplica [ValidateException.messages] (chaves do [com.eferraz.usecases.cruds.UpsertAssetUseCase]
- * e de emissor/corretora) nos campos `*Error`.
- * Chave inexistente → `null` nesse alvo; erros de campo de categorias fora de [s.category] ignoram-se.
- */
-internal fun Map<String, String>.remoteFieldErrorsOn(s: UiState) =
-    s.withClearedFieldErrors().run {
-        val common = copy(
-            issuerError = this@remoteFieldErrorsOn["issuer"],
-            brokerageError = this@remoteFieldErrorsOn["brokerage"],
-        )
-        when (s.category) {
-            InvestmentCategory.FIXED_INCOME -> common.copy(
-                fixedExpirationError = this@remoteFieldErrorsOn["expirationDate"],
-                fixedYieldError = this@remoteFieldErrorsOn["contractedYield"],
-                fixedCdiError = this@remoteFieldErrorsOn["cdiRelativeYield"],
-            )
-
-            InvestmentCategory.VARIABLE_INCOME -> {
-                val tn = this@remoteFieldErrorsOn["ticker"] ?: this@remoteFieldErrorsOn["assetName"]
-                common.copy(
-                    variableTickerError = tn,
-                    cnpjError = this@remoteFieldErrorsOn["cnpj"],
-                )
-            }
-
-            InvestmentCategory.INVESTMENT_FUND -> common.copy(
-                fundNameError = this@remoteFieldErrorsOn["name"],
-                fundLiquidityDaysError = this@remoteFieldErrorsOn["liquidityDays"],
-                fundExpirationError = this@remoteFieldErrorsOn["expirationDate"],
-            )
-        }
-    }

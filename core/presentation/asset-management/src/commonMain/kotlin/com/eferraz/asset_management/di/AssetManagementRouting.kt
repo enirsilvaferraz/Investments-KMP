@@ -1,4 +1,4 @@
-package com.eferraz.asset_management
+package com.eferraz.asset_management.di
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable

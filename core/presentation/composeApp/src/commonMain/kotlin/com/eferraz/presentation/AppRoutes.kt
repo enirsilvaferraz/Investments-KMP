@@ -2,7 +2,7 @@ package com.eferraz.presentation
 
 import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
-import com.eferraz.asset_management.AssetManagementRouting
+import com.eferraz.asset_management.di.AssetManagementRouting
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic

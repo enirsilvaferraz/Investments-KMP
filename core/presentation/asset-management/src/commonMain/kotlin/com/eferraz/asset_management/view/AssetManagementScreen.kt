@@ -1,4 +1,4 @@
-package com.eferraz.asset_management
+package com.eferraz.asset_management.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -6,6 +6,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import com.eferraz.asset_management.vm.AssetManagementEvent
+import com.eferraz.asset_management.vm.AssetManagementViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

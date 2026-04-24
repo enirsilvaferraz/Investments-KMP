@@ -1,7 +1,11 @@
-package com.eferraz.asset_management
+package com.eferraz.asset_management.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eferraz.asset_management.helpers.buildAsset
+import com.eferraz.asset_management.helpers.buildHolding
+import com.eferraz.asset_management.helpers.remoteFieldErrorsOn
+import com.eferraz.asset_management.helpers.validateUiState
 import com.eferraz.design_system.input.date.filterDateMaskDigits
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetIssuersUseCase
@@ -102,25 +106,24 @@ internal class AssetManagementViewModel(
 
         if (state.value.isSaving) return
 
-        val validated = validateUiState(state.value)
+        val validated = state.value.validateUiState()
 
         if (validated.hasAnyFieldError()) {
             state.update { validated }
             return
         }
 
-        val asset = buildAsset(state.value)
+        val asset = state.value.buildAsset()
 
         viewModelScope.launch {
 
             state.update { it.copy(isSaving = true) }
 
-            val owner = getOwnerUseCase(GetOwnerUseCase.Param).getOrThrow()
-            val brokerage = state.value.brokerage!!
-
             upsertAssetUseCase(UpsertAssetUseCase.Param(asset))
                 .fold(
                     onSuccess = { assetId ->
+                        val owner = getOwnerUseCase(GetOwnerUseCase.Param).getOrThrow()
+                        val brokerage = state.value.brokerage!!
                         upsertAssetHoldingUseCase(UpsertAssetHoldingUseCase.Param(buildHolding(asset, assetId, owner, brokerage)))
                     },
                     onFailure = {
