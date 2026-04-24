@@ -3,19 +3,27 @@ package com.eferraz.asset_management.helpers
 import com.eferraz.asset_management.vm.UiState
 import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.InvestmentCategory
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
-internal fun UiState.validateUiState(): UiState {
+internal fun MutableStateFlow<UiState>.checkErros(): Boolean {
 
-    val withCommon = withClearedFieldErrors().copy(
-        issuerError = if (issuer == null) "Obrigatório" else null,
-        brokerageError = if (brokerage == null) "Obrigatório" else null,
+    val state = this.value
+
+    val withCommon = state.withClearedFieldErrors().copy(
+        issuerError = if (state.issuer == null) "Obrigatório" else null,
+        brokerageError = if (state.brokerage == null) "Obrigatório" else null,
     )
 
-    return when (category) {
+    val validated = when (state.category) {
         InvestmentCategory.FIXED_INCOME -> withCommon.validateFixedIncome()
         InvestmentCategory.VARIABLE_INCOME -> withCommon.validateVariableIncome()
         InvestmentCategory.INVESTMENT_FUND -> withCommon.validateFund()
     }
+
+    this.update { validated }
+
+    return validated.hasAnyFieldError()
 }
 
 private fun UiState.validateFixedIncome(): UiState = copy(
@@ -30,7 +38,8 @@ private fun UiState.validateFixedIncome(): UiState = copy(
 private fun UiState.validateVariableIncome(): UiState = copy(
     variableTypeError = if (variableType == null) "Obrigatório" else null,
     variableTickerError = if (variableTicker.orEmpty().isBlank()) "Obrigatório" else null,
-    cnpjError = if (variableCnpj.isNullOrBlank().not() && runCatching { CNPJ(this@validateVariableIncome.variableCnpj) }.isFailure) "CNPJ inválido" else null,
+    cnpjError = if (variableCnpj.isNullOrBlank().not() && runCatching { CNPJ(variableCnpj) }.isFailure
+    ) "CNPJ inválido" else null,
 )
 
 private fun UiState.validateFund(): UiState = copy(

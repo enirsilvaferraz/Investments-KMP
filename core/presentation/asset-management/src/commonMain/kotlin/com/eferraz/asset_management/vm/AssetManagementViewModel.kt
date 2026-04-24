@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.eferraz.asset_management.helpers.buildAsset
 import com.eferraz.asset_management.helpers.buildHolding
 import com.eferraz.asset_management.helpers.remoteFieldErrorsOn
-import com.eferraz.asset_management.helpers.validateUiState
+import com.eferraz.asset_management.helpers.checkErros
 import com.eferraz.design_system.input.date.filterDateMaskDigits
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetIssuersUseCase
@@ -34,66 +34,66 @@ internal class AssetManagementViewModel(
         loadIssuersAndBrokerages()
     }
 
-    internal fun dispatch(event: AssetManagementEvent) = when (event) {
+    internal fun dispatch(event: VMEvents) = when (event) {
 
-        is AssetManagementEvent.CategoryChanged ->
+        is VMEvents.CategoryChanged ->
             state.update { UiState(issuers = it.issuers, brokerages = it.brokerages, category = event.category) }
 
-        is AssetManagementEvent.IssuerChanged ->
+        is VMEvents.IssuerChanged ->
             state.update { it.copy(issuer = event.issuer, issuerError = null) }
 
-        is AssetManagementEvent.ObservationsChanged ->
+        is VMEvents.ObservationsChanged ->
             state.update { it.copy(observations = event.value) }
 
-        is AssetManagementEvent.BrokerageChanged ->
+        is VMEvents.BrokerageChanged ->
             state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
 
-        is AssetManagementEvent.FixedTypeChanged ->
+        is VMEvents.FixedTypeChanged ->
             state.update { it.copy(fixedType = event.type, fixedTypeError = null) }
 
-        is AssetManagementEvent.FixedSubTypeChanged ->
+        is VMEvents.FixedSubTypeChanged ->
             state.update { it.copy(fixedSubType = event.subType, fixedSubTypeError = null) }
 
-        is AssetManagementEvent.FixedExpirationChanged ->
+        is VMEvents.FixedExpirationChanged ->
             state.update { it.copy(fixedExpiration = filterDateMaskDigits(event.raw), fixedExpirationError = null) }
 
-        is AssetManagementEvent.FixedYieldChanged ->
+        is VMEvents.FixedYieldChanged ->
             state.update { it.copy(fixedYield = event.value, fixedYieldError = null) }
 
-        is AssetManagementEvent.FixedCdiChanged ->
+        is VMEvents.FixedCdiChanged ->
             state.update { it.copy(fixedCdi = event.value, fixedCdiError = null) }
 
-        is AssetManagementEvent.FixedLiquidityChanged ->
+        is VMEvents.FixedLiquidityChanged ->
             state.update { it.copy(fixedLiquidity = event.liquidity, fixedLiquidityError = null) }
 
-        is AssetManagementEvent.VariableTypeChanged ->
+        is VMEvents.VariableTypeChanged ->
             state.update { it.copy(variableType = event.type, variableTypeError = null) }
 
-        is AssetManagementEvent.VariableTickerChanged ->
+        is VMEvents.VariableTickerChanged ->
             state.update { it.copy(variableTicker = event.value, variableTickerError = null) }
 
-        is AssetManagementEvent.VariableCnpjChanged ->
+        is VMEvents.VariableCnpjChanged ->
             state.update { it.copy(variableCnpj = event.value, cnpjError = null) }
 
-        is AssetManagementEvent.FundNameChanged ->
+        is VMEvents.FundNameChanged ->
             state.update { it.copy(fundName = event.value, fundNameError = null) }
 
-        is AssetManagementEvent.FundTypeChanged ->
+        is VMEvents.FundTypeChanged ->
             state.update { it.copy(fundType = event.type, fundTypeError = null) }
 
-        is AssetManagementEvent.FundLiquidityDaysChanged ->
+        is VMEvents.FundLiquidityDaysChanged ->
             state.update { it.copy(fundLiquidityDays = event.value, fundLiquidityDaysError = null) }
 
-        is AssetManagementEvent.FundExpirationChanged ->
+        is VMEvents.FundExpirationChanged ->
             state.update { it.copy(fundExpiration = filterDateMaskDigits(event.raw), fundExpirationError = null) }
 
-        AssetManagementEvent.RequestDismiss ->
+        VMEvents.RequestDismiss ->
             state.update { UiState(issuers = it.issuers, brokerages = it.brokerages, navigateAway = true) }
 
-        AssetManagementEvent.NavigationConsumed ->
+        VMEvents.NavigationConsumed ->
             state.update { it.copy(navigateAway = it.navigateAway.not()) }
 
-        AssetManagementEvent.Save -> onSave()
+        VMEvents.Save -> onSave()
     }
 
     private fun loadIssuersAndBrokerages() = viewModelScope.launch {
@@ -104,14 +104,7 @@ internal class AssetManagementViewModel(
 
     private fun onSave() {
 
-        if (state.value.isSaving) return
-
-        val validated = state.value.validateUiState()
-
-        if (validated.hasAnyFieldError()) {
-            state.update { validated }
-            return
-        }
+        if (state.value.isSaving || state.checkErros()) return
 
         val asset = state.value.buildAsset()
 
@@ -136,8 +129,8 @@ internal class AssetManagementViewModel(
                     },
                     onFailure = { e ->
                         when (e) {
-                            is ValidateException -> state.update { st -> e.messages.remoteFieldErrorsOn(st).copy(isSaving = false) }
-                            else -> state.update { it.copy(isSaving = false) }
+                            is ValidateException -> state.update { e.messages.remoteFieldErrorsOn(it).copy(isSaving = false) }
+                            else -> state.update { UiState(issuers = it.issuers, brokerages = it.brokerages, isSaving = false) }
                         }
                     }
                 )

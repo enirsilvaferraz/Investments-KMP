@@ -40,7 +40,7 @@ private fun UiState.buildVariableIncomeAsset(): VariableIncomeAsset {
         issuer = issuer!!,
         type = variableType!!,
         ticker = variableTicker.orEmpty().trim(),
-        cnpj = CNPJ(variableCnpj),
+        cnpj = variableCnpj.takeIf { it.isNullOrBlank().not() }?.let { CNPJ(variableCnpj) } ,
         observations = observations,
     )
 }

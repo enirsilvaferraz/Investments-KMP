@@ -13,7 +13,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.asLabel
-import com.eferraz.asset_management.vm.AssetManagementEvent
+import com.eferraz.asset_management.vm.VMEvents
 import com.eferraz.asset_management.vm.UiState
 import com.eferraz.design_system.components.dropdown.StableExposedDropdown
 import com.eferraz.design_system.input.date.DateFormat
@@ -39,6 +39,13 @@ internal fun FormTextField(
     visualTransformation: VisualTransformation? = null,
     supportingTextWhenNoError: @Composable (() -> Unit)? = null,
 ) {
+
+    val supportingText = if (errorMessage != null) {
+        { Text(errorMessage) }
+    } else {
+        supportingTextWhenNoError
+    }
+
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -46,11 +53,7 @@ internal fun FormTextField(
         placeholder = placeholder,
         modifier = modifier,
         isError = errorMessage != null,
-        supportingText = if (errorMessage != null) {
-            { Text(errorMessage) }
-        } else {
-            supportingTextWhenNoError
-        },
+        supportingText = supportingText,
         keyboardOptions = keyboardOptions ?: KeyboardOptions.Default,
         visualTransformation = visualTransformation ?: VisualTransformation.None,
     )
@@ -62,7 +65,7 @@ internal fun LazyGridScope.assetManagementForm(
     ui: UiState,
     issuers: List<Issuer>,
     brokerages: List<Brokerage>,
-    onEvent: (AssetManagementEvent) -> Unit,
+    onEvent: (VMEvents) -> Unit,
 ) {
 
     item(span = { GridItemSpan(fullRowSpan) }) {
@@ -71,7 +74,7 @@ internal fun LazyGridScope.assetManagementForm(
             displayValue = ui.category.asLabel(),
             options = InvestmentCategory.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvent.CategoryChanged(it)) },
+            onItemSelect = { onEvent(VMEvents.CategoryChanged(it)) },
             required = true,
         )
     }
@@ -82,7 +85,7 @@ internal fun LazyGridScope.assetManagementForm(
             displayValue = ui.issuer?.name.orEmpty(),
             options = issuers,
             itemLabel = { it.name },
-            onItemSelect = { issuer -> onEvent(AssetManagementEvent.IssuerChanged(issuer)) },
+            onItemSelect = { issuer -> onEvent(VMEvents.IssuerChanged(issuer)) },
             error = ui.issuerError,
             required = true,
         )
@@ -97,7 +100,7 @@ internal fun LazyGridScope.assetManagementForm(
     item(span = { GridItemSpan(fullRowSpan) }) {
         TextField(
             value = ui.observations.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvent.ObservationsChanged(it)) },
+            onValueChange = { onEvent(VMEvents.ObservationsChanged(it)) },
             label = { Text("Observações gerais") },
             placeholder = { Text("Ex.: estratégia, lembretes, ISIN…") },
             modifier = Modifier.fillMaxWidth(),
@@ -111,7 +114,7 @@ internal fun LazyGridScope.assetManagementForm(
             displayValue = ui.brokerage?.name.orEmpty(),
             options = brokerages,
             itemLabel = { it.name },
-            onItemSelect = { brokerage -> onEvent(AssetManagementEvent.BrokerageChanged(brokerage)) },
+            onItemSelect = { brokerage -> onEvent(VMEvents.BrokerageChanged(brokerage)) },
             error = ui.brokerageError,
             required = true,
         )
@@ -120,7 +123,7 @@ internal fun LazyGridScope.assetManagementForm(
 
 private fun LazyGridScope.fixedIncomeFields(
     ui: UiState,
-    onEvent: (AssetManagementEvent) -> Unit,
+    onEvent: (VMEvents) -> Unit,
 ) {
 
     item {
@@ -129,7 +132,7 @@ private fun LazyGridScope.fixedIncomeFields(
             displayValue = ui.fixedType?.asLabel().orEmpty(),
             options = FixedIncomeAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvent.FixedTypeChanged(it)) },
+            onItemSelect = { onEvent(VMEvents.FixedTypeChanged(it)) },
             error = ui.fixedTypeError,
             required = true,
         )
@@ -141,7 +144,7 @@ private fun LazyGridScope.fixedIncomeFields(
             displayValue = ui.fixedSubType?.asLabel().orEmpty(),
             options = FixedIncomeSubType.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvent.FixedSubTypeChanged(it)) },
+            onItemSelect = { onEvent(VMEvents.FixedSubTypeChanged(it)) },
             error = ui.fixedSubTypeError,
             required = true,
         )
@@ -153,7 +156,7 @@ private fun LazyGridScope.fixedIncomeFields(
             displayValue = ui.fixedLiquidity?.asLabel().orEmpty(),
             options = Liquidity.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvent.FixedLiquidityChanged(it)) },
+            onItemSelect = { onEvent(VMEvents.FixedLiquidityChanged(it)) },
             error = ui.fixedLiquidityError,
             required = true,
         )
@@ -163,7 +166,7 @@ private fun LazyGridScope.fixedIncomeFields(
         FormTextField(
             label = "Data de vencimento",
             value = ui.fixedExpiration.orEmpty(),
-            onValueChange = { raw -> onEvent(AssetManagementEvent.FixedExpirationChanged(raw)) },
+            onValueChange = { raw -> onEvent(VMEvents.FixedExpirationChanged(raw)) },
             errorMessage = ui.fixedExpirationError,
             supportingTextWhenNoError = { Text("Obrigatório") },
             placeholder = { Text("AAAA-MM-DD") },
@@ -176,7 +179,7 @@ private fun LazyGridScope.fixedIncomeFields(
         FormTextField(
             label = "Rentabilidade (% ao ano)",
             value = ui.fixedYield.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvent.FixedYieldChanged(it)) },
+            onValueChange = { onEvent(VMEvents.FixedYieldChanged(it)) },
             errorMessage = ui.fixedYieldError,
             supportingTextWhenNoError = { Text("Obrigatório") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -187,7 +190,7 @@ private fun LazyGridScope.fixedIncomeFields(
         FormTextField(
             label = "% em relação ao CDI",
             value = ui.fixedCdi.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvent.FixedCdiChanged(it)) },
+            onValueChange = { onEvent(VMEvents.FixedCdiChanged(it)) },
             errorMessage = ui.fixedCdiError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         )
@@ -196,7 +199,7 @@ private fun LazyGridScope.fixedIncomeFields(
 
 private fun LazyGridScope.variableIncomeFields(
     ui: UiState,
-    onEvent: (AssetManagementEvent) -> Unit,
+    onEvent: (VMEvents) -> Unit,
 ) {
 
     item {
@@ -205,7 +208,7 @@ private fun LazyGridScope.variableIncomeFields(
             displayValue = ui.variableType?.asLabel().orEmpty(),
             options = VariableIncomeAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvent.VariableTypeChanged(it)) },
+            onItemSelect = { onEvent(VMEvents.VariableTypeChanged(it)) },
             error = ui.variableTypeError,
         )
     }
@@ -214,7 +217,7 @@ private fun LazyGridScope.variableIncomeFields(
         FormTextField(
             label = "Ticker (código na bolsa)",
             value = ui.variableTicker.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvent.VariableTickerChanged(it)) },
+            onValueChange = { onEvent(VMEvents.VariableTickerChanged(it)) },
             errorMessage = ui.variableTickerError,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -224,7 +227,7 @@ private fun LazyGridScope.variableIncomeFields(
         FormTextField(
             label = "CNPJ do emissor (opcional)",
             value = ui.variableCnpj.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvent.VariableCnpjChanged(it)) },
+            onValueChange = { onEvent(VMEvents.VariableCnpjChanged(it)) },
             errorMessage = ui.cnpjError,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -233,14 +236,14 @@ private fun LazyGridScope.variableIncomeFields(
 
 private fun LazyGridScope.fundFields(
     ui: UiState,
-    onEvent: (AssetManagementEvent) -> Unit,
+    onEvent: (VMEvents) -> Unit,
 ) {
 
     item {
         FormTextField(
             label = "Identificação",
             value = ui.fundName.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvent.FundNameChanged(it)) },
+            onValueChange = { onEvent(VMEvents.FundNameChanged(it)) },
             errorMessage = ui.fundNameError,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -252,7 +255,7 @@ private fun LazyGridScope.fundFields(
             displayValue = ui.fundType?.asLabel().orEmpty(),
             options = InvestmentFundAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvent.FundTypeChanged(it)) },
+            onItemSelect = { onEvent(VMEvents.FundTypeChanged(it)) },
             error = ui.fundTypeError,
         )
     }
@@ -261,7 +264,7 @@ private fun LazyGridScope.fundFields(
         FormTextField(
             label = "Resgate em (dias úteis)",
             value = ui.fundLiquidityDays.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvent.FundLiquidityDaysChanged(it)) },
+            onValueChange = { onEvent(VMEvents.FundLiquidityDaysChanged(it)) },
             errorMessage = ui.fundLiquidityDaysError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
@@ -272,7 +275,7 @@ private fun LazyGridScope.fundFields(
         FormTextField(
             label = "Data de vencimento",
             value = ui.fundExpiration.orEmpty(),
-            onValueChange = { raw -> onEvent(AssetManagementEvent.FundExpirationChanged(raw)) },
+            onValueChange = { raw -> onEvent(VMEvents.FundExpirationChanged(raw)) },
             errorMessage = ui.fundExpirationError,
             placeholder = { Text("AAAA-MM-DD") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

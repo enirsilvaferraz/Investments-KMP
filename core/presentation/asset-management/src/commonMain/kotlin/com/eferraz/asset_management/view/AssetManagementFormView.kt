@@ -21,14 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eferraz.asset_management.vm.AssetManagementEvent
+import com.eferraz.asset_management.vm.VMEvents
 import com.eferraz.asset_management.vm.UiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AssetManagementFormView(
     ui: UiState,
-    onEvent: (AssetManagementEvent) -> Unit,
+    onEvent: (VMEvents) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -60,14 +60,14 @@ internal fun AssetManagementFormView(
             ) {
 
                 TextButton(
-                    onClick = { onEvent(AssetManagementEvent.RequestDismiss) },
+                    onClick = { onEvent(VMEvents.RequestDismiss) },
                     enabled = !ui.isSaving
                 ) {
                     Text("Cancelar")
                 }
 
                 Button(
-                    onClick = { onEvent(AssetManagementEvent.Save) },
+                    onClick = { onEvent(VMEvents.Save) },
                     enabled = !ui.isSaving,
                 ) {
                     Text("Salvar")

@@ -6,7 +6,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import com.eferraz.asset_management.vm.AssetManagementEvent
+import com.eferraz.asset_management.vm.VMEvents
 import com.eferraz.asset_management.vm.AssetManagementViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -23,7 +23,7 @@ public fun AssetManagementScreen(
     LaunchedEffect(ui.navigateAway) {
         if (ui.navigateAway) {
             onDismissUpdated.value()
-            viewModel.dispatch(AssetManagementEvent.NavigationConsumed) // TODO Verificar uma maneira de limpar completamente o state
+            viewModel.dispatch(VMEvents.NavigationConsumed) // TODO Verificar uma maneira de limpar completamente o state
         }
     }
 
