@@ -6,8 +6,10 @@ import com.eferraz.asset_management.helpers.buildAsset
 import com.eferraz.asset_management.helpers.buildHolding
 import com.eferraz.asset_management.helpers.remoteFieldErrorsOn
 import com.eferraz.asset_management.helpers.checkErros
+import com.eferraz.asset_management.helpers.toUiState
 import com.eferraz.design_system.input.date.filterDateMaskDigits
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
+import com.eferraz.usecases.cruds.GetAssetHoldingUseCase
 import com.eferraz.usecases.cruds.GetIssuersUseCase
 import com.eferraz.usecases.cruds.GetOwnerUseCase
 import com.eferraz.usecases.cruds.UpsertAssetHoldingUseCase
@@ -23,6 +25,7 @@ import org.koin.core.annotation.KoinViewModel
 internal class AssetManagementViewModel(
     private val getIssuersUseCase: GetIssuersUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
+    private val getAssetHoldingUseCase: GetAssetHoldingUseCase,
     private val getOwnerUseCase: GetOwnerUseCase,
     private val upsertAssetUseCase: UpsertAssetUseCase,
     private val upsertAssetHoldingUseCase: UpsertAssetHoldingUseCase,
@@ -32,8 +35,8 @@ internal class AssetManagementViewModel(
 
     internal fun dispatch(event: VMEvents) = when (event) {
 
-        VMEvents.ScreenEntered ->
-            resetState()
+        is VMEvents.ScreenEntered ->
+            resetState(holdingId = event.holdingId)
 
         is VMEvents.CategoryChanged ->
             state.update { UiState(issuers = it.issuers, brokerages = it.brokerages, category = event.category) }
@@ -95,10 +98,16 @@ internal class AssetManagementViewModel(
         VMEvents.Save -> onSave()
     }
 
-    private fun resetState() = viewModelScope.launch {
+    private fun resetState(holdingId: Long?) = viewModelScope.launch {
         val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrNull().orEmpty()
         val brokerages = getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty()
-        state.update { UiState(issuers = issuers, brokerages = brokerages) }
+        val editable = holdingId?.let {
+            getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(it)).getOrNull()
+        }
+        state.update {
+            editable?.toUiState(issuers = issuers, brokerages = brokerages)
+                ?: UiState(issuers = issuers, brokerages = brokerages)
+        }
     }
 
     private fun onSave() {
@@ -114,9 +123,18 @@ internal class AssetManagementViewModel(
             upsertAssetUseCase(UpsertAssetUseCase.Param(asset))
                 .fold(
                     onSuccess = { assetId ->
+
                         val owner = getOwnerUseCase(GetOwnerUseCase.Param).getOrThrow()
                         val brokerage = state.value.brokerage!!
-                        upsertAssetHoldingUseCase(UpsertAssetHoldingUseCase.Param(buildHolding(asset, assetId, owner, brokerage)))
+                        val assetHolding = buildHolding(
+                            baseAsset = asset,
+                            assetId = assetId,
+                            owner = owner,
+                            brokerage = brokerage,
+                            holdingId = state.value.editingHoldingId,
+                        )
+
+                        upsertAssetHoldingUseCase(UpsertAssetHoldingUseCase.Param(assetHolding))
                     },
                     onFailure = {
                         Result.failure(it)

@@ -62,7 +62,7 @@ private fun AppNavigationHost() {
             ActionButton(
                 onClick = {
                     // Push em vez de substituir - diálogos precisam de conteúdo por baixo (overlaidEntries)
-                    backStack += AssetManagementRouting
+                    backStack += AssetManagementRouting()
                 }
             )
         },
@@ -109,7 +109,11 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
             }
 
             entry<HistoryRouting> {
-                HoldingHistoryRoute()
+                HoldingHistoryRoute(
+                    onEditHolding = { holdingId ->
+                        backStack += AssetManagementRouting(holdingId = holdingId)
+                    }
+                )
             }
 
             entry<GoalsMonitoringRouting> {
@@ -124,6 +128,7 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                 )
             )) {
                 AssetManagementScreen(
+                    holdingId = it.holdingId,
                     onDismiss = { backStack.removeLastOrNull() },
                 )
             }

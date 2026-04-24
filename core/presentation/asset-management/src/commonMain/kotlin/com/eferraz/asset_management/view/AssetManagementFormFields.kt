@@ -76,6 +76,7 @@ internal fun LazyGridScope.assetManagementForm(
             options = InvestmentCategory.entries.toList(),
             itemLabel = { it.asLabel() },
             onItemSelect = { onEvent(VMEvents.CategoryChanged(it)) },
+            enabled = ui.editingHoldingId == null,
             required = true,
         )
     }

@@ -12,6 +12,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 public fun AssetManagementScreen(
+    holdingId: Long?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -19,8 +20,8 @@ public fun AssetManagementScreen(
     val viewModel: AssetManagementViewModel = koinViewModel()
     val ui by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.dispatch(VMEvents.ScreenEntered)
+    LaunchedEffect(holdingId) {
+        viewModel.dispatch(VMEvents.ScreenEntered(holdingId = holdingId))
     }
 
     val onDismissUpdated = rememberUpdatedState(onDismiss)

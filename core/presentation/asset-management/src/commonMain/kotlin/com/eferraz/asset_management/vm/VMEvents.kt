@@ -13,7 +13,7 @@ import com.eferraz.entities.holdings.Brokerage
  * Ações do ecrã de registo (formulário e navegação) — ponto de entrada único [AssetManagementViewModel.dispatch].
  */
 internal sealed class VMEvents {
-    data object ScreenEntered : VMEvents()
+    data class ScreenEntered(val holdingId: Long?) : VMEvents()
 
     data class CategoryChanged(val category: InvestmentCategory) : VMEvents()
     data class IssuerChanged(val issuer: Issuer) : VMEvents()

@@ -6,6 +6,7 @@ import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
@@ -21,7 +22,7 @@ internal fun UiState.buildAsset(): Asset {
 
 private fun UiState.buildFixedIncomeAsset(): FixedIncomeAsset {
     return FixedIncomeAsset(
-        id = 0L,
+        id = editingAssetId ?: 0L,
         issuer = issuer!!,
         type = fixedType!!,
         subType = fixedSubType!!,
@@ -35,7 +36,7 @@ private fun UiState.buildFixedIncomeAsset(): FixedIncomeAsset {
 
 private fun UiState.buildVariableIncomeAsset(): VariableIncomeAsset {
     return VariableIncomeAsset(
-        id = 0L,
+        id = editingAssetId ?: 0L,
         name = variableTicker.orEmpty().trim(),
         issuer = issuer!!,
         type = variableType!!,
@@ -47,7 +48,7 @@ private fun UiState.buildVariableIncomeAsset(): VariableIncomeAsset {
 
 private fun UiState.buildFundAsset(): InvestmentFundAsset {
     return InvestmentFundAsset(
-        id = 0L,
+        id = editingAssetId ?: 0L,
         name = fundName.orEmpty().trim(),
         issuer = issuer!!,
         type = fundType!!,
@@ -63,9 +64,10 @@ internal fun buildHolding(
     assetId: Long,
     owner: Owner,
     brokerage: Brokerage,
+    holdingId: Long?,
 ): AssetHolding {
     return AssetHolding(
-        id = 0L,
+        id = holdingId ?: 0L,
         asset = baseAsset.withSavedId(assetId),
         owner = owner,
         brokerage = brokerage,
@@ -79,3 +81,59 @@ private fun Asset.withSavedId(newId: Long): Asset =
         is VariableIncomeAsset -> copy(id = newId)
         is InvestmentFundAsset -> copy(id = newId)
     }
+
+internal fun AssetHolding.toUiState(
+    issuers: List<Issuer>,
+    brokerages: List<Brokerage>,
+): UiState {
+    val currentAsset = asset
+    return when (currentAsset) {
+        is FixedIncomeAsset -> UiState(
+            editingHoldingId = id,
+            editingAssetId = currentAsset.id,
+            issuers = issuers,
+            brokerages = brokerages,
+            category = InvestmentCategory.FIXED_INCOME,
+            issuer = currentAsset.issuer,
+            brokerage = brokerage,
+            observations = currentAsset.observations,
+            fixedType = currentAsset.type,
+            fixedSubType = currentAsset.subType,
+            fixedExpiration = currentAsset.expirationDate.toString().replace("-", ""),
+            fixedYield = currentAsset.contractedYield.toString(),
+            fixedCdi = currentAsset.cdiRelativeYield?.toString(),
+            fixedLiquidity = currentAsset.liquidity,
+        )
+
+        is VariableIncomeAsset -> UiState(
+            editingHoldingId = id,
+            editingAssetId = currentAsset.id,
+            issuers = issuers,
+            brokerages = brokerages,
+            category = InvestmentCategory.VARIABLE_INCOME,
+            issuer = currentAsset.issuer,
+            brokerage = brokerage,
+            observations = currentAsset.observations,
+            variableName = currentAsset.name,
+            variableType = currentAsset.type,
+            variableTicker = currentAsset.ticker,
+            variableCnpj = currentAsset.cnpj?.get(),
+        )
+
+        is InvestmentFundAsset -> UiState(
+            editingHoldingId = id,
+            editingAssetId = currentAsset.id,
+            issuers = issuers,
+            brokerages = brokerages,
+            category = InvestmentCategory.INVESTMENT_FUND,
+            issuer = currentAsset.issuer,
+            brokerage = brokerage,
+            observations = currentAsset.observations,
+            fundName = currentAsset.name,
+            fundType = currentAsset.type,
+            fundLiquidity = currentAsset.liquidity,
+            fundLiquidityDays = currentAsset.liquidityDays.toString(),
+            fundExpiration = currentAsset.expirationDate?.toString()?.replace("-", ""),
+        )
+    }
+}

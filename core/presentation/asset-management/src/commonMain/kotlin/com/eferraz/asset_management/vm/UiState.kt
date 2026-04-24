@@ -12,6 +12,8 @@ import com.eferraz.entities.holdings.Brokerage
 
 @Immutable
 internal data class UiState(
+    val editingHoldingId: Long? = null,
+    val editingAssetId: Long? = null,
     val issuers: List<Issuer> = emptyList(),
     val brokerages: List<Brokerage> = emptyList(),
     val isSaving: Boolean = false,

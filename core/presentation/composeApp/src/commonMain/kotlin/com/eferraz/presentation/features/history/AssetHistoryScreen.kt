@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -64,7 +65,9 @@ import kotlinx.datetime.YearMonth
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-public fun HoldingHistoryRoute() {
+public fun HoldingHistoryRoute(
+    onEditHolding: (Long) -> Unit,
+) {
 
     val vm = koinViewModel<HistoryViewModel>()
     val state by vm.state.collectAsStateWithLifecycle()
@@ -114,7 +117,8 @@ public fun HoldingHistoryRoute() {
         goalOptions = state.goal.options,
         onGoalChange = onGoalChange,
         onSyncClick = onSyncClick,
-        transactions = state.transactions
+        transactions = state.transactions,
+        onEditHolding = onEditHolding,
     )
 }
 
@@ -140,6 +144,7 @@ internal fun HoldingHistoryScreen(
     onGoalChange: (FinancialGoal) -> Unit,
     onSyncClick: () -> Unit,
     transactions: List<AssetTransaction>,
+    onEditHolding: (Long) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -160,6 +165,7 @@ internal fun HoldingHistoryScreen(
             Table(
                 data = dataRows,
                 onValueChange = onValueChange,
+                onEdit = { onEditHolding(it.entry.holding.id) },
                 onSelect = { entry: HoldingHistoryEntry ->
                     scope.launch {
                         navigator.navigateTo(
@@ -234,6 +240,7 @@ private fun Table(
     modifier: Modifier = Modifier,
     data: List<HoldingHistoryView>,
     onValueChange: (HoldingHistoryView, Double) -> Unit,
+    onEdit: (HoldingHistoryView) -> Unit,
     onSelect: (HoldingHistoryEntry) -> Unit,
 ) {
 
@@ -241,6 +248,20 @@ private fun Table(
 
         StableList(
             listOf<UiTableDataColumn<HoldingHistoryView>>(
+
+                UiTableDataColumn(
+                    text = "",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    comparable = { it.displayName },
+                    content = {
+                        IconButton(onClick = { onEdit(it) }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Editar ativo"
+                            )
+                        }
+                    }
+                ),
 
                 UiTableDataColumn(
                     text = "",

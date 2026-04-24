@@ -5,4 +5,6 @@ import kotlinx.serialization.Serializable
 
 /** Rota Navigation 3 para o diálogo de gestão de ativos. */
 @Serializable
-public object AssetManagementRouting : NavKey
+public data class AssetManagementRouting(
+    val holdingId: Long? = null,
+) : NavKey
