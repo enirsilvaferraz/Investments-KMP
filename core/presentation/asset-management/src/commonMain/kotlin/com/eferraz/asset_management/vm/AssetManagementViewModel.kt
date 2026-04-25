@@ -8,6 +8,7 @@ import com.eferraz.asset_management.helpers.remoteFieldErrorsOn
 import com.eferraz.asset_management.helpers.checkErros
 import com.eferraz.asset_management.helpers.toUiState
 import com.eferraz.design_system.input.date.filterDateMaskDigits
+import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetAssetHoldingUseCase
 import com.eferraz.usecases.cruds.GetIssuersUseCase
@@ -26,6 +27,7 @@ internal class AssetManagementViewModel(
     private val getIssuersUseCase: GetIssuersUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val getAssetHoldingUseCase: GetAssetHoldingUseCase,
+    private val getTransactionsByHoldingUseCase: GetTransactionsByHoldingUseCase,
     private val getOwnerUseCase: GetOwnerUseCase,
     private val upsertAssetUseCase: UpsertAssetUseCase,
     private val upsertAssetHoldingUseCase: UpsertAssetHoldingUseCase,
@@ -103,9 +105,16 @@ internal class AssetManagementViewModel(
         val issuers = getIssuersUseCase(GetIssuersUseCase.Param).getOrNull().orEmpty()
         val brokerages = getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty()
         val editableHolding = holdingId?.let { getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(it)).getOrNull() }
+        val transactions = editableHolding
+            ?.let { getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(it)).getOrNull() }
+            .orEmpty()
 
         state.update {
-            (editableHolding?.toUiState() ?: UiState()).copy(issuers = issuers, brokerages = brokerages)
+            (editableHolding?.toUiState() ?: UiState()).copy(
+                issuers = issuers,
+                brokerages = brokerages,
+                transactions = transactions,
+            )
         }
     }
 
@@ -146,7 +155,14 @@ internal class AssetManagementViewModel(
                     onFailure = { e ->
                         when (e) {
                             is ValidateException -> state.update { e.messages.remoteFieldErrorsOn(it).copy(isSaving = false) }
-                            else -> state.update { UiState(issuers = it.issuers, brokerages = it.brokerages, isSaving = false) }
+                            else -> state.update {
+                                UiState(
+                                    issuers = it.issuers,
+                                    brokerages = it.brokerages,
+                                    transactions = it.transactions,
+                                    isSaving = false,
+                                )
+                            }
                         }
                     }
                 )

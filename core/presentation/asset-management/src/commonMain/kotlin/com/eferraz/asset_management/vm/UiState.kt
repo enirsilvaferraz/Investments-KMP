@@ -9,6 +9,7 @@ import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.entities.transactions.AssetTransaction
 
 @Immutable
 internal data class UiState(
@@ -21,6 +22,7 @@ internal data class UiState(
     val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
     val issuer: Issuer? = null,
     val brokerage: Brokerage? = null,
+    val transactions: List<AssetTransaction> = emptyList(),
     val observations: String? = null,
     val issuerError: String? = null,
     val brokerageError: String? = null,

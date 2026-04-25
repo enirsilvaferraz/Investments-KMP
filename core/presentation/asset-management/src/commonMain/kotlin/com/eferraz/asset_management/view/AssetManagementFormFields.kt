@@ -1,12 +1,11 @@
 package com.eferraz.asset_management.view
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyGridScope
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -20,8 +19,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.asLabel
-import com.eferraz.asset_management.vm.VMEvents
 import com.eferraz.asset_management.vm.UiState
+import com.eferraz.asset_management.vm.VMEvents
 import com.eferraz.design_system.components.dropdown.StableExposedDropdown
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
@@ -87,16 +86,19 @@ internal fun FormTextField(
     }
 }
 
-private const val fullRowSpan = 2
-
-internal fun LazyGridScope.assetManagementForm(
+@Composable
+internal fun AssetManagementFormContent(
     ui: UiState,
     issuers: List<Issuer>,
-    brokerages: List<Brokerage>,
     onEvent: (VMEvents) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
 
-    item(span = { GridItemSpan(fullRowSpan) }) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+
         StableExposedDropdown(
             label = "Categoria",
             displayValue = ui.category.asLabel(),
@@ -106,9 +108,7 @@ internal fun LazyGridScope.assetManagementForm(
             enabled = ui.editingHoldingId == null,
             required = true,
         )
-    }
 
-    item(span = { GridItemSpan(fullRowSpan) }) {
         StableExposedDropdown(
             label = "Emissor",
             displayValue = ui.issuer?.name.orEmpty(),
@@ -118,15 +118,13 @@ internal fun LazyGridScope.assetManagementForm(
             error = ui.issuerError,
             required = true,
         )
-    }
 
-    when (ui.category) {
-        InvestmentCategory.FIXED_INCOME -> fixedIncomeFields(ui, onEvent)
-        InvestmentCategory.VARIABLE_INCOME -> variableIncomeFields(ui, onEvent)
-        InvestmentCategory.INVESTMENT_FUND -> fundFields(ui, onEvent)
-    }
+        when (ui.category) {
+            InvestmentCategory.FIXED_INCOME -> FixedIncomeFields(ui, onEvent)
+            InvestmentCategory.VARIABLE_INCOME -> VariableIncomeFields(ui, onEvent)
+            InvestmentCategory.INVESTMENT_FUND -> FundFields(ui, onEvent)
+        }
 
-    item(span = { GridItemSpan(fullRowSpan) }) {
         FormTextField(
             label = "Observações gerais",
             value = ui.observations.orEmpty(),
@@ -134,178 +132,206 @@ internal fun LazyGridScope.assetManagementForm(
             errorMessage = null,
         )
     }
-
-    item(span = { GridItemSpan(fullRowSpan) }) {
-        StableExposedDropdown(
-            label = BROKERAGE_FIELD_LABEL,
-            displayValue = ui.brokerage?.name.orEmpty(),
-            options = brokerages,
-            itemLabel = { it.name },
-            onItemSelect = { brokerage -> onEvent(VMEvents.BrokerageChanged(brokerage)) },
-            error = ui.brokerageError,
-            required = true,
-        )
-    }
 }
 
-private fun LazyGridScope.fixedIncomeFields(
+@Composable
+internal fun BrokerageField(
+    ui: UiState,
+    onEvent: (VMEvents) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    StableExposedDropdown(
+        label = BROKERAGE_FIELD_LABEL,
+        displayValue = ui.brokerage?.name.orEmpty(),
+        options = ui.brokerages,
+        itemLabel = Brokerage::name,
+        onItemSelect = { brokerage -> onEvent(VMEvents.BrokerageChanged(brokerage)) },
+        error = ui.brokerageError,
+        required = true,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun FixedIncomeFields(
     ui: UiState,
     onEvent: (VMEvents) -> Unit,
 ) {
+    FormTwoColumnsRow(
+        left = {
+            StableExposedDropdown(
+                label = "Tipo",
+                displayValue = ui.fixedType?.asLabel().orEmpty(),
+                options = FixedIncomeAssetType.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(VMEvents.FixedTypeChanged(it)) },
+                error = ui.fixedTypeError,
+                required = true,
+            )
+        },
+        right = {
+            StableExposedDropdown(
+                label = "Subtipo",
+                displayValue = ui.fixedSubType?.asLabel().orEmpty(),
+                options = FixedIncomeSubType.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(VMEvents.FixedSubTypeChanged(it)) },
+                error = ui.fixedSubTypeError,
+                required = true,
+            )
+        },
+    )
 
-    item {
-        StableExposedDropdown(
-            label = "Tipo",
-            displayValue = ui.fixedType?.asLabel().orEmpty(),
-            options = FixedIncomeAssetType.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(VMEvents.FixedTypeChanged(it)) },
-            error = ui.fixedTypeError,
-            required = true,
-        )
-    }
+    FormTwoColumnsRow(
+        left = {
+            StableExposedDropdown(
+                label = "Liquidez",
+                displayValue = ui.fixedLiquidity?.asLabel().orEmpty(),
+                options = Liquidity.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(VMEvents.FixedLiquidityChanged(it)) },
+                error = ui.fixedLiquidityError,
+                required = true,
+            )
+        },
+        right = {
+            FormTextField(
+                label = "Vencimento",
+                value = ui.fixedExpiration.orEmpty(),
+                onValueChange = { raw -> onEvent(VMEvents.FixedExpirationChanged(raw)) },
+                errorMessage = ui.fixedExpirationError,
+                placeholder = { Text("AAAA-MM-DD") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
+            )
+        },
+    )
 
-    item {
-        StableExposedDropdown(
-            label = "Subtipo",
-            displayValue = ui.fixedSubType?.asLabel().orEmpty(),
-            options = FixedIncomeSubType.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(VMEvents.FixedSubTypeChanged(it)) },
-            error = ui.fixedSubTypeError,
-            required = true,
-        )
-    }
-
-    item {
-        StableExposedDropdown(
-            label = "Liquidez",
-            displayValue = ui.fixedLiquidity?.asLabel().orEmpty(),
-            options = Liquidity.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(VMEvents.FixedLiquidityChanged(it)) },
-            error = ui.fixedLiquidityError,
-            required = true,
-        )
-    }
-
-    item {
-        FormTextField(
-            label = "Vencimento",
-            value = ui.fixedExpiration.orEmpty(),
-            onValueChange = { raw -> onEvent(VMEvents.FixedExpirationChanged(raw)) },
-            errorMessage = ui.fixedExpirationError,
-            placeholder = { Text("AAAA-MM-DD") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
-        )
-    }
-
-    item {
-        FormTextField(
-            label = "Rentabilidade (% a.a.)",
-            value = ui.fixedYield.orEmpty(),
-            onValueChange = { onEvent(VMEvents.FixedYieldChanged(it)) },
-            errorMessage = ui.fixedYieldError,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        )
-    }
-
-    item {
-        FormTextField(
-            label = "Rentabilidade em relação ao CDI",
-            value = ui.fixedCdi.orEmpty(),
-            onValueChange = { onEvent(VMEvents.FixedCdiChanged(it)) },
-            errorMessage = ui.fixedCdiError,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        )
-    }
+    FormTwoColumnsRow(
+        left = {
+            FormTextField(
+                label = "Rentabilidade (% a.a.)",
+                value = ui.fixedYield.orEmpty(),
+                onValueChange = { onEvent(VMEvents.FixedYieldChanged(it)) },
+                errorMessage = ui.fixedYieldError,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            )
+        },
+        right = {
+            FormTextField(
+                label = "Rentabilidade em relação ao CDI",
+                value = ui.fixedCdi.orEmpty(),
+                onValueChange = { onEvent(VMEvents.FixedCdiChanged(it)) },
+                errorMessage = ui.fixedCdiError,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            )
+        },
+    )
 }
 
-private fun LazyGridScope.variableIncomeFields(
+@Composable
+private fun VariableIncomeFields(
     ui: UiState,
     onEvent: (VMEvents) -> Unit,
 ) {
+    FormTwoColumnsRow(
+        left = {
+            StableExposedDropdown(
+                label = "Tipo",
+                displayValue = ui.variableType?.asLabel().orEmpty(),
+                options = VariableIncomeAssetType.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(VMEvents.VariableTypeChanged(it)) },
+                error = ui.variableTypeError,
+            )
+        },
+        right = {
+            FormTextField(
+                label = "Ticker",
+                value = ui.variableTicker.orEmpty(),
+                onValueChange = { onEvent(VMEvents.VariableTickerChanged(it)) },
+                errorMessage = ui.variableTickerError,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
+    )
 
-    item {
-        StableExposedDropdown(
-            label = "Tipo",
-            displayValue = ui.variableType?.asLabel().orEmpty(),
-            options = VariableIncomeAssetType.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(VMEvents.VariableTypeChanged(it)) },
-            error = ui.variableTypeError,
-        )
-    }
-
-    item {
-        FormTextField(
-            label = "Ticker",
-            value = ui.variableTicker.orEmpty(),
-            onValueChange = { onEvent(VMEvents.VariableTickerChanged(it)) },
-            errorMessage = ui.variableTickerError,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-
-    item(span = { GridItemSpan(fullRowSpan) }) {
-        FormTextField(
-            label = "CNPJ do emissor",
-            value = ui.variableCnpj.orEmpty(),
-            onValueChange = { onEvent(VMEvents.VariableCnpjChanged(it)) },
-            errorMessage = ui.cnpjError,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
+    FormTextField(
+        label = "CNPJ do emissor",
+        value = ui.variableCnpj.orEmpty(),
+        onValueChange = { onEvent(VMEvents.VariableCnpjChanged(it)) },
+        errorMessage = ui.cnpjError,
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
-private fun LazyGridScope.fundFields(
+@Composable
+private fun FundFields(
     ui: UiState,
     onEvent: (VMEvents) -> Unit,
 ) {
+    FormTwoColumnsRow(
+        left = {
+            FormTextField(
+                label = "Identificação",
+                value = ui.fundName.orEmpty(),
+                onValueChange = { onEvent(VMEvents.FundNameChanged(it)) },
+                errorMessage = ui.fundNameError,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
+        right = {
+            StableExposedDropdown(
+                label = "Tipo",
+                displayValue = ui.fundType?.asLabel().orEmpty(),
+                options = InvestmentFundAssetType.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(VMEvents.FundTypeChanged(it)) },
+                error = ui.fundTypeError,
+            )
+        },
+    )
 
-    item {
-        FormTextField(
-            label = "Identificação",
-            value = ui.fundName.orEmpty(),
-            onValueChange = { onEvent(VMEvents.FundNameChanged(it)) },
-            errorMessage = ui.fundNameError,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
+    FormTwoColumnsRow(
+        left = {
+            FormTextField(
+                label = "Resgate em (dias úteis)",
+                value = ui.fundLiquidityDays.orEmpty(),
+                onValueChange = { onEvent(VMEvents.FundLiquidityDaysChanged(it)) },
+                errorMessage = ui.fundLiquidityDaysError,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
+        right = {
+            FormTextField(
+                label = "Data de vencimento",
+                value = ui.fundExpiration.orEmpty(),
+                onValueChange = { raw -> onEvent(VMEvents.FundExpirationChanged(raw)) },
+                errorMessage = ui.fundExpirationError,
+                placeholder = { Text("AAAA-MM-DD") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
+    )
+}
 
-    item {
-        StableExposedDropdown(
-            label = "Tipo",
-            displayValue = ui.fundType?.asLabel().orEmpty(),
-            options = InvestmentFundAssetType.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(VMEvents.FundTypeChanged(it)) },
-            error = ui.fundTypeError,
-        )
-    }
-
-    item {
-        FormTextField(
-            label = "Resgate em (dias úteis)",
-            value = ui.fundLiquidityDays.orEmpty(),
-            onValueChange = { onEvent(VMEvents.FundLiquidityDaysChanged(it)) },
-            errorMessage = ui.fundLiquidityDaysError,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-
-    item {
-        FormTextField(
-            label = "Data de vencimento",
-            value = ui.fundExpiration.orEmpty(),
-            onValueChange = { raw -> onEvent(VMEvents.FundExpirationChanged(raw)) },
-            errorMessage = ui.fundExpirationError,
-            placeholder = { Text("AAAA-MM-DD") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
-            modifier = Modifier.fillMaxWidth(),
-        )
+@Composable
+private fun FormTwoColumnsRow(
+    left: @Composable () -> Unit,
+    right: @Composable () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            left()
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            right()
+        }
     }
 }

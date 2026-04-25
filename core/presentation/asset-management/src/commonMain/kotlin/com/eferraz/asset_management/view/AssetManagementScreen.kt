@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.ui.Modifier
 import com.eferraz.asset_management.vm.VMEvents
 import com.eferraz.asset_management.vm.AssetManagementViewModel
@@ -35,6 +36,6 @@ public fun AssetManagementScreen(
     AssetManagementFormView(
         ui = ui,
         onEvent = viewModel::dispatch,
-        modifier = modifier,
+        modifier = Modifier.wrapContentHeight(),
     )
 }

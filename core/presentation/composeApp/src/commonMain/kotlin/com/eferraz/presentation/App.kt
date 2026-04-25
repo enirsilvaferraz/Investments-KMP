@@ -124,7 +124,7 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                 DialogProperties(
                     dismissOnBackPress = false,
                     dismissOnClickOutside = false,
-                    usePlatformDefaultWidth = true
+                    usePlatformDefaultWidth = false
                 )
             )) {
                 AssetManagementScreen(

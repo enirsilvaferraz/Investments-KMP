@@ -2,13 +2,12 @@ package com.eferraz.asset_management.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,8 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eferraz.asset_management.vm.VMEvents
 import com.eferraz.asset_management.vm.UiState
+import com.eferraz.asset_management.vm.VMEvents
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,32 +30,46 @@ internal fun AssetManagementFormView(
     onEvent: (VMEvents) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+
     Card(
+        modifier = Modifier.widthIn(min = 840.dp, max = 1120.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface,
         ),
     ) {
 
-        Column(modifier = modifier.widthIn(min = 280.dp, max = 560.dp)) {
+        TopAppBar(
+            modifier = Modifier.padding(start = 6.dp),
+            title = { Text("Novo investimento") }
+        )
 
-            TopAppBar(
-                modifier = Modifier.padding(start = 6.dp, bottom = 16.dp),
-                title = { Text("Novo investimento") }
-            )
+        Column(
+            modifier = modifier.padding(vertical = 16.dp, horizontal = 24.dp)
+        ) {
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(32.dp),
             ) {
-                assetManagementForm(ui, ui.issuers, ui.brokerages, onEvent)
+
+                AssetManagementFormContent(
+                    modifier = Modifier.weight(1f),
+                    ui = ui,
+                    issuers = ui.issuers,
+                    onEvent = onEvent,
+                )
+
+                TransactionFormContent(
+                    modifier = Modifier.weight(1f),
+                    ui = ui,
+                    onEvent = onEvent
+                )
             }
 
             Row(
-                modifier = Modifier.padding(top = 16.dp, end = 24.dp, bottom = 16.dp).fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalAlignment = Alignment.Bottom,
             ) {
 
                 TextButton(
