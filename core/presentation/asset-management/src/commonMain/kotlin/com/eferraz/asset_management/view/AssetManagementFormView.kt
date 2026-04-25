@@ -41,7 +41,7 @@ internal fun AssetManagementFormView(
         Column(modifier = modifier.widthIn(min = 280.dp, max = 560.dp)) {
 
             TopAppBar(
-                modifier = Modifier.padding(start = 6.dp),
+                modifier = Modifier.padding(start = 6.dp, bottom = 16.dp),
                 title = { Text("Novo investimento") }
             )
 
@@ -55,7 +55,7 @@ internal fun AssetManagementFormView(
             }
 
             Row(
-                modifier = Modifier.padding(top = 16.dp, end = 24.dp, bottom = 24.dp).fillMaxWidth(),
+                modifier = Modifier.padding(top = 16.dp, end = 24.dp, bottom = 16.dp).fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
             ) {
 

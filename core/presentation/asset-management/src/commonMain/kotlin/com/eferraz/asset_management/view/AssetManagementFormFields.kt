@@ -98,7 +98,7 @@ internal fun LazyGridScope.assetManagementForm(
 
     item(span = { GridItemSpan(fullRowSpan) }) {
         StableExposedDropdown(
-            label = "Categoria do investimento",
+            label = "Categoria",
             displayValue = ui.category.asLabel(),
             options = InvestmentCategory.entries.toList(),
             itemLabel = { it.asLabel() },
@@ -155,7 +155,7 @@ private fun LazyGridScope.fixedIncomeFields(
 
     item {
         StableExposedDropdown(
-            label = "Tipo de cálculo",
+            label = "Tipo",
             displayValue = ui.fixedType?.asLabel().orEmpty(),
             options = FixedIncomeAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
@@ -167,7 +167,7 @@ private fun LazyGridScope.fixedIncomeFields(
 
     item {
         StableExposedDropdown(
-            label = "Subtipo do título",
+            label = "Subtipo",
             displayValue = ui.fixedSubType?.asLabel().orEmpty(),
             options = FixedIncomeSubType.entries.toList(),
             itemLabel = { it.asLabel() },
@@ -179,7 +179,7 @@ private fun LazyGridScope.fixedIncomeFields(
 
     item {
         StableExposedDropdown(
-            label = "Liquidez do título",
+            label = "Liquidez",
             displayValue = ui.fixedLiquidity?.asLabel().orEmpty(),
             options = Liquidity.entries.toList(),
             itemLabel = { it.asLabel() },
@@ -191,7 +191,7 @@ private fun LazyGridScope.fixedIncomeFields(
 
     item {
         FormTextField(
-            label = "Data de vencimento",
+            label = "Vencimento",
             value = ui.fixedExpiration.orEmpty(),
             onValueChange = { raw -> onEvent(VMEvents.FixedExpirationChanged(raw)) },
             errorMessage = ui.fixedExpirationError,
@@ -203,7 +203,7 @@ private fun LazyGridScope.fixedIncomeFields(
 
     item {
         FormTextField(
-            label = "Rentabilidade (% ao ano)",
+            label = "Rentabilidade (% a.a.)",
             value = ui.fixedYield.orEmpty(),
             onValueChange = { onEvent(VMEvents.FixedYieldChanged(it)) },
             errorMessage = ui.fixedYieldError,
@@ -213,7 +213,7 @@ private fun LazyGridScope.fixedIncomeFields(
 
     item {
         FormTextField(
-            label = "% em relação ao CDI",
+            label = "Rentabilidade em relação ao CDI",
             value = ui.fixedCdi.orEmpty(),
             onValueChange = { onEvent(VMEvents.FixedCdiChanged(it)) },
             errorMessage = ui.fixedCdiError,
@@ -229,7 +229,7 @@ private fun LazyGridScope.variableIncomeFields(
 
     item {
         StableExposedDropdown(
-            label = "Tipo (RV)",
+            label = "Tipo",
             displayValue = ui.variableType?.asLabel().orEmpty(),
             options = VariableIncomeAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
@@ -240,7 +240,7 @@ private fun LazyGridScope.variableIncomeFields(
 
     item {
         FormTextField(
-            label = "Ticker (código na bolsa)",
+            label = "Ticker",
             value = ui.variableTicker.orEmpty(),
             onValueChange = { onEvent(VMEvents.VariableTickerChanged(it)) },
             errorMessage = ui.variableTickerError,
@@ -250,7 +250,7 @@ private fun LazyGridScope.variableIncomeFields(
 
     item(span = { GridItemSpan(fullRowSpan) }) {
         FormTextField(
-            label = "CNPJ do emissor (opcional)",
+            label = "CNPJ do emissor",
             value = ui.variableCnpj.orEmpty(),
             onValueChange = { onEvent(VMEvents.VariableCnpjChanged(it)) },
             errorMessage = ui.cnpjError,
@@ -276,7 +276,7 @@ private fun LazyGridScope.fundFields(
 
     item {
         StableExposedDropdown(
-            label = "Categoria do fundo",
+            label = "Tipo",
             displayValue = ui.fundType?.asLabel().orEmpty(),
             options = InvestmentFundAssetType.entries.toList(),
             itemLabel = { it.asLabel() },
