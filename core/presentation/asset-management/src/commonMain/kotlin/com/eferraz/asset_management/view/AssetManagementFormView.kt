@@ -30,7 +30,7 @@ internal fun AssetManagementFormView(
 ) {
 
     Card(
-        modifier = Modifier.widthIn(min = 840.dp, max = 1120.dp),
+        modifier = Modifier.widthIn(min = 840.dp, max = 1200.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface,

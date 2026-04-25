@@ -131,25 +131,17 @@ internal fun AssetManagementFormContent(
             onValueChange = { onEvent(VMEvents.ObservationsChanged(it)) },
             errorMessage = null,
         )
-    }
-}
 
-@Composable
-internal fun BrokerageField(
-    ui: UiState,
-    onEvent: (VMEvents) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    StableExposedDropdown(
-        label = BROKERAGE_FIELD_LABEL,
-        displayValue = ui.brokerage?.name.orEmpty(),
-        options = ui.brokerages,
-        itemLabel = Brokerage::name,
-        onItemSelect = { brokerage -> onEvent(VMEvents.BrokerageChanged(brokerage)) },
-        error = ui.brokerageError,
-        required = true,
-        modifier = modifier,
-    )
+        StableExposedDropdown(
+            label = BROKERAGE_FIELD_LABEL,
+            displayValue = ui.brokerage?.name.orEmpty(),
+            options = ui.brokerages,
+            itemLabel = Brokerage::name,
+            onItemSelect = { brokerage -> onEvent(VMEvents.BrokerageChanged(brokerage)) },
+            error = ui.brokerageError,
+            required = true
+        )
+    }
 }
 
 @Composable
