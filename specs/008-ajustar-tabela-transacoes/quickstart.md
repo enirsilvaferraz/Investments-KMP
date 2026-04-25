@@ -21,7 +21,7 @@
    - Trocar tipo de asset.
    - Confirmar ajuste de colunas e aviso de revisão de dados incompatíveis.
 6. Validar edição inline:
-   - Editar linhas novas e existentes com os inputs de tabela reaproveitados.
+   - Editar linhas novas e existentes com os inputs de tabela compartilhados (`TableInputDate`, `TableInputMoney`, `TableInputSelect`, `TableInputText`).
 7. Validar salvar:
    - Com qualquer linha inválida (nova ou existente), salvar deve bloquear.
    - Com todas válidas, salvar deve persistir em lote.

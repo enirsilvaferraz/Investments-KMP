@@ -17,9 +17,9 @@
 
 **Objetivo:** Preparar estrutura de estado/eventos e mapear reuso dos inputs de tabela.
 
-- [ ] T001 Revisar estado e eventos atuais da feature em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/UiState.kt` e `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/VMEvents.kt`
-- [ ] T002 Mapear componentes de input em tabela já usados no histórico em `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/AssetHistoryScreen.kt`
-- [ ] T003 [P] Validar disponibilidade de `TableInputMoney` e componentes correlatos em `core/presentation/design-system/src/commonMain/kotlin/com/eferraz/presentation/design_system/components/inputs/`
+- [X] T001 Revisar estado e eventos atuais da feature em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/UiState.kt` e `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/VMEvents.kt`
+- [X] T002 Mapear componentes de input em tabela já usados no histórico em `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/AssetHistoryScreen.kt`
+- [X] T003 [P] Validar disponibilidade de `TableInputMoney` e componentes correlatos em `core/presentation/design-system/src/commonMain/kotlin/com/eferraz/presentation/design_system/components/inputs/`
 
 ---
 
@@ -29,10 +29,10 @@
 
 **⚠️ CRÍTICO:** Nenhuma história inicia antes desta fase.
 
-- [ ] T004 Implementar estado de sessão de linhas (novas/existentes, validação e foco pendente) em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/UiState.kt`
-- [ ] T005 [P] Implementar estratégia de schema de colunas por tipo de asset em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
-- [ ] T006 Implementar regra central de bloqueio de salvar para qualquer linha inválida em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
-- [ ] T007 [P] Ajustar/migrar inputs de tabela para camada compartilhada quando necessário em `core/presentation/design-system/src/commonMain/kotlin/com/eferraz/presentation/design_system/components/inputs/`
+- [X] T004 Implementar estado de sessão de linhas (novas/existentes, validação e foco pendente) em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/UiState.kt`
+- [X] T005 [P] Implementar estratégia de schema de colunas por tipo de asset em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
+- [X] T006 Implementar regra central de bloqueio de salvar para qualquer linha inválida em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
+- [X] T007 [P] Ajustar/migrar inputs de tabela para camada compartilhada quando necessário em `core/presentation/design-system/src/commonMain/kotlin/com/eferraz/presentation/design_system/components/inputs/`
 
 **Checkpoint:** Fundação pronta para desenvolvimento das histórias.
 
@@ -44,9 +44,9 @@
 
 **Teste independente:** Abrir o diálogo e confirmar corretora apenas na primeira coluna.
 
-- [ ] T008 [US1] Reintroduzir corretora na primeira coluna em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormFields.kt`
-- [ ] T009 [US1] Remover corretora da seção de transações em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
-- [ ] T010 [US1] Garantir wiring de corretora no fluxo da tela em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormView.kt`
+- [X] T008 [US1] Reintroduzir corretora na primeira coluna em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormFields.kt`
+- [X] T009 [US1] Remover corretora da seção de transações em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
+- [X] T010 [US1] Garantir wiring de corretora no fluxo da tela em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormView.kt`
 
 **Checkpoint:** US1 funcional e validável de forma independente.
 
@@ -58,10 +58,10 @@
 
 **Teste independente:** Tocar em adicionar e validar nova linha editável na tabela.
 
-- [ ] T011 [US2] Remover bloco de formulário dedicado de transação em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
-- [ ] T012 [US2] Implementar ação de adicionar linha em branco na tabela em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
-- [ ] T013 [US2] Implementar bloqueio de novo adicionar quando já houver linha inválida pendente em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
-- [ ] T014 [US2] Exibir destaque/foco da linha inválida ao bloquear nova adição em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
+- [X] T011 [US2] Remover bloco de formulário dedicado de transação em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
+- [X] T012 [US2] Implementar ação de adicionar linha em branco na tabela em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
+- [X] T013 [US2] Implementar bloqueio de novo adicionar quando já houver linha inválida pendente em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
+- [X] T014 [US2] Exibir destaque/foco da linha inválida ao bloquear nova adição em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
 
 **Checkpoint:** US2 funcional e validável de forma independente.
 
@@ -73,12 +73,12 @@
 
 **Teste independente:** Trocar tipo de asset, editar linhas novas/existentes e validar bloqueio de salvar quando houver qualquer inválida.
 
-- [ ] T015 [US3] Implementar renderização de colunas por tipo de asset em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
-- [ ] T016 [US3] Implementar descarte de valores incompatíveis ao trocar tipo com aviso de revisão em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
-- [ ] T017 [US3] Aplicar edição inline para linhas novas e existentes usando componentes compartilhados em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
-- [ ] T018 [US3] Integrar uso de `TableInputMoney` (ou equivalente compartilhado) na edição inline em `core/presentation/design-system/src/commonMain/kotlin/com/eferraz/presentation/design_system/components/inputs/` e `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
-- [ ] T019 [US3] Implementar validação final que bloqueia salvar com qualquer linha inválida (nova ou existente) em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
-- [ ] T020 [US3] Garantir persistência em lote somente com todas as linhas válidas em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
+- [X] T015 [US3] Implementar renderização de colunas por tipo de asset em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
+- [X] T016 [US3] Implementar descarte de valores incompatíveis ao trocar tipo com aviso de revisão em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
+- [X] T017 [US3] Aplicar edição inline para linhas novas e existentes usando componentes compartilhados em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
+- [X] T018 [US3] Integrar uso de `TableInputMoney` (ou equivalente compartilhado) na edição inline em `core/presentation/design-system/src/commonMain/kotlin/com/eferraz/presentation/design_system/components/inputs/` e `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/view/AssetManagementFormTransaction.kt`
+- [X] T019 [US3] Implementar validação final que bloqueia salvar com qualquer linha inválida (nova ou existente) em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
+- [X] T020 [US3] Garantir persistência em lote somente com todas as linhas válidas em `core/presentation/asset-management/src/commonMain/kotlin/com/eferraz/asset_management/vm/AssetManagementViewModel.kt`
 
 **Checkpoint:** US3 funcional e validável de forma independente.
 
@@ -88,8 +88,8 @@
 
 **Objetivo:** Finalizar documentação, validação e build da feature.
 
-- [ ] T021 [P] Revisar e ajustar roteiro de validação em `specs/008-ajustar-tabela-transacoes/quickstart.md` conforme implementação final
-- [ ] T022 Executar compilação do módulo `:features:asset-management` via `core/presentation/asset-management/build.gradle.kts`
+- [X] T021 [P] Revisar e ajustar roteiro de validação em `specs/008-ajustar-tabela-transacoes/quickstart.md` conforme implementação final
+- [X] T022 Executar compilação do módulo `:features:asset-management` via `core/presentation/asset-management/build.gradle.kts`
 - [ ] T023 Executar validação manual completa descrita em `specs/008-ajustar-tabela-transacoes/quickstart.md`
 
 ---
