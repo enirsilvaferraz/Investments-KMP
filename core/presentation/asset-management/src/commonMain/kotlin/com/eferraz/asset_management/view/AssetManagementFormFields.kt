@@ -1,17 +1,23 @@
 package com.eferraz.asset_management.view
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.asLabel
 import com.eferraz.asset_management.vm.VMEvents
@@ -47,17 +53,38 @@ internal fun FormTextField(
         supportingTextWhenNoError
     }
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        placeholder = placeholder,
+    Column(
         modifier = modifier,
-        isError = errorMessage != null,
-        supportingText = supportingText,
-        keyboardOptions = keyboardOptions ?: KeyboardOptions.Default,
-        visualTransformation = visualTransformation ?: VisualTransformation.None,
-    )
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = placeholder,
+            modifier = Modifier.fillMaxWidth(),
+            isError = errorMessage != null,
+            supportingText = supportingText,
+            keyboardOptions = keyboardOptions ?: KeyboardOptions.Default,
+            visualTransformation = visualTransformation ?: VisualTransformation.None,
+            shape = RoundedCornerShape(14.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFF4F5F9),
+                unfocusedContainerColor = Color(0xFFF4F5F9),
+                disabledContainerColor = Color(0xFFF4F5F9),
+                errorContainerColor = Color(0xFFF4F5F9),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
+            ),
+        )
+    }
 }
 
 private const val fullRowSpan = 2
@@ -168,7 +195,6 @@ private fun LazyGridScope.fixedIncomeFields(
             value = ui.fixedExpiration.orEmpty(),
             onValueChange = { raw -> onEvent(VMEvents.FixedExpirationChanged(raw)) },
             errorMessage = ui.fixedExpirationError,
-            supportingTextWhenNoError = { Text("Obrigatório") },
             placeholder = { Text("AAAA-MM-DD") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
@@ -181,7 +207,6 @@ private fun LazyGridScope.fixedIncomeFields(
             value = ui.fixedYield.orEmpty(),
             onValueChange = { onEvent(VMEvents.FixedYieldChanged(it)) },
             errorMessage = ui.fixedYieldError,
-            supportingTextWhenNoError = { Text("Obrigatório") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         )
     }

@@ -13,10 +13,10 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,8 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Dropdown só leitura (Material 3 [ExposedDropdownMenuBox]).
@@ -73,50 +75,72 @@ private fun <T> StableExposedDropdownImpl(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
+    Column(
         modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
-        OutlinedTextField(
-            modifier = Modifier
-                .menuAnchor(
-                    type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
-                    enabled = enabled,
-                )
-                .fillMaxWidth(),
-            readOnly = true,
-            value = displayValue,
-            onValueChange = {},
-            label = { Text(label) },
-            enabled = enabled,
-            isError = error != null,
-            supportingText = error?.let { { Text(it) } } ?: { if (required) Text("Obrigatório") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
-        ExposedDropdownMenu(
+        ExposedDropdownMenuBox(
             expanded = expanded,
-            onDismissRequest = { expanded = false },
-            shape = MaterialTheme.shapes.large,
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            tonalElevation = MenuDefaults.TonalElevation,
-            shadowElevation = MenuDefaults.ShadowElevation,
+            onExpandedChange = { expanded = it },
+            modifier = Modifier.fillMaxWidth(),
         ) {
 
-            val collapseAndSelect: (T?) -> Unit = { value ->
-                expanded = false
-                onItemSelect(value)
-            }
-
-            StableExposedDropdownMenuList {
-                options.forEach { item ->
-                    StableExposedDropdownMenuRow(
-                        text = itemLabel(item),
-                        isSelected = itemLabel(item) == displayValue,
-                        onClick = { collapseAndSelect(item) },
+            TextField(
+                modifier = Modifier
+                    .menuAnchor(
+                        type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                        enabled = enabled,
                     )
+                    .fillMaxWidth(),
+                readOnly = true,
+                value = displayValue,
+                onValueChange = {},
+                enabled = enabled,
+                isError = error != null,
+                supportingText = error?.let { { Text(it) } },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                shape = RoundedCornerShape(14.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFF4F5F9),
+                    unfocusedContainerColor = Color(0xFFF4F5F9),
+                    disabledContainerColor = Color(0xFFF4F5F9),
+                    errorContainerColor = Color(0xFFF4F5F9),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    errorIndicatorColor = Color.Transparent,
+                ),
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                shape = MaterialTheme.shapes.large,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                tonalElevation = MenuDefaults.TonalElevation,
+                shadowElevation = MenuDefaults.ShadowElevation,
+            ) {
+
+                val collapseAndSelect: (T?) -> Unit = { value ->
+                    expanded = false
+                    onItemSelect(value)
+                }
+
+                StableExposedDropdownMenuList {
+                    options.forEach { item ->
+                        StableExposedDropdownMenuRow(
+                            text = itemLabel(item),
+                            isSelected = itemLabel(item) == displayValue,
+                            onClick = { collapseAndSelect(item) },
+                        )
+                    }
                 }
             }
         }

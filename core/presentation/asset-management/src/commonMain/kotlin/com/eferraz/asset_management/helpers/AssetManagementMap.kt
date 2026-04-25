@@ -6,7 +6,6 @@ import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
-import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
