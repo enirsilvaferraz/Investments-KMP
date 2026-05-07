@@ -1,41 +1,32 @@
 package com.eferraz.asset_management.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.eferraz.asset_management.helpers.asLabel
+import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
+import com.eferraz.asset_management.vm.TransactionDraftUi
 import com.eferraz.asset_management.vm.UiState
 import com.eferraz.asset_management.vm.VMEvents
 import com.eferraz.design_system.components.dropdown.StableExposedDropdown
+import com.eferraz.design_system.components.inputs.TableInputDate
+import com.eferraz.design_system.components.inputs.TableInputMoney
+import com.eferraz.design_system.components.inputs.TableInputSelect
 import com.eferraz.design_system.components.table.UiTableDataColumn
 import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.design_system.core.StableList
-import com.eferraz.design_system.input.date.DateFormat
-import com.eferraz.design_system.input.date.DateVisualTransformation
-import com.eferraz.entities.assets.InvestmentFundAssetType
-import com.eferraz.entities.transactions.AssetTransaction
-import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
+import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.entities.transactions.TransactionType
 
 @Composable
 internal fun TransactionFormContent(
@@ -43,67 +34,20 @@ internal fun TransactionFormContent(
     ui: UiState,
     onEvent: (VMEvents) -> Unit,
 ) {
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
 
-//        Row (
-//            horizontalArrangement = Arrangement.spacedBy(8.dp),
-//            verticalAlignment = Alignment.CenterVertically
-//        ){
-//
-//            StableExposedDropdown(
-//                modifier = Modifier.weight(1f),
-//                label = "Transação",
-//                displayValue = ui.fundType?.asLabel().orEmpty(),
-//                options = InvestmentFundAssetType.entries.toList(),
-//                itemLabel = { it.asLabel() },
-//                onItemSelect = { onEvent(VMEvents.FundTypeChanged(it)) },
-//                error = ui.fundTypeError,
-//            )
-//
-//            FormTextField(
-//                modifier = Modifier.width(140.dp),
-//                label = "Data",
-//                value = ui.fundExpiration.orEmpty(),
-//                onValueChange = { raw -> onEvent(VMEvents.FundExpirationChanged(raw)) },
-//                errorMessage = ui.fundExpirationError,
-//                placeholder = { Text("AAAA-MM-DD", style = MaterialTheme.typography.bodyMedium) },
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//                visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
-//            )
-//
-//            FormTextField(
-//                modifier = Modifier.weight(.5f),
-//                label = "Qtde",
-//                value = ui.fixedYield.orEmpty(),
-//                onValueChange = { onEvent(VMEvents.FixedYieldChanged(it)) },
-//                errorMessage = ui.fixedYieldError,
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//            )
-//
-//            FormTextField(
-//                modifier = Modifier.weight(.7f),
-//                label = "Valor",
-//                value = ui.fixedYield.orEmpty(),
-//                onValueChange = { onEvent(VMEvents.FixedYieldChanged(it)) },
-//                errorMessage = ui.fixedYieldError,
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-//            )
-//
-//            FilledIconButton(
-//                modifier = Modifier.padding(top = 28.dp),
-//                onClick = { onEvent(VMEvents.Save) },
-//                enabled = !ui.isSaving,
-//            ) {
-//                Icon(
-//                    imageVector = Icons.Default.Add,
-//                    contentDescription = "Salvar"
-//                )
-//            }
-//        }
+        StableExposedDropdown(
+            label = BROKERAGE_FIELD_LABEL,
+            displayValue = ui.brokerage?.name.orEmpty(),
+            options = ui.brokerages,
+            itemLabel = Brokerage::name,
+            onItemSelect = { brokerage -> onEvent(VMEvents.BrokerageChanged(brokerage)) },
+            error = ui.brokerageError,
+            required = true
+        )
 
         Text(
             text = "Transações",
@@ -113,78 +57,135 @@ internal fun TransactionFormContent(
 
         TransactionTable(
             modifier = Modifier.fillMaxWidth(),
-            transactions = ui.transactions,
+            rows = ui.transactionDrafts,
+            category = ui.category,
+            focusedInvalidRowIndex = ui.focusedInvalidRowIndex,
+            addEnabled = !ui.isSaving,
+            onEvent = onEvent,
         )
     }
 }
 
 @Composable
-internal fun TransactionTable(
-    modifier: Modifier = Modifier,
-    transactions: List<AssetTransaction>,
+private fun TransactionTable(
+    modifier: Modifier,
+    rows: List<TransactionDraftUi>,
+    category: InvestmentCategory,
+    focusedInvalidRowIndex: Int?,
+    addEnabled: Boolean,
+    onEvent: (VMEvents) -> Unit,
 ) {
-    val headerAndFooterColor = Color(0xFFE6DBF7)
+    val headerColor = Color(0xFFE6DBF7)
+    val columns = buildColumns(rows, category, focusedInvalidRowIndex, onEvent)
 
     UiTableV3(
-        modifier = modifier.fillMaxWidth(),
-        columns = StableList(
-            listOf(
-                UiTableDataColumn(
-                    text = "Data",
-                    comparable = { it.date },
-                    content = { Text(it.formattedDate()) },
-                ),
-                UiTableDataColumn(
-                    text = "Transação",
-                    comparable = { it.type },
-                    content = { Text(it.typeLabel()) },
-                ),
-                UiTableDataColumn(
-                    text = "Valor Total",
-                    alignment = Alignment.CenterEnd,
-                    comparable = { it.totalValue },
-                    content = { Text(it.totalValue.toCurrencyBr()) },
-                ),
-            )
-        ),
-        rows = StableList(transactions),
-        headerBackgroundColor = headerAndFooterColor,
-        footerBackgroundColor = headerAndFooterColor,
+        modifier = modifier,
+        columns = StableList(columns),
+        rows = StableList(rows),
+        footer = {
+            Box(
+                modifier = Modifier.fillMaxWidth().height(30.dp).clickable(enabled = addEnabled) {
+                    onEvent(VMEvents.AddTransactionDraft)
+                },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("Adicionar", style = MaterialTheme.typography.bodySmall)
+            }
+        },
+        headerBackgroundColor = headerColor,
+        footerBackgroundColor = headerColor,
         rowBackgroundColor = Color(0xFFF4F5F9),
     )
 }
 
-@Deprecated("Transformar em ui-commons")
-private fun AssetTransaction.typeLabel(): String =
-    when (this.type.name) {
-        "PURCHASE" -> "Compra"
-        "SALE" -> "Venda"
-        else -> this.type.name
+private fun buildColumns(
+    rows: List<TransactionDraftUi>,
+    category: InvestmentCategory,
+    focusedInvalidRowIndex: Int?,
+    onEvent: (VMEvents) -> Unit,
+): List<UiTableDataColumn<TransactionDraftUi>> {
+
+    val common = mutableListOf<UiTableDataColumn<TransactionDraftUi>>(
+
+        UiTableDataColumn(
+            text = "Data",
+            comparable = { it.dateDigits },
+            content = { row ->
+                val index = rows.indexOf(row)
+                TableInputDate(
+                    value = row.dateDigits,
+                    onValueChange = { onEvent(VMEvents.DraftTransactionDateChanged(index, it)) },
+                    isError = row.inlineError?.contains("Data") == true || focusedInvalidRowIndex == index,
+                )
+            },
+        ),
+
+        UiTableDataColumn(
+            text = "Transação",
+            comparable = { it.type.name },
+            content = { row ->
+                val index = rows.indexOf(row)
+                TableInputSelect(
+                    value = row.type,
+                    options = TransactionType.entries.toList(),
+                    format = { it.asLabel() },
+                    onValueChange = { onEvent(VMEvents.DraftTransactionTypeChanged(index, it)) },
+                )
+            },
+        ),
+    )
+
+    if (category == InvestmentCategory.VARIABLE_INCOME) {
+
+        common += UiTableDataColumn(
+            text = "Quantidade",
+            alignment = Alignment.CenterEnd,
+            comparable = { it.quantity },
+            content = { row ->
+                val index = rows.indexOf(row)
+                TableInputMoney(
+                    value = row.quantity.toDoubleOrNull() ?: 0.0,
+                    onValueChange = { onEvent(VMEvents.DraftTransactionQuantityChanged(index, (it ?: 0.0).toString())) },
+                    isError = row.inlineError?.contains("Quantidade") == true || focusedInvalidRowIndex == index,
+                )
+            },
+        )
+
+        common += UiTableDataColumn(
+            text = "Unitário",
+            alignment = Alignment.CenterEnd,
+            comparable = { it.unitPrice },
+            content = { row ->
+                val index = rows.indexOf(row)
+                TableInputMoney(
+                    value = row.unitPrice.toDoubleOrNull() ?: 0.0,
+                    onValueChange = { onEvent(VMEvents.DraftTransactionUnitPriceChanged(index, (it ?: 0.0).toString())) },
+                    isError = row.inlineError?.contains("Preço") == true || focusedInvalidRowIndex == index,
+                )
+            },
+        )
     }
 
-@Deprecated("Transformar em ui-commons")
-private fun AssetTransaction.formattedDate(): String {
-    val d = this.date
-    val day = d.dayOfMonth.toString().padStart(2, '0')
-    val month = d.monthNumber.toString().padStart(2, '0')
-    val year = d.year.toString()
-    return "$year.$month.$day"
+    common += UiTableDataColumn(
+        text = "Valor Total",
+        alignment = Alignment.CenterEnd,
+        comparable = { it.totalValue },
+        content = { row ->
+            val index = rows.indexOf(row)
+            TableInputMoney(
+                value = row.totalValue.toDoubleOrNull() ?: 0.0,
+                onValueChange = { onEvent(VMEvents.DraftTransactionTotalValueChanged(index, (it ?: 0.0).toString())) },
+                isError = row.inlineError?.contains("Valor total") == true || focusedInvalidRowIndex == index,
+                enabled = category != InvestmentCategory.VARIABLE_INCOME,
+            )
+        },
+    )
+
+    return common
 }
 
-@Deprecated("Transformar em ui-commons")
-private fun Double.toCurrencyBr(): String {
-    val isNegative = this < 0
-    val absoluteCents = (this.absoluteValue * 100).roundToInt()
-    val integerPart = absoluteCents / 100
-    val decimalPart = absoluteCents % 100
-
-    val grouped = integerPart
-        .toString()
-        .reversed()
-        .chunked(3)
-        .joinToString(".")
-        .reversed()
-
-    val sign = if (isNegative) "-" else ""
-    return "${sign}R$ $grouped,${decimalPart.toString().padStart(2, '0')}"
-}
+private fun TransactionType.asLabel(): String =
+    when (this) {
+        TransactionType.PURCHASE -> "Compra"
+        TransactionType.SALE -> "Venda"
+    }

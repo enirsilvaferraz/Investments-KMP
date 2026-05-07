@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -165,15 +164,7 @@ internal fun HoldingHistoryScreen(
             Table(
                 data = dataRows,
                 onValueChange = onValueChange,
-                onEdit = { onEditHolding(it.entry.holding.id) },
-                onSelect = { entry: HoldingHistoryEntry ->
-                    scope.launch {
-                        navigator.navigateTo(
-                            ThreePaneScaffoldRole.Tertiary,
-                            entry
-                        )
-                    }
-                }
+                onSelect = { entry: HoldingHistoryEntry -> onEditHolding(entry.holding.id) }
             )
         },
         subMainPane = {
@@ -201,11 +192,6 @@ internal fun HoldingHistoryScreen(
                 dataRows = dataRows,
                 transactions = transactions
             )
-        },
-        extraPane = {
-            navigator.currentDestination?.contentKey?.let {
-                TransactionPanel(selectedHolding = it.holding)
-            }
         }
     )
 }
@@ -240,7 +226,6 @@ private fun Table(
     modifier: Modifier = Modifier,
     data: List<HoldingHistoryView>,
     onValueChange: (HoldingHistoryView, Double) -> Unit,
-    onEdit: (HoldingHistoryView) -> Unit,
     onSelect: (HoldingHistoryEntry) -> Unit,
 ) {
 
@@ -248,20 +233,6 @@ private fun Table(
 
         StableList(
             listOf<UiTableDataColumn<HoldingHistoryView>>(
-
-                UiTableDataColumn(
-                    text = "",
-                    width = TableColumnWidth.MaxIntrinsic,
-                    comparable = { it.displayName },
-                    content = {
-                        IconButton(onClick = { onEdit(it) }) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Editar ativo"
-                            )
-                        }
-                    }
-                ),
 
                 UiTableDataColumn(
                     text = "",

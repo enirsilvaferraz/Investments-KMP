@@ -76,9 +76,15 @@ internal fun Asset.toEntity(): AssetWithDetails {
         is InvestmentFundAsset -> "INVESTMENT_FUND" to liquidity
     }
 
+    val name = when (this) {
+        is FixedIncomeAsset -> ""
+        is VariableIncomeAsset -> this.name
+        is InvestmentFundAsset -> this.name
+    }
+
     val assetEntity = AssetEntity(
         id = id,
-        name = "",
+        name = name,
         issuerId = issuer.id,
         category = category,
         liquidity = liquidity,

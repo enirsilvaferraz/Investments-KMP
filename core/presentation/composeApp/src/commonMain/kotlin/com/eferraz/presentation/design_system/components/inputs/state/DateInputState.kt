@@ -9,7 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import com.eferraz.design_system.input.date.filterDateMaskDigits
+import com.eferraz.design_system.input.date.dateToDigits
 
 @Stable
 internal class DateInputState(
@@ -19,12 +19,12 @@ internal class DateInputState(
         private set
 
     private fun initialValueToTextFieldValue(value: String): TextFieldValue {
-        val digits = filterDateMaskDigits(value)
+        val digits = dateToDigits(value)
         return TextFieldValue(text = digits, selection = TextRange(digits.length))
     }
 
     fun onValueChange(newValue: TextFieldValue, onExternalChange: (String) -> Unit) {
-        val limitedText = filterDateMaskDigits(newValue.text)
+        val limitedText = dateToDigits(newValue.text)
 
         textFieldValue = TextFieldValue(
             text = limitedText,
@@ -35,8 +35,8 @@ internal class DateInputState(
     }
 
     fun syncWithExternalValue(value: String) {
-        val currentDigits = filterDateMaskDigits(textFieldValue.text)
-        val externalDigits = filterDateMaskDigits(value)
+        val currentDigits = dateToDigits(textFieldValue.text)
+        val externalDigits = dateToDigits(value)
 
         if (currentDigits != externalDigits) {
             textFieldValue = TextFieldValue(text = externalDigits, selection = TextRange(externalDigits.length))

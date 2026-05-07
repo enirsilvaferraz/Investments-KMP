@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,6 +29,21 @@ internal fun AssetManagementFormView(
     onEvent: (VMEvents) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (ui.transactionDraftError != null) {
+        AlertDialog(
+            onDismissRequest = { onEvent(VMEvents.TransactionDraftErrorDismissed) },
+            title = { Text("Atenção") },
+            text = { Text(ui.transactionDraftError) },
+            confirmButton = {
+                TextButton(
+                    onClick = { onEvent(VMEvents.TransactionDraftErrorDismissed) }
+                ) {
+                    Text("OK")
+                }
+            },
+        )
+    }
+
 
     Card(
         modifier = Modifier.widthIn(min = 840.dp, max = 1200.dp),
