@@ -12,6 +12,7 @@ import platform.Foundation.writeToFile
 
 @OptIn(ExperimentalForeignApi::class)
 internal actual fun writeCsv(content: String) {
+
     val documentDirectoryUrl = NSFileManager.defaultManager.URLForDirectory(
         directory = NSDocumentDirectory,
         inDomain = NSUserDomainMask,
@@ -19,12 +20,16 @@ internal actual fun writeCsv(content: String) {
         create = false,
         error = null,
     )
+
     val basePath = requireNotNull(documentDirectoryUrl?.path)
 
     val filePath = "$basePath/$RENDA_FIXA_CSV_FILE_NAME"
+
     if (NSFileManager.defaultManager.fileExistsAtPath(filePath)) {
         NSFileManager.defaultManager.removeItemAtPath(filePath, error = null)
     }
+
     val data = (content as NSString).dataUsingEncoding(NSUTF8StringEncoding) as NSData
+
     data.writeToFile(filePath, atomically = true)
 }

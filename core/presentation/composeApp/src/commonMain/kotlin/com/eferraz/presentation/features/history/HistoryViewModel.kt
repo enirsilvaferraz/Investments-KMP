@@ -10,10 +10,10 @@ import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
+import com.eferraz.usecases.cruds.GetCurrentDateUseCase
 import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
 import com.eferraz.usecases.cruds.GetTransactionsUseCase
 import com.eferraz.usecases.entities.HoldingHistoryView
-import com.eferraz.usecases.repositories.DateProvider
 import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
 import com.eferraz.usecases.services.ExportToCsvUseCase
 import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
@@ -27,7 +27,7 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class HistoryViewModel(
-    dateProvider: DateProvider,
+    private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val getGoalUseCase: GetFinancialGoalsUseCase,
@@ -38,14 +38,7 @@ internal class HistoryViewModel(
     private val exportToCsvUseCase: ExportToCsvUseCase,
 ) : ViewModel() {
 
-    val state: StateFlow<HistoryState> field = MutableStateFlow(
-        HistoryState(
-            period = HistoryState.Choice( // TODO Verificar s eé possivel remover
-                dateProvider.getCurrentYearMonth(),
-                emptyList()
-            ),
-        )
-    )
+    val state: StateFlow<HistoryState> field = MutableStateFlow(HistoryState())
 
     init {
 
@@ -53,6 +46,10 @@ internal class HistoryViewModel(
 
             val periods = async {
                 getDataPeriodUseCase(Unit).getOrThrow()
+            }
+
+            val selected = async {
+                getCurrentDateUseCase(Unit).getOrThrow()
             }
 
             val brokerages = async {
@@ -67,12 +64,12 @@ internal class HistoryViewModel(
                 it.copy(
                     goal = it.goal.copy(options = goals.await()),
                     brokerage = it.brokerage.copy(options = brokerages.await()),
-                    period = it.period.copy(selected = dateProvider.getCurrentYearMonth(), options = periods.await())
+                    period = HistoryState.Choice(selected.await(), periods.await())
                 )
             }
-        }
 
-        processIntent(HistoryIntent.LoadInitialData)
+            processIntent(HistoryIntent.LoadInitialData)
+        }
     }
 
     internal fun processIntent(intent: HistoryIntent) {
@@ -118,7 +115,7 @@ internal class HistoryViewModel(
         processIntent(HistoryIntent.LoadInitialData)
     }
 
-    private fun updateEntryValue(entry: HoldingHistoryEntry, value: Double,) {
+    private fun updateEntryValue(entry: HoldingHistoryEntry, value: Double) {
         viewModelScope.launch {
             updateFixedIncomeAndFundsHistoryValueUseCase(
                 UpdateFixedIncomeAndFundsHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)

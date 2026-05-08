@@ -20,6 +20,7 @@ internal class AssetFileStoreImpl : AssetFileStore {
 }
 
 private fun buildFixedIncomeCsv(entries: List<HoldingHistoryEntry>): String {
+
     val header = listOf(
         "Corretora",
         "Display Name",
@@ -29,24 +30,31 @@ private fun buildFixedIncomeCsv(entries: List<HoldingHistoryEntry>): String {
         "Valor atual",
     ).joinToString(separator = ",") { it.toCsvField() }
 
-    val lines = entries.asSequence()
-        .mapNotNull { entry ->
-            val asset = entry.holding.asset as? FixedIncomeAsset ?: return@mapNotNull null
-            val currentTotal = entry.endOfMonthValue * entry.endOfMonthQuantity
-            listOf(
-                entry.holding.brokerage.name,
-                asset.displayNameForCsv(),
-                asset.observations.orEmpty(),
-                asset.expirationDate.formattedForCsv(),
-                asset.liquidity.formattedForCsv(),
-                currentTotal.toCsvDecimal(),
-            ).joinToString(separator = ",") { value -> value.toCsvField() }
-        }
+    val lines = entries
+        .asSequence()
+        .mapNotNull { entry -> buildLine(entry) }
         .toList()
 
     return buildString {
         appendLine(header)
         lines.forEach { appendLine(it) }
+    }
+}
+
+private fun buildLine(entry: HoldingHistoryEntry): String? {
+
+    val asset = entry.holding.asset as? FixedIncomeAsset ?: return null
+    val currentTotal = entry.endOfMonthValue * entry.endOfMonthQuantity
+
+    return listOf(
+        entry.holding.brokerage.name,
+        asset.displayNameForCsv(),
+        asset.observations.orEmpty(),
+        asset.expirationDate.formattedForCsv(),
+        asset.liquidity.formattedForCsv(),
+        currentTotal.toCsvDecimal(),
+    ).joinToString(separator = ",") { value ->
+        value.toCsvField()
     }
 }
 

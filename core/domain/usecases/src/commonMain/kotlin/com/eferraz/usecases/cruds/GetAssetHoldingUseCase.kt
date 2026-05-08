@@ -15,9 +15,11 @@ public class GetAssetHoldingUseCase(
 
     public sealed interface Param
     public data class ById(val id: Long) : Param
+    public data class ByAssetId(val id: Long) : Param
 
     override suspend fun execute(param: Param): AssetHolding? =
         when (param) {
             is ById -> assetHoldingRepository.getById(param.id)
+            is ByAssetId -> assetHoldingRepository.getByAssetId(param.id)
         }
 }

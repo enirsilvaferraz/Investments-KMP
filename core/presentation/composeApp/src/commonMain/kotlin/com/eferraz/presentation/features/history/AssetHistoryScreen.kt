@@ -72,6 +72,8 @@ public fun HoldingHistoryRoute(
     val vm = koinViewModel<HistoryViewModel>()
     val state by vm.state.collectAsStateWithLifecycle()
 
+    if (state.period.selected == null) return
+
     val onValueChange = remember(vm) {
         { entry: HoldingHistoryView, value: Double ->
             vm.processIntent(
