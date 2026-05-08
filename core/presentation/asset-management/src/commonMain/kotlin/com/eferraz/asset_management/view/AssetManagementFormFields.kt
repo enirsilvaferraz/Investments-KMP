@@ -131,6 +131,16 @@ internal fun AssetManagementFormContent(
             onValueChange = { onEvent(VMEvents.ObservationsChanged(it)) },
             errorMessage = null,
         )
+
+        StableExposedDropdown(
+            label = BROKERAGE_FIELD_LABEL,
+            displayValue = ui.brokerage?.name.orEmpty(),
+            options = ui.brokerages,
+            itemLabel = Brokerage::name,
+            onItemSelect = { brokerage -> onEvent(VMEvents.BrokerageChanged(brokerage)) },
+            error = ui.brokerageError,
+            required = true
+        )
     }
 }
 

@@ -39,16 +39,6 @@ internal fun TransactionFormContent(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
 
-        StableExposedDropdown(
-            label = BROKERAGE_FIELD_LABEL,
-            displayValue = ui.brokerage?.name.orEmpty(),
-            options = ui.brokerages,
-            itemLabel = Brokerage::name,
-            onItemSelect = { brokerage -> onEvent(VMEvents.BrokerageChanged(brokerage)) },
-            error = ui.brokerageError,
-            required = true
-        )
-
         Text(
             text = "Transações",
             style = MaterialTheme.typography.titleSmall,
