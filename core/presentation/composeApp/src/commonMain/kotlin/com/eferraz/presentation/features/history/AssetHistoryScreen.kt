@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -96,6 +97,9 @@ public fun HoldingHistoryRoute(
     val onSyncClick = remember(vm) {
         { vm.processIntent(HistoryIntent.Sync) }
     }
+    val onExportFixedIncomeClick = remember(vm) {
+        { vm.processIntent(HistoryIntent.ExportFixedIncomeCsv) }
+    }
 
     HoldingHistoryScreen(
         dataRows = state.tableData,
@@ -116,6 +120,7 @@ public fun HoldingHistoryRoute(
         goalOptions = state.goal.options,
         onGoalChange = onGoalChange,
         onSyncClick = onSyncClick,
+        onExportFixedIncomeClick = onExportFixedIncomeClick,
         transactions = state.transactions,
         onEditHolding = onEditHolding,
     )
@@ -142,6 +147,7 @@ internal fun HoldingHistoryScreen(
     goalOptions: List<FinancialGoal>,
     onGoalChange: (FinancialGoal) -> Unit,
     onSyncClick: () -> Unit,
+    onExportFixedIncomeClick: () -> Unit,
     transactions: List<AssetTransaction>,
     onEditHolding: (Long) -> Unit,
 ) {
@@ -157,6 +163,7 @@ internal fun HoldingHistoryScreen(
             Actions(
                 showClose = navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary,
                 onSyncClick = onSyncClick,
+                onExportFixedIncomeClick = onExportFixedIncomeClick,
                 onCloseClick = { scope.launch { navigator.navigateBack() } }
             )
         },
@@ -200,6 +207,7 @@ internal fun HoldingHistoryScreen(
 private fun Actions(
     showClose: Boolean,
     onSyncClick: () -> Unit,
+    onExportFixedIncomeClick: () -> Unit,
     onCloseClick: () -> Unit,
 ) {
 
@@ -216,6 +224,13 @@ private fun Actions(
         Icon(
             imageVector = Icons.Default.Sync,
             contentDescription = "Sincronizar"
+        )
+    }
+
+    IconButton(onClick = onExportFixedIncomeClick) {
+        Icon(
+            imageVector = Icons.Default.FileDownload,
+            contentDescription = "Exportar renda fixa em CSV"
         )
     }
 }

@@ -67,8 +67,6 @@ public fun <T> UiTableV3(
 
     val provider: UiTableContentProvider = remember { UiTableContentProviderImpl() }
 
-    if (rows.items.isEmpty()) return
-
     val state = rememberDataTableState()
 
     var sortConfig by remember {

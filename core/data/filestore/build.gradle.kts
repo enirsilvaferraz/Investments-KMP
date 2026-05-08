@@ -10,9 +10,5 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
         implementation(projects.domain.entity)
-        implementation(projects.domain.usecases)
-        implementation(projects.data.database)
-        implementation(projects.data.network)
-        implementation(projects.data.filestore)
     }
 }

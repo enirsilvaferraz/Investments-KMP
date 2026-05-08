@@ -65,9 +65,9 @@ public class UpsertAssetUseCase(
 
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-        if (asset.expirationDate <= today) {
-            errors["expirationDate"] = "Data de vencimento deve ser futura"
-        }
+//        if (asset.expirationDate <= today) {
+//            errors["expirationDate"] = "Data de vencimento deve ser futura"
+//        }
 
         if (asset.contractedYield <= 0) {
             errors["contractedYield"] = "Rentabilidade deve ser positiva"
