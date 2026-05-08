@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import com.eferraz.asset_management.helpers.asLabel
 import com.eferraz.asset_management.vm.TransactionDraftUi
 import com.eferraz.asset_management.vm.TransactionFormEvent
 import com.eferraz.asset_management.vm.TransactionFormUiState
@@ -197,9 +198,3 @@ private fun buildColumns(
 
     return common
 }
-
-private fun TransactionType.asLabel(): String =
-    when (this) {
-        TransactionType.PURCHASE -> "Compra"
-        TransactionType.SALE -> "Venda"
-    }

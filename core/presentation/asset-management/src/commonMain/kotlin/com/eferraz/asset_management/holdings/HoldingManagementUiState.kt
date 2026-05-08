@@ -6,10 +6,11 @@ import com.eferraz.entities.holdings.Brokerage
 
 @Immutable
 internal data class HoldingManagementUiState(
-    val holding: AssetHolding,
+    val holding: AssetHolding? = null,
     val brokerage: Brokerage? = null,
     val brokerages: List<Brokerage> = emptyList(),
     val isSaving: Boolean = false,
+    val isCompleted: Boolean = false,
     val brokerageError: String? = null,
 ) {
 

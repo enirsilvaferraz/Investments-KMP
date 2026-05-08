@@ -1,18 +1,17 @@
 package com.eferraz.asset_management.helpers
 
-import com.eferraz.asset_management.vm.UiState
+import com.eferraz.asset_management.assets.AssetManagementUiState
 import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.InvestmentCategory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
-internal fun MutableStateFlow<UiState>.checkErros(): Boolean {
+internal fun MutableStateFlow<AssetManagementUiState>.checkErros(): Boolean {
 
     val state = this.value
 
     val withCommon = state.withClearedFieldErrors().copy(
         issuerError = if (state.issuer == null) "Obrigatório" else null,
-        brokerageError = if (state.brokerage == null) "Obrigatório" else null,
     )
 
     val validated = when (state.category) {
@@ -26,7 +25,7 @@ internal fun MutableStateFlow<UiState>.checkErros(): Boolean {
     return validated.hasAnyFieldError()
 }
 
-private fun UiState.validateFixedIncome(): UiState = copy(
+private fun AssetManagementUiState.validateFixedIncome(): AssetManagementUiState = copy(
     fixedTypeError = if (fixedType == null) "Obrigatório" else null,
     fixedSubTypeError = if (fixedSubType == null) "Obrigatório" else null,
     fixedExpirationError = if (fixedExpiration.isNullOrBlank()) "Obrigatório" else if (localDateFromIsoDateDigits(fixedExpiration) == null) "Data inválida" else null,
@@ -35,13 +34,13 @@ private fun UiState.validateFixedIncome(): UiState = copy(
     fixedLiquidityError = if (fixedLiquidity == null) "Obrigatório" else null,
 )
 
-private fun UiState.validateVariableIncome(): UiState = copy(
+private fun AssetManagementUiState.validateVariableIncome(): AssetManagementUiState = copy(
     variableTypeError = if (variableType == null) "Obrigatório" else null,
     variableTickerError = if (variableTicker.orEmpty().isBlank()) "Obrigatório" else null,
     cnpjError = if (variableCnpj.isNullOrBlank().not() && runCatching { CNPJ(variableCnpj) }.isFailure) "CNPJ inválido" else null,
 )
 
-private fun UiState.validateFund(): UiState = copy(
+private fun AssetManagementUiState.validateFund(): AssetManagementUiState = copy(
     fundNameError = if (fundName.orEmpty().isBlank()) "Obrigatório" else null,
     fundTypeError = if (fundType == null) "Obrigatório" else null,
     fundLiquidityError = if (fundLiquidity == null) "Obrigatório" else null,

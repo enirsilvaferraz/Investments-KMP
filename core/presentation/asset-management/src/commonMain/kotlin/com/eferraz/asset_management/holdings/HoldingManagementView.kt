@@ -8,17 +8,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.eferraz.asset_management.assets.AssetManagementEvents
-import com.eferraz.asset_management.assets.AssetManagementViewModel
 import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
-import com.eferraz.asset_management.assets.AssetManagementUiState
 import com.eferraz.design_system.components.dropdown.StableExposedDropdown
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.holdings.Brokerage
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -26,28 +23,32 @@ import org.koin.compose.viewmodel.koinViewModel
 internal fun HoldingFormView(
     modifier: Modifier = Modifier,
     holdingId: Long?,
+    onComplete: () -> Unit,
 ) {
 
     val vm = koinViewModel<HoldingManagementViewModel>()
-    val state = vm.state.collectAsState()
+    val state by vm.state.collectAsState()
 
     LaunchedEffect(holdingId) {
-        vm.dispatch(HoldingManagementEvents.ScreenEntered(assetId = holdingId))
+        vm.dispatch(HoldingManagementEvents.ScreenEntered(holdingId = holdingId))
+    }
+
+    LaunchedEffect(state.isCompleted) {
+        if (state.isCompleted) onComplete()
     }
 
     HoldingFormView(
         modifier = modifier,
-        ui = state.value,
+        ui = state,
         onEvent = vm::dispatch
     )
 }
 
-
 @Composable
 private fun HoldingFormView(
     modifier: Modifier,
-    ui: AssetManagementUiState,
-    onEvent: (AssetManagementEvents) -> Unit,
+    ui: HoldingManagementUiState,
+    onEvent: (HoldingManagementEvents) -> Unit,
 ) {
 
     StableExposedDropdown(
@@ -56,22 +57,25 @@ private fun HoldingFormView(
         displayValue = ui.brokerage?.name.orEmpty(),
         options = ui.brokerages,
         itemLabel = Brokerage::name,
-        onItemSelect = { brokerage -> onEvent(AssetManagementEvents.BrokerageChanged(brokerage)) },
+        onItemSelect = { brokerage ->
+            onEvent(HoldingManagementEvents.BrokerageChanged(brokerage))
+            onEvent(HoldingManagementEvents.Save)
+        },
         error = ui.brokerageError,
         required = true
     )
 }
 
-private class HoldingFormPreviewProvider : PreviewParameterProvider<AssetManagementUiState> {
-    override val values: Sequence<AssetManagementUiState> = sequenceOf(
-        AssetManagementUiState(category = InvestmentCategory.FIXED_INCOME),
+private class HoldingFormPreviewProvider : PreviewParameterProvider<HoldingManagementUiState> {
+    override val values: Sequence<HoldingManagementUiState> = sequenceOf(
+        HoldingManagementUiState(),
     )
 }
 
 @Preview
 @Composable
 private fun HoldingFormViewPreview(
-    @PreviewParameter(HoldingFormPreviewProvider::class) ui: AssetManagementUiState,
+    @PreviewParameter(HoldingFormPreviewProvider::class) ui: HoldingManagementUiState,
 ) {
     MaterialTheme {
 
@@ -80,7 +84,7 @@ private fun HoldingFormViewPreview(
             Card(modifier = Modifier.padding(16.dp)) {
 
                 HoldingFormView(
-                    modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
                     ui = ui,
                     onEvent = {}
                 )

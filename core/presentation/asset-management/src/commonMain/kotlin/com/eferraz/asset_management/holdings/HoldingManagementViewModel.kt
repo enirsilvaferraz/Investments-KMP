@@ -2,13 +2,6 @@ package com.eferraz.asset_management.holdings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.assets.Asset
-import com.eferraz.entities.assets.FixedIncomeAsset
-import com.eferraz.entities.assets.InvestmentFundAsset
-import com.eferraz.entities.assets.VariableIncomeAsset
-import com.eferraz.entities.holdings.AssetHolding
-import com.eferraz.entities.holdings.Brokerage
-import com.eferraz.entities.holdings.Owner
 import com.eferraz.usecases.cruds.GetAssetHoldingUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.UpsertAssetHoldingUseCase
@@ -22,6 +15,7 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class HoldingManagementViewModel(
+    private val getAssetHoldingUseCase: GetAssetHoldingUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val upsertAssetHoldingUseCase: UpsertAssetHoldingUseCase,
 ) : ViewModel() {
@@ -29,31 +23,40 @@ internal class HoldingManagementViewModel(
     internal val state: StateFlow<HoldingManagementUiState> field = MutableStateFlow(HoldingManagementUiState())
 
     internal fun dispatch(event: HoldingManagementEvents) = when (event) {
-        is HoldingManagementEvents.ScreenEntered -> resetState(event.holding)
+        is HoldingManagementEvents.ScreenEntered -> loadInitialState(event.holdingId)
         is HoldingManagementEvents.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
         HoldingManagementEvents.Save -> onSave()
     }
 
-    private fun resetState(holding: AssetHolding) = viewModelScope.launch {
+    private fun loadInitialState(holdingId: Long?) = viewModelScope.launch {
 
         val brokerages = async { getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty() }
+        val holding = async { holdingId?.let { getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(it)).getOrNull() } }
 
-        state.update { HoldingManagementUiState(holding = holding, brokerages = brokerages.await()) }
+        val base = holding.await()
+
+        state.update {
+            HoldingManagementUiState(
+                holding = base,
+                brokerage = base?.brokerage,
+                brokerages = brokerages.await(),
+            )
+        }
     }
 
     private fun onSave() = viewModelScope.launch {
 
+        val holding = state.value.holding ?: return@launch
         if (state.value.isSaving || state.value.hasAnyFieldError()) return@launch
 
         state.update { it.copy(isSaving = true) }
 
         val brokerage = state.value.brokerage!!
+        val updatedHolding = holding.copy(brokerage = brokerage)
 
-        val holding = state.value.holding.copy(brokerage = brokerage)
-
-        upsertAssetHoldingUseCase(UpsertAssetHoldingUseCase.Param(holding))
+        upsertAssetHoldingUseCase(UpsertAssetHoldingUseCase.Param(updatedHolding))
             .onSuccess {
-                state.update { it.copy(isSaving = false) }
+                state.update { it.copy(isSaving = false, isCompleted = true) }
             }
             .onFailure { error ->
                 when (error) {

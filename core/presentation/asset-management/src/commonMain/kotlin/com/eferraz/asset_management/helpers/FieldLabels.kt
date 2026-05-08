@@ -6,6 +6,7 @@ import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.transactions.TransactionType
 
 /** Rótulo do dropdown de corretora no cadastro de investimento. */
 internal const val BROKERAGE_FIELD_LABEL: String = "Corretora"
@@ -55,4 +56,10 @@ internal fun Liquidity.asLabel(): String =
         Liquidity.DAILY -> "Diária"
         Liquidity.AT_MATURITY -> "No vencimento"
         Liquidity.D_PLUS_DAYS -> "D + dias"
+    }
+
+internal fun TransactionType.asLabel(): String =
+    when (this) {
+        TransactionType.PURCHASE -> "Compra"
+        TransactionType.SALE -> "Venda"
     }
