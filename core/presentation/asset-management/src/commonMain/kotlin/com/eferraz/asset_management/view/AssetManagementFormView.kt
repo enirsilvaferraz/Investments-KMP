@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.eferraz.asset_management.vm.TransactionFormEvent
+import com.eferraz.asset_management.vm.TransactionFormUiState
 import com.eferraz.asset_management.vm.UiState
 import com.eferraz.asset_management.vm.VMEvents
 
@@ -26,25 +27,11 @@ import com.eferraz.asset_management.vm.VMEvents
 @Composable
 internal fun AssetManagementFormView(
     ui: UiState,
+    transactionUi: TransactionFormUiState,
     onEvent: (VMEvents) -> Unit,
+    onTransactionEvent: (TransactionFormEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (ui.transactionDraftError != null) {
-        AlertDialog(
-            onDismissRequest = { onEvent(VMEvents.TransactionDraftErrorDismissed) },
-            title = { Text("Atenção") },
-            text = { Text(ui.transactionDraftError) },
-            confirmButton = {
-                TextButton(
-                    onClick = { onEvent(VMEvents.TransactionDraftErrorDismissed) }
-                ) {
-                    Text("OK")
-                }
-            },
-        )
-    }
-
-
     Card(
         modifier = Modifier.widthIn(min = 840.dp, max = 1200.dp),
         colors = CardDefaults.cardColors(
@@ -75,8 +62,8 @@ internal fun AssetManagementFormView(
 
                 TransactionFormContent(
                     modifier = Modifier.weight(1f),
-                    ui = ui,
-                    onEvent = onEvent
+                    ui = transactionUi,
+                    onEvent = onTransactionEvent,
                 )
             }
 

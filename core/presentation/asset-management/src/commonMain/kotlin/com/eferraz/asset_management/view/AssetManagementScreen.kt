@@ -20,6 +20,7 @@ public fun AssetManagementScreen(
 
     val viewModel: AssetManagementViewModel = koinViewModel()
     val ui by viewModel.state.collectAsState()
+    val transactionUi by viewModel.transactionFormState.collectAsState()
 
     LaunchedEffect(holdingId) {
         viewModel.dispatch(VMEvents.ScreenEntered(holdingId = holdingId))
@@ -35,7 +36,9 @@ public fun AssetManagementScreen(
 
     AssetManagementFormView(
         ui = ui,
+        transactionUi = transactionUi,
         onEvent = viewModel::dispatch,
+        onTransactionEvent = viewModel::dispatchTransaction,
         modifier = Modifier.wrapContentHeight(),
     )
 }

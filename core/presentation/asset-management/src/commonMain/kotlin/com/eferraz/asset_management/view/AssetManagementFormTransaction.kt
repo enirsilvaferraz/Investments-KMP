@@ -6,18 +6,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import com.eferraz.asset_management.vm.TransactionDraftUi
-import com.eferraz.asset_management.vm.UiState
-import com.eferraz.asset_management.vm.VMEvents
-import com.eferraz.design_system.components.dropdown.StableExposedDropdown
+import com.eferraz.asset_management.vm.TransactionFormEvent
+import com.eferraz.asset_management.vm.TransactionFormUiState
 import com.eferraz.design_system.components.inputs.TableInputDate
 import com.eferraz.design_system.components.inputs.TableInputMoney
 import com.eferraz.design_system.components.inputs.TableInputSelect
@@ -25,14 +29,14 @@ import com.eferraz.design_system.components.table.UiTableDataColumn
 import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.design_system.core.StableList
 import com.eferraz.entities.assets.InvestmentCategory
-import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.TransactionType
+import com.seanproctor.datatable.TableColumnWidth
 
 @Composable
 internal fun TransactionFormContent(
     modifier: Modifier = Modifier,
-    ui: UiState,
-    onEvent: (VMEvents) -> Unit,
+    ui: TransactionFormUiState,
+    onEvent: (TransactionFormEvent) -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -47,10 +51,7 @@ internal fun TransactionFormContent(
 
         TransactionTable(
             modifier = Modifier.fillMaxWidth(),
-            rows = ui.transactionDrafts,
-            category = ui.category,
-            focusedInvalidRowIndex = ui.focusedInvalidRowIndex,
-            addEnabled = !ui.isSaving,
+            rows = ui.transactions,
             onEvent = onEvent,
         )
     }
@@ -60,28 +61,28 @@ internal fun TransactionFormContent(
 private fun TransactionTable(
     modifier: Modifier,
     rows: List<TransactionDraftUi>,
-    category: InvestmentCategory,
-    focusedInvalidRowIndex: Int?,
-    addEnabled: Boolean,
-    onEvent: (VMEvents) -> Unit,
+    onEvent: (TransactionFormEvent) -> Unit,
 ) {
+
     val headerColor = Color(0xFFE6DBF7)
-    val columns = buildColumns(rows, category, focusedInvalidRowIndex, onEvent)
+    val columns = buildColumns(rows, onEvent)
+
+    val footer = @Composable {
+        Box(
+            modifier = Modifier.fillMaxWidth().height(30.dp).clickable {
+                onEvent(TransactionFormEvent.AddTransactionDraft)
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Adicionar", style = MaterialTheme.typography.bodySmall)
+        }
+    }
 
     UiTableV3(
         modifier = modifier,
         columns = StableList(columns),
         rows = StableList(rows),
-        footer = {
-            Box(
-                modifier = Modifier.fillMaxWidth().height(30.dp).clickable(enabled = addEnabled) {
-                    onEvent(VMEvents.AddTransactionDraft)
-                },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("Adicionar", style = MaterialTheme.typography.bodySmall)
-            }
-        },
+        footer = footer,
         headerBackgroundColor = headerColor,
         footerBackgroundColor = headerColor,
         rowBackgroundColor = Color(0xFFF4F5F9),
@@ -90,9 +91,7 @@ private fun TransactionTable(
 
 private fun buildColumns(
     rows: List<TransactionDraftUi>,
-    category: InvestmentCategory,
-    focusedInvalidRowIndex: Int?,
-    onEvent: (VMEvents) -> Unit,
+    onEvent: (TransactionFormEvent) -> Unit,
 ): List<UiTableDataColumn<TransactionDraftUi>> {
 
     val common = mutableListOf<UiTableDataColumn<TransactionDraftUi>>(
@@ -104,8 +103,8 @@ private fun buildColumns(
                 val index = rows.indexOf(row)
                 TableInputDate(
                     value = row.dateDigits,
-                    onValueChange = { onEvent(VMEvents.DraftTransactionDateChanged(index, it)) },
-                    isError = row.inlineError?.contains("Data") == true || focusedInvalidRowIndex == index,
+                    onValueChange = { onEvent(TransactionFormEvent.DraftTransactionDateChanged(index, it)) },
+                    isError = row.dateError,
                 )
             },
         ),
@@ -119,11 +118,13 @@ private fun buildColumns(
                     value = row.type,
                     options = TransactionType.entries.toList(),
                     format = { it.asLabel() },
-                    onValueChange = { onEvent(VMEvents.DraftTransactionTypeChanged(index, it)) },
+                    onValueChange = { onEvent(TransactionFormEvent.DraftTransactionTypeChanged(index, it)) },
                 )
             },
         ),
     )
+
+    val category: InvestmentCategory = rows.firstOrNull()?.category ?: InvestmentCategory.FIXED_INCOME
 
     if (category == InvestmentCategory.VARIABLE_INCOME) {
 
@@ -135,8 +136,10 @@ private fun buildColumns(
                 val index = rows.indexOf(row)
                 TableInputMoney(
                     value = row.quantity.toDoubleOrNull() ?: 0.0,
-                    onValueChange = { onEvent(VMEvents.DraftTransactionQuantityChanged(index, (it ?: 0.0).toString())) },
-                    isError = row.inlineError?.contains("Quantidade") == true || focusedInvalidRowIndex == index,
+                    onValueChange = {
+                        onEvent(TransactionFormEvent.DraftTransactionQuantityChanged(index, (it ?: 0.0).toString()))
+                    },
+                    isError = row.quantityError,
                 )
             },
         )
@@ -149,8 +152,10 @@ private fun buildColumns(
                 val index = rows.indexOf(row)
                 TableInputMoney(
                     value = row.unitPrice.toDoubleOrNull() ?: 0.0,
-                    onValueChange = { onEvent(VMEvents.DraftTransactionUnitPriceChanged(index, (it ?: 0.0).toString())) },
-                    isError = row.inlineError?.contains("Preço") == true || focusedInvalidRowIndex == index,
+                    onValueChange = {
+                        onEvent(TransactionFormEvent.DraftTransactionUnitPriceChanged(index, (it ?: 0.0).toString()))
+                    },
+                    isError = row.unitPriceError,
                 )
             },
         )
@@ -164,10 +169,29 @@ private fun buildColumns(
             val index = rows.indexOf(row)
             TableInputMoney(
                 value = row.totalValue.toDoubleOrNull() ?: 0.0,
-                onValueChange = { onEvent(VMEvents.DraftTransactionTotalValueChanged(index, (it ?: 0.0).toString())) },
-                isError = row.inlineError?.contains("Valor total") == true || focusedInvalidRowIndex == index,
+                onValueChange = {
+                    onEvent(TransactionFormEvent.DraftTransactionTotalValueChanged(index, (it ?: 0.0).toString()))
+                },
+                isError = row.totalValueError,
                 enabled = category != InvestmentCategory.VARIABLE_INCOME,
             )
+        },
+    )
+
+    common += UiTableDataColumn(
+        text = "",
+        alignment = Alignment.Center,
+        comparable = { it.id ?: 0L },
+        width = TableColumnWidth.MaxIntrinsic,
+        content = { row ->
+            val index = rows.indexOf(row)
+            IconButton(onClick = { onEvent(TransactionFormEvent.DraftTransactionDeleteClicked(index)) }) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Remover transação",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         },
     )
 

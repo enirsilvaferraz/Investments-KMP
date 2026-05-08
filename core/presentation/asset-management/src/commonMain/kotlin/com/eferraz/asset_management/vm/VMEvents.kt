@@ -8,10 +8,9 @@ import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
-import com.eferraz.entities.transactions.TransactionType
-
 /**
  * Ações do ecrã de registo (formulário e navegação) — ponto de entrada único [AssetManagementViewModel.dispatch].
+ * Tabela de transações: [TransactionFormEvent] / [TransactionFormViewModel].
  */
 internal sealed class VMEvents {
 
@@ -37,16 +36,6 @@ internal sealed class VMEvents {
     data class FundTypeChanged(val type: InvestmentFundAssetType) : VMEvents()
     data class FundLiquidityDaysChanged(val value: String) : VMEvents()
     data class FundExpirationChanged(val raw: String) : VMEvents()
-
-    data object AddTransactionDraft : VMEvents()
-    data object TransactionDraftErrorDismissed : VMEvents()
-
-    data class DraftTransactionDateChanged(val index: Int, val raw: String) : VMEvents()
-    data class DraftTransactionTypeChanged(val index: Int, val type: TransactionType) : VMEvents()
-    data class DraftTransactionQuantityChanged(val index: Int, val value: String) : VMEvents()
-    data class DraftTransactionUnitPriceChanged(val index: Int, val value: String) : VMEvents()
-    data class DraftTransactionTotalValueChanged(val index: Int, val value: String) : VMEvents()
-    data class DraftTransactionObservationChanged(val index: Int, val value: String) : VMEvents()
 
     data object Save : VMEvents()
     data object RequestDismiss : VMEvents()

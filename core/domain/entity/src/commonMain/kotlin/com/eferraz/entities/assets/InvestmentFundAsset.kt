@@ -22,4 +22,7 @@ public data class InvestmentFundAsset(
     public val liquidityDays: Int,
     public val expirationDate: LocalDate?,
     override val observations: String? = null
-) : Asset
+) : Asset {
+
+    override val category: InvestmentCategory = InvestmentCategory.INVESTMENT_FUND
+}

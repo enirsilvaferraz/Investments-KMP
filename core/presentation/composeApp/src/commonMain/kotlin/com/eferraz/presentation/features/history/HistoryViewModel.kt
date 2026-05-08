@@ -10,7 +10,7 @@ import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
-import com.eferraz.usecases.cruds.GetCurrentDateUseCase
+import com.eferraz.usecases.cruds.GetCurrentYearMonthUseCase
 import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
 import com.eferraz.usecases.cruds.GetTransactionsUseCase
 import com.eferraz.usecases.entities.HoldingHistoryView
@@ -27,7 +27,7 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class HistoryViewModel(
-    private val getCurrentDateUseCase: GetCurrentDateUseCase,
+    private val getCurrentYearMonthUseCase: GetCurrentYearMonthUseCase,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val getGoalUseCase: GetFinancialGoalsUseCase,
@@ -49,7 +49,7 @@ internal class HistoryViewModel(
             }
 
             val selected = async {
-                getCurrentDateUseCase(Unit).getOrThrow()
+                getCurrentYearMonthUseCase(Unit).getOrThrow()
             }
 
             val brokerages = async {

@@ -9,11 +9,6 @@ import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
-import com.eferraz.entities.transactions.AssetTransaction
-import com.eferraz.entities.transactions.FundsTransaction
-import com.eferraz.entities.transactions.FixedIncomeTransaction
-import com.eferraz.entities.transactions.TransactionType
-import com.eferraz.entities.transactions.VariableIncomeTransaction
 
 @Immutable
 internal data class UiState(
@@ -26,10 +21,6 @@ internal data class UiState(
     val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
     val issuer: Issuer? = null,
     val brokerage: Brokerage? = null,
-    val transactions: List<AssetTransaction> = emptyList(),
-    val transactionDrafts: List<TransactionDraftUi> = emptyList(),
-    val transactionDraftError: String? = null,
-    val focusedInvalidRowIndex: Int? = null,
     val observations: String? = null,
     val issuerError: String? = null,
     val brokerageError: String? = null,
@@ -94,41 +85,3 @@ internal data class UiState(
                 fundNameError != null || fundTypeError != null || fundLiquidityError != null ||
                 fundLiquidityDaysError != null || fundExpirationError != null
 }
-
-@Immutable
-internal data class TransactionDraftUi(
-    val id: Long? = null,
-    val isNew: Boolean = false,
-    val dateDigits: String = "",
-    val type: TransactionType = TransactionType.PURCHASE,
-    val quantity: String = "",
-    val unitPrice: String = "",
-    val totalValue: String = "",
-    val observations: String = "",
-    val inlineError: String? = null,
-) {
-    internal companion object {
-        internal fun fromDomain(value: AssetTransaction): TransactionDraftUi {
-            val quantity = if (value is VariableIncomeTransaction) value.quantity.toString() else ""
-            val unitPrice = if (value is VariableIncomeTransaction) value.unitPrice.toString() else ""
-            val total = when (value) {
-                is VariableIncomeTransaction -> value.totalValue
-                is FixedIncomeTransaction -> value.totalValue
-                is FundsTransaction -> value.totalValue
-            }
-
-            return TransactionDraftUi(
-                id = value.id,
-                isNew = false,
-                dateDigits = value.date.toString().replace("-", ""),
-                type = value.type,
-                quantity = quantity,
-                unitPrice = unitPrice,
-                totalValue = total.toString(),
-                observations = value.observations.orEmpty(),
-            )
-        }
-    }
-}
-
-internal fun UiState.hasAnyInvalidDraft(): Boolean = transactionDrafts.any { it.inlineError != null }
