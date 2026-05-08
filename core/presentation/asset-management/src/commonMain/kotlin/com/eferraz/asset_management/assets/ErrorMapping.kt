@@ -1,6 +1,5 @@
-package com.eferraz.asset_management.helpers
+package com.eferraz.asset_management.assets
 
-import com.eferraz.asset_management.vm.UiState
 import com.eferraz.entities.assets.InvestmentCategory
 
 /**
@@ -8,11 +7,10 @@ import com.eferraz.entities.assets.InvestmentCategory
  * e de emissor/corretora) nos campos `*Error`.
  * Chave inexistente → `null` nesse alvo; erros de campo de categorias fora de [s.category] ignoram-se.
  */
-internal fun Map<String, String>.remoteFieldErrorsOn(s: UiState) = s.withClearedFieldErrors().run {
+internal fun Map<String, String>.remoteFieldErrorsOn(s: AssetManagementUiState) = s.withClearedFieldErrors().run {
 
     val common = copy(
         issuerError = this@remoteFieldErrorsOn["issuer"],
-        brokerageError = this@remoteFieldErrorsOn["brokerage"],
     )
 
     when (s.category) {

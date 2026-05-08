@@ -1,17 +1,14 @@
-package com.eferraz.asset_management.helpers
+package com.eferraz.asset_management.assets
 
-import com.eferraz.asset_management.vm.UiState
+import com.eferraz.asset_management.helpers.localDateFromIsoDateDigits
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.VariableIncomeAsset
-import com.eferraz.entities.holdings.AssetHolding
-import com.eferraz.entities.holdings.Brokerage
-import com.eferraz.entities.holdings.Owner
 
-internal fun UiState.buildAsset(): Asset {
+internal fun AssetManagementUiState.buildAsset(): Asset {
     return when (category) {
         InvestmentCategory.FIXED_INCOME -> buildFixedIncomeAsset()
         InvestmentCategory.VARIABLE_INCOME -> buildVariableIncomeAsset()
@@ -19,9 +16,10 @@ internal fun UiState.buildAsset(): Asset {
     }
 }
 
-private fun UiState.buildFixedIncomeAsset(): FixedIncomeAsset {
+private fun AssetManagementUiState.buildFixedIncomeAsset(): FixedIncomeAsset {
+
     return FixedIncomeAsset(
-        id = editingAssetId ?: 0L,
+        id = asset?.id ?: 0L,
         issuer = issuer!!,
         type = fixedType!!,
         subType = fixedSubType!!,
@@ -33,21 +31,23 @@ private fun UiState.buildFixedIncomeAsset(): FixedIncomeAsset {
     )
 }
 
-private fun UiState.buildVariableIncomeAsset(): VariableIncomeAsset {
+private fun AssetManagementUiState.buildVariableIncomeAsset(): VariableIncomeAsset {
+
     return VariableIncomeAsset(
-        id = editingAssetId ?: 0L,
+        id = asset?.id ?: 0L,
         name = variableTicker.orEmpty().trim(),
         issuer = issuer!!,
         type = variableType!!,
         ticker = variableTicker.orEmpty().trim(),
-        cnpj = variableCnpj.takeIf { it.isNullOrBlank().not() }?.let { CNPJ(variableCnpj) } ,
+        cnpj = variableCnpj.takeIf { it.isNullOrBlank().not() }?.let { CNPJ(variableCnpj) },
         observations = observations,
     )
 }
 
-private fun UiState.buildFundAsset(): InvestmentFundAsset {
+private fun AssetManagementUiState.buildFundAsset(): InvestmentFundAsset {
+
     return InvestmentFundAsset(
-        id = editingAssetId ?: 0L,
+        id = asset?.id ?: 0L,
         name = fundName.orEmpty().trim(),
         issuer = issuer!!,
         type = fundType!!,
@@ -58,39 +58,14 @@ private fun UiState.buildFundAsset(): InvestmentFundAsset {
     )
 }
 
-internal fun buildHolding(
-    baseAsset: Asset,
-    assetId: Long,
-    owner: Owner,
-    brokerage: Brokerage,
-    holdingId: Long?,
-): AssetHolding {
-    return AssetHolding(
-        id = holdingId ?: 0L,
-        asset = baseAsset.withSavedId(assetId),
-        owner = owner,
-        brokerage = brokerage,
-        goal = null
-    )
-}
+internal fun Asset.toUiState(): AssetManagementUiState {
 
-private fun Asset.withSavedId(newId: Long): Asset =
-    when (this) {
-        is FixedIncomeAsset -> copy(id = newId)
-        is VariableIncomeAsset -> copy(id = newId)
-        is InvestmentFundAsset -> copy(id = newId)
-    }
+    return when (val currentAsset = this) {
 
-internal fun AssetHolding.toUiState(): UiState {
-
-    return when (val currentAsset = asset) {
-
-        is FixedIncomeAsset -> UiState(
-            editingHoldingId = id,
-            editingAssetId = currentAsset.id,
+        is FixedIncomeAsset -> AssetManagementUiState(
+            asset = this,
             category = InvestmentCategory.FIXED_INCOME,
             issuer = currentAsset.issuer,
-            brokerage = brokerage,
             observations = currentAsset.observations,
             fixedType = currentAsset.type,
             fixedSubType = currentAsset.subType,
@@ -100,12 +75,10 @@ internal fun AssetHolding.toUiState(): UiState {
             fixedLiquidity = currentAsset.liquidity,
         )
 
-        is VariableIncomeAsset -> UiState(
-            editingHoldingId = id,
-            editingAssetId = currentAsset.id,
+        is VariableIncomeAsset -> AssetManagementUiState(
+            asset = this,
             category = InvestmentCategory.VARIABLE_INCOME,
             issuer = currentAsset.issuer,
-            brokerage = brokerage,
             observations = currentAsset.observations,
             variableName = currentAsset.name,
             variableType = currentAsset.type,
@@ -113,12 +86,10 @@ internal fun AssetHolding.toUiState(): UiState {
             variableCnpj = currentAsset.cnpj?.get(),
         )
 
-        is InvestmentFundAsset -> UiState(
-            editingHoldingId = id,
-            editingAssetId = currentAsset.id,
+        is InvestmentFundAsset -> AssetManagementUiState(
+            asset = this,
             category = InvestmentCategory.INVESTMENT_FUND,
             issuer = currentAsset.issuer,
-            brokerage = brokerage,
             observations = currentAsset.observations,
             fundName = currentAsset.name,
             fundType = currentAsset.type,
