@@ -1,50 +1,132 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+  Sync Impact Report
+  ==================
+  Versão: 1.0.0 → 1.1.0
+  Tipo de bump: MINOR (princípio adicionado, reorganização sem remoção)
 
-## Core Principles
+  Princípios modificados:
+    I.   (NOVO) SOLID, DRY e Boas Práticas
+    II.  Arquitetura em Camadas → Clean Architecture (absorveu antigo IV "Domínio Isolado")
+    III. Kotlin Multiplatform First (sem alteração)
+    IV.  Plugins Foundation (sem alteração)
+    V.   Testes Obrigatórios em Use Cases (sem alteração)
+    VI.  API Explícita (sem alteração)
+    VII. Documentação Sincronizada (sem alteração)
+    VIII.Idioma e Convenções de Nomes (sem alteração)
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+  Princípios removidos:
+    - IV antigo ("Domínio Isolado") absorvido pelo novo II
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+  Templates verificados:
+    - plan-template.md        ✅ compatível
+    - spec-template.md        ✅ compatível
+    - tasks-template.md       ✅ compatível
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+  TODOs pendentes: nenhum
+-->
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+# Investments-KMP — Constituição do Projeto
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+## Princípios Fundamentais
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### I. SOLID, DRY e Boas Práticas
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Todo código DEVE seguir estes fundamentos de engenharia:
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- **S — Responsabilidade Única**: cada classe/módulo tem um único motivo para mudar.
+- **O — Aberto/Fechado**: extensível por adição, não por modificação de código existente.
+- **L — Substituição de Liskov**: subtipos DEVEM ser intercambiáveis com seus tipos base sem quebrar comportamento.
+- **I — Segregação de Interfaces**: interfaces coesas e específicas; evitar interfaces "gordas".
+- **D — Inversão de Dependência**: módulos de alto nível dependem de abstrações, nunca de implementações concretas.
+- **DRY**: eliminar duplicação de lógica. Extrair para função, classe ou módulo compartilhado.
+- **KISS**: preferir a solução mais simples que resolva o problema.
+- **YAGNI**: não implementar funcionalidade especulativa.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Este princípio é prioritário: em caso de dúvida sobre design, recorrer a SOLID primeiro.
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+### II. Clean Architecture
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Monorepo em quatro camadas com **regra de dependência de fora para dentro**:
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+- **`:apps`** → `:features` → `:domain` → (nenhuma dependência interna)
+- **`:data`** → `:domain:entity` (nunca `:features`, nunca `:domain:usecases`)
+- `:features` NUNCA depende de `:data`; acessa dados via abstrações em `:domain`.
+
+O domínio é isolado:
+- `:domain:entity` define tipos e estruturas, sem lógica de negócio nem framework.
+- `:domain:usecases` contém regras de negócio e depende apenas de `:domain:entity`. Colaboradores externos chegam via interfaces (ports) — aplicação direta do princípio D (inversão de dependência).
+
+Cada módulo tem responsabilidade única (princípio S). Criar módulo novo DEVE respeitar este grafo.
+
+### III. Kotlin Multiplatform First
+
+Código compartilhado reside em `commonMain`. Alvos: Android, iOS e Desktop (JVM).
+
+- Compose Multiplatform para UI.
+- `kotlinx.datetime` para datas; `kotlinx.serialization` para serialização.
+- Código de plataforma (`androidMain`, `iosMain`, `jvmMain`) somente quando inevitável, com `expect`/`actual`.
+
+### IV. Plugins Foundation
+
+Módulos DEVEM usar plugins `foundation.*` de `build-logic/` — nunca aplicar diretamente plugins externos de Compose, Room ou Ktor no `build.gradle.kts` do subprojeto.
+
+Plugins disponíveis: `foundation.project`, `foundation.library.comp`, `koin`, `room`, `ktor`.
+
+### V. Testes Obrigatórios em Use Cases
+
+Alterações em `:domain:usecases` DEVEM incluir ou atualizar testes unitários.
+
+- Padrão de nome: `GIVEN_WHEN_THEN` (em inglês).
+- MockK para colaboradores externos.
+- Dados de teste no próprio método; evitar factories centralizadas.
+- Validação: `./gradlew :domain:usecases:jvmTest`.
+
+### VI. API Explícita
+
+Em módulos com `explicitApi()`, toda declaração de nível de arquivo DEVE ter visibilidade explícita.
+
+Prioridade: `private` → `internal` → `public` (só quando outro módulo importar). Aplicação direta do princípio I (segregação de interfaces) no nível de módulo.
+
+### VII. Documentação Sincronizada
+
+Alterações em entidades, invariantes ou convenções DEVEM atualizar no mesmo PR:
+
+- `core/domain/entity/docs/DOMAIN.md` (modelo de domínio)
+- `AGENTS.md` e regras `.mdc` (convenções de agentes)
+- `.specify/` (specs, planos, tasks)
+
+Refactors sem mudança de comportamento NÃO exigem atualização.
+
+### VIII. Idioma e Convenções de Nomes
+
+- **Documentação**: português do Brasil (pt-BR).
+- **Código**: identificadores, APIs e termos técnicos em inglês.
+- **Testes**: nomes, KDoc e comentários de seção em inglês.
+- **Pacote base**: `com.eferraz.<nome_do_modulo>` (underscores, sem hífens).
+
+## Restrições Técnicas
+
+- **Build rápido**: verificação via `./gradlew :<módulo>:compileKotlinJvm` (apenas JVM).
+- **Injeção de dependências**: Koin — módulos Koin por camada.
+- **Features UI**: DEVEM expor `*Contract.kt` com `*Screen(modifier: Modifier)` e ser registradas em `:apps:umbrellaApp`.
+- **Previews Compose**: no mesmo arquivo do composable, com visibilidade `private`.
+- **ViewModels**: estado via `StateFlow` com backing field explícito (`field = MutableStateFlow`).
+
+## Fluxo de Desenvolvimento
+
+1. Criar ou alterar código → compilar JVM do módulo tocado → informar resultado.
+2. Alterações em `:domain:usecases` → rodar testes JVM.
+3. Não rodar build automático para alterações exclusivamente em `.md`.
+4. Módulo novo → perguntar o nome ao usuário antes de gerar arquivos, caso não informado.
+5. Manter coerência entre código, documentação e regras de IA no mesmo PR.
+
+## Governança
+
+Esta constituição é a referência máxima do projeto. Em conflito com outros documentos, prevalece este.
+
+- **Emendas**: DEVEM ser documentadas com justificativa, versionadas semanticamente e propagadas para templates e regras dependentes.
+- **Conformidade**: toda revisão de código DEVE verificar aderência aos princípios acima.
+- **Complexidade**: qualquer desvio DEVE ser justificado e registrado.
+- **Guia operacional**: `AGENTS.md` e regras `.mdc` complementam esta constituição.
+
+**Version**: 1.1.0 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-05-17
