@@ -2,25 +2,22 @@ package com.eferraz.asset_management.assets
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,7 +41,6 @@ import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAssetType
-import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
@@ -52,6 +48,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 public fun AssetManagementScreen(
+    modifier: Modifier = Modifier,
     holdingId: Long?,
     onDismiss: () -> Unit,
 ) {
@@ -67,35 +64,11 @@ public fun AssetManagementScreen(
         if (state.isCompleted) onDismiss()
     }
 
-    val title = if (holdingId != null) "Editar investimento" else "Novo investimento"
-
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            modifier = Modifier.padding(16.dp).width(700.dp).height(900.dp),
-            topBar = {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
-                    title = { Text(title) },
-                    actions = {
-                        IconButton(onClick = onDismiss) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Fechar",
-                            )
-                        }
-                    },
-                )
-            }
-        ) { paddingValues ->
-            AssetFormView(
-                modifier = Modifier.padding(paddingValues),
-                ui = state,
-                onEvent = vm::dispatch,
-            )
-        }
-    }
+    AssetFormView(
+        modifier = modifier,
+        ui = state,
+        onEvent = vm::dispatch,
+    )
 }
 
 @Composable
@@ -108,7 +81,8 @@ private fun AssetFormView(
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp)
+            .padding(bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
         FormContent(
@@ -116,7 +90,7 @@ private fun AssetFormView(
             onEvent = onEvent,
         )
 
-        Spacer(Modifier.weight(1f))
+//        Spacer(Modifier.weight(1f))
 
         Actions(
             ui = ui,
