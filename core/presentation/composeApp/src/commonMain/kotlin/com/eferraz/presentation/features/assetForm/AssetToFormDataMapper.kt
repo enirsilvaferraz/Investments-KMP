@@ -5,6 +5,7 @@ import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.usecases.cruds.GetAssetHoldingUseCase
 import com.eferraz.usecases.entities.AssetFormData
 import com.eferraz.usecases.entities.FixedIncomeFormData
 import com.eferraz.usecases.entities.InvestmentFundFormData
@@ -14,12 +15,12 @@ import org.koin.core.annotation.Factory
 
 @Factory
 internal class AssetToFormDataMapper(
-    private val assetHoldingRepository: AssetHoldingRepository,
+    private val assetHoldingRepository: GetAssetHoldingUseCase,
 ) {
 
     suspend fun toFormData(asset: Asset): AssetFormData {
 
-        val assetHolding = assetHoldingRepository.getByAssetId(asset.id)
+        val assetHolding = assetHoldingRepository(GetAssetHoldingUseCase.ByAssetId(asset.id)).getOrThrow()
         val brokerageName = assetHolding?.brokerage?.name
 
         return when (asset) {

@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Factory
 
+@Deprecated("Não vamos criar o issuer agora")
 @Factory
 public class GetOrCreateIssuerUseCase(
     private val issuerRepository: IssuerRepository,

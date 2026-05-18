@@ -1,6 +1,7 @@
 package com.eferraz.repositories
 
 import com.eferraz.usecases.repositories.DateProvider
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.toLocalDateTime
@@ -19,4 +20,9 @@ public class SystemDateProvider : DateProvider {
         Clock.System.now().toLocalDateTime(
             TimeZone.currentSystemDefault()
         ).let { now -> YearMonth(now.year, now.month) }
+
+    override fun getCurrentDate(): LocalDate =
+        Clock.System.now().toLocalDateTime(
+            TimeZone.currentSystemDefault()
+        ).date
 }

@@ -94,10 +94,7 @@ private fun <T> StableExposedDropdownImpl(
 
             TextField(
                 modifier = Modifier
-                    .menuAnchor(
-                        type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
-                        enabled = enabled,
-                    )
+                    .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = enabled)
                     .fillMaxWidth(),
                 readOnly = true,
                 value = displayValue,
@@ -214,7 +211,7 @@ internal fun StableExposedDropdownPreview() {
             StableExposedDropdown(
                 label = "Tipo de cálculo",
                 displayValue = selected,
-                options = listOf("Pré-fixado", "Pós-fixado", "Atrelado à inflação"),
+                options = listOf("Pré-fixado", "Pós-fixado", "IPCA"),
                 itemLabel = { it },
                 onItemSelect = { selected = it },
             )

@@ -10,11 +10,12 @@ import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
+import com.eferraz.usecases.cruds.GetCurrentYearMonthUseCase
 import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
 import com.eferraz.usecases.cruds.GetTransactionsUseCase
 import com.eferraz.usecases.entities.HoldingHistoryView
-import com.eferraz.usecases.repositories.DateProvider
 import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
+import com.eferraz.usecases.services.ExportToCsvUseCase
 import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,7 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class HistoryViewModel(
-    dateProvider: DateProvider,
+    private val getCurrentYearMonthUseCase: GetCurrentYearMonthUseCase,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val getGoalUseCase: GetFinancialGoalsUseCase,
@@ -34,16 +35,10 @@ internal class HistoryViewModel(
     private val getTransactionsUseCase: GetTransactionsUseCase,
     private val updateFixedIncomeAndFundsHistoryValueUseCase: UpdateFixedIncomeAndFundsHistoryValueUseCase,
     private val updateVariableIncomeValues: SyncVariableIncomeValuesUseCase,
+    private val exportToCsvUseCase: ExportToCsvUseCase,
 ) : ViewModel() {
 
-    val state: StateFlow<HistoryState> field = MutableStateFlow(
-        HistoryState(
-            period = HistoryState.Choice( // TODO Verificar s eé possivel remover
-                dateProvider.getCurrentYearMonth(),
-                emptyList()
-            ),
-        )
-    )
+    val state: StateFlow<HistoryState> field = MutableStateFlow(HistoryState())
 
     init {
 
@@ -51,6 +46,10 @@ internal class HistoryViewModel(
 
             val periods = async {
                 getDataPeriodUseCase(Unit).getOrThrow()
+            }
+
+            val selected = async {
+                getCurrentYearMonthUseCase(Unit).getOrThrow()
             }
 
             val brokerages = async {
@@ -65,12 +64,12 @@ internal class HistoryViewModel(
                 it.copy(
                     goal = it.goal.copy(options = goals.await()),
                     brokerage = it.brokerage.copy(options = brokerages.await()),
-                    period = it.period.copy(selected = dateProvider.getCurrentYearMonth(), options = periods.await())
+                    period = HistoryState.Choice(selected.await(), periods.await())
                 )
             }
-        }
 
-        processIntent(HistoryIntent.LoadInitialData)
+            processIntent(HistoryIntent.LoadInitialData)
+        }
     }
 
     internal fun processIntent(intent: HistoryIntent) {
@@ -83,6 +82,7 @@ internal class HistoryViewModel(
             is HistoryIntent.SelectBrokerage -> selectBrokerage(intent.brokerage)
             is HistoryIntent.SelectLiquidity -> selectLiquidity(intent.liquidity)
             is HistoryIntent.SelectGoal -> selectGoal(intent.goal)
+            is HistoryIntent.ExportFixedIncomeCsv -> exportFixedIncomeCsv()
         }
     }
 
@@ -115,7 +115,7 @@ internal class HistoryViewModel(
         processIntent(HistoryIntent.LoadInitialData)
     }
 
-    private fun updateEntryValue(entry: HoldingHistoryEntry, value: Double,) {
+    private fun updateEntryValue(entry: HoldingHistoryEntry, value: Double) {
         viewModelScope.launch {
             updateFixedIncomeAndFundsHistoryValueUseCase(
                 UpdateFixedIncomeAndFundsHistoryValueUseCase.Params(entry = entry, endOfMonthValue = value)
@@ -135,6 +135,14 @@ internal class HistoryViewModel(
             ).onSuccess {
                 processIntent(HistoryIntent.LoadInitialData)
             }.onFailure {
+                println(it.message) // TODO Mostrar mensagem pro usuario
+            }
+        }
+    }
+
+    private fun exportFixedIncomeCsv() {
+        viewModelScope.launch {
+            exportToCsvUseCase(Unit).onFailure {
                 println(it.message) // TODO Mostrar mensagem pro usuario
             }
         }
@@ -174,6 +182,7 @@ internal class HistoryViewModel(
 internal sealed interface HistoryIntent {
     data object LoadInitialData : HistoryIntent
     data object Sync : HistoryIntent
+    data object ExportFixedIncomeCsv : HistoryIntent
     data class UpdateEntryValue(val entry: HoldingHistoryEntry, val value: Double) : HistoryIntent
     data class SelectPeriod(val period: YearMonth) : HistoryIntent
     data class SelectBrokerage(val brokerage: Brokerage) : HistoryIntent

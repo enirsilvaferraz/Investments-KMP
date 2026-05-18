@@ -4,6 +4,7 @@ import com.eferraz.database.datasources.HoldingHistoryDataSource
 import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.filestore.AssetFileStore
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.Factory
@@ -11,6 +12,7 @@ import org.koin.core.annotation.Factory
 @Factory(binds = [HoldingHistoryRepository::class])
 internal class HoldingHistoryRepositoryImpl(
     private val dataSource: HoldingHistoryDataSource,
+    private val fileStore: AssetFileStore,
 ) : HoldingHistoryRepository {
 
     override suspend fun getAllHoldings(): List<AssetHolding> =
@@ -21,16 +23,19 @@ internal class HoldingHistoryRepositoryImpl(
 
     override suspend fun getByGoalAndReferenceDate(
         referenceDate: YearMonth,
-        goal: FinancialGoal
+        goal: FinancialGoal,
     ): List<HoldingHistoryEntry> =
         dataSource.getByGoalAndReferenceDate(referenceDate, goal.id)
 
     override suspend fun getByHoldingAndReferenceDate(
         referenceDate: YearMonth,
-        holding: AssetHolding
+        holding: AssetHolding,
     ): HoldingHistoryEntry? =
         dataSource.getByHoldingAndReferenceDate(referenceDate, holding)
 
     override suspend fun upsert(entry: HoldingHistoryEntry) =
         dataSource.upsert(entry)
+
+    override suspend fun exportToCSV(data: List<HoldingHistoryEntry>) =
+        fileStore.exportToCSV(data)
 }

@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,6 +72,8 @@ public fun HoldingHistoryRoute(
     val vm = koinViewModel<HistoryViewModel>()
     val state by vm.state.collectAsStateWithLifecycle()
 
+    if (state.period.selected == null) return
+
     val onValueChange = remember(vm) {
         { entry: HoldingHistoryView, value: Double ->
             vm.processIntent(
@@ -97,6 +99,9 @@ public fun HoldingHistoryRoute(
     val onSyncClick = remember(vm) {
         { vm.processIntent(HistoryIntent.Sync) }
     }
+    val onExportFixedIncomeClick = remember(vm) {
+        { vm.processIntent(HistoryIntent.ExportFixedIncomeCsv) }
+    }
 
     HoldingHistoryScreen(
         dataRows = state.tableData,
@@ -117,6 +122,7 @@ public fun HoldingHistoryRoute(
         goalOptions = state.goal.options,
         onGoalChange = onGoalChange,
         onSyncClick = onSyncClick,
+        onExportFixedIncomeClick = onExportFixedIncomeClick,
         transactions = state.transactions,
         onEditHolding = onEditHolding,
     )
@@ -143,6 +149,7 @@ internal fun HoldingHistoryScreen(
     goalOptions: List<FinancialGoal>,
     onGoalChange: (FinancialGoal) -> Unit,
     onSyncClick: () -> Unit,
+    onExportFixedIncomeClick: () -> Unit,
     transactions: List<AssetTransaction>,
     onEditHolding: (Long) -> Unit,
 ) {
@@ -158,6 +165,7 @@ internal fun HoldingHistoryScreen(
             Actions(
                 showClose = navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary,
                 onSyncClick = onSyncClick,
+                onExportFixedIncomeClick = onExportFixedIncomeClick,
                 onCloseClick = { scope.launch { navigator.navigateBack() } }
             )
         },
@@ -165,15 +173,7 @@ internal fun HoldingHistoryScreen(
             Table(
                 data = dataRows,
                 onValueChange = onValueChange,
-                onEdit = { onEditHolding(it.entry.holding.id) },
-                onSelect = { entry: HoldingHistoryEntry ->
-                    scope.launch {
-                        navigator.navigateTo(
-                            ThreePaneScaffoldRole.Tertiary,
-                            entry
-                        )
-                    }
-                }
+                onSelect = { entry: HoldingHistoryEntry -> onEditHolding(entry.holding.id) }
             )
         },
         subMainPane = {
@@ -201,11 +201,6 @@ internal fun HoldingHistoryScreen(
                 dataRows = dataRows,
                 transactions = transactions
             )
-        },
-        extraPane = {
-            navigator.currentDestination?.contentKey?.let {
-                TransactionPanel(selectedHolding = it.holding)
-            }
         }
     )
 }
@@ -214,6 +209,7 @@ internal fun HoldingHistoryScreen(
 private fun Actions(
     showClose: Boolean,
     onSyncClick: () -> Unit,
+    onExportFixedIncomeClick: () -> Unit,
     onCloseClick: () -> Unit,
 ) {
 
@@ -232,6 +228,13 @@ private fun Actions(
             contentDescription = "Sincronizar"
         )
     }
+
+    IconButton(onClick = onExportFixedIncomeClick) {
+        Icon(
+            imageVector = Icons.Default.FileDownload,
+            contentDescription = "Exportar renda fixa em CSV"
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -240,7 +243,6 @@ private fun Table(
     modifier: Modifier = Modifier,
     data: List<HoldingHistoryView>,
     onValueChange: (HoldingHistoryView, Double) -> Unit,
-    onEdit: (HoldingHistoryView) -> Unit,
     onSelect: (HoldingHistoryEntry) -> Unit,
 ) {
 
@@ -248,20 +250,6 @@ private fun Table(
 
         StableList(
             listOf<UiTableDataColumn<HoldingHistoryView>>(
-
-                UiTableDataColumn(
-                    text = "",
-                    width = TableColumnWidth.MaxIntrinsic,
-                    comparable = { it.displayName },
-                    content = {
-                        IconButton(onClick = { onEdit(it) }) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Editar ativo"
-                            )
-                        }
-                    }
-                ),
 
                 UiTableDataColumn(
                     text = "",

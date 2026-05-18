@@ -23,4 +23,7 @@ public data class FixedIncomeAsset(
     public val cdiRelativeYield: Double? = null,
     public val liquidity: Liquidity,
     override val observations: String? = null,
-) : Asset
+) : Asset {
+
+    override val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME
+}

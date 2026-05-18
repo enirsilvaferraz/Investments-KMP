@@ -13,5 +13,6 @@ kotlin {
         implementation(projects.domain.usecases)
         implementation(projects.data.database)
         implementation(projects.data.network)
+        implementation(projects.data.filestore)
     }
 }

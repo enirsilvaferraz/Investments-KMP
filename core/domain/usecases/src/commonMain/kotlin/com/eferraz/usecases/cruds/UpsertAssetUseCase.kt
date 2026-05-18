@@ -23,12 +23,12 @@ import kotlin.time.ExperimentalTime
 public class UpsertAssetUseCase(
     private val assetRepository: AssetRepository,
     context: CoroutineDispatcher = Dispatchers.Default,
-) : AppUseCase<UpsertAssetUseCase.Param, Long>(context) {
+) : AppUseCase<UpsertAssetUseCase.Param, Asset>(context) {
 
     public data class Param(val asset: Asset)
 
     @OptIn(ExperimentalTime::class)
-    override suspend fun execute(param: Param): Long {
+    override suspend fun execute(param: Param): Asset {
 
         val errors = mutableMapOf<String, String>()
 
@@ -44,7 +44,13 @@ public class UpsertAssetUseCase(
             throw ValidateException(errors)
         }
 
-        return assetRepository.upsert(param.asset)
+        return assetRepository.upsert(param.asset).let {
+            when (val asset = param.asset) {
+                is FixedIncomeAsset -> asset.copy(id = it)
+                is InvestmentFundAsset -> asset.copy(id = it)
+                is VariableIncomeAsset -> asset.copy(id = it)
+            }
+        }
     }
 
     private fun catalogRefErrors(issuer: Issuer): Map<String, String> {
@@ -62,12 +68,6 @@ public class UpsertAssetUseCase(
     private fun validateFixedIncome(asset: FixedIncomeAsset): Map<String, String> {
 
         val errors = mutableMapOf<String, String>()
-
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-
-        if (asset.expirationDate <= today) {
-            errors["expirationDate"] = "Data de vencimento deve ser futura"
-        }
 
         if (asset.contractedYield <= 0) {
             errors["contractedYield"] = "Rentabilidade deve ser positiva"

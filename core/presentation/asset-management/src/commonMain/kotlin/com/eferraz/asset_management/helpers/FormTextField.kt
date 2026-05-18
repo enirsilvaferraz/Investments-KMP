@@ -1,0 +1,69 @@
+package com.eferraz.asset_management.helpers
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
+
+@Composable
+internal fun FormTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    errorMessage: String?,
+    modifier: Modifier = Modifier,
+    placeholder: @Composable (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions? = null,
+    visualTransformation: VisualTransformation? = null,
+    supportingTextWhenNoError: @Composable (() -> Unit)? = null,
+) {
+
+    val supportingText = if (errorMessage != null) {
+        { Text(errorMessage) }
+    } else {
+        supportingTextWhenNoError
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = placeholder,
+            modifier = Modifier.fillMaxWidth(),
+            isError = errorMessage != null,
+            supportingText = supportingText,
+            keyboardOptions = keyboardOptions ?: KeyboardOptions.Default,
+            visualTransformation = visualTransformation ?: VisualTransformation.None,
+            shape = RoundedCornerShape(14.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFF4F5F9),
+                unfocusedContainerColor = Color(0xFFF4F5F9),
+                disabledContainerColor = Color(0xFFF4F5F9),
+                errorContainerColor = Color(0xFFF4F5F9),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
+            ),
+        )
+    }
+}

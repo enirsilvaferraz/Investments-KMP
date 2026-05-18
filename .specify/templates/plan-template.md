@@ -1,70 +1,71 @@
-# Plano de implementação: [FEATURE]
+# Implementation Plan: [FEATURE]
 
-**Branch**: `[###-feature-name]` | **Data**: [DATE] | **Spec**: [link]
-**Entrada**: Especificação da feature em `/specs/[###-feature-name]/spec.md`
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 
-**Nota:** Preenchido pelo comando `/speckit.plan`. Fluxo de execução: ver `.specify/templates/plan-template.md`.
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-**Idioma:** Redigir este documento em **português do Brasil (pt-BR)**, conforme `.specify/memory/constitution.md` princípio VIII.
+**Note**: This template is filled in by the `/speckit-plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
-## Resumo
+## Summary
 
-[Extrair da spec: requisito principal + abordagem técnica da pesquisa]
+[Extract from feature spec: primary requirement + technical approach from research]
 
-## Contexto técnico
+## Technical Context
 
 <!--
-  AÇÃO: Substituir pelo detalhe técnico do projeto. A estrutura abaixo é orientadora.
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
 -->
 
-**Linguagem / versão**: [ex.: Kotlin 2.x, ou PRECISA ESCLARECER]  
-**Dependências principais**: [ex.: Compose Multiplatform, Ktor, Room — ou PRECISA ESCLARECER]  
-**Armazenamento**: [se aplicável, ex.: Room/SQLite, ou N/A]  
-**Testes**: [ex.: jvmTest, commonTest — ou PRECISA ESCLARECER]  
-**Plataformas-alvo**: [ex.: Android, iOS, JVM desktop — ou PRECISA ESCLARECER]  
-**Tipo de projeto**: [ex.: app KMP multiplataforma — ou PRECISA ESCLARECER]  
-**Metas de desempenho**: [específicas do domínio, ex.: lista fluida em ecrã X — ou PRECISA ESCLARECER]  
-**Restrições**: [ex.: offline, tamanho de APK — ou PRECISA ESCLARECER]  
-**Escala / âmbito**: [ex.: número de ecrãs, utilizadores — ou PRECISA ESCLARECER]
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
 
-## Verificação da constitution (Constitution Check)
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 
-*GATE: Deve passar antes da fase 0 de pesquisa. Rever após o desenho da fase 1.*
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 
-**Investments-KMP** (`.specify/memory/constitution.md`):
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
 
-- [ ] **Domínio:** Impacto em `DOMAIN.md` identificado se entidades ou invariantes mudarem.
-- [ ] **Qualidade de código:** Camadas respeitadas; **explicitApi** e visibilidade mínima conforme **`~/.cursor/rules/explicit-api.mdc`** (`private`/`internal` por defeito, `public` só para API entre módulos); complexidade justificada se necessário.
-- [ ] **Testes:** Testes unitários **novos ou alterados** cumprem **`~/.cursor/rules/test-patterns.mdc`** — **inglês**, nomes **GIVEN / WHEN / THEN**, **KDoc** no método, comentários **`// GIVEN` / `// WHEN` / `// THEN`** no corpo quando aplicável (**linha em branco** antes de cada marcador), **MockK** para colaboradores externos quando aplicável, **criação de objetos no próprio teste** (**evitar** *factories* de teste como `TestDataFactory` para código novo) (princípio V); alterações em **`core/domain/usecases/`** com código executável **têm** testes em **`:domain:usecases`** no mesmo PR; estratégia de evidência para lógica relevante definida.
-- [ ] **UX:** Reutilização de componentes/formatos; estados de erro e vazio considerados; **`@Preview`** no mesmo ficheiro que o composable quando houver pré-visualizações (princípio VI).
-- [ ] **Desempenho:** Objetivos ou riscos (listas, rede, agregações) registados quando a spec exigir.
-- [ ] **Build:** Módulos Gradle e `compileKotlinJvm` coerentes com `.cursorrules`.
-- [ ] **Idioma:** Documentos da feature em **pt-BR** (princípio VIII).
-- [ ] **Coerência:** Alterações de código com impacto em domínio, convenções ou regras de IA **refletidas** em `*.md` aplicáveis, em **`.specify/`** e em **`.cursor*`** quando aplicável (princípio IX).
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
 
-## Estrutura do projeto
+**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]
 
-### Documentação (esta feature)
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
+
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+[Gates determined based on constitution file]
+
+## Project Structure
+
+### Documentation (this feature)
 
 ```text
 specs/[###-feature]/
-├── plan.md              # Este ficheiro (saída do /speckit.plan)
-├── research.md          # Fase 0 (/speckit.plan)
-├── data-model.md        # Fase 1 (/speckit.plan)
-├── quickstart.md        # Fase 1 (/speckit.plan)
-├── contracts/           # Fase 1 (/speckit.plan)
-└── tasks.md             # Fase 2 (/speckit.tasks — NÃO criado pelo /speckit.plan)
+├── plan.md              # This file (/speckit-plan command output)
+├── research.md          # Phase 0 output (/speckit-plan command)
+├── data-model.md        # Phase 1 output (/speckit-plan command)
+├── quickstart.md        # Phase 1 output (/speckit-plan command)
+├── contracts/           # Phase 1 output (/speckit-plan command)
+└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
-### Código-fonte (raiz do repositório)
-
+### Source Code (repository root)
 <!--
-  AÇÃO: Substituir a árvore placeholder pela estrutura real desta feature.
-  Remover opções não usadas. O plano entregue não deve incluir rótulos "Opção".
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
 -->
 
 ```text
-# [REMOVER SE NÃO USADO] Opção 1: projeto único (genérico)
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
 ├── models/
 ├── services/
@@ -76,7 +77,7 @@ tests/
 ├── integration/
 └── unit/
 
-# [REMOVER SE NÃO USADO] Opção 2: web (frontend + backend)
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
 backend/
 ├── src/
 │   ├── models/
@@ -91,21 +92,22 @@ frontend/
 │   └── services/
 └── tests/
 
-# [REMOVER SE NÃO USADO] Opção 3: mobile + API
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
 api/
-└── [igual ao backend acima]
+└── [same as backend above]
 
-ios/ ou android/
-└── [estrutura específica da plataforma]
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Decisão de estrutura**: [Descrever a opção escolhida e os caminhos reais, p.ex. `core/domain/...` no KMP]
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
-## Registo de complexidade (Complexity Tracking)
+## Complexity Tracking
 
-> **Preencher SOMENTE** se a verificação da constitution tiver violações que precisem justificação
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violação | Por que é necessária | Alternativa mais simples recusada porque |
-|----------|----------------------|------------------------------------------|
-| [ex.: 4.º projeto] | [necessidade atual] | [por que 3 projetos não bastam] |
-| [ex.: padrão Repositório] | [problema específico] | [por que acesso direto ao BD não serve] |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

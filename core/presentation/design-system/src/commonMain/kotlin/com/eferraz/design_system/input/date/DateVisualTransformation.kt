@@ -29,7 +29,7 @@ private val DAY_MONTH_YEAR_SEPARATOR_AFTER_DIGIT_INDEX: List<Int> = listOf(
  * Texto lógico do campo com [DateVisualTransformation]: só dígitos, no máximo oito (DDMMAAAA ou AAAAMMDD).
  * Usar em `onValueChange` para o estado não herdar lixo (colar, IME, etc.); a transformação só afeta a vista.
  */
-public fun filterDateMaskDigits(input: String): String =
+public fun dateToDigits(input: String): String =
     input.filter { it.isDigit() }.take(MAX_DATE_DIGITS)
 
 /** Formato de máscara para [DateVisualTransformation]. */
@@ -50,7 +50,7 @@ public class DateVisualTransformation(
 ) : VisualTransformation {
 
     override fun filter(text: AnnotatedString): TransformedText {
-        val digits = filterDateMaskDigits(text.text)
+        val digits = dateToDigits(text.text)
 
         val (separator, insertAfterIndices) = when (format) {
             DateFormat.YYYY_MM_DD -> "-" to YEAR_MONTH_DAY_SEPARATOR_AFTER_DIGIT_INDEX
