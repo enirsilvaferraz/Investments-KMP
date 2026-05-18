@@ -7,10 +7,12 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.holdings.Brokerage
 
 internal sealed class AssetManagementEvents {
 
-    data class ScreenEntered(val assetId: Long?) : AssetManagementEvents()
+    data class ScreenEntered(val holdingId: Long?) : AssetManagementEvents()
+    data class BrokerageChanged(val brokerage: Brokerage) : AssetManagementEvents()
 
     data class CategoryChanged(val category: InvestmentCategory) : AssetManagementEvents()
     data class IssuerChanged(val issuer: Issuer) : AssetManagementEvents()

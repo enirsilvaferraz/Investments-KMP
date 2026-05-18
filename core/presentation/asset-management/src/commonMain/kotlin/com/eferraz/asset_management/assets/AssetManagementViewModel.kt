@@ -4,8 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.asset_management.helpers.checkErros
 import com.eferraz.design_system.input.date.dateToDigits
-import com.eferraz.usecases.cruds.GetAssetUseCase
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.usecases.cruds.GetAssetHoldingUseCase
+import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetIssuersUseCase
+import com.eferraz.usecases.cruds.GetOwnerUseCase
+import com.eferraz.usecases.cruds.UpsertAssetHoldingUseCase
 import com.eferraz.usecases.cruds.UpsertAssetUseCase
 import com.eferraz.usecases.exceptions.ValidateException
 import kotlinx.coroutines.async
@@ -18,19 +22,25 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 internal class AssetManagementViewModel(
     private val getIssuersUseCase: GetIssuersUseCase,
-    private val getAssetUseCase: GetAssetUseCase,
     private val upsertAssetUseCase: UpsertAssetUseCase,
+    private val getBrokeragesUseCase: GetBrokeragesUseCase,
+    private val getAssetHoldingUseCase: GetAssetHoldingUseCase,
+    private val upsertAssetHoldingUseCase: UpsertAssetHoldingUseCase,
+    private val getOwnerUseCase: GetOwnerUseCase,
 ) : ViewModel() {
 
     internal val state: StateFlow<AssetManagementUiState> field = MutableStateFlow(AssetManagementUiState())
 
+    private var existingHolding: AssetHolding? = null
+
     internal fun dispatch(event: AssetManagementEvents) = when (event) {
 
-        is AssetManagementEvents.ScreenEntered -> loadInitialState(event.assetId)
+        is AssetManagementEvents.ScreenEntered -> loadInitialState(event.holdingId)
 
         is AssetManagementEvents.CategoryChanged -> state.update { it.copy(category = event.category) }
         is AssetManagementEvents.IssuerChanged -> state.update { it.copy(issuer = event.issuer, issuerError = null) }
         is AssetManagementEvents.ObservationsChanged -> state.update { it.copy(observations = event.value) }
+        is AssetManagementEvents.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
 
         is AssetManagementEvents.FixedTypeChanged -> state.update { it.copy(fixedType = event.type, fixedTypeError = null) }
         is AssetManagementEvents.FixedSubTypeChanged -> state.update { it.copy(fixedSubType = event.subType, fixedSubTypeError = null) }
@@ -52,14 +62,35 @@ internal class AssetManagementViewModel(
         AssetManagementEvents.Save -> onSave()
     }
 
-    private fun loadInitialState(assetId: Long?) = viewModelScope.launch {
+    private fun loadInitialState(holdingId: Long?) = viewModelScope.launch {
 
         val issuers = async { getIssuersUseCase(GetIssuersUseCase.Param).getOrNull().orEmpty() }
-        val holding = async { assetId?.let { getAssetUseCase(GetAssetUseCase.ById(it)).getOrNull() } }
+        val brokerages = async { getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty() }
 
-        val base = holding.await()?.toUiState() ?: AssetManagementUiState()
+        if (holdingId != null) {
+            val holding = getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(holdingId)).getOrNull()
+            existingHolding = holding
 
-        state.update { base.copy(issuers = issuers.await()) }
+            val base = holding?.asset?.toUiState() ?: AssetManagementUiState()
+            state.update {
+                base.copy(
+                    issuers = issuers.await(),
+                    brokerages = brokerages.await(),
+                    brokerage = holding?.brokerage,
+                    owner = holding?.owner,
+                    holdingId = holding?.id,
+                )
+            }
+        } else {
+            val owner = async { getOwnerUseCase(GetOwnerUseCase.Param).getOrNull() }
+            state.update {
+                AssetManagementUiState(
+                    issuers = issuers.await(),
+                    brokerages = brokerages.await(),
+                    owner = owner.await(),
+                )
+            }
+        }
     }
 
     private fun onSave() = viewModelScope.launch {
@@ -69,13 +100,36 @@ internal class AssetManagementViewModel(
 
         upsertAssetUseCase(UpsertAssetUseCase.Param(state.value.buildAsset()))
             .onSuccess { newAsset ->
-                state.update { it.copy(isSaving = false, isCompleted = true, asset = newAsset) }
+
+                val brokerage = state.value.brokerage!!
+                val holding = existingHolding?.copy(asset = newAsset, brokerage = brokerage)
+                    ?: AssetHolding(
+                        id = 0L,
+                        asset = newAsset,
+                        owner = state.value.owner!!,
+                        brokerage = brokerage,
+                    )
+
+                upsertAssetHoldingUseCase(UpsertAssetHoldingUseCase.Param(holding))
+                    .onSuccess {
+                        state.update { it.copy(isSaving = false, isCompleted = true, asset = newAsset) }
+                    }
+                    .onFailure { holdingError ->
+                        when (holdingError) {
+                            is ValidateException -> state.update { s ->
+                                s.copy(brokerageError = holdingError.messages["brokerage"], isSaving = false)
+                            }
+                            else -> state.update { it.copy(isSaving = false) }
+                        }
+                    }
             }
-            .onFailure {
-                when (it) {
-                    is ValidateException -> it.messages.remoteFieldErrorsOn(state.value)
+            .onFailure { assetError ->
+                when (assetError) {
+                    is ValidateException -> assetError.messages.remoteFieldErrorsOn(state.value).let { mapped ->
+                        state.update { mapped.copy(isSaving = false) }
+                    }
+                    else -> state.update { it.copy(isSaving = false) }
                 }
-                state.update { it.copy(isSaving = false) }
             }
     }
 }

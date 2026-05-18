@@ -5,13 +5,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -24,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.FormTextField
 import com.eferraz.asset_management.helpers.FormTwoColumnsRow
 import com.eferraz.asset_management.helpers.asLabel
@@ -37,36 +47,60 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.holdings.Brokerage
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun AssetFormView(
-    modifier: Modifier = Modifier,
-    assetId: Long?,
-    onComplete: (assetId: Long) -> Unit,
+public fun AssetManagementScreen(
+    holdingId: Long?,
+    onDismiss: () -> Unit,
 ) {
 
     val vm = koinViewModel<AssetManagementViewModel>()
     val state by vm.state.collectAsState()
 
-    LaunchedEffect(assetId) {
-        vm.dispatch(AssetManagementEvents.ScreenEntered(assetId = assetId))
+    LaunchedEffect(holdingId) {
+        vm.dispatch(AssetManagementEvents.ScreenEntered(holdingId = holdingId))
     }
 
     LaunchedEffect(state.isCompleted) {
-        if (state.isCompleted && state.asset != null) onComplete(state.asset?.id!!)
+        if (state.isCompleted) onDismiss()
     }
 
-    AssetFormView(
-        modifier = modifier,
-        ui = state,
-        onEvent = vm::dispatch
-    )
+    val title = if (holdingId != null) "Editar investimento" else "Novo investimento"
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+    ) {
+        Scaffold(
+            modifier = Modifier.padding(16.dp).width(700.dp).height(900.dp),
+            topBar = {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+                    title = { Text(title) },
+                    actions = {
+                        IconButton(onClick = onDismiss) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Fechar",
+                            )
+                        }
+                    },
+                )
+            }
+        ) { paddingValues ->
+            AssetFormView(
+                modifier = Modifier.padding(paddingValues),
+                ui = state,
+                onEvent = vm::dispatch,
+            )
+        }
+    }
 }
 
 @Composable
 private fun AssetFormView(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     ui: AssetManagementUiState,
     onEvent: (AssetManagementEvents) -> Unit,
 ) {
@@ -79,7 +113,6 @@ private fun AssetFormView(
 
         FormContent(
             ui = ui,
-            issuers = ui.issuers,
             onEvent = onEvent,
         )
 
@@ -95,7 +128,6 @@ private fun AssetFormView(
 @Composable
 private fun FormContent(
     ui: AssetManagementUiState,
-    issuers: List<Issuer>,
     onEvent: (AssetManagementEvents) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -118,7 +150,7 @@ private fun FormContent(
         StableExposedDropdown(
             label = "Emissor",
             displayValue = ui.issuer?.name.orEmpty(),
-            options = issuers,
+            options = ui.issuers,
             itemLabel = { it.name },
             onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
             error = ui.issuerError,
@@ -130,6 +162,16 @@ private fun FormContent(
             InvestmentCategory.VARIABLE_INCOME -> VariableIncomeFields(ui, onEvent)
             InvestmentCategory.INVESTMENT_FUND -> FundFields(ui, onEvent)
         }
+
+        StableExposedDropdown(
+            label = BROKERAGE_FIELD_LABEL,
+            displayValue = ui.brokerage?.name.orEmpty(),
+            options = ui.brokerages,
+            itemLabel = { it.name },
+            onItemSelect = { brokerage -> onEvent(AssetManagementEvents.BrokerageChanged(brokerage)) },
+            error = ui.brokerageError,
+            required = true,
+        )
 
         FormTextField(
             label = "Observações gerais",
@@ -331,7 +373,7 @@ private fun Actions(
 
 private class AssetFormPreviewProvider : PreviewParameterProvider<AssetManagementUiState> {
     override val values: Sequence<AssetManagementUiState> = sequenceOf(
-        AssetManagementUiState(category = InvestmentCategory.FIXED_INCOME),
+        AssetManagementUiState(category = InvestmentCategory.FIXED_INCOME, brokerages = listOf(Brokerage(1L, "XP Investimentos"))),
         AssetManagementUiState(category = InvestmentCategory.VARIABLE_INCOME),
         AssetManagementUiState(category = InvestmentCategory.INVESTMENT_FUND),
     )
@@ -339,15 +381,23 @@ private class AssetFormPreviewProvider : PreviewParameterProvider<AssetManagemen
 
 @Preview
 @Composable
-private fun AssetFormViewPreview(
+private fun AssetManagementScreenPreview(
     @PreviewParameter(AssetFormPreviewProvider::class) ui: AssetManagementUiState,
 ) {
     MaterialTheme {
 
         Scaffold(
-            topBar = { TopAppBar(title = { Text("Novo investimento") }) }
+            topBar = {
+                TopAppBar(
+                    title = { Text("Novo investimento") },
+                    navigationIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(Icons.Default.Close, contentDescription = "Fechar")
+                        }
+                    },
+                )
+            }
         ) {
-
             AssetFormView(
                 modifier = Modifier.padding(it),
                 ui = ui,

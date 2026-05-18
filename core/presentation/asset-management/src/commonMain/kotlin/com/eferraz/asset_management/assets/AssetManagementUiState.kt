@@ -9,7 +9,8 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
-import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.entities.holdings.Owner
 
 @Immutable
 internal data class AssetManagementUiState(
@@ -18,6 +19,12 @@ internal data class AssetManagementUiState(
     val issuers: List<Issuer> = emptyList(),
     val isSaving: Boolean = false,
     val isCompleted: Boolean = false,
+
+    val brokerage: Brokerage? = null,
+    val brokerages: List<Brokerage> = emptyList(),
+    val brokerageError: String? = null,
+    val holdingId: Long? = null,
+    val owner: Owner? = null,
 
     val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
 
@@ -61,6 +68,7 @@ internal data class AssetManagementUiState(
      */
     internal fun withClearedFieldErrors() = copy(
         issuerError = null,
+        brokerageError = null,
         fixedTypeError = null,
         fixedSubTypeError = null,
         fixedExpirationError = null,
@@ -78,7 +86,8 @@ internal data class AssetManagementUiState(
     )
 
     internal fun hasAnyFieldError(): Boolean =
-        issuerError != null || fixedTypeError != null || fixedSubTypeError != null || fixedExpirationError != null ||
+        issuerError != null || brokerageError != null ||
+                fixedTypeError != null || fixedSubTypeError != null || fixedExpirationError != null ||
                 fixedYieldError != null || fixedCdiError != null || fixedLiquidityError != null ||
                 variableTypeError != null || variableTickerError != null || cnpjError != null ||
                 fundNameError != null || fundTypeError != null || fundLiquidityError != null ||

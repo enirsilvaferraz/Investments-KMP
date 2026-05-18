@@ -12,6 +12,7 @@ internal fun MutableStateFlow<AssetManagementUiState>.checkErros(): Boolean {
 
     val withCommon = state.withClearedFieldErrors().copy(
         issuerError = if (state.issuer == null) "Obrigatório" else null,
+        brokerageError = if (state.brokerage == null) "Obrigatório" else null,
     )
 
     val validated = when (state.category) {
