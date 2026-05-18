@@ -34,7 +34,6 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.eferraz.asset_management.di.AssetManagementRouting
-import com.eferraz.asset_management.view.AssetManagementScreen
 import com.eferraz.presentation.design_system.theme.AppTheme
 import com.eferraz.presentation.features.assets.AssetsRoute
 import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
@@ -127,10 +126,10 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                     usePlatformDefaultWidth = false
                 )
             )) {
-                AssetManagementScreen(
-                    holdingId = it.holdingId,
-                    onDismiss = { backStack.removeLastOrNull() },
-                )
+//                AssetManagementScreen(
+//                    holdingId = it.holdingId,
+//                    onDismiss = { backStack.removeLastOrNull() },
+//                )
             }
         }
     )

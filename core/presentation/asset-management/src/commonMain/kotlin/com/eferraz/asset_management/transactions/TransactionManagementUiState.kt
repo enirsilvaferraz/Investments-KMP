@@ -1,4 +1,4 @@
-package com.eferraz.asset_management.vm
+package com.eferraz.asset_management.transactions
 
 import androidx.compose.runtime.Immutable
 import com.eferraz.asset_management.helpers.localDateFromIsoDateDigits
@@ -11,10 +11,15 @@ import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.entities.transactions.VariableIncomeTransaction
 
 @Immutable
-internal data class TransactionFormUiState(
-    val category: InvestmentCategory,
+internal data class TransactionManagementUiState(
+    val holding: AssetHolding? = null,
     val transactions: List<TransactionDraftUi> = emptyList(),
-)
+    val isSaving: Boolean = false,
+    val isCompleted: Boolean = false,
+) {
+    internal val category: InvestmentCategory
+        get() = holding?.asset?.category ?: InvestmentCategory.FIXED_INCOME
+}
 
 @Immutable
 internal data class TransactionDraftUi(
@@ -59,7 +64,7 @@ internal data class TransactionDraftUi(
         }
     }
 
-    fun toDomainTransaction(
+    internal fun toDomainTransaction(
         holding: AssetHolding,
         category: InvestmentCategory,
     ): AssetTransaction? {
@@ -69,39 +74,33 @@ internal data class TransactionDraftUi(
 
         return when (category) {
 
-            InvestmentCategory.VARIABLE_INCOME -> {
-                VariableIncomeTransaction(
-                    id = draftId,
-                    holding = holding,
-                    date = date,
-                    type = type,
-                    quantity = quantity.toDouble(),
-                    unitPrice = unitPrice.toDouble(),
-                    observations = observations.ifBlank { null },
-                )
-            }
+            InvestmentCategory.VARIABLE_INCOME -> VariableIncomeTransaction(
+                id = draftId,
+                holding = holding,
+                date = date,
+                type = type,
+                quantity = quantity.toDouble(),
+                unitPrice = unitPrice.toDouble(),
+                observations = observations.ifBlank { null },
+            )
 
-            InvestmentCategory.FIXED_INCOME -> {
-                FixedIncomeTransaction(
-                    id = draftId,
-                    holding = holding,
-                    date = date,
-                    type = type,
-                    totalValue = totalValue.toDouble(),
-                    observations = observations.ifBlank { null },
-                )
-            }
+            InvestmentCategory.FIXED_INCOME -> FixedIncomeTransaction(
+                id = draftId,
+                holding = holding,
+                date = date,
+                type = type,
+                totalValue = totalValue.toDouble(),
+                observations = observations.ifBlank { null },
+            )
 
-            InvestmentCategory.INVESTMENT_FUND -> {
-                FundsTransaction(
-                    id = draftId,
-                    holding = holding,
-                    date = date,
-                    type = type,
-                    totalValue = totalValue.toDouble(),
-                    observations = observations.ifBlank { null },
-                )
-            }
+            InvestmentCategory.INVESTMENT_FUND -> FundsTransaction(
+                id = draftId,
+                holding = holding,
+                date = date,
+                type = type,
+                totalValue = totalValue.toDouble(),
+                observations = observations.ifBlank { null },
+            )
         }
     }
 }
