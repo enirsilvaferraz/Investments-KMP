@@ -12,6 +12,7 @@ import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonColors
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,12 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.eferraz.design_system.core.StableList
+
+@Immutable
+public data class SegmentedControlChoice<T>(
+    val id: T,
+    val label: String,
+)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

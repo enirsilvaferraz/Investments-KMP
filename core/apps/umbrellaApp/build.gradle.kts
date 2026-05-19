@@ -17,5 +17,6 @@ kotlin {
         implementation(projects.data.repositories)
         implementation(projects.data.network)
         implementation(projects.data.database)
+        implementation(projects.data.filestore)
     }
 }
