@@ -1,23 +1,17 @@
 package com.eferraz.asset_management.transactions
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,24 +19,46 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.eferraz.naming.asLabel
 import com.eferraz.design_system.components.inputs.TableInputDate
 import com.eferraz.design_system.components.inputs.TableInputMoney
 import com.eferraz.design_system.components.inputs.TableInputSelect
 import com.eferraz.design_system.components.table.UiTableDataColumn
 import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.design_system.core.StableList
+import com.eferraz.design_system.scaffolds.AppContentDialog
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.transactions.TransactionType
+import com.eferraz.naming.asLabel
 import com.seanproctor.datatable.TableColumnWidth
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun TransactionFormView(
+public fun TransactionFormDialog(
+    modifier: Modifier = Modifier,
+    holdingId: Long?,
+    onDismiss: () -> Unit,
+) {
+
+    AppContentDialog(
+        title = "Transações",
+        onDismiss = onDismiss
+    ) {
+
+        TransactionFormView(
+            modifier = modifier.padding(bottom = 32.dp, start = 16.dp, end = 16.dp),
+            holdingId = holdingId,
+            onComplete = onDismiss
+        )
+    }
+}
+
+@Composable
+public fun TransactionFormView(
     modifier: Modifier = Modifier,
     holdingId: Long?,
     onComplete: () -> Unit,
@@ -59,65 +75,11 @@ internal fun TransactionFormView(
         if (state.isCompleted) onComplete()
     }
 
-    TransactionFormView(
+    TransactionTable(
         modifier = modifier,
-        ui = state,
+        rows = state.transactions,
         onEvent = vm::dispatch
     )
-}
-
-@Composable
-private fun TransactionFormView(
-    modifier: Modifier,
-    ui: TransactionManagementUiState,
-    onEvent: (TransactionManagementEvents) -> Unit,
-) {
-
-    Column(
-        modifier = modifier
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-
-        TransactionContent(
-            ui = ui,
-            onEvent = onEvent,
-        )
-
-        Spacer(Modifier.weight(1f))
-
-        Actions(
-            ui = ui,
-            onEvent = onEvent,
-        )
-    }
-}
-
-@Composable
-private fun TransactionContent(
-    ui: TransactionManagementUiState,
-    onEvent: (TransactionManagementEvents) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-
-        Text(
-            text = "Transações",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-
-        TransactionTable(
-            modifier = Modifier.fillMaxWidth(),
-            rows = ui.transactions,
-            onEvent = onEvent,
-        )
-    }
 }
 
 @Composable
@@ -261,28 +223,6 @@ private fun buildColumns(
     return common
 }
 
-@Composable
-private fun Actions(
-    modifier: Modifier = Modifier,
-    onEvent: (TransactionManagementEvents) -> Unit,
-    ui: TransactionManagementUiState,
-) {
-
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-        verticalAlignment = Alignment.Bottom,
-    ) {
-
-        Button(
-            onClick = { onEvent(TransactionManagementEvents.Save) },
-            enabled = !ui.isSaving,
-        ) {
-            Text("Salvar")
-        }
-    }
-}
-
 private class TransactionFormPreviewProvider : PreviewParameterProvider<TransactionManagementUiState> {
     override val values: Sequence<TransactionManagementUiState> = sequenceOf(
         TransactionManagementUiState(
@@ -312,23 +252,22 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
                 TransactionDraftUi(category = InvestmentCategory.INVESTMENT_FUND, dateDigits = "20250520", type = TransactionType.SALE, totalValue = "4200.00"),
             )
         ),
+        TransactionManagementUiState(),
     )
 }
 
-@Preview
+@Preview(device = Devices.TABLET)
 @Composable
 private fun TransactionFormViewPreview(
     @PreviewParameter(TransactionFormPreviewProvider::class) ui: TransactionManagementUiState,
 ) {
     MaterialTheme {
 
-        Scaffold(
-            topBar = { TopAppBar(title = { Text("Transações") }) }
-        ) {
+        Surface {
 
-            TransactionFormView(
-                modifier = Modifier.padding(it),
-                ui = ui,
+            TransactionTable(
+                modifier = Modifier.padding(16.dp),
+                rows = ui.transactions,
                 onEvent = {}
             )
         }

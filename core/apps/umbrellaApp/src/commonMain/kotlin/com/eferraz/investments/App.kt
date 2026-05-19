@@ -33,6 +33,8 @@ import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.eferraz.asset_management.assets.AssetManagementDialog
 import com.eferraz.asset_management.di.AssetManagementRouting
+import com.eferraz.asset_management.di.TransactionManagementRouting
+import com.eferraz.asset_management.transactions.TransactionFormDialog
 import com.eferraz.design_system.theme.AppTheme
 import com.eferraz.presentation.features.history.HoldingHistoryRoute
 import org.koin.plugin.module.dsl.startKoin
@@ -93,6 +95,9 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                 HoldingHistoryRoute(
                     onEditHolding = { holdingId ->
                         backStack += AssetManagementRouting(holdingId = holdingId)
+                    },
+                    onTransactionManagerRequest = { holdingId ->
+                        backStack += TransactionManagementRouting(holdingId = holdingId)
                     }
                 )
             }
@@ -108,6 +113,22 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
             ) { routing ->
 
                 AssetManagementDialog(
+                    holdingId = routing.holdingId,
+                    onDismiss = { backStack.removeLastOrNull() },
+                )
+            }
+
+            entry<TransactionManagementRouting>(
+                metadata = DialogSceneStrategy.dialog(
+                    DialogProperties(
+                        dismissOnBackPress = false,
+                        dismissOnClickOutside = false,
+                        usePlatformDefaultWidth = false
+                    )
+                )
+            ) { routing ->
+
+                TransactionFormDialog(
                     holdingId = routing.holdingId,
                     onDismiss = { backStack.removeLastOrNull() },
                 )

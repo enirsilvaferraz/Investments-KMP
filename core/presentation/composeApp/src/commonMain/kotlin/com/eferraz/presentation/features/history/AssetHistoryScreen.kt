@@ -44,6 +44,9 @@ import com.eferraz.design_system.components.table.UiTableV3
 import com.eferraz.design_system.core.StableList
 import com.eferraz.design_system.scaffolds.AppScreenPane
 import com.eferraz.design_system.scaffolds.AppScreenScaffold
+import com.eferraz.design_system.theme.getInfoColor
+import com.eferraz.design_system.theme.getSuccessColor
+import com.eferraz.design_system.theme.getWarningColor
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.goals.FinancialGoal
@@ -53,9 +56,6 @@ import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.naming.BuildIcon
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
-import com.eferraz.design_system.theme.getInfoColor
-import com.eferraz.design_system.theme.getSuccessColor
-import com.eferraz.design_system.theme.getWarningColor
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
@@ -68,6 +68,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 public fun HoldingHistoryRoute(
     onEditHolding: (Long) -> Unit,
+    onTransactionManagerRequest: (Long) -> Unit,
 ) {
 
     val vm = koinViewModel<HistoryViewModel>()
@@ -126,6 +127,7 @@ public fun HoldingHistoryRoute(
         onExportFixedIncomeClick = onExportFixedIncomeClick,
         transactions = state.transactions,
         onEditHolding = onEditHolding,
+        onTransactionManagerRequest = onTransactionManagerRequest,
     )
 }
 
@@ -153,6 +155,7 @@ internal fun HoldingHistoryScreen(
     onExportFixedIncomeClick: () -> Unit,
     transactions: List<AssetTransaction>,
     onEditHolding: (Long) -> Unit,
+    onTransactionManagerRequest: (Long) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -174,7 +177,8 @@ internal fun HoldingHistoryScreen(
             Table(
                 data = dataRows,
                 onValueChange = onValueChange,
-                onSelect = { entry: HoldingHistoryEntry -> onEditHolding(entry.holding.id) }
+                onSelect = { entry: HoldingHistoryEntry -> onEditHolding(entry.holding.id) },
+                onTransactionManagerRequest = { onTransactionManagerRequest(it.holding.id) }
             )
         },
         subMainPane = {
@@ -245,6 +249,7 @@ private fun Table(
     data: List<HoldingHistoryView>,
     onValueChange: (HoldingHistoryView, Double) -> Unit,
     onSelect: (HoldingHistoryEntry) -> Unit,
+    onTransactionManagerRequest: (HoldingHistoryEntry) -> Unit,
 ) {
 
     val columns = remember(onValueChange, data) {
@@ -313,7 +318,7 @@ private fun Table(
                         when {
                             it.totalBalance == 0.0 -> {
                                 TextButton(
-                                    {},
+                                    { onTransactionManagerRequest(it.entry) },
                                     colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray.copy(alpha = .5f))
                                 ) {
                                     Text(text = "Adicionar")
