@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -36,7 +35,6 @@ import com.eferraz.asset_management.assets.AssetManagementScreen
 import com.eferraz.asset_management.di.AssetManagementRouting
 import com.eferraz.design_system.scaffolds.AppContentDialog
 import com.eferraz.design_system.theme.AppTheme
-import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
 import com.eferraz.presentation.features.history.HoldingHistoryRoute
 
 @Composable
@@ -77,13 +75,6 @@ private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Uni
         selected = backStack.lastOrNull() == HistoryRouting,
         onClick = { backStack[0] = HistoryRouting }
     )
-
-    NavigationSuiteItem(
-        icon = { Icon(imageVector = Icons.Default.Star, contentDescription = "Metas") },
-        label = { Text("Metas") },
-        selected = backStack.lastOrNull() == GoalsMonitoringRouting,
-        onClick = { backStack[0] = GoalsMonitoringRouting }
-    )
 }
 
 @Suppress("FunctionSignature")
@@ -104,17 +95,15 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                 )
             }
 
-            entry<GoalsMonitoringRouting> {
-                GoalsMonitoringRoute()
-            }
-
-            entry<AssetManagementRouting>(metadata = DialogSceneStrategy.dialog(
-                DialogProperties(
-                    dismissOnBackPress = false,
-                    dismissOnClickOutside = false,
-                    usePlatformDefaultWidth = false
+            entry<AssetManagementRouting>(
+                metadata = DialogSceneStrategy.dialog(
+                    DialogProperties(
+                        dismissOnBackPress = false,
+                        dismissOnClickOutside = false,
+                        usePlatformDefaultWidth = false
+                    )
                 )
-            )) { routing ->
+            ) { routing ->
 
                 val onDismiss: () -> Unit = { backStack.removeLastOrNull() }
 
