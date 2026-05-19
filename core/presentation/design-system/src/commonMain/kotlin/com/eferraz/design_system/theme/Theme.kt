@@ -1,4 +1,4 @@
-package com.eferraz.presentation.design_system.theme
+package com.eferraz.design_system.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -251,7 +251,7 @@ private val unspecified_scheme = ColorFamily(
 )
 
 @Composable
-internal fun AppTheme(
+public fun AppTheme(
     darkTheme: Boolean = false, // isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -280,47 +280,47 @@ internal fun AppTheme(
  * Extensões do ColorScheme para acessar cores semânticas
  * Nota: Por enquanto, a aplicação usa apenas light theme, mas as funções estão preparadas para dark theme
  */
-internal fun getSuccessColor(isDark: Boolean = false): Color =
+public fun getSuccessColor(isDark: Boolean = false): Color =
     if (isDark) successDark else successLight
 
-internal fun getOnSuccessColor(isDark: Boolean = false): Color =
+public fun getOnSuccessColor(isDark: Boolean = false): Color =
     if (isDark) onSuccessDark else onSuccessLight
 
-internal fun getSuccessContainerColor(isDark: Boolean = false): Color =
+public fun getSuccessContainerColor(isDark: Boolean = false): Color =
     if (isDark) successContainerDark else successContainerLight
 
-internal fun getOnSuccessContainerColor(isDark: Boolean = false): Color =
+public fun getOnSuccessContainerColor(isDark: Boolean = false): Color =
     if (isDark) onSuccessContainerDark else onSuccessContainerLight
 
-internal fun getWarningColor(isDark: Boolean = false): Color =
+public fun getWarningColor(isDark: Boolean = false): Color =
     if (isDark) warningDark else warningLight
 
-internal fun getOnWarningColor(isDark: Boolean = false): Color =
+public fun getOnWarningColor(isDark: Boolean = false): Color =
     if (isDark) onWarningDark else onWarningLight
 
-internal fun getWarningContainerColor(isDark: Boolean = false): Color =
+public fun getWarningContainerColor(isDark: Boolean = false): Color =
     if (isDark) warningContainerDark else warningContainerLight
 
-internal fun getOnWarningContainerColor(isDark: Boolean = false): Color =
+public fun getOnWarningContainerColor(isDark: Boolean = false): Color =
     if (isDark) onWarningContainerDark else onWarningContainerLight
 
-internal fun getInfoColor(isDark: Boolean = false): Color =
+public fun getInfoColor(isDark: Boolean = false): Color =
     if (isDark) infoDark else infoLight
 
-internal fun getOnInfoColor(isDark: Boolean = false): Color =
+public fun getOnInfoColor(isDark: Boolean = false): Color =
     if (isDark) onInfoDark else onInfoLight
 
-internal fun getInfoContainerColor(isDark: Boolean = false): Color =
+public fun getInfoContainerColor(isDark: Boolean = false): Color =
     if (isDark) infoContainerDark else infoContainerLight
 
-internal fun getOnInfoContainerColor(isDark: Boolean = false): Color =
+public fun getOnInfoContainerColor(isDark: Boolean = false): Color =
     if (isDark) onInfoContainerDark else onInfoContainerLight
 
 /**
  * Funções helper para cores de valorização financeira
  */
 @Composable
-internal fun getAppreciationColor(value: Double?): Color {
+public fun getAppreciationColor(value: Double?): Color {
     val colors = MaterialTheme.colorScheme
     val isDark = colors.background.red < 0.5f // Heurística simples para detectar dark theme
     return when {
@@ -331,7 +331,7 @@ internal fun getAppreciationColor(value: Double?): Color {
 }
 
 @Composable
-internal fun getAppreciationTextColor(value: Double?): Color {
+public fun getAppreciationTextColor(value: Double?): Color {
     val colors = MaterialTheme.colorScheme
     val isDark = colors.background.red < 0.5f
     return when {
@@ -345,7 +345,7 @@ internal fun getAppreciationTextColor(value: Double?): Color {
  * Funções helper para cores de situação
  */
 @Composable
-internal fun getSituationColor(situation: String?): Color {
+public fun getSituationColor(situation: String?): Color {
     val colors = MaterialTheme.colorScheme
     val isDark = colors.background.red < 0.5f
     return when {
@@ -357,7 +357,7 @@ internal fun getSituationColor(situation: String?): Color {
 }
 
 @Composable
-internal fun getSituationTextColor(situation: String?): Color {
+public fun getSituationTextColor(situation: String?): Color {
     val colors = MaterialTheme.colorScheme
     val isDark = colors.background.red < 0.5f
     return when {

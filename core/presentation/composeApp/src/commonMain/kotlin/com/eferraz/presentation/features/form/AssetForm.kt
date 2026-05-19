@@ -16,7 +16,7 @@ import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Owner
-import com.eferraz.presentation.design_system.theme.AppTheme
+import com.eferraz.design_system.theme.AppTheme
 import com.eferraz.presentation.features.transactions.TransactionPanel
 
 @Composable

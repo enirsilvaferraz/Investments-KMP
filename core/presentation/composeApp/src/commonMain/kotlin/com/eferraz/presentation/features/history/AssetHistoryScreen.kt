@@ -53,9 +53,9 @@ import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.presentation.commons.table_icons.BuildIcon
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
-import com.eferraz.presentation.design_system.theme.getInfoColor
-import com.eferraz.presentation.design_system.theme.getSuccessColor
-import com.eferraz.presentation.design_system.theme.getWarningColor
+import com.eferraz.design_system.theme.getInfoColor
+import com.eferraz.design_system.theme.getSuccessColor
+import com.eferraz.design_system.theme.getWarningColor
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage

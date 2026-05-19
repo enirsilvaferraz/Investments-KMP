@@ -1,4 +1,4 @@
-package com.eferraz.presentation.design_system.theme
+package com.eferraz.design_system.theme
 import androidx.compose.ui.graphics.Color
 
 // Primary colors - mais vibrantes e modernas

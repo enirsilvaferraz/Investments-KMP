@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
-import com.eferraz.presentation.design_system.theme.getSuccessColor
-import com.eferraz.presentation.design_system.theme.getWarningColor
+import com.eferraz.design_system.theme.getSuccessColor
+import com.eferraz.design_system.theme.getWarningColor
 import com.eferraz.presentation.helpers.Formatters.formated
 
 /**
