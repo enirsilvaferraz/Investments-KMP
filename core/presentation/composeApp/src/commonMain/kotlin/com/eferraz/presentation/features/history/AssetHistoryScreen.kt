@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
@@ -54,7 +56,6 @@ import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.design_system.theme.getInfoColor
 import com.eferraz.presentation.design_system.theme.getSuccessColor
 import com.eferraz.presentation.design_system.theme.getWarningColor
-import com.eferraz.presentation.features.transactions.TransactionPanel
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
@@ -215,11 +216,11 @@ private fun Actions(
 
     if (showClose) {
         IconButton(onClick = { onCloseClick() }) {
-        Icon(
-            imageVector = Icons.Default.Close,
-            contentDescription = "Fechar"
-        )
-    }
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Fechar"
+            )
+        }
     }
 
     IconButton(onClick = onSyncClick) {
@@ -304,26 +305,39 @@ private fun Table(
                 ),
 
                 UiTableDataColumn(
-                    text = "Balanço",
+                    text = "Transações",
                     width = TableColumnWidth.MaxIntrinsic,
-                    alignment = Alignment.CenterEnd,
+                    alignment = Alignment.Center,
                     comparable = { it.totalBalance },
                     content = {
-                        Text(
-                            text = it.totalBalance.currencyFormat(),
-                            color = when {
-                                it.totalBalance < 0 -> getWarningColor()
-                                it.totalBalance > 0 -> getInfoColor()
-                                else -> Color.Gray.copy(alpha = .5f)
+                        when {
+                            it.totalBalance == 0.0 -> {
+                                TextButton(
+                                    {},
+                                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray.copy(alpha = .5f))
+                                ) {
+                                    Text(text = "Adicionar")
+                                }
                             }
-                        )
+
+                            else -> {
+                                Text(
+                                    text = it.totalBalance.currencyFormat(),
+                                    color = when {
+                                        it.totalBalance < 0 -> getWarningColor()
+                                        it.totalBalance > 0 -> getInfoColor()
+                                        else -> Color.Gray.copy(alpha = .5f)
+                                    }
+                                )
+                            }
+                        }
                     }
                 ),
 
                 UiTableDataColumn(
-                    text = "%",
+                    text = "Valorização",
                     width = TableColumnWidth.MaxIntrinsic,
-                    alignment = Alignment.CenterEnd,
+                    alignment = Alignment.Center,
                     comparable = { it.appreciation },
                     content = {
                         Text(
@@ -335,7 +349,7 @@ private fun Table(
                             }
                         )
                     }
-                ),
+                )
             )
         )
     }
