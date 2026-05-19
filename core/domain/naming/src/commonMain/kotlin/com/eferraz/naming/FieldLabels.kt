@@ -1,15 +1,27 @@
 package com.eferraz.naming
 
+import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.transactions.TransactionType
 
 /** Rótulo do dropdown de corretora no cadastro de investimento. */
 public const val BROKERAGE_FIELD_LABEL: String = "Corretora"
+
+public fun Asset.asLabel(): String =
+    when (this) {
+        is FixedIncomeAsset -> "Renda Fixa"
+        is InvestmentFundAsset -> "Fundos" // "Fundo de Investimento"
+        is VariableIncomeAsset -> "Renda Variável"
+    }
+
 
 public fun FixedIncomeAssetType.asLabel(): String =
     when (this) {
