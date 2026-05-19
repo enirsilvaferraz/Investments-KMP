@@ -67,11 +67,13 @@ project(":features:design-system").projectDir = File(settingsDir, "core/presenta
 project(":features:asset-management").projectDir = File(settingsDir, "core/presentation/asset-management")
 
 
-include(":domain:usecases")
 include(":domain:entity")
+include(":domain:usecases")
+include(":domain:naming")
 project(":domain").projectDir = File(settingsDir, "core/domain")
-project(":domain:usecases").projectDir = File(settingsDir, "core/domain/usecases")
 project(":domain:entity").projectDir = File(settingsDir, "core/domain/entity")
+project(":domain:usecases").projectDir = File(settingsDir, "core/domain/usecases")
+project(":domain:naming").projectDir = File(settingsDir, "core/domain/naming")
 
 include(":data:repositories")
 include(":data:network")

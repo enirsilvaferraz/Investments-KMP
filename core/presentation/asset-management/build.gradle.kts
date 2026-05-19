@@ -11,8 +11,8 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
 
-        implementation(projects.domain.entity)
         implementation(projects.domain.usecases)
+        implementation(projects.domain.naming)
         implementation(projects.features.designSystem)
 
         implementation(libs.androidx.lifecycle.viewmodel)

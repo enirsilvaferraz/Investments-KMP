@@ -27,10 +27,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
+import com.eferraz.naming.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.FormTextField
 import com.eferraz.asset_management.helpers.FormTwoColumnsRow
-import com.eferraz.asset_management.helpers.asLabel
+import com.eferraz.naming.asLabel
 import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation

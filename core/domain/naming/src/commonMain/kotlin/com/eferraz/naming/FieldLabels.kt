@@ -1,4 +1,4 @@
-package com.eferraz.asset_management.helpers
+package com.eferraz.naming
 
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
@@ -9,16 +9,16 @@ import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.transactions.TransactionType
 
 /** Rótulo do dropdown de corretora no cadastro de investimento. */
-internal const val BROKERAGE_FIELD_LABEL: String = "Corretora"
+public const val BROKERAGE_FIELD_LABEL: String = "Corretora"
 
-internal fun FixedIncomeAssetType.asLabel(): String =
+public fun FixedIncomeAssetType.asLabel(): String =
     when (this) {
         FixedIncomeAssetType.POST_FIXED -> "Pós-fixado"
         FixedIncomeAssetType.PRE_FIXED -> "Pré-fixado"
         FixedIncomeAssetType.INFLATION_LINKED -> "Atrelado à inflação"
     }
 
-internal fun FixedIncomeSubType.asLabel(): String =
+public fun FixedIncomeSubType.asLabel(): String =
     when (this) {
         FixedIncomeSubType.CDB -> "CDB"
         FixedIncomeSubType.LCI -> "LCI"
@@ -29,7 +29,7 @@ internal fun FixedIncomeSubType.asLabel(): String =
         FixedIncomeSubType.PRECATORIO -> "Precatório"
     }
 
-internal fun VariableIncomeAssetType.asLabel(): String =
+public fun VariableIncomeAssetType.asLabel(): String =
     when (this) {
         VariableIncomeAssetType.NATIONAL_STOCK -> "Ação nacional"
         VariableIncomeAssetType.INTERNATIONAL_STOCK -> "Ação internacional"
@@ -37,28 +37,28 @@ internal fun VariableIncomeAssetType.asLabel(): String =
         VariableIncomeAssetType.ETF -> "ETF"
     }
 
-internal fun InvestmentFundAssetType.asLabel(): String =
+public fun InvestmentFundAssetType.asLabel(): String =
     when (this) {
         InvestmentFundAssetType.PENSION -> "Previdência"
         InvestmentFundAssetType.STOCK_FUND -> "Fundo de ações"
         InvestmentFundAssetType.MULTIMARKET_FUND -> "Fundo multimercado"
     }
 
-internal fun InvestmentCategory.asLabel(): String =
+public fun InvestmentCategory.asLabel(): String =
     when (this) {
         InvestmentCategory.FIXED_INCOME -> "Renda fixa"
         InvestmentCategory.VARIABLE_INCOME -> "Renda variável"
         InvestmentCategory.INVESTMENT_FUND -> "Fundo de investimento"
     }
 
-internal fun Liquidity.asLabel(): String =
+public fun Liquidity.asLabel(): String =
     when (this) {
         Liquidity.DAILY -> "Diária"
         Liquidity.AT_MATURITY -> "No vencimento"
         Liquidity.D_PLUS_DAYS -> "D + dias"
     }
 
-internal fun TransactionType.asLabel(): String =
+public fun TransactionType.asLabel(): String =
     when (this) {
         TransactionType.PURCHASE -> "Compra"
         TransactionType.SALE -> "Venda"
