@@ -31,7 +31,7 @@ public fun AppContentDialog(
 ) {
 
     Card(
-        modifier = modifier.wrapContentWidth().widthIn(min = 400.dp, max = 800.dp),
+        modifier = modifier.wrapContentWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
 

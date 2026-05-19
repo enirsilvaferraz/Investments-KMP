@@ -2,7 +2,10 @@ package com.eferraz.asset_management.helpers
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
@@ -35,25 +38,29 @@ internal fun FormTextField(
     }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.height(IntrinsicSize.Max),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+
+       label.takeIf { it.isNotBlank() }?.let {
+           Text(
+               text = label,
+               style = MaterialTheme.typography.titleSmall,
+               color = MaterialTheme.colorScheme.onSurface,
+           )
+       }
 
         TextField(
             value = value,
             onValueChange = onValueChange,
             placeholder = placeholder,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             isError = errorMessage != null,
             supportingText = supportingText,
             keyboardOptions = keyboardOptions ?: KeyboardOptions.Default,
             visualTransformation = visualTransformation ?: VisualTransformation.None,
             shape = RoundedCornerShape(14.dp),
+            maxLines = 4,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color(0xFFF4F5F9),
                 unfocusedContainerColor = Color(0xFFF4F5F9),

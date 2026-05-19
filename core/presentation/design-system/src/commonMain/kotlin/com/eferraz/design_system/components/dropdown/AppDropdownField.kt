@@ -80,11 +80,13 @@ private fun <T> StableExposedDropdownImpl(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
-        Text(
-            text = label,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+       label.takeIf { it.isNotBlank() }?.let {
+           Text(
+               text = label,
+               style = MaterialTheme.typography.titleSmall,
+               color = MaterialTheme.colorScheme.onSurface,
+           )
+       }
 
         ExposedDropdownMenuBox(
             expanded = expanded,

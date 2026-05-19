@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun FormTwoColumnsRow(
     left: @Composable () -> Unit,
+    middle: @Composable (() -> Unit)? = null,
     right: @Composable () -> Unit,
 ) {
     Row(
@@ -20,6 +21,13 @@ internal fun FormTwoColumnsRow(
         Column(modifier = Modifier.weight(1f)) {
             left()
         }
+
+        middle?.let {
+            Column(modifier = Modifier.weight(1f)) {
+                it()
+            }
+        }
+
         Column(modifier = Modifier.weight(1f)) {
             right()
         }

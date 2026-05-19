@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -23,14 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.eferraz.naming.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.FormTextField
 import com.eferraz.asset_management.helpers.FormTwoColumnsRow
-import com.eferraz.naming.asLabel
 import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
@@ -42,6 +44,8 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.naming.BROKERAGE_FIELD_LABEL
+import com.eferraz.naming.asLabel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -52,11 +56,13 @@ public fun AssetManagementDialog(
 ) {
 
     AppContentDialog(
+        modifier = modifier.width(800.dp).padding(vertical = 36.dp),
         title = if (holdingId != null) "Editar investimento" else "Novo investimento",
         onDismiss = onDismiss
     ) {
 
         AssetManagementScreen(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
             holdingId = holdingId,
             onDismiss = onDismiss,
         )
@@ -99,15 +105,18 @@ private fun AssetFormView(
         modifier = modifier
             .padding(horizontal = 16.dp)
             .padding(bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(32.dp),
     ) {
+
 
         FormContent(
             ui = ui,
             onEvent = onEvent,
         )
 
-//        Spacer(Modifier.weight(1f))
+        NewTransactionsTable(
+
+        )
 
         Actions(
             ui = ui,
@@ -128,48 +137,51 @@ private fun FormContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
-        AppDropdownField(
-            label = "Categoria",
-            displayValue = ui.category.asLabel(),
-            options = InvestmentCategory.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvents.CategoryChanged(it)) },
-            enabled = ui.asset == null,
-            required = true,
-        )
-
-        AppDropdownField(
-            label = "Emissor",
-            displayValue = ui.issuer?.name.orEmpty(),
-            options = ui.issuers,
-            itemLabel = { it.name },
-            onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
-            error = ui.issuerError,
-            required = true,
-        )
-
         when (ui.category) {
             InvestmentCategory.FIXED_INCOME -> FixedIncomeFields(ui, onEvent)
             InvestmentCategory.VARIABLE_INCOME -> VariableIncomeFields(ui, onEvent)
             InvestmentCategory.INVESTMENT_FUND -> FundFields(ui, onEvent)
         }
 
-        AppDropdownField(
-            label = BROKERAGE_FIELD_LABEL,
-            displayValue = ui.brokerage?.name.orEmpty(),
-            options = ui.brokerages,
-            itemLabel = { it.name },
-            onItemSelect = { brokerage -> onEvent(AssetManagementEvents.BrokerageChanged(brokerage)) },
-            error = ui.brokerageError,
-            required = true,
+        FormTwoColumnsRow(
+            left = {
+                AppDropdownField(
+                    label = "Emissor",
+                    displayValue = ui.issuer?.name.orEmpty(),
+                    options = ui.issuers,
+                    itemLabel = { it.name },
+                    onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
+                    error = ui.issuerError,
+                    required = true,
+                )
+            },
+            middle = {
+                AppDropdownField(
+                    label = BROKERAGE_FIELD_LABEL,
+                    displayValue = ui.brokerage?.name.orEmpty(),
+                    options = ui.brokerages,
+                    itemLabel = { it.name },
+                    onItemSelect = { brokerage -> onEvent(AssetManagementEvents.BrokerageChanged(brokerage)) },
+                    error = ui.brokerageError,
+                    required = true,
+                )
+            },
+            right = {
+                FormTextField(
+//            modifier = Modifier.height(200.dp),
+                    label = "Observações gerais",
+                    value = ui.observations.orEmpty(),
+                    onValueChange = { onEvent(AssetManagementEvents.ObservationsChanged(it)) },
+                    errorMessage = null,
+                )
+            }
         )
 
-        FormTextField(
-            label = "Observações gerais",
-            value = ui.observations.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvents.ObservationsChanged(it)) },
-            errorMessage = null,
-        )
+
+
+
+
+
     }
 }
 
@@ -181,6 +193,17 @@ private fun FixedIncomeFields(
 
     FormTwoColumnsRow(
         left = {
+            AppDropdownField(
+                label = "Categoria",
+                displayValue = ui.category.asLabel(),
+                options = InvestmentCategory.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(AssetManagementEvents.CategoryChanged(it)) },
+                enabled = ui.asset == null,
+                required = true,
+            )
+        },
+        middle = {
             AppDropdownField(
                 label = "Tipo",
                 displayValue = ui.fixedType?.asLabel().orEmpty(),
@@ -206,49 +229,55 @@ private fun FixedIncomeFields(
 
     FormTwoColumnsRow(
         left = {
-            AppDropdownField(
-                label = "Liquidez",
-                displayValue = ui.fixedLiquidity?.asLabel().orEmpty(),
-                options = Liquidity.entries.toList(),
-                itemLabel = { it.asLabel() },
-                onItemSelect = { onEvent(AssetManagementEvents.FixedLiquidityChanged(it)) },
-                error = ui.fixedLiquidityError,
-                required = true,
+            FormTwoColumnsRow(
+                left = {
+                    AppDropdownField(
+                        label = "Liquidez",
+                        displayValue = ui.fixedLiquidity?.asLabel().orEmpty(),
+                        options = Liquidity.entries.toList(),
+                        itemLabel = { it.asLabel() },
+                        onItemSelect = { onEvent(AssetManagementEvents.FixedLiquidityChanged(it)) },
+                        error = ui.fixedLiquidityError,
+                        required = true,
+                    )
+                },
+                right = {
+                    FormTextField(
+                        label = "Vencimento",
+                        value = ui.fixedExpiration.orEmpty(),
+                        onValueChange = { raw -> onEvent(AssetManagementEvents.FixedExpirationChanged(raw)) },
+                        errorMessage = ui.fixedExpirationError,
+                        placeholder = { Text("AAAA-MM-DD") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
+                    )
+                },
             )
         },
         right = {
-            FormTextField(
-                label = "Vencimento",
-                value = ui.fixedExpiration.orEmpty(),
-                onValueChange = { raw -> onEvent(AssetManagementEvents.FixedExpirationChanged(raw)) },
-                errorMessage = ui.fixedExpirationError,
-                placeholder = { Text("AAAA-MM-DD") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                visualTransformation = remember { DateVisualTransformation(DateFormat.YYYY_MM_DD) },
+            FormTwoColumnsRow(
+                left = {
+                    FormTextField(
+                        label = "Rentabilidade (% a.a.)",
+                        value = ui.fixedYield.orEmpty(),
+                        onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
+                        errorMessage = ui.fixedYieldError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    )
+                },
+                right = {
+                    FormTextField(
+                        label = "Rentabilidade (CDI)",
+                        value = ui.fixedCdi.orEmpty(),
+                        onValueChange = { onEvent(AssetManagementEvents.FixedCdiChanged(it)) },
+                        errorMessage = ui.fixedCdiError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    )
+                },
             )
-        },
+        }
     )
 
-    FormTwoColumnsRow(
-        left = {
-            FormTextField(
-                label = "Rentabilidade (% a.a.)",
-                value = ui.fixedYield.orEmpty(),
-                onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
-                errorMessage = ui.fixedYieldError,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            )
-        },
-        right = {
-            FormTextField(
-                label = "Rentabilidade (CDI)",
-                value = ui.fixedCdi.orEmpty(),
-                onValueChange = { onEvent(AssetManagementEvents.FixedCdiChanged(it)) },
-                errorMessage = ui.fixedCdiError,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            )
-        },
-    )
 }
 
 @Composable
@@ -258,6 +287,17 @@ private fun VariableIncomeFields(
 ) {
     FormTwoColumnsRow(
         left = {
+            AppDropdownField(
+                label = "Categoria",
+                displayValue = ui.category.asLabel(),
+                options = InvestmentCategory.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(AssetManagementEvents.CategoryChanged(it)) },
+                enabled = ui.asset == null,
+                required = true,
+            )
+        },
+        middle = {
             AppDropdownField(
                 label = "Tipo",
                 displayValue = ui.variableType?.asLabel().orEmpty(),
@@ -294,15 +334,17 @@ private fun FundFields(
 ) {
     FormTwoColumnsRow(
         left = {
-            FormTextField(
-                label = "Identificação",
-                value = ui.fundName.orEmpty(),
-                onValueChange = { onEvent(AssetManagementEvents.FundNameChanged(it)) },
-                errorMessage = ui.fundNameError,
-                modifier = Modifier.fillMaxWidth(),
+            AppDropdownField(
+                label = "Categoria",
+                displayValue = ui.category.asLabel(),
+                options = InvestmentCategory.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(AssetManagementEvents.CategoryChanged(it)) },
+                enabled = ui.asset == null,
+                required = true,
             )
         },
-        right = {
+        middle = {
             AppDropdownField(
                 label = "Tipo",
                 displayValue = ui.fundType?.asLabel().orEmpty(),
@@ -310,6 +352,15 @@ private fun FundFields(
                 itemLabel = { it.asLabel() },
                 onItemSelect = { onEvent(AssetManagementEvents.FundTypeChanged(it)) },
                 error = ui.fundTypeError,
+            )
+        },
+        right = {
+            FormTextField(
+                label = "Identificação",
+                value = ui.fundName.orEmpty(),
+                onValueChange = { onEvent(AssetManagementEvents.FundNameChanged(it)) },
+                errorMessage = ui.fundNameError,
+                modifier = Modifier.fillMaxWidth(),
             )
         },
     )
@@ -370,7 +421,7 @@ private class AssetFormPreviewProvider : PreviewParameterProvider<AssetManagemen
     )
 }
 
-@Preview
+@Preview(device = Devices.TABLET)
 @Composable
 private fun AssetManagementScreenPreview(
     @PreviewParameter(AssetFormPreviewProvider::class) ui: AssetManagementUiState,
