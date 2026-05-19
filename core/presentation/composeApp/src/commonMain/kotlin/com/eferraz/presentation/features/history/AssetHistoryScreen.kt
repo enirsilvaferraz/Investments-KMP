@@ -51,7 +51,7 @@ import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
-import com.eferraz.presentation.commons.table_icons.BuildIcon
+import com.eferraz.naming.BuildIcon
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.design_system.theme.getInfoColor
 import com.eferraz.design_system.theme.getSuccessColor

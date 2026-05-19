@@ -1,4 +1,4 @@
-package com.eferraz.presentation.commons.table_icons
+package com.eferraz.naming
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
@@ -20,7 +20,6 @@ import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.design_system.theme.getSuccessColor
 import com.eferraz.design_system.theme.getWarningColor
-import com.eferraz.presentation.helpers.Formatters.formated
 
 /**
  *
@@ -28,7 +27,7 @@ import com.eferraz.presentation.helpers.Formatters.formated
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun Liquidity.BuildIcon() {
+public fun Liquidity.BuildIcon() {
 
     val icon = when (this) {
         Liquidity.DAILY -> Icons.Default.EventAvailable
@@ -40,7 +39,7 @@ internal fun Liquidity.BuildIcon() {
         else -> MaterialTheme.colorScheme.error
     }
 
-    val tooltipText = formated()
+    val tooltipText = asLabel()
 
     TooltipBox(
         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.End),
@@ -53,7 +52,7 @@ internal fun Liquidity.BuildIcon() {
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = formated(),
+            contentDescription = tooltipText,
             modifier = Modifier.alpha(0.5f), // .size(18.dp),
             tint = color
         )
@@ -62,7 +61,7 @@ internal fun Liquidity.BuildIcon() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun InvestmentCategory.BuildIcon() {
+public fun InvestmentCategory.BuildIcon() {
 
     val icon = Icons.Default.AttachMoney
 
@@ -72,7 +71,7 @@ internal fun InvestmentCategory.BuildIcon() {
         InvestmentCategory.INVESTMENT_FUND -> getWarningColor()
     }
 
-    val tooltipText = formated()
+    val tooltipText = asLabel()
 
     TooltipBox(
         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.End),

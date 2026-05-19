@@ -12,7 +12,7 @@ kotlin {
     dependencies {
 
         implementation(projects.domain.usecases)
-        implementation(projects.domain.naming)
+        implementation(projects.features.naming)
         implementation(projects.features.designSystem)
 
         implementation(libs.androidx.lifecycle.viewmodel)

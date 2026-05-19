@@ -61,19 +61,18 @@ project(":apps:umbrellaApp").projectDir = File(settingsDir, "core/apps/umbrellaA
 include(":features:composeApp")
 include(":features:design-system")
 include(":features:asset-management")
+include(":features:naming")
 project(":features").projectDir = File(settingsDir, "core/presentation")
 project(":features:composeApp").projectDir = File(settingsDir, "core/presentation/composeApp")
 project(":features:design-system").projectDir = File(settingsDir, "core/presentation/design-system")
 project(":features:asset-management").projectDir = File(settingsDir, "core/presentation/asset-management")
-
+project(":features:naming").projectDir = File(settingsDir, "core/presentation/naming")
 
 include(":domain:entity")
 include(":domain:usecases")
-include(":domain:naming")
 project(":domain").projectDir = File(settingsDir, "core/domain")
 project(":domain:entity").projectDir = File(settingsDir, "core/domain/entity")
 project(":domain:usecases").projectDir = File(settingsDir, "core/domain/usecases")
-project(":domain:naming").projectDir = File(settingsDir, "core/domain/naming")
 
 include(":data:repositories")
 include(":data:network")
