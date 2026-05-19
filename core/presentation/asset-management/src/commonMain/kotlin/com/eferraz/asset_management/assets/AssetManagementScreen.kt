@@ -34,6 +34,7 @@ import com.eferraz.asset_management.helpers.asLabel
 import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
+import com.eferraz.design_system.scaffolds.AppContentDialog
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
@@ -42,6 +43,25 @@ import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
 import org.koin.compose.viewmodel.koinViewModel
+
+@Composable
+public fun AssetManagementDialog(
+    modifier: Modifier = Modifier,
+    holdingId: Long?,
+    onDismiss: () -> Unit,
+) {
+
+    AppContentDialog(
+        title = if (holdingId != null) "Editar investimento" else "Novo investimento",
+        onDismiss = onDismiss
+    ) {
+
+        AssetManagementScreen(
+            holdingId = holdingId,
+            onDismiss = onDismiss,
+        )
+    }
+}
 
 @Composable
 public fun AssetManagementScreen(

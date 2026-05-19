@@ -1,4 +1,4 @@
-package com.eferraz.presentation
+package com.eferraz.investments
 
 import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
