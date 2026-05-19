@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
@@ -37,7 +36,6 @@ import com.eferraz.asset_management.assets.AssetManagementScreen
 import com.eferraz.asset_management.di.AssetManagementRouting
 import com.eferraz.design_system.scaffolds.AppContentDialog
 import com.eferraz.design_system.theme.AppTheme
-import com.eferraz.presentation.features.assets.AssetsRoute
 import com.eferraz.presentation.features.goals.GoalsMonitoringRoute
 import com.eferraz.presentation.features.history.HoldingHistoryRoute
 
@@ -74,13 +72,6 @@ private fun AppNavigationHost() {
 private fun navRailMenus(backStack: NavBackStack<NavKey>): @Composable () -> Unit = {
 
     NavigationSuiteItem(
-        icon = { Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "Ativos") },
-        label = { Text("Ativos") },
-        selected = backStack.lastOrNull() == AssetsRouting,
-        onClick = { backStack[0] = AssetsRouting }
-    )
-
-    NavigationSuiteItem(
         icon = { Icon(imageVector = Icons.Default.History, contentDescription = "Histórico") },
         label = { Text("Histórico") },
         selected = backStack.lastOrNull() == HistoryRouting,
@@ -104,10 +95,6 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
         backStack = backStack,
         sceneStrategies = listOf(dialogStrategy),
         entryProvider = entryProvider {
-
-            entry<AssetsRouting> {
-                AssetsRoute()
-            }
 
             entry<HistoryRouting> {
                 HoldingHistoryRoute(
