@@ -2,12 +2,9 @@ package com.eferraz.asset_management.assets
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -34,7 +31,7 @@ import com.eferraz.asset_management.helpers.BROKERAGE_FIELD_LABEL
 import com.eferraz.asset_management.helpers.FormTextField
 import com.eferraz.asset_management.helpers.FormTwoColumnsRow
 import com.eferraz.asset_management.helpers.asLabel
-import com.eferraz.design_system.components.dropdown.StableExposedDropdown
+import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
 import com.eferraz.entities.assets.FixedIncomeAssetType
@@ -111,7 +108,7 @@ private fun FormContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
-        StableExposedDropdown(
+        AppDropdownField(
             label = "Categoria",
             displayValue = ui.category.asLabel(),
             options = InvestmentCategory.entries.toList(),
@@ -121,7 +118,7 @@ private fun FormContent(
             required = true,
         )
 
-        StableExposedDropdown(
+        AppDropdownField(
             label = "Emissor",
             displayValue = ui.issuer?.name.orEmpty(),
             options = ui.issuers,
@@ -137,7 +134,7 @@ private fun FormContent(
             InvestmentCategory.INVESTMENT_FUND -> FundFields(ui, onEvent)
         }
 
-        StableExposedDropdown(
+        AppDropdownField(
             label = BROKERAGE_FIELD_LABEL,
             displayValue = ui.brokerage?.name.orEmpty(),
             options = ui.brokerages,
@@ -164,7 +161,7 @@ private fun FixedIncomeFields(
 
     FormTwoColumnsRow(
         left = {
-            StableExposedDropdown(
+            AppDropdownField(
                 label = "Tipo",
                 displayValue = ui.fixedType?.asLabel().orEmpty(),
                 options = FixedIncomeAssetType.entries.toList(),
@@ -175,7 +172,7 @@ private fun FixedIncomeFields(
             )
         },
         right = {
-            StableExposedDropdown(
+            AppDropdownField(
                 label = "Subtipo",
                 displayValue = ui.fixedSubType?.asLabel().orEmpty(),
                 options = FixedIncomeSubType.entries.toList(),
@@ -189,7 +186,7 @@ private fun FixedIncomeFields(
 
     FormTwoColumnsRow(
         left = {
-            StableExposedDropdown(
+            AppDropdownField(
                 label = "Liquidez",
                 displayValue = ui.fixedLiquidity?.asLabel().orEmpty(),
                 options = Liquidity.entries.toList(),
@@ -241,7 +238,7 @@ private fun VariableIncomeFields(
 ) {
     FormTwoColumnsRow(
         left = {
-            StableExposedDropdown(
+            AppDropdownField(
                 label = "Tipo",
                 displayValue = ui.variableType?.asLabel().orEmpty(),
                 options = VariableIncomeAssetType.entries.toList(),
@@ -286,7 +283,7 @@ private fun FundFields(
             )
         },
         right = {
-            StableExposedDropdown(
+            AppDropdownField(
                 label = "Tipo",
                 displayValue = ui.fundType?.asLabel().orEmpty(),
                 options = InvestmentFundAssetType.entries.toList(),

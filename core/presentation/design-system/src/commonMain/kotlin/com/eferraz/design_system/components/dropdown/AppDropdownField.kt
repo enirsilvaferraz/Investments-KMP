@@ -36,7 +36,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun <T> StableExposedDropdown(
+public fun <T> AppDropdownField(
     label: String,
     displayValue: String,
     options: List<T>,
@@ -204,11 +204,11 @@ private fun StableExposedDropdownMenuRow(
 
 @Preview(showBackground = true, widthDp = 360)
 @Composable
-internal fun StableExposedDropdownPreview() {
+internal fun AppDropdownFieldPreview() {
     MaterialTheme {
         Surface(modifier = Modifier.padding(16.dp)) {
             var selected by remember { mutableStateOf("Pré-fixado") }
-            StableExposedDropdown(
+            AppDropdownField(
                 label = "Tipo de cálculo",
                 displayValue = selected,
                 options = listOf("Pré-fixado", "Pós-fixado", "IPCA"),
@@ -221,10 +221,10 @@ internal fun StableExposedDropdownPreview() {
 
 @Preview(showBackground = true, widthDp = 360)
 @Composable
-internal fun StableExposedDropdownErrorPreview() {
+internal fun AppDropdownFieldErrorPreview() {
     MaterialTheme {
         Surface(modifier = Modifier.padding(16.dp)) {
-            StableExposedDropdown(
+            AppDropdownField(
                 label = "Campo com erro",
                 displayValue = "",
                 options = listOf("A", "B"),
