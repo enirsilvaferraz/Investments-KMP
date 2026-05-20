@@ -114,10 +114,6 @@ private fun AssetFormView(
             onEvent = onEvent,
         )
 
-        NewTransactionsTable(
-
-        )
-
         Actions(
             ui = ui,
             onEvent = onEvent

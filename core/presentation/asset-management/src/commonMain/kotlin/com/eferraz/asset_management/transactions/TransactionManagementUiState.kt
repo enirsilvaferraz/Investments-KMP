@@ -13,12 +13,19 @@ import com.eferraz.entities.transactions.VariableIncomeTransaction
 @Immutable
 internal data class TransactionManagementUiState(
     val holding: AssetHolding? = null,
-    val transactions: List<TransactionDraftUi> = emptyList(),
+    val initialSnapshot: List<TransactionDraftUi> = emptyList(),
+    val transactions: List<TransactionDraftUi> = initialSnapshot,
     val isSaving: Boolean = false,
     val isCompleted: Boolean = false,
 ) {
     internal val category: InvestmentCategory
         get() = holding?.asset?.category ?: InvestmentCategory.FIXED_INCOME
+
+    internal val isDirty: Boolean
+        get() = initialSnapshot != transactions
+
+    internal val hasAnyFieldError: Boolean
+        get() = transactions.any { it.hasAnyFieldError() }
 }
 
 @Immutable
@@ -107,3 +114,14 @@ internal data class TransactionDraftUi(
 
 internal fun TransactionDraftUi.hasAnyFieldError(): Boolean =
     dateError || quantityError || unitPriceError || totalValueError
+
+// TODO DT -> Repensar a estrategia de valor unitario e total das categorias de transação
+internal fun TransactionDraftUi.syncVariableIncomeTotal(): TransactionDraftUi {
+    val qty = quantity.toDoubleOrNull()
+    val price = unitPrice.toDoubleOrNull()
+    return if (qty != null && price != null) {
+        copy(totalValue = (qty * price).toString())
+    } else {
+        this
+    }
+}

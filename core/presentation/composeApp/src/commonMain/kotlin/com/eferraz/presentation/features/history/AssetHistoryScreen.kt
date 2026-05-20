@@ -326,14 +326,19 @@ private fun Table(
                             }
 
                             else -> {
-                                Text(
-                                    text = it.totalBalance.currencyFormat(),
-                                    color = when {
-                                        it.totalBalance < 0 -> getWarningColor()
-                                        it.totalBalance > 0 -> getInfoColor()
-                                        else -> Color.Gray.copy(alpha = .5f)
-                                    }
-                                )
+                                TextButton(
+                                    { onTransactionManagerRequest(it.entry) },
+//                                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray.copy(alpha = .5f))
+                                ) {
+                                    Text(
+                                        text = it.totalBalance.currencyFormat(),
+                                        color = when {
+                                            it.totalBalance < 0 -> getWarningColor()
+                                            it.totalBalance > 0 -> getInfoColor()
+                                            else -> Color.Gray.copy(alpha = .5f)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }

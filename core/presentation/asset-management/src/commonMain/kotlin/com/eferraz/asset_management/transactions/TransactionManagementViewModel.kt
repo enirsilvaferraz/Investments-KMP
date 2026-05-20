@@ -3,6 +3,7 @@ package com.eferraz.asset_management.transactions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.design_system.input.date.dateToDigits
+import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.usecases.DeleteTransactionUseCase
 import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.SaveTransactionUseCase
@@ -28,10 +29,11 @@ internal class TransactionManagementViewModel(
 
     internal fun dispatch(event: TransactionManagementEvents) = when (event) {
 
-        is TransactionManagementEvents.ScreenEntered -> loadInitialState(event.holdingId)
+        is TransactionManagementEvents.ScreenEntered ->
+            loadInitialState(event.holdingId)
 
-        TransactionManagementEvents.Save -> onSave()
-        TransactionManagementEvents.AddTransactionDraft -> addTransactionDraft()
+        is TransactionManagementEvents.AddTransactionDraft ->
+            addTransactionDraft()
 
         is TransactionManagementEvents.DraftTransactionDateChanged ->
             updateDraft(event.index) { it.copy(dateDigits = dateToDigits(event.raw)) }
@@ -48,11 +50,11 @@ internal class TransactionManagementViewModel(
         is TransactionManagementEvents.DraftTransactionTotalValueChanged ->
             updateDraft(event.index) { it.copy(totalValue = event.value) }
 
-        is TransactionManagementEvents.DraftTransactionObservationChanged ->
-            updateDraft(event.index) { it.copy(observations = event.value) }
-
         is TransactionManagementEvents.DraftTransactionDeleteClicked ->
             deleteDraft(event.index)
+
+        is TransactionManagementEvents.Save ->
+            onSave()
     }
 
     private fun loadInitialState(holdingId: Long?) = viewModelScope.launch {
@@ -65,7 +67,9 @@ internal class TransactionManagementViewModel(
                 state.update {
                     TransactionManagementUiState(
                         holding = resolved,
-                        transactions = transactions.map(TransactionDraftUi::fromDomain),
+
+                        // TODO DT -> Mover o sorte para o UseCase?
+                        initialSnapshot = transactions.sortedBy { it.date }.map(TransactionDraftUi::fromDomain),
                     )
                 }
             }
@@ -73,18 +77,29 @@ internal class TransactionManagementViewModel(
 
     private fun onSave() = viewModelScope.launch {
 
-        val holding = state.value.holding ?: return@launch
-        if (state.value.isSaving) return@launch
+        val current = state.value
+
+        val holding = current.holding ?: return@launch
+        if (current.isSaving || !current.isDirty || current.hasAnyFieldError) return@launch
 
         state.update { it.copy(isSaving = true) }
 
-        val transactions = state.value.transactions
-            .mapNotNull { draft -> draft.toDomainTransaction(holding, state.value.category) }
+        // TODO fazer upsert em lote -> consultar no banco de dados e fazer essa operação no usecase
+        val removeIds = current.initialSnapshot.mapNotNull { it.id }.toSet() - current.transactions.mapNotNull { it.id }.toSet()
+        val upserts = current.transactions.mapNotNull { it.toDomainTransaction(holding, current.category) }
 
         runCatching {
-            transactions.forEach { transaction ->
+
+            // TODO Debito tecnico -> Fazer a persistencia dos dados de forma transacional
+
+            removeIds.forEach { id ->
+                deleteTransactionUseCase(DeleteTransactionUseCase.Param(id)).getOrThrow()
+            }
+
+            upserts.forEach { transaction ->
                 saveTransactionUseCase(SaveTransactionUseCase.Param(transaction)).getOrThrow()
             }
+
         }.onSuccess {
             state.update { it.copy(isSaving = false, isCompleted = true) }
         }.onFailure {
@@ -94,7 +109,10 @@ internal class TransactionManagementViewModel(
 
     private fun addTransactionDraft() = viewModelScope.launch {
 
+        // TODO Débito Tecnico -> Nao usar o throw
         val currentDate = getCurrentDateUseCase(Unit).getOrThrow().toString().replace("-", "")
+
+        // TODO Débito Técnico -> Nao trabalhar com dateDigits e sim com LocalDate
         val blank = TransactionDraftUi(isNew = true, dateDigits = currentDate, category = state.value.category)
 
         state.update { it.copy(transactions = it.transactions + blank) }
@@ -102,17 +120,15 @@ internal class TransactionManagementViewModel(
 
     private fun updateDraft(index: Int, update: (TransactionDraftUi) -> TransactionDraftUi) =
         state.update { current ->
-            val draft = update(current.transactions[index])
+            var draft = update(current.transactions[index])
+            if (current.category == InvestmentCategory.VARIABLE_INCOME) {
+                draft = draft.syncVariableIncomeTotal()
+            }
             current.copy(transactions = current.transactions.toMutableList().apply { this[index] = draft })
         }
 
-    private fun deleteDraft(index: Int) = viewModelScope.launch {
-
-        val draft = state.value.transactions[index]
-        if (draft.id != null) deleteTransactionUseCase(DeleteTransactionUseCase.Param(draft.id)).getOrThrow()
-
+    private fun deleteDraft(index: Int) =
         state.update {
             it.copy(transactions = it.transactions.filterIndexed { rowIndex, _ -> rowIndex != index })
         }
-    }
 }

@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -38,7 +36,7 @@ public fun AppContentDialog(
         Column {
 
             TopAppBar(
-                modifier = Modifier.padding(horizontal = 12.dp),
+                modifier = Modifier.padding(start = 8.dp, end = 12.dp),
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 title = { Text(title) },
                 actions = {
@@ -51,9 +49,7 @@ public fun AppContentDialog(
                 },
             )
 
-            Box(modifier = Modifier.padding(top = 16.dp).padding(horizontal = 16.dp)) {
-                content()
-            }
+            content()
         }
     }
 }

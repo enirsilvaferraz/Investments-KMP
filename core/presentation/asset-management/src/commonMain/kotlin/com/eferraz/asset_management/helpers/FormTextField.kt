@@ -29,6 +29,7 @@ internal fun FormTextField(
     keyboardOptions: KeyboardOptions? = null,
     visualTransformation: VisualTransformation? = null,
     supportingTextWhenNoError: @Composable (() -> Unit)? = null,
+    readOnly: Boolean = false,
 ) {
 
     val supportingText = if (errorMessage != null) {
@@ -53,8 +54,10 @@ internal fun FormTextField(
         TextField(
             value = value,
             onValueChange = onValueChange,
+            readOnly = readOnly,
             placeholder = placeholder,
             modifier = Modifier.fillMaxSize(),
+            enabled = !readOnly,
             isError = errorMessage != null,
             supportingText = supportingText,
             keyboardOptions = keyboardOptions ?: KeyboardOptions.Default,
