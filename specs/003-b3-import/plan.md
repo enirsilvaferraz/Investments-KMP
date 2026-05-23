@@ -26,11 +26,11 @@ Abordagem técnica: **FileMapper-KMP 1.0.0** (`FileMapperPicker` + `importData`)
 
 **Project Type**: KMP monorepo (apps + features + domain + data)
 
-**Performance Goals**: Importação percebida &lt; 30 s (SC-001); parsing em `Dispatchers.Default`; cancelamento via `withTimeout(30_000L)` (FR-011)
+**Performance Goals**: Importação percebida &lt; 30 s (SC-001); `withTimeout(30_000L)` no UseCase envolve `importAndLog()` completo (picker + parse); parsing pesado em `Dispatchers.Default` dentro de `B3ImportPortImpl` (FR-011)
 
 **Constraints**: Console-only para sucesso e erro (FR-014, FR-016); cinco nomes de guia exatos; guias desconhecidas ignoradas sem log (FR-012); arquivo sem guias B3 conhecidas → sucesso silencioso sem console (FR-013); falha atómica FR-015; grafo de módulos Clean Architecture inalterado
 
-**Scale/Scope**: Uma tela (`AssetHistoryScreen` / `HoldingHistoryScreen`), um UseCase, um port, cinco DTOs internos em `filestore`, ~8 ficheiros Kotlin novos/alterados na feature UI Desktop
+**Scale/Scope**: Uma tela (`AssetHistoryScreen` — ecrã “Posicionamento no Período”), um UseCase, um port, cinco DTOs internos em `filestore`, ~8 ficheiros Kotlin novos/alterados na feature UI Desktop. O módulo `history` em `:features:composeApp` não expõe `*Contract.kt` (padrão legado); esta feature estende `AssetHistoryScreen.kt` / `HistoryViewModel.kt` existentes.
 
 ## Constitution Check
 
@@ -134,7 +134,7 @@ Decisões principais: FileMapper-KMP (picker + parse); sem `JFileChooser`; `Disp
 | `data-model.md`, `contracts/` | Alinhados — parse atómico; `EMPTY_FILE` vs FR-013 distinguidos |
 | `checklists/cross-artifact.md` | CHK001, CHK002, CHK034, CHK036 resolvidos; G1/A1/I4/U1 remediados na spec |
 
-Nenhum conflito bloqueante pendente entre `tasks.md` e `spec.md` para implementação.
+Nenhum conflito bloqueante pendente entre `tasks.md` e `spec.md` para implementação (revisão pós-`/speckit.analyze` 2026-05-23: timeout inclui picker; spinner desde o toque; erros no port exceto timeout no UseCase).
 
 ## Complexity Tracking
 

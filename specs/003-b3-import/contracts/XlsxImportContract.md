@@ -130,7 +130,7 @@ internal class B3ImportPortImpl : B3ImportPort {
 **Pacote**: `com.eferraz.usecases.services`
 **Módulo**: `:domain:usecases` (`commonMain`)
 
-O UseCase é um **orquestrador de timeout e estado** — não conhece DTOs, XLSX, guias ou FileMapper.
+O UseCase é um **orquestrador de timeout** — não conhece DTOs, XLSX, guias ou FileMapper. O `withTimeout(30_000L)` envolve **todo** `importAndLog()` (diálogo nativo + leitura + parse), alinhado a SC-001/FR-011.
 
 ```kotlin
 public class ImportB3FileUseCase(
@@ -139,8 +139,13 @@ public class ImportB3FileUseCase(
 ) : AppUseCase<Unit, Unit>(coroutineContext) {
 
     override suspend fun execute(input: Unit) {
-        withTimeout(30_000L) {
-            port.importAndLog().getOrThrow()
+        try {
+            withTimeout(30_000L) {
+                port.importAndLog().getOrThrow()
+            }
+        } catch (e: TimeoutCancellationException) {
+            println("TIMEOUT: Processamento cancelado — tempo limite de 30 s excedido") // FR-011a
+            throw e
         }
     }
 }
@@ -151,7 +156,7 @@ public class ImportB3FileUseCase(
 |-----------------|-----------------|
 | `Result.success(Unit)` | Propaga sucesso — ViewModel restaura estado |
 | `Result.failure(...)` | `getOrThrow()` lança exceção → `AppUseCase` captura como `Result.failure` |
-| Timeout de 30 s | `TimeoutCancellationException` → `AppUseCase` captura como `Result.failure` |
+| Timeout de 30 s | `println` identificável no UseCase (FR-011a), depois `TimeoutCancellationException` → `Result.failure` |
 
 ---
 
@@ -187,10 +192,10 @@ data object ImportB3File : HistoryIntent
 
 | Evento de UI | VM emite estado | Resultado final |
 |--------------|-----------------|-----------------|
-| Toque no botão de importação | `isImporting = true` | Spinner exibido |
+| Toque no botão de importação | `isImporting = true` | `CircularProgressIndicator` no slot do `IconButton` (mesmo `Modifier.size`, FR-009); inclui diálogo aberto |
 | UseCase concluído com sucesso | `isImporting = false` | Botão restaurado; dados no console |
 | UseCase cancelado (arquivo não selecionado) | `isImporting = false` | Botão restaurado; sem mensagem |
-| UseCase falhou (timeout / corrompido) | `isImporting = false` | Botão restaurado; detalhe no console (FR-014) |
+| UseCase falhou (timeout / corrompido / permissão) | `isImporting = false` | Botão restaurado; detalhe no console (port ou UseCase em timeout, FR-014/FR-011a) |
 | Plataforma Android/iOS | *(sem mudança de estado de import)* | Intent ignorado; sem picker |
 
 ---

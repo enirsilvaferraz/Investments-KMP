@@ -4,7 +4,7 @@
 
 **Created**: 2026-05-23
 
-**Status**: Draft
+**Status**: Ready
 
 **Input**: User description: "vamos implementar a importação de dados da B3. A feature inicará a partir de um botão de upload de arquivo localizado a esquerda do botão de exportação na tela de AssetHistoryScreen. Ao tocar no botão abrirá uma caixa de diálogo padrão do sistema para escolher um arquivo. Serão aceitos somente arquivos com extensão xlsx. A feature deve ler esse arquivo que contém uma tabela e apresentar o resultado no console da IDE por enquanto. Esse arquivo possui guias e cada guia tem uma tabela diferente."
 
@@ -22,8 +22,10 @@ O investidor acessa a tela de histórico de ativos e deseja importar dados expor
 
 1. **Given** o investidor está na tela de histórico de ativos, **When** ele toca no botão de importação, **Then** uma caixa de diálogo padrão do sistema operacional é exibida para seleção de arquivo.
 2. **Given** a caixa de diálogo de seleção está aberta, **When** o investidor seleciona um arquivo com extensão `.xlsx`, **Then** o sistema aceita o arquivo e inicia a leitura.
-3. **Given** um arquivo XLSX válido foi selecionado, **When** o sistema inicia o processamento, **Then** o botão de importação desaparece e é substituído por um spinner do mesmo tamanho na mesma posição; ao concluir, o spinner desaparece, o botão retorna e o conteúdo de cada guia é apresentado no console da IDE.
-4. **Given** um arquivo XLSX com múltiplas guias foi selecionado, **When** o sistema processa o arquivo, **Then** cada uma das cinco guias B3 conhecidas presentes no arquivo é processada individualmente e seus dados são exibidos separadamente no console; guias com outros nomes não geram saída no console.
+3. **Given** o investidor tocou no botão de importação, **When** o fluxo de importação está em curso (diálogo nativo aberto, leitura ou parse do ficheiro), **Then** o botão de importação é substituído por um indicador de progresso circular no mesmo espaço do layout (ver FR-009); ao concluir (com sucesso, erro ou cancelamento do diálogo), o indicador desaparece e o botão de importação volta.
+4. **Given** um arquivo XLSX válido foi selecionado e o processamento concluiu com sucesso, **When** o sistema terminou a Fase B, **Then** o conteúdo de cada guia B3 conhecida presente é apresentado no console da IDE.
+5. **Given** um arquivo XLSX com múltiplas guias foi selecionado, **When** o sistema processa o arquivo, **Then** cada uma das cinco guias B3 conhecidas presentes no arquivo é processada individualmente e seus dados são exibidos separadamente no console; guias com outros nomes não geram saída no console.
+6. **Given** um arquivo XLSX com uma guia B3 conhecida com colunas obrigatórias ausentes, **When** o sistema valida o ficheiro (Fase A), **Then** nenhum dado de guias é apresentado no console, o erro `MISSING_COLUMNS` (ou equivalente) é registado no console da IDE, o indicador de progresso desaparece e o botão de importação é restaurado (FR-015, SC-007).
 
 ---
 
@@ -80,12 +82,12 @@ O investidor abre a caixa de diálogo de seleção de arquivo mas decide cancela
 - **FR-012**: Guias do arquivo XLSX cujo nome não corresponda a nenhuma das cinco guias B3 conhecidas DEVEM ser ignoradas silenciosamente — sem log no console, sem mensagem de erro e sem falha da importação.
 - **FR-013**: Se o arquivo XLSX não contiver nenhuma das cinco guias B3 conhecidas (arquivo sem guias ou apenas com guias de nomes desconhecidos), o sistema DEVE concluir a importação sem erro ao usuário e sem qualquer saída no console; o spinner DEVE desaparecer e o botão de importação DEVE ser restaurado. **Não** se aplica a arquivo com 0 bytes ou sem estrutura XLSX legível (ver Edge Cases — `EMPTY_FILE`).
 - **FR-007**: O sistema DEVE tratar graciosamente o cancelamento da seleção de arquivo, sem erros ou mudanças de estado indesejadas.
-- **FR-009**: Durante o processamento do arquivo XLSX, o botão de importação DEVE ser substituído visualmente por um spinner do mesmo tamanho e na mesma posição; ao concluir (com sucesso ou erro), o spinner DEVE desaparecer e o botão de importação DEVE retornar ao seu lugar.
+- **FR-009**: Desde o toque no botão de importação até o fim do fluxo (`importAndLog` concluído, cancelado ou falhado), o botão DEVE ser substituído por um `CircularProgressIndicator` no **mesmo slot** do `IconButton` de importação (mesmo `Modifier` de tamanho, ex.: `size(48.dp)` ou o valor já usado pelo botão de exportação adjacente); ao concluir, o indicador DEVE desaparecer e o botão DEVE voltar. O estado `isImporting` reflete este intervalo completo, incluindo o tempo em que o diálogo nativo está aberto.
 - **FR-010**: Guias do arquivo XLSX que estejam vazias (sem linhas de dados) ou contenham apenas cabeçalho DEVEM ser exibidas no console identificadas pelo nome, com indicação de que não possuem dados.
-- **FR-011**: O processamento do arquivo XLSX DEVE ser cancelado automaticamente se atingir ou exceder **30 000 ms**; nesse caso, o sistema DEVE registar a falha no console da IDE, remover o spinner e restaurar o botão de importação (sem mensagem na UI nesta fase). O limite é **30 000 ms** inclusive para cancelamento: importações que não concluam dentro desse prazo são canceladas; conclusão com sucesso exige duração **estritamente inferior** a 30 000 ms (alinhado a SC-001).
+- **FR-011**: O tempo limite de **30 000 ms** conta desde o início da invocação do `ImportB3FileUseCase` (após o toque no botão, quando o ViewModel dispara o fluxo) até o fim de `B3ImportPort.importAndLog()` — **incluindo** a espera no diálogo nativo, leitura de bytes e parse (Fases A e B). Se atingir ou exceder **30 000 ms**, o sistema DEVE cancelar via `withTimeout`, registar a falha no console da IDE (FR-011a), remover o indicador de progresso e restaurar o botão (sem mensagem na UI nesta fase). Conclusão com sucesso exige duração **estritamente inferior** a 30 000 ms (alinhado a SC-001).
 - **FR-011a**: O registo no console da IDE em caso de timeout DEVE ocorrer no `ImportB3FileUseCase` ao capturar `TimeoutCancellationException`, com mensagem identificável (ex.: `TIMEOUT` ou `Processamento cancelado: tempo limite de 30 s excedido`), antes de propagar a falha ao chamador. Nenhuma linha de dados de guias B3 pode ser impressa após o cancelamento (Fase B não executada).
-- **FR-008**: Caso o arquivo XLSX esteja corrompido ou não possa ser lido, o sistema DEVE registar a falha no console da IDE, remover o spinner e restaurar o botão de importação (sem mensagem na UI nesta fase).
-- **FR-014**: Nesta fase, falhas de importação (formato inválido, arquivo ilegível, timeout, permissão negada, colunas obrigatórias ausentes) DEVEM ser comunicadas exclusivamente via console da IDE; nenhum Snackbar, diálogo modal ou texto de erro na UI é exigido. O sucesso da importação também não exige feedback na UI além da restauração do botão após o spinner.
+- **FR-008**: Caso o arquivo XLSX esteja corrompido, malformado ou não possa ser lido (incluindo falha de I/O ou permissão negada após seleção), o sistema DEVE registar a falha no console da IDE, remover o indicador de progresso e restaurar o botão de importação (sem mensagem na UI nesta fase). Ver também FR-014.
+- **FR-014**: Nesta fase, falhas de importação (formato inválido, arquivo ilegível, timeout, permissão negada — ex.: `AccessDeniedException` / `SecurityException` —, colunas obrigatórias ausentes, ver FR-008 e FR-015) DEVEM ser comunicadas exclusivamente via console da IDE; nenhum Snackbar, diálogo modal ou texto de erro na UI é exigido. O sucesso da importação também não exige feedback na UI além da restauração do botão após o indicador de progresso.
 - **FR-016**: Quando a importação concluir com sucesso (dados de ao menos uma guia B3 conhecida no console), o sistema DEVE apenas remover o spinner e restaurar o botão de importação, sem Snackbar, diálogo ou outro indicador de sucesso na UI.
 - **FR-015**: Se qualquer guia B3 conhecida **presente no arquivo** estiver com colunas obrigatórias ausentes para o mapeamento tipado (cabeçalhos definidos pelos `@ColumnName` de cada DTO em [data-model.md](./data-model.md)), a importação DEVE falhar por completo: registar no console da IDE o nome da guia e o motivo (`MISSING_COLUMNS` ou equivalente), **não** apresentar dados de nenhuma guia no console (validação Fase A antes de qualquer `println` de dados — Fase B), remover o spinner e restaurar o botão de importação.
 
@@ -99,12 +101,12 @@ O investidor abre a caixa de diálogo de seleção de arquivo mas decide cancela
 
 ### Measurable Outcomes
 
-- **SC-001**: O investidor consegue concluir a importação com sucesso (dados no console) em **menos de 30 000 ms** desde o toque no botão até o fim da Fase B; processamentos que atinjam ou excedam **30 000 ms** são cancelados automaticamente com registo da falha no console da IDE (FR-011).
+- **SC-001**: O investidor consegue concluir a importação com sucesso (dados no console) em **menos de 30 000 ms** desde o toque no botão até o fim da Fase B, medidos pelo `withTimeout(30_000L)` no `ImportB3FileUseCase` (intervalo que inclui diálogo nativo + parse); processamentos que atinjam ou excedam **30 000 ms** nesse intervalo são cancelados automaticamente com registo da falha no console da IDE (FR-011, FR-011a).
 - **SC-002**: 100% das guias B3 conhecidas presentes em um arquivo XLSX válido são lidas e apresentadas no console, sem omissão de dados; guias com outros nomes não afetam o sucesso da importação.
 - **SC-007**: Se qualquer guia B3 conhecida tiver colunas obrigatórias ausentes, a importação falha atomicamente em 100% das execuções — sem dados de guias no console e com erro registado no console da IDE.
 - **SC-006**: Arquivos XLSX válidos mas sem nenhuma guia B3 conhecida concluem a importação sem mensagem de erro e sem travamento em 100% das execuções.
 - **SC-008**: Importações bem-sucedidas não exibem feedback de sucesso na UI em 100% das execuções; o investidor confirma o resultado apenas pelo console da IDE.
-- **SC-003**: Arquivos com extensão diferente de `.xlsx` são rejeitados em 100% das tentativas, com motivo registado no console da IDE.
+- **SC-003**: Em 100% das tentativas de importar ficheiro não-`.xlsx`, o sistema impede a importação — por filtro nativo no diálogo **ou**, em SO sem filtro, por rejeição pós-seleção com motivo registado no console da IDE (sem mensagem na UI).
 - **SC-004**: O cancelamento da seleção de arquivo não resulta em nenhum erro ou estado inconsistente em 100% das execuções.
 - **SC-005**: Arquivos XLSX corrompidos ou ilegíveis resultam em registo de erro no console da IDE e restauração do botão de importação, sem travar o aplicativo e sem mensagem na UI.
 
@@ -123,6 +125,8 @@ O investidor abre a caixa de diálogo de seleção de arquivo mas decide cancela
 - Q: Se uma guia B3 conhecida tiver colunas obrigatórias ausentes, o que o sistema deve fazer? → A: Falhar a importação inteira; registar erro no console; restaurar botão.
 - Q: Quando a importação conclui com sucesso, há feedback na UI além do spinner que desaparece? → A: Sem feedback na UI — apenas dados no console; spinner some e botão volta.
 - Q: Comportamento no limite exacto de 30 s? → A: Cancelamento em `>= 30_000 ms`; sucesso apenas se concluir antes de 30_000 ms.
+- Q: O timeout de 30 s inclui o tempo com o diálogo de ficheiro aberto? → A: Sim — o relógio começa com a invocação do UseCase após o toque no botão; `importAndLog()` inclui picker + parse.
+- Q: Quando o spinner aparece? → A: Desde o toque no botão até o fim do fluxo (`isImporting`), incluindo o diálogo nativo (FR-009).
 
 ## Assumptions
 
