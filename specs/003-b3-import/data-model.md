@@ -311,15 +311,16 @@ internal sealed interface HistoryIntent {
     │                       ├─► FileMapperPicker.pickFile(XLSX)
     │                       │       └─► null → return (cancelado, Result.success)
     │                       ├─► file.readBytes()
-    │                       ├─► importData<B3StockPosition>(bytes) → println header → linhas → totais calculados
-    │                       ├─► importData<B3EtfPosition>(bytes)   → println header → linhas → totais calculados
-    │                       ├─► importData<B3FundPosition>(bytes)  → println header → linhas → totais calculados
-    │                       ├─► importData<B3FixedIncomePosition>(bytes) → println header → linhas → totais calculados
-    │                       └─► importData<B3TreasuryPosition>(bytes)   → println header → linhas → totais calculados
+    │                       ├─► Fase A: parse/validação das guias B3 presentes (sem log de dados)
+    │                       │       └─► MISSING_COLUMNS → println erro; Result.failure (FR-015)
+    │                       ├─► zero guias B3 → return silencioso (FR-013)
+    │                       └─► Fase B: println header → linhas → totais por guia (FR-006)
     │
-    ├─► onSuccess → state.isImporting = false
-    └─► onFailure → state.isImporting = false + (futuro: snackbar de erro)
+    ├─► onSuccess → state.isImporting = false (sem feedback de sucesso na UI — FR-016)
+    └─► onFailure → state.isImporting = false (erro já no console — FR-014)
 ```
+
+> **Desktop vs mobile**: em Android/iOS o intent `ImportB3File` não invoca o UseCase (bypass). O botão pode existir na UI compartilhada sem efeito.
 
 ---
 
@@ -335,3 +336,7 @@ internal sealed interface HistoryIntent {
 | Linhas de total do arquivo (`"Total"`, `"Subtotal"` na 1ª célula) | Filtradas em `parseAndLog` — descartadas do parse; **não mapeadas para DTOs** |
 | Header das colunas | Usado pelo FileMapper-KMP para o mapeamento `@ColumnName` → campo; reconstruído a partir das anotações do DTO para ser **impresso no console** antes das linhas de dados |
 | Total calculado no log | Calculado pela implementação somando campos numéricos relevantes das `dataRows` — **não lido do arquivo** |
+| Falha atómica `MISSING_COLUMNS` (FR-015) | Validar **todas** as guias B3 presentes antes de qualquer `println` de dados; em falha, só log de erro no console, sem dados de guias |
+| Rejeição `.xlsx` / timeout / I/O / permissão | Mensagem no console (`println`); ViewModel só repõe `isImporting` |
+| Guias com nome fora das cinco B3 | Ignoradas — sem log (FR-012) |
+| Arquivo sem guias B3 conhecidas | `Result.success(Unit)` sem saída no console (FR-013) |

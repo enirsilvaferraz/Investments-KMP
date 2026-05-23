@@ -2,55 +2,63 @@
 
 **Branch**: `003-b3-import` | **Date**: 2026-05-23 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `specs/003-b3-import/spec.md`
+**Input**: Feature specification from `/specs/003-b3-import/spec.md`
+
+**Note**: Gerado pelo workflow `/speckit.plan`. Artefatos de design: `research.md`, `data-model.md`, `contracts/`, `quickstart.md`. Tarefas em `tasks.md` (geradas por `/speckit-tasks` — não regeneradas aqui).
 
 ## Summary
 
-Implementar importação de arquivos XLSX exportados pela B3 para a tela `AssetHistoryScreen` (Desktop-only). O fluxo: botão de upload → `B3ImportPort.importAndLog()` (em `:data:filestore`) que usa **FileMapper-KMP** para abrir o seletor nativo, parsear as 5 guias em DTOs tipados (`B3StockPosition`, `B3EtfPosition`, etc.) e logar no console. O UseCase apenas gerencia timeout e estado — nenhum detalhe de XLSX ou DTO vaza para o domínio. Android e iOS recebem stubs sem comportamento.
+Implementar importação de posição B3 a partir de arquivo XLSX local na **AssetHistoryScreen** (Desktop): botão à esquerda do export, diálogo nativo filtrando `.xlsx`, leitura das **cinco guias B3** pelo nome exato (`Acoes`, `ETF`, `Fundo de Investimento`, `Renda Fixa`, `Tesouro Direto`), saída tabular no **console da IDE** (`println`), spinner durante processamento, timeout de 30 s, falha atómica em `MISSING_COLUMNS` (sem saída parcial). **Android/iOS**: bypass (botão pode existir na UI compartilhada, sem ação — `ImportB3File` não dispara o fluxo). **Sem** Snackbar, `errorMessage` na UI ou persistência nesta fase.
+
+Abordagem técnica: **FileMapper-KMP 1.0.0** (`FileMapperPicker` + `importData`) em `:data:filestore`; port único **`B3ImportPort`** no domínio; **`ImportB3FileUseCase`** com `withTimeout(30_000L)` e `Dispatchers.Default`.
 
 ## Technical Context
 
-**Language/Version**: Kotlin 2.3.21 (KMP) — alvo JVM para Desktop
+**Language/Version**: Kotlin 2.3.21 (KMP), Compose Multiplatform
 
-**Primary Dependencies**:
-- FileMapper-KMP `io.github.mamon-aburawi:filemapper-kmp:1.0.0` (`commonMain` de `:data:filestore` — suporte nativo a Android, Desktop, iOS, Web; inclui parser XLSX **e** file picker multiplataforma via `FileMapperPicker`)
-- `kotlinx-serialization-core` (requerido pelo FileMapper-KMP para anotações `@Serializable` nos DTOs internos de `:data:filestore`)
-- `kotlinx-coroutines-core` (já presente)
-- MockK + kotlinx-coroutines-test (testes de UseCases)
+**Primary Dependencies**: FileMapper-KMP `io.github.mamon-aburawi:filemapper-kmp:1.0.0`; kotlinx.serialization (DTOs B3); Koin; coroutines
 
-> `javax.swing.JFileChooser` **removido** — substituído por `FileMapperPicker.pickFile()` nativo do FileMapper-KMP, que funciona em todas as plataformas KMP sem dependência extra.
+**Storage**: N/A nesta fase (sem persistência; apenas log no console)
 
-**Storage**: N/A — nenhum dado é persistido nesta fase; apenas log no console
+**Testing**: `./gradlew :domain:usecases:jvmTest` — `ImportB3FileUseCase` com MockK em `B3ImportPort`; padrão `GIVEN_WHEN_THEN`
 
-**Testing**: `./gradlew :domain:usecases:jvmTest` (padrão do projeto)
+**Target Platform**: **Desktop (JVM)** — implementação completa (picker, parse, log). **Android / iOS** — bypass (sem picker, sem parse, sem log; intent ignorado ou botão sem `onClick` efetivo)
 
-**Target Platform**: Desktop (JVM) — implementação completa. Android e iOS: stubs sem comportamento.
+**Project Type**: KMP monorepo (apps + features + domain + data)
 
-**Project Type**: Kotlin Compose Multiplatform — feature de ecrã existente
+**Performance Goals**: Importação percebida &lt; 30 s (SC-001); parsing em `Dispatchers.Default`; cancelamento via `withTimeout(30_000L)` (FR-011)
 
-**Performance Goals**: Processamento completo em < 30 s; `Dispatchers.Default` para parsing CPU-bound
+**Constraints**: Console-only para sucesso e erro (FR-014, FR-016); cinco nomes de guia exatos; guias desconhecidas ignoradas sem log (FR-012); arquivo sem guias B3 conhecidas → sucesso silencioso sem console (FR-013); falha atómica FR-015; grafo de módulos Clean Architecture inalterado
 
-**Constraints**:
-- Timeout de 30 segundos com cancelamento automático (FR-011)
-- Apenas arquivos `.xlsx` aceitos (FR-003)
-- Nenhuma persistência ou validação semântica nesta fase
-
-**Scale/Scope**: Um arquivo por vez; até ~100 linhas por guia (arquivo real B3 analisado)
+**Scale/Scope**: Uma tela (`AssetHistoryScreen` / `HoldingHistoryScreen`), um UseCase, um port, cinco DTOs internos em `filestore`, ~8 ficheiros Kotlin novos/alterados na feature UI Desktop
 
 ## Constitution Check
 
-| Princípio | Status | Observação |
-|---|---|---|
-| I. SOLID / DRY | ✅ | Cada UseCase tem responsabilidade única; ports evitam duplicação |
-| II. Clean Architecture | ✅ | Ports em `:domain:usecases`; impls em `:data:filestore`; UI mínima |
-| III. KMP First | ✅ | `commonMain` para domínio, FileMapper-KMP (parser + picker nativos multiplataforma) e ambas as implementações de port — zero código específico de plataforma; stubs permanecem apenas no nível de UI/ViewModel |
-| IV. Foundation Plugins | ✅ | Módulos existentes; nenhum plugin novo criado |
-| V. Testes em UseCases | ✅ | `ImportB3FileUseCase` terá testes JVM com mock de `B3ImportPort` |
-| VI. API Explícita | ✅ | Visibilidade `public`/`internal` explícita em todo símbolo novo |
-| VII. Docs Sincronizados | ✅ | Nenhuma entidade de domínio nova nesta fase; `DOMAIN.md` sem alterações |
-| VIII. Idioma | ✅ | Código em inglês; documentação em pt-BR |
+*GATE: Deve passar antes da Phase 0. Revalidado após Phase 1 (design).*
 
-**Resultado: APROVADO — sem violações.**
+| # | Princípio | Verificação para `003-b3-import` | Status |
+|---|-----------|----------------------------------|--------|
+| I | SOLID, DRY, KISS, YAGNI | Um port (`B3ImportPort`); DTOs e log só em `filestore`; UseCase só orquestra timeout; sem UI de erro especulativa | **APROVADO** |
+| II | Clean Architecture | `:domain:usecases` define port; `:data:filestore` implementa; `:features:composeApp` chama UseCase; `:features` não depende de `:data` | **APROVADO** |
+| III | KMP First | FileMapper-KMP em `commonMain`; bypass mobile sem `expect`/`actual` para import | **APROVADO** |
+| IV | Plugins Foundation | Alterações em `build.gradle.kts` via plugins `foundation.*` existentes no módulo `filestore` | **APROVADO** |
+| V | Testes em Use Cases | `ImportB3FileUseCase` com testes MockK obrigatórios (T005 / tasks.md) | **APROVADO** |
+| VI | API Explícita | Port `public`; impl/DTOs `internal` em `filestore` | **APROVADO** |
+| VII | Documentação sincronizada | `spec.md`, `plan.md`, `data-model.md`, contrato, `quickstart.md` alinhados neste PR de planeamento | **APROVADO** |
+| VIII | Idioma e nomes | Docs pt-BR; código/DTOs em inglês (`B3StockPosition`, etc.) | **APROVADO** |
+
+**Resultado do gate**: **APROVADO** — nenhuma violação que exija Complexity Tracking.
+
+### Escopo por plataforma (fonte: spec §Assumptions, clarificações 2026-05-23)
+
+| Camada | Desktop | Android / iOS |
+|--------|---------|-----------------|
+| Botão import na UI | Visível; dispara `ImportB3File` | Pode estar visível (layout compartilhado) ou oculto — **sem ação** (bypass) |
+| `B3ImportPortImpl` | Executado via UseCase | Não invocado |
+| Picker / parse / `println` | Sim | Não |
+| Feedback erro/sucesso | Console IDE apenas | N/A |
+
+> **Sincronização com `tasks.md`**: `tasks.md` regenerado e alinhado à `spec.md` (2026-05-23): console-only (FR-014/FR-016); US2 = T017–T018 no port; timeout no UseCase (FR-011a); sem Snackbar/`errorMessage`.
 
 ## Project Structure
 
@@ -59,51 +67,75 @@ Implementar importação de arquivos XLSX exportados pela B3 para a tela `AssetH
 ```text
 specs/003-b3-import/
 ├── plan.md              # Este ficheiro
-├── research.md          # Fase 0 — decisões técnicas
-├── data-model.md        # Fase 1 — entidades e mapeamento do XLSX
-├── quickstart.md        # Fase 1 — guia de verificação
+├── spec.md              # Fonte de verdade (requisitos)
+├── research.md          # Phase 0 — decisões técnicas
+├── data-model.md        # Phase 1 — DTOs, port, fluxo UI
+├── quickstart.md        # Phase 1 — validação manual Desktop
 ├── contracts/
-│   └── XlsxImportContract.md   # Contratos de porta (port interfaces)
-└── tasks.md             # Fase 2 — gerado por /speckit-tasks
+│   └── XlsxImportContract.md
+├── checklists/
+│   └── cross-artifact.md
+└── tasks.md             # Phase 2 (/speckit-tasks) — alinhado à spec (2026-05-23)
 ```
 
 ### Source Code (repository root)
 
+Gradle paths (`:domain:usecases`) → diretórios físicos sob `core/`:
+
 ```text
-build-logic/gradle/libs.versions.toml          # + filemapper-kmp = "1.0.0" + lib declaration
-
-core/domain/entity/src/commonMain/
-└── (sem arquivos novos nesta fase — domínio não expõe entidades B3 enquanto objetivo é só log)
-
-core/domain/usecases/src/commonMain/
-└── com/eferraz/usecases/
-    ├── repositories/
-    │   └── B3ImportPort.kt                    # NOVO — único port: suspend importAndLog(): Result<Unit>
-    └── services/
-        ├── ImportB3FileUseCase.kt              # NOVO — withTimeout(30s) + delega ao B3ImportPort
-        └── (testes em jvmTest/ — mock de B3ImportPort)
-
-core/data/filestore/src/commonMain/com/eferraz/filestore/
-├── b3/
-│   ├── dto/
-│   │   ├── B3StockPosition.kt                 # NOVO — DTO interno (@Serializable, guia Acoes)
-│   │   ├── B3EtfPosition.kt                   # NOVO — DTO interno (@Serializable, guia ETF)
-│   │   ├── B3FundPosition.kt                  # NOVO — DTO interno (@Serializable, guia Fundo)
-│   │   ├── B3FixedIncomePosition.kt           # NOVO — DTO interno (@Serializable, guia Renda Fixa)
-│   │   └── B3TreasuryPosition.kt              # NOVO — DTO interno (@Serializable, guia Tesouro)
-│   └── B3ImportPortImpl.kt                    # NOVO — FileMapperPicker + importData<T> + println
-└── FileStoreModule.kt                         # ALTERAR — registrar B3ImportPortImpl.bind<B3ImportPort>()
-# ⚠️ Nenhum jvmMain / androidMain / iosMain: FileMapper-KMP é commonMain-only
-
-core/presentation/composeApp/src/commonMain/
-└── com/eferraz/presentation/features/history/
-    ├── HistoryState.kt                         # ALTERAR — adicionar isImporting: Boolean
-    ├── HistoryViewModel.kt                     # ALTERAR — injetar ImportB3FileUseCase, novo intent
-    └── AssetHistoryScreen.kt                  # ALTERAR — botão/spinner em Actions
+core/
+├── apps/
+│   └── desktopApp/                    # Entry Desktop — ./gradlew :apps:desktopApp:run
+├── presentation/
+│   └── composeApp/                    # :features:composeApp
+│       └── src/commonMain/.../history/
+│           ├── AssetHistoryScreen.kt  # Botão import + spinner (Desktop ativo)
+│           ├── HistoryViewModel.kt    # isImporting; sem errorMessage nesta fase
+│           ├── HistoryState.kt
+│           └── HistoryIntent.kt       # ImportB3File
+├── domain/
+│   ├── entity/                        # :domain:entity — sem entidades B3 nesta fase
+│   └── usecases/                      # :domain:usecases
+│       └── repositories/B3ImportPort.kt
+│       └── services/ImportB3FileUseCase.kt
+│       └── jvmTest/.../ImportB3FileUseCaseTest.kt
+└── data/
+    └── filestore/                     # :data:filestore
+        └── src/commonMain/.../b3/
+            ├── B3ImportPortImpl.kt
+            ├── dto/                   # B3StockPosition, B3EtfPosition, ...
+            └── di/FileStoreModule.kt  # bind B3ImportPort
 ```
 
-**Structure Decision**: Módulos existentes reaproveitados. Nenhum subprojeto Gradle novo. O domínio fica limpo — nenhuma entidade B3 nova nesta fase. Todo o conhecimento de XLSX (DTOs, FileMapper-KMP, file picker, log) fica encapsulado em `:data:filestore`; o domínio vê apenas `B3ImportPort` com assinatura `suspend importAndLog(): Result<Unit>`. FileMapper-KMP é `commonMain`, eliminando completamente `expect`/`actual` e código específico de plataforma.
+**Structure Decision**: Feature transversal em camadas existentes — **nenhum subprojeto Gradle novo**. Dependência Maven `filemapper-kmp` apenas em `:data:filestore` `commonMain`. UI condicionada a Desktop via `expect`/`actual` mínimo, `Platform.isDesktop`, ou `onImportClick` nulo em mobile — detalhe de implementação, desde que mobile não abra picker nem altere estado além de ignorar o intent.
+
+## Phase 0: Research
+
+Concluída em [research.md](./research.md). Sem itens `NEEDS CLARIFICATION` pendentes.
+
+Decisões principais: FileMapper-KMP (picker + parse); sem `JFileChooser`; `Dispatchers.Default`; `withTimeout(30_000L)` no UseCase com `println` de timeout em FR-011a; port único; DTOs `internal` em `filestore`; erros no console via `B3ImportPortImpl` (excepção: timeout no UseCase); parse atómico (validar todas as guias antes de qualquer `println` de dados).
+
+## Phase 1: Design & Contracts
+
+| Artefato | Estado |
+|----------|--------|
+| [data-model.md](./data-model.md) | Atualizado — sem referência a Snackbar; FR-015 atómico; bypass mobile |
+| [contracts/XlsxImportContract.md](./contracts/XlsxImportContract.md) | Atualizado — UI console-only; fluxo parse em duas fases |
+| [quickstart.md](./quickstart.md) | Atualizado — critérios manuais alinhados a FR/SC |
+
+**Agent context**: `.cursor/rules/specify-rules.mdc` aponta para `specs/003-b3-import/plan.md` (marcadores `SPECKIT START/END`). Script `.specify/scripts/bash/update-agent-context.sh` **não existe** neste repositório — passo ignorado.
+
+## Sincronização spec ↔ plan ↔ tasks
+
+| Artefato | Estado (2026-05-23) |
+|----------|---------------------|
+| `spec.md` | Fonte de verdade — FR-014/FR-016 console-only; FR-011a timeout no UseCase; FR-015 → `data-model.md` |
+| `tasks.md` | Alinhado — 24 tarefas; US2 = T017–T018 (port); sem UI de erro |
+| `data-model.md`, `contracts/` | Alinhados — parse atómico; `EMPTY_FILE` vs FR-013 distinguidos |
+| `checklists/cross-artifact.md` | CHK001, CHK002, CHK034, CHK036 resolvidos; G1/A1/I4/U1 remediados na spec |
+
+Nenhum conflito bloqueante pendente entre `tasks.md` e `spec.md` para implementação.
 
 ## Complexity Tracking
 
-> Sem violações — seção não aplicável.
+> Não aplicável — gate constitucional aprovado sem exceções.

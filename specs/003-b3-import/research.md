@@ -59,11 +59,12 @@
 
 ## 4. Estratégia de Timeout
 
-**Decision**: `withTimeout(30_000L)` dentro de `ImportB3FileUseCase.execute()`
+**Decision**: `withTimeout(30_000L)` dentro de `ImportB3FileUseCase.execute()`; **`println` de timeout no UseCase** (FR-011a).
 
 **Rationale**:
-- `withTimeout` lança `TimeoutCancellationException` automaticamente após 30 s, que é capturado pelo `runCatching` em `AppUseCase.result()` e retornado como `Result.failure(...)`.
-- O ViewModel observa o `Result` e atualiza o estado para exibir a mensagem de erro e remover o spinner.
+- `withTimeout` lança `TimeoutCancellationException` automaticamente após 30 000 ms, que é capturado pelo `runCatching` em `AppUseCase.result()` e retornado como `Result.failure(...)`.
+- `B3ImportPortImpl` regista falhas no console (`println`) antes de devolver `Result.failure`; **excepção:** timeout — `TimeoutCancellationException` não origina no port, logo o UseCase imprime mensagem identificável (`TIMEOUT` / tempo limite 30 s) antes de propagar.
+- ViewModel apenas repõe `isImporting = false` — **sem** `errorMessage` nem Snackbar (FR-014).
 - Simples e alinhado ao padrão `AppUseCase` sem introduzir nova infraestrutura.
 
 **Alternatives considered**:
@@ -203,6 +204,43 @@ Arquivo XLSX exportado pela B3 (posição em carteira). Inspecionado em 2026-05-
 
 ---
 
+## 9. Escopo Desktop vs Bypass Android/iOS
+
+**Decision**: Implementação completa apenas em **Desktop**; **Android e iOS** em bypass (stub sem comportamento).
+
+**Rationale**:
+- Clarificação 2026-05-23 na `spec.md`: picker, leitura XLSX e log são Desktop-only.
+- O layout Compose é compartilhado em `commonMain`; o botão pode permanecer visível em mobile, mas **não deve** abrir picker nem alterar estado de importação (intent ignorado ou `onImportClick` inativo).
+- `B3ImportPortImpl` permanece em `commonMain` (FileMapper-KMP), mas só é invocado quando o ViewModel dispara o UseCase no Desktop.
+
+**Alternatives considered**:
+- Ocultar botão em mobile (`tasks.md`): válido como detalhe de UI, mas a spec permite botão visível sem ação — preferir não duplicar toolbar por plataforma se o bypass for suficiente.
+- Implementar picker nativo em Android/iOS nesta fase: fora de escopo.
+
+---
+
+## 10. Feedback de Erro e Sucesso (Console-Only)
+
+**Decision**: Toda comunicação de erro, rejeição de formato, permissão e `MISSING_COLUMNS` via **`println` no console da IDE** dentro de `B3ImportPortImpl` (ou helper interno); **timeout** via `println` no `ImportB3FileUseCase` (FR-011a); UI só controla `isImporting` e restaura o botão.
+
+**Rationale**: FR-014, FR-016 e clarificações 2026-05-23 proíbem Snackbar, diálogo ou texto inline nesta fase.
+
+**Alternatives considered**:
+- `HistoryState.errorMessage` + Snackbar (`tasks.md` Phase 4): contradiz spec — descartado para esta entrega.
+
+---
+
+## 11. Falha Atómica (FR-015)
+
+**Decision**: Duas fases no `B3ImportPortImpl`: (1) **parse/validação** de todas as guias B3 **presentes** no ficheiro, sem `println` de dados; (2) se qualquer guia falhar com `MISSING_COLUMNS`, registar **apenas** o erro no console e devolver `Result.failure` **sem** log de dados de guias; (3) se todas passarem, emitir logs guia a guia.
+
+**Rationale**: FR-015 exige ausência de saída parcial no console; parse sequencial com log imediato violaria o requisito se a terceira guia falhasse após duas já logadas.
+
+**Alternatives considered**:
+- Log incremental com rollback no console: impossível — optar por validar antes de logar.
+
+---
+
 ## Resoluções de NEEDS CLARIFICATION
 
 | Item | Resolução |
@@ -210,7 +248,8 @@ Arquivo XLSX exportado pela B3 (posição em carteira). Inspecionado em 2026-05-
 | Biblioteca XLSX | FileMapper-KMP `io.github.mamon-aburawi:filemapper-kmp:1.0.0` (`commonMain`) |
 | File picker | `FileMapperPicker.pickFile(FileType.XLSX)` — nativo KMP, incluído no FileMapper-KMP |
 | Dispatcher | `Dispatchers.Default` (já injetado via `UseCaseModule`) |
-| Timeout | `withTimeout(30_000L)` em `ImportB3FileUseCase` |
+| Timeout | `withTimeout(30_000L)` + `println` no `ImportB3FileUseCase` (FR-011a); cancelamento em `>= 30_000 ms` |
+| EMPTY_FILE vs FR-013 | 0 bytes/workbook ilegível → `EMPTY_FILE` + falha; workbook válido sem guias B3 → sucesso silencioso |
 | Padrão de plataforma | Interface + Impl em `commonMain` (FileMapper-KMP elimina código por plataforma) |
 | Linha de total no XLSX | **Descartada do parse** — não mapeada para DTO; o total exibido no log é **calculado** pela implementação sobre as `dataRows` |
 | Células com "-" | Preservadas como string; `.trim()` tratado pelo FileMapper-KMP |
@@ -218,3 +257,6 @@ Arquivo XLSX exportado pela B3 (posição em carteira). Inspecionado em 2026-05-
 | Lógica de log | `:data:filestore` (`B3ImportPortImpl`) — UseCase não conhece DTOs |
 | Nomes das classes B3 | Inglês: `B3StockPosition`, `B3EtfPosition`, `B3FundPosition`, `B3FixedIncomePosition`, `B3TreasuryPosition` |
 | Número de ports | Um único `B3ImportPort` — encapsula picker + parsing + log |
+| Escopo plataforma | Desktop completo; Android/iOS bypass |
+| Feedback UI | Apenas spinner + botão; erros/sucesso no console |
+| Falha atómica | Validar todas as guias antes de qualquer log de dados |

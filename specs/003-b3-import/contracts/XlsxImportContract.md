@@ -46,14 +46,18 @@ public interface B3ImportPort {
 - Cancelamento do seletor pelo usuário **não** é tratado como erro — retorna `Result.success(Unit)`.
 
 ### Contrato de erro
-| Causa | Comportamento |
-|-------|---------------|
-| Usuário cancelou o diálogo | `Result.success(Unit)` — fluxo encerra silenciosamente |
-| Arquivo vazio | `Result.failure(FileMapperException(EMPTY_FILE))` |
-| Formato inválido (não XLSX) | `Result.failure(FileMapperException(INVALID_FORMAT))` |
-| Colunas ausentes numa guia | `Result.failure(FileMapperException(MISSING_COLUMNS))` |
-| Falha de leitura (I/O) | `Result.failure(IOException)` |
-| Timeout externo (30 s) | `TimeoutCancellationException` — capturada pelo `AppUseCase` |
+
+Todas as falhas abaixo DEVEM ser **registadas no console da IDE** (`println`) pela implementação **antes** de devolver `Result.failure`, exceto cancelamento e importação vazia bem-sucedida (FR-013). A UI **não** exibe Snackbar nem `errorMessage`. **Excepção:** timeout — `println` no **UseCase** (FR-011a).
+
+| Causa | Console (exemplo) | Retorno ao UseCase |
+|-------|-------------------|-------------------|
+| Usuário cancelou o diálogo | *(silêncio)* | `Result.success(Unit)` |
+| Arquivo sem guias B3 conhecidas (FR-013) | *(silêncio)* | `Result.success(Unit)` |
+| Arquivo 0 bytes / workbook ilegível | `println` motivo `EMPTY_FILE` | `Result.failure(...)` |
+| Formato inválido (não XLSX) | `println` motivo `INVALID_FORMAT` | `Result.failure(...)` |
+| Colunas ausentes (FR-015) | `println` guia + `MISSING_COLUMNS`; **sem** dados de guias no console | `Result.failure(...)` |
+| Falha de leitura (I/O) / permissão | `println` motivo | `Result.failure(...)` |
+| Timeout externo (30 s) | `println` no **UseCase** (`ImportB3FileUseCase`) ao capturar `TimeoutCancellationException` | `Result.failure` via `AppUseCase` |
 
 ---
 
@@ -73,47 +77,35 @@ public interface B3ImportPort {
 ```kotlin
 internal class B3ImportPortImpl : B3ImportPort {
 
+    private val knownSheets = listOf(
+        "Acoes" to B3StockPosition::class,
+        "ETF" to B3EtfPosition::class,
+        // ... demais pares nome → DTO
+    )
+
     override suspend fun importAndLog(): Result<Unit> = runCatching {
-        // 1. Abrir seletor de arquivo nativo
         val file = FileMapperPicker.pickFile(FileType.XLSX)
-            ?: return@runCatching  // cancelamento silencioso
+            ?: return@runCatching  // cancelamento silencioso — sem console
 
         val bytes = file.readBytes()
 
-        // 2. Parsear + logar cada guia usando FileMapper-KMP
-        //    importData é adaptado para coroutines via suspendCancellableCoroutine
-        //    se a API não for suspend nativamente.
+        // Fase A — parse/validação SEM println de dados (FR-015 atómico)
+        val parsed = knownSheets.mapNotNull { (sheetName, _) ->
+            if (!workbookHasSheet(bytes, sheetName)) null
+            else sheetName to parseSheet(bytes, sheetName) // falha → exceção, sem log de dados
+        }
+        if (parsed.isEmpty()) return@runCatching  // FR-013 — sucesso silencioso
 
-        parseAndLog<B3StockPosition>(bytes, sheetName = "Acoes")
-        parseAndLog<B3EtfPosition>(bytes, sheetName = "ETF")
-        parseAndLog<B3FundPosition>(bytes, sheetName = "Fundo de Investimento")
-        parseAndLog<B3FixedIncomePosition>(bytes, sheetName = "Renda Fixa")
-        parseAndLog<B3TreasuryPosition>(bytes, sheetName = "Tesouro Direto")
+        // Fase B — só após todas as guias presentes passarem: log no console
+        parsed.forEach { (sheetName, dataRows) ->
+            logSheetToConsole(sheetName, dataRows)
+        }
+    }.onFailure { ex ->
+        logErrorToConsole(ex)  // FR-014 — único canal de erro nesta fase
     }
 
-    private inline fun <reified T> parseAndLog(bytes: ByteArray, sheetName: String) {
-        fileMapper.importData<T>(
-            bytes = bytes,
-            ignoreColumns = emptySet(),
-            onSuccess = { items ->
-                // Linhas em branco e de total do arquivo são descartadas — não chegam a `dataRows`.
-                val dataRows = items.filterNot { it.isBlankRow() || it.isTotalRow() }
-
-                // 1. Cabeçalho (nomes das colunas, derivados das @ColumnName do DTO)
-                println("=== $sheetName — header ===")
-                println(T::class.columnHeaders())   // ex.: "Produto | Quantidade | Valor Atualizado | ..."
-
-                // 2. Linhas de dados
-                println("=== $sheetName (${dataRows.size} registros) ===")
-                dataRows.forEach { println(it) }
-
-                // 3. Totais calculados a partir das linhas de dados (não do arquivo)
-                println("=== $sheetName — totais calculados ===")
-                println(dataRows.computeTotals())   // soma campos numéricos relevantes (ex.: quantidade, valor atualizado)
-            },
-            onFailed = { ex -> throw ex }
-        )
-    }
+    // parseSheet: importData + filter blank/total rows; onFailed → throw (sem println de dados)
+    // logSheetToConsole: header | linhas | totais calculados (FR-006)
 
     // Extensões de filtragem (aplicadas sobre os campos String do DTO via reflexão/manual)
     // Linha em branco: todos os campos são nulos, vazios ou "-"
@@ -129,7 +121,7 @@ internal class B3ImportPortImpl : B3ImportPort {
 |------------|--------|---------------|
 | `commonMain` | `B3ImportPortImpl` | FileMapper-KMP (KMP nativo — sem código de plataforma) |
 
-> **Não há** implementações `jvmMain`, `androidMain` ou `iosMain`: FileMapper-KMP é `commonMain`. Android e iOS permanecem sem botão de importação na UI — o port funciona mas nunca é chamado por essas plataformas nesta fase.
+> **Não há** implementações `jvmMain`, `androidMain` ou `iosMain` do port: FileMapper-KMP é `commonMain`. Em **Android/iOS** o `ImportB3FileUseCase` **não é invocado** (bypass): o botão pode estar visível na UI compartilhada, mas sem ação (spec §Assumptions).
 
 ---
 
@@ -198,7 +190,8 @@ data object ImportB3File : HistoryIntent
 | Toque no botão de importação | `isImporting = true` | Spinner exibido |
 | UseCase concluído com sucesso | `isImporting = false` | Botão restaurado; dados no console |
 | UseCase cancelado (arquivo não selecionado) | `isImporting = false` | Botão restaurado; sem mensagem |
-| UseCase falhou (timeout / corrompido) | `isImporting = false` | Botão restaurado; (futuro: snackbar) |
+| UseCase falhou (timeout / corrompido) | `isImporting = false` | Botão restaurado; detalhe no console (FR-014) |
+| Plataforma Android/iOS | *(sem mudança de estado de import)* | Intent ignorado; sem picker |
 
 ---
 

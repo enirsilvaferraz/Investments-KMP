@@ -6,27 +6,22 @@
 
 ## Pré-requisitos
 
-- JDK 17+ instalado (necessário para Apache POI e javax.swing)
-- Arquivo XLSX exportado da B3 disponível em disco
+- JDK 17+ (Desktop JVM)
+- Arquivo XLSX exportado pela B3 em disco (ex.: `posicao-YYYY-MM-DD-*.xlsx`)
+- IDE ou terminal com saída visível para o **console** da aplicação Desktop
+
+> **Escopo**: validação manual completa apenas em **Desktop**. Android/iOS: bypass — botão sem ação, sem picker, sem log.
 
 ---
 
 ## Verificação de Build (após implementação)
 
 ```bash
-# 1. Verificar módulo de entidades
+# Módulos tocados pela feature (paths Gradle → físicos em core/)
 ./gradlew :domain:entity:compileKotlinJvm
-
-# 2. Verificar módulo de usecases
 ./gradlew :domain:usecases:compileKotlinJvm
-
-# 3. Verificar módulo filestore (inclui implementação JVM com Apache POI)
 ./gradlew :data:filestore:compileKotlinJvm
-
-# 4. Verificar feature de apresentação
 ./gradlew :features:composeApp:compileKotlinJvm
-
-# 5. Rodar testes dos UseCases
 ./gradlew :domain:usecases:jvmTest
 ```
 
@@ -34,32 +29,26 @@
 
 ## Testar o Fluxo no Desktop
 
-1. Executar a aplicação Desktop: `./gradlew :apps:desktopApp:run`
-2. Navegar até a tela **Posicionamento no Período** (AssetHistoryScreen)
-3. Localizar o botão de importação à **esquerda** do botão de exportação (ícone `FileUpload`)
-4. Clicar no botão — o diálogo nativo do SO deve abrir filtrando por `.xlsx`
-5. Selecionar o arquivo exportado da B3 (ex.: `posicao-2026-05-23-12-53-16.xlsx`)
-6. O botão deve ser substituído por um spinner enquanto o arquivo é processado
-7. No console da IDE (ou no terminal onde a app foi iniciada), verificar a saída:
+1. Executar: `./gradlew :apps:desktopApp:run`
+2. Abrir **Posicionamento no Período** (`AssetHistoryScreen` / `HoldingHistoryScreen`)
+3. Botão de importação à **esquerda** do export (ícone upload)
+4. Clicar — diálogo nativo filtrando `.xlsx`
+5. Selecionar `posicao-*.xlsx` válido
+6. Durante o processamento: spinner no lugar do botão (FR-009)
+7. No **console da IDE/terminal**, verificar saída por guia (apenas as cinco B3 **presentes** no ficheiro):
 
 ```
-=== Guia: Acoes (21 linhas) ===
-Cabeçalhos: [Produto, Instituição, Conta, Código de Negociação, ...]
-Linha 1: [AXIA6 - AXIA ENERGIA S.A., NU INVESTIMENTOS S.A. - CTVM, 255869, AXIA6, ...]
+=== Acoes — header ===
+Produto | Instituição | ...
+=== Acoes (N registros) ===
 ...
-
-=== Guia: ETF (4 linhas) ===
-...
-
-=== Guia: Fundo de Investimento (28 linhas) ===
-...
-
-=== Guia: Renda Fixa (26 linhas) ===
-...
-
-=== Guia: Tesouro Direto (4 linhas) ===
+=== Acoes — totais calculados ===
 ...
 ```
+
+Repetir para `ETF`, `Fundo de Investimento`, `Renda Fixa`, `Tesouro Direto` quando existirem no arquivo.
+
+8. Ao concluir: spinner some, botão volta — **sem** Snackbar nem mensagem de sucesso na UI (FR-016, SC-008)
 
 ---
 
@@ -67,24 +56,39 @@ Linha 1: [AXIA6 - AXIA ENERGIA S.A., NU INVESTIMENTOS S.A. - CTVM, 255869, AXIA6
 
 | Cenário | Ação | Resultado esperado |
 |---------|------|-------------------|
-| Arquivo válido B3 | Selecionar `posicao-*.xlsx` | Todas as 5 guias no console; botão restaurado |
-| Cancelamento | Fechar o diálogo sem selecionar | Nada acontece; botão restaurado silenciosamente |
-| Arquivo não-xlsx | Selecionar `.csv` ou `.pdf` | Mensagem de rejeição; botão restaurado |
-| Arquivo corrompido | Selecionar `.xlsx` com conteúdo inválido | Mensagem de erro; botão restaurado |
-| Timeout | (simular com arquivo artificial muito grande) | Erro de timeout após 30 s; botão restaurado |
+| Arquivo válido B3 | Selecionar `posicao-*.xlsx` com as 5 guias | Dados das guias presentes no **console**; botão restaurado; sem UI de sucesso |
+| Apenas subset de guias | Arquivo com 1–4 guias B3 conhecidas | Só essas guias no console; demais nomes ignorados sem log (FR-012) |
+| Sem guias B3 conhecidas | XLSX só com abas desconhecidas ou vazio de abas B3 | Sem saída no console; botão restaurado; sem erro na UI (FR-013) |
+| Cancelamento | Fechar diálogo sem selecionar | Sem log; botão restaurado (FR-007) |
+| Arquivo não-xlsx | Selecionar `.csv` (ou SO sem filtro) | Motivo no **console**; botão restaurado; **sem** Snackbar (FR-003, SC-003) |
+| Arquivo corrompido | `.xlsx` inválido | Erro no **console**; app estável; botão restaurado (FR-008, SC-005) |
+| Guia vazia / só cabeçalho | Guia B3 conhecida sem linhas de dados | Console identifica guia como sem dados (FR-010) |
+| Colunas ausentes | Guia B3 com cabeçalho incompleto | **Nenhum** dado de guias no console; só erro `MISSING_COLUMNS`; botão restaurado (FR-015, SC-007) |
+| Timeout | Processamento &gt; 30 s | Mensagem de timeout no **console**; botão restaurado (FR-011) |
 
 ---
 
 ## Checklist de Aceitação (mapeado ao spec.md)
 
-- [ ] FR-001: Botão de importação visível à esquerda do botão de exportação
-- [ ] FR-002: Diálogo nativo abre ao tocar no botão
-- [ ] FR-003: Diálogo filtra por `.xlsx`; arquivos inválidos rejeitados
-- [ ] FR-004: Todas as guias do arquivo são identificadas
-- [ ] FR-005: Linhas e colunas de cada guia são lidas
-- [ ] FR-006: Conteúdo exibido no console com nome da guia e dados
-- [ ] FR-007: Cancelamento sem erros
-- [ ] FR-009: Spinner substitui botão durante processamento; botão restaurado ao concluir
-- [ ] FR-010: Guias vazias exibidas no console com indicação "sem dados"
-- [ ] FR-011: Timeout de 30 s com mensagem de erro e restauração do botão
-- [ ] FR-008: Arquivo corrompido exibe mensagem de erro; app não trava
+- [ ] FR-001: Botão de importação à esquerda do export
+- [ ] FR-002: Diálogo nativo ao tocar
+- [ ] FR-003: Filtro `.xlsx`; rejeição pós-seleção registada no **console** se necessário
+- [ ] FR-004: Somente cinco guias pelo nome exato
+- [ ] FR-005 / FR-006: Tabelas lidas e exibidas no **console** com nome da guia
+- [ ] FR-007: Cancelamento sem erro nem estado inconsistente
+- [ ] FR-008 / FR-011: Corrupção e timeout → **console** + botão restaurado
+- [ ] FR-009: Spinner durante processamento
+- [ ] FR-010: Guias vazias indicadas no console
+- [ ] FR-012: Guias desconhecidas ignoradas sem log
+- [ ] FR-013: Sem guias B3 → sucesso silencioso sem console
+- [ ] FR-014 / FR-016: Sem Snackbar nem feedback de sucesso/erro na UI
+- [ ] FR-015: Falha atómica em `MISSING_COLUMNS`
+- [ ] SC-001 a SC-008: conforme cenários acima
+
+---
+
+## Android / iOS (bypass)
+
+1. Executar app mobile (se aplicável)
+2. Se o botão de import estiver visível, tocar — **nada** deve acontecer (sem diálogo, sem spinner, sem log)
+3. Confirmar que export/sync continuam normais

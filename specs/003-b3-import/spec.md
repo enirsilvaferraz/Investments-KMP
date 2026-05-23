@@ -65,6 +65,7 @@ O investidor abre a caixa de diálogo de seleção de arquivo mas decide cancela
 - ~~Como o sistema lida com arquivos XLSX muito grandes?~~ → Resolvido: timeout de 30 segundos com cancelamento e registo no console (FR-011).
 - ~~O que acontece se o dispositivo não tiver permissão de acesso ao armazenamento?~~ → Resolvido: em Desktop, o diálogo nativo concede permissão implícita ao selecionar; `AccessDeniedException`/`SecurityException` são capturadas e o motivo é registado no console da IDE (FR-014), sem mensagem na UI.
 - ~~O que acontece quando uma guia B3 conhecida tem colunas obrigatórias ausentes?~~ → Resolvido: falhar a importação inteira; registar erro no console; restaurar botão (FR-015).
+- Arquivo XLSX com **0 bytes** ou ilegível como workbook (antes de identificar guias): registar falha no console (`EMPTY_FILE` ou equivalente), restaurar botão; sem mensagem na UI (alinhado a FR-008/FR-014). **Distinto** de FR-013 (workbook válido sem guias B3 conhecidas → sucesso silencioso sem console).
 
 ## Requirements *(mandatory)*
 
@@ -77,15 +78,16 @@ O investidor abre a caixa de diálogo de seleção de arquivo mas decide cancela
 - **FR-005**: Para cada guia B3 conhecida presente no arquivo, o sistema DEVE ler a tabela de dados correspondente (linhas e colunas).
 - **FR-006**: O sistema DEVE apresentar o conteúdo lido de cada guia B3 conhecida no console da IDE (saída de log de desenvolvimento), identificando o nome da guia e seus dados tabulares.
 - **FR-012**: Guias do arquivo XLSX cujo nome não corresponda a nenhuma das cinco guias B3 conhecidas DEVEM ser ignoradas silenciosamente — sem log no console, sem mensagem de erro e sem falha da importação.
-- **FR-013**: Se o arquivo XLSX não contiver nenhuma das cinco guias B3 conhecidas (arquivo sem guias, vazio ou apenas com guias de nomes desconhecidos), o sistema DEVE concluir a importação sem erro ao usuário e sem qualquer saída no console; o spinner DEVE desaparecer e o botão de importação DEVE ser restaurado.
+- **FR-013**: Se o arquivo XLSX não contiver nenhuma das cinco guias B3 conhecidas (arquivo sem guias ou apenas com guias de nomes desconhecidos), o sistema DEVE concluir a importação sem erro ao usuário e sem qualquer saída no console; o spinner DEVE desaparecer e o botão de importação DEVE ser restaurado. **Não** se aplica a arquivo com 0 bytes ou sem estrutura XLSX legível (ver Edge Cases — `EMPTY_FILE`).
 - **FR-007**: O sistema DEVE tratar graciosamente o cancelamento da seleção de arquivo, sem erros ou mudanças de estado indesejadas.
 - **FR-009**: Durante o processamento do arquivo XLSX, o botão de importação DEVE ser substituído visualmente por um spinner do mesmo tamanho e na mesma posição; ao concluir (com sucesso ou erro), o spinner DEVE desaparecer e o botão de importação DEVE retornar ao seu lugar.
 - **FR-010**: Guias do arquivo XLSX que estejam vazias (sem linhas de dados) ou contenham apenas cabeçalho DEVEM ser exibidas no console identificadas pelo nome, com indicação de que não possuem dados.
-- **FR-011**: O processamento do arquivo XLSX DEVE ser cancelado automaticamente se exceder 30 segundos; nesse caso, o sistema DEVE registar a falha no console da IDE, remover o spinner e restaurar o botão de importação (sem mensagem na UI nesta fase).
+- **FR-011**: O processamento do arquivo XLSX DEVE ser cancelado automaticamente se atingir ou exceder **30 000 ms**; nesse caso, o sistema DEVE registar a falha no console da IDE, remover o spinner e restaurar o botão de importação (sem mensagem na UI nesta fase). O limite é **30 000 ms** inclusive para cancelamento: importações que não concluam dentro desse prazo são canceladas; conclusão com sucesso exige duração **estritamente inferior** a 30 000 ms (alinhado a SC-001).
+- **FR-011a**: O registo no console da IDE em caso de timeout DEVE ocorrer no `ImportB3FileUseCase` ao capturar `TimeoutCancellationException`, com mensagem identificável (ex.: `TIMEOUT` ou `Processamento cancelado: tempo limite de 30 s excedido`), antes de propagar a falha ao chamador. Nenhuma linha de dados de guias B3 pode ser impressa após o cancelamento (Fase B não executada).
 - **FR-008**: Caso o arquivo XLSX esteja corrompido ou não possa ser lido, o sistema DEVE registar a falha no console da IDE, remover o spinner e restaurar o botão de importação (sem mensagem na UI nesta fase).
 - **FR-014**: Nesta fase, falhas de importação (formato inválido, arquivo ilegível, timeout, permissão negada, colunas obrigatórias ausentes) DEVEM ser comunicadas exclusivamente via console da IDE; nenhum Snackbar, diálogo modal ou texto de erro na UI é exigido. O sucesso da importação também não exige feedback na UI além da restauração do botão após o spinner.
 - **FR-016**: Quando a importação concluir com sucesso (dados de ao menos uma guia B3 conhecida no console), o sistema DEVE apenas remover o spinner e restaurar o botão de importação, sem Snackbar, diálogo ou outro indicador de sucesso na UI.
-- **FR-015**: Se qualquer guia B3 conhecida presente no arquivo estiver com colunas obrigatórias ausentes para o mapeamento tipado, a importação DEVE falhar por completo: registar no console da IDE o nome da guia e o motivo (`MISSING_COLUMNS` ou equivalente), não apresentar dados de nenhuma guia no console, remover o spinner e restaurar o botão de importação.
+- **FR-015**: Se qualquer guia B3 conhecida **presente no arquivo** estiver com colunas obrigatórias ausentes para o mapeamento tipado (cabeçalhos definidos pelos `@ColumnName` de cada DTO em [data-model.md](./data-model.md)), a importação DEVE falhar por completo: registar no console da IDE o nome da guia e o motivo (`MISSING_COLUMNS` ou equivalente), **não** apresentar dados de nenhuma guia no console (validação Fase A antes de qualquer `println` de dados — Fase B), remover o spinner e restaurar o botão de importação.
 
 ### Key Entities
 
@@ -97,7 +99,7 @@ O investidor abre a caixa de diálogo de seleção de arquivo mas decide cancela
 
 ### Measurable Outcomes
 
-- **SC-001**: O investidor consegue selecionar e importar um arquivo XLSX da B3 em menos de 30 segundos, desde o toque no botão até a exibição dos dados no console; processamentos que ultrapassem 30 segundos são cancelados automaticamente com registo da falha no console da IDE.
+- **SC-001**: O investidor consegue concluir a importação com sucesso (dados no console) em **menos de 30 000 ms** desde o toque no botão até o fim da Fase B; processamentos que atinjam ou excedam **30 000 ms** são cancelados automaticamente com registo da falha no console da IDE (FR-011).
 - **SC-002**: 100% das guias B3 conhecidas presentes em um arquivo XLSX válido são lidas e apresentadas no console, sem omissão de dados; guias com outros nomes não afetam o sucesso da importação.
 - **SC-007**: Se qualquer guia B3 conhecida tiver colunas obrigatórias ausentes, a importação falha atomicamente em 100% das execuções — sem dados de guias no console e com erro registado no console da IDE.
 - **SC-006**: Arquivos XLSX válidos mas sem nenhuma guia B3 conhecida concluem a importação sem mensagem de erro e sem travamento em 100% das execuções.
@@ -120,6 +122,7 @@ O investidor abre a caixa de diálogo de seleção de arquivo mas decide cancela
 - Q: Como exibir mensagens de erro na AssetHistoryScreen nesta fase? → A: Apenas log no console da IDE; sem UI de erro (Snackbar, diálogo ou texto inline).
 - Q: Se uma guia B3 conhecida tiver colunas obrigatórias ausentes, o que o sistema deve fazer? → A: Falhar a importação inteira; registar erro no console; restaurar botão.
 - Q: Quando a importação conclui com sucesso, há feedback na UI além do spinner que desaparece? → A: Sem feedback na UI — apenas dados no console; spinner some e botão volta.
+- Q: Comportamento no limite exacto de 30 s? → A: Cancelamento em `>= 30_000 ms`; sucesso apenas se concluir antes de 30_000 ms.
 
 ## Assumptions
 
