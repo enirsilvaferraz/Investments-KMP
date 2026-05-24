@@ -6,7 +6,6 @@ import com.eferraz.filestore.b3.dto.B3FundPosition
 import com.eferraz.filestore.b3.dto.B3Position
 import com.eferraz.filestore.b3.dto.B3StockPosition
 import com.eferraz.filestore.b3.dto.B3TreasuryPosition
-import com.eferraz.filestore.b3.dto.filterByProduto
 import com.eferraz.usecases.repositories.B3ImportDataSource
 import io.mamon.filemapper.FileMapper
 import io.mamon.filemapper.FileMapperException
@@ -42,7 +41,7 @@ internal class B3ImportDataSourceImpl : B3ImportDataSource {
         crossinline parse: suspend (ByteArray) -> List<T>,
     ) {
         val sheetBytes = knownSheets[sheet.workbookName] ?: return
-        parse(sheetBytes).filterByProduto().forEach { println(it) }
+        parse(sheetBytes).dropAfterBlankRow().forEach { println(it) }
         println()
     }
 

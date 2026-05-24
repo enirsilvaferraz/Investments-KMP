@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class B3FixedIncomePosition(
-    @ExcelColumn(name = "Produto")                          override val produto: String,
+    @ExcelColumn(name = "Produto")                          val produto: String,
     @ExcelColumn(name = "Instituição")                      val institution: String,
     @ExcelColumn(name = "Emissor")                          val issuer: String,
     @ExcelColumn(name = "Código")                           val code: String,
@@ -24,4 +24,12 @@ internal data class B3FixedIncomePosition(
     @ExcelColumn(name = "Valor Atualizado CURVA")           val curveValue: String,
     @ExcelColumn(name = "Preço Atualizado FECHAMENTO")      val closingPrice: String,
     @ExcelColumn(name = "Valor Atualizado FECHAMENTO")      val closingValue: String,
-) : B3Position
+) : B3Position {
+
+    override fun isBlankRow(): Boolean = com.eferraz.filestore.b3.isBlankRow(
+        produto, institution, issuer, code, indexer, regimeType, issueDate,
+        maturityDate, quantity, availableQuantity, unavailableQuantity, reason,
+        counterparty, mtmPrice, mtmValue, curvePrice, curveValue, closingPrice,
+        closingValue,
+    )
+}
