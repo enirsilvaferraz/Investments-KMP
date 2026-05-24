@@ -28,7 +28,8 @@ internal fun AssetWithDetails.toDomain(): Asset =
             contractedYield = fixedIncome.contractedYield,
             cdiRelativeYield = fixedIncome.cdiRelativeYield,
             liquidity = asset.liquidity,
-            observations = asset.observations
+            observations = asset.observations,
+            b3Identifier = fixedIncome.b3Identifier,
         )
 
         variableIncome != null -> VariableIncomeAsset(
@@ -102,7 +103,8 @@ internal fun Asset.toEntity(): AssetWithDetails {
                 subType = subType,
                 expirationDate = expirationDate,
                 contractedYield = contractedYield,
-                cdiRelativeYield = cdiRelativeYield
+                cdiRelativeYield = cdiRelativeYield,
+                b3Identifier = b3Identifier?.trim()?.ifBlank { null },
             )
         )
 

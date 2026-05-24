@@ -58,7 +58,9 @@ import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.naming.BuildCell
 import com.eferraz.naming.BuildIcon
+import com.eferraz.usecases.entities.B3IdentifierStatus
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
@@ -390,7 +392,19 @@ private fun Table(
                             }
                         )
                     }
-                )
+                ),
+
+                UiTableDataColumn(
+                    text = "",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    comparable = { it.b3IdentifierStatus.toString() },
+                    content = { row ->
+                        when (val status = row.b3IdentifierStatus) {
+                            is B3IdentifierStatus.Informed, B3IdentifierStatus.NotInformed -> status.BuildCell()
+                            B3IdentifierStatus.NotApplicable -> Unit
+                        }
+                    },
+                ),
             )
         )
     }

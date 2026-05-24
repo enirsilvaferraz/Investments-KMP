@@ -17,6 +17,7 @@ internal sealed class AssetManagementEvents {
     data class CategoryChanged(val category: InvestmentCategory) : AssetManagementEvents()
     data class IssuerChanged(val issuer: Issuer) : AssetManagementEvents()
     data class ObservationsChanged(val value: String) : AssetManagementEvents()
+    data class B3IdentifierChanged(val value: String) : AssetManagementEvents()
 
     data class FixedTypeChanged(val type: FixedIncomeAssetType) : AssetManagementEvents()
     data class FixedSubTypeChanged(val subType: FixedIncomeSubType) : AssetManagementEvents()

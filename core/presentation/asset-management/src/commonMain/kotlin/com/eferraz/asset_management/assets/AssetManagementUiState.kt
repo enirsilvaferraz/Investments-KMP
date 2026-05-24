@@ -29,6 +29,7 @@ internal data class AssetManagementUiState(
     val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME,
 
     val observations: String? = null,
+    val b3Identifier: String? = null,
     val issuer: Issuer? = null,
     val fixedType: FixedIncomeAssetType? = null,
     val fixedSubType: FixedIncomeSubType? = null,

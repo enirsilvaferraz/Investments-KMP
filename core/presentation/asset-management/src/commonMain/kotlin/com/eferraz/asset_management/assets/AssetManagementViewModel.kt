@@ -40,6 +40,7 @@ internal class AssetManagementViewModel(
         is AssetManagementEvents.CategoryChanged -> state.update { it.copy(category = event.category) }
         is AssetManagementEvents.IssuerChanged -> state.update { it.copy(issuer = event.issuer, issuerError = null) }
         is AssetManagementEvents.ObservationsChanged -> state.update { it.copy(observations = event.value) }
+        is AssetManagementEvents.B3IdentifierChanged -> state.update { it.copy(b3Identifier = event.value) }
         is AssetManagementEvents.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
 
         is AssetManagementEvents.FixedTypeChanged -> state.update { it.copy(fixedType = event.type, fixedTypeError = null) }

@@ -102,6 +102,7 @@ public data class FixedIncomeHistoryTableData(
      * Rentabilidade relativa ao CDI (null se não aplicável).
      */
     public val cdiRelativeYield: Double?,
+    public val b3Identifier: String?,
     override val issuerName: String,
     /**
      * Regra de liquidez do ativo.

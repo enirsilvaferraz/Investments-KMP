@@ -16,6 +16,7 @@ public data class HoldingHistoryView(
     val currentValue: Double,
     val appreciation: Double,
     val totalBalance: Double,
+    val b3IdentifierStatus: B3IdentifierStatus,
 ) {
 
     public constructor(it: HistoryTableData) : this(
@@ -29,7 +30,14 @@ public data class HoldingHistoryView(
         previousValue = it.previousValue,
         currentValue = it.currentValue,
         appreciation = it.appreciation,
-        totalBalance = it.totalBalance
+        totalBalance = it.totalBalance,
+        b3IdentifierStatus = when (it) {
+            is FixedIncomeHistoryTableData ->
+                it.b3Identifier?.trim()?.takeIf { id -> id.isNotBlank() }
+                    ?.let(B3IdentifierStatus::Informed)
+                    ?: B3IdentifierStatus.NotInformed
+            else -> B3IdentifierStatus.NotApplicable
+        },
     )
 
     public fun isCurrentValueEnabled(): Boolean =

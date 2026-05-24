@@ -60,6 +60,34 @@ internal class UpsertAssetUseCaseTest {
         assertEquals("nota", slot.captured.observations)
     }
 
+    /**
+     * Fixed income with b3Identifier is passed through to the repository on upsert.
+     */
+    @Test
+    fun `GIVEN fixed income with b3Identifier WHEN execute THEN repository receives identifier`() = runTest {
+
+        // GIVEN
+        coEvery { assetRepository.upsert(any()) } returns 42L
+        val asset = FixedIncomeAsset(
+            id = 0L,
+            issuer = issuer,
+            type = FixedIncomeAssetType.PRE_FIXED,
+            subType = FixedIncomeSubType.CDB,
+            expirationDate = futureDate,
+            contractedYield = 10.5,
+            liquidity = Liquidity.DAILY,
+            b3Identifier = "CDB-2024/001",
+        )
+
+        // WHEN
+        useCase(UpsertAssetUseCase.Param(asset)).getOrThrow()
+
+        // THEN
+        val slot = slot<FixedIncomeAsset>()
+        coVerify(exactly = 1) { assetRepository.upsert(capture(slot)) }
+        assertEquals("CDB-2024/001", slot.captured.b3Identifier)
+    }
+
     @Test
     fun `GIVEN issuer id zero WHEN execute THEN ValidateException on issuer`() = runTest {
 

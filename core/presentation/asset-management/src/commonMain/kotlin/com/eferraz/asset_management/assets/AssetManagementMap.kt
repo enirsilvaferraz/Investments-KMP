@@ -27,7 +27,8 @@ private fun AssetManagementUiState.buildFixedIncomeAsset(): FixedIncomeAsset {
         contractedYield = fixedYield?.toDoubleOrNull()!!,
         cdiRelativeYield = fixedCdi?.toDoubleOrNull(),
         liquidity = fixedLiquidity!!,
-        observations = observations
+        observations = observations,
+        b3Identifier = b3Identifier?.trim()?.ifBlank { null },
     )
 }
 
@@ -73,6 +74,7 @@ internal fun Asset.toUiState(): AssetManagementUiState {
             fixedYield = currentAsset.contractedYield.toString(),
             fixedCdi = currentAsset.cdiRelativeYield?.toString(),
             fixedLiquidity = currentAsset.liquidity,
+            b3Identifier = currentAsset.b3Identifier,
         )
 
         is VariableIncomeAsset -> AssetManagementUiState(

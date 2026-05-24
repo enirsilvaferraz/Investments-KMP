@@ -44,6 +44,7 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.naming.B3_IDENTIFIER_FIELD_LABEL
 import com.eferraz.naming.BROKERAGE_FIELD_LABEL
 import com.eferraz.naming.asLabel
 import org.koin.compose.viewmodel.koinViewModel
@@ -272,6 +273,13 @@ private fun FixedIncomeFields(
                 },
             )
         }
+    )
+
+    FormTextField(
+        label = B3_IDENTIFIER_FIELD_LABEL,
+        value = ui.b3Identifier.orEmpty(),
+        onValueChange = { onEvent(AssetManagementEvents.B3IdentifierChanged(it)) },
+        errorMessage = null,
     )
 
 }

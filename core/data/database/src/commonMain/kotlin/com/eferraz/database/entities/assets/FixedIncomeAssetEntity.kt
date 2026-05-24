@@ -43,6 +43,9 @@ internal data class FixedIncomeAssetEntity(
     val contractedYield: Double,
 
     @ColumnInfo(name = "cdiRelativeYield")
-    val cdiRelativeYield: Double? = null
+    val cdiRelativeYield: Double? = null,
+
+    @ColumnInfo(name = "b3_identifier")
+    val b3Identifier: String? = null,
 
 ) : BaseAssetEntity

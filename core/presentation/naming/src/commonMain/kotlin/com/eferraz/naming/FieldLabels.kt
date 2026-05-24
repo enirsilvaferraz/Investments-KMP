@@ -15,6 +15,9 @@ import com.eferraz.entities.transactions.TransactionType
 /** Rótulo do dropdown de corretora no cadastro de investimento. */
 public const val BROKERAGE_FIELD_LABEL: String = "Corretora"
 
+/** Rótulo do campo Identificador B3 no cadastro de renda fixa. */
+public const val B3_IDENTIFIER_FIELD_LABEL: String = "Identificador B3"
+
 public fun Asset.asLabel(): String =
     when (this) {
         is FixedIncomeAsset -> "Renda Fixa"

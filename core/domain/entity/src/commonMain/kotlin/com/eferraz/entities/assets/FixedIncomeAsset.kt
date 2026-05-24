@@ -12,6 +12,7 @@ import kotlinx.datetime.LocalDate
  * @property cdiRelativeYield Rentabilidade relativa ao CDI (opcional).
  * @property liquidity A regra de liquidez que se aplica ao ativo.
  * @property observations Notas e observações adicionais sobre o ativo (opcional).
+ * @property b3Identifier Identificador B3 para conciliação manual (opcional).
  */
 public data class FixedIncomeAsset(
     override val id: Long = 0,
@@ -23,6 +24,7 @@ public data class FixedIncomeAsset(
     public val cdiRelativeYield: Double? = null,
     public val liquidity: Liquidity,
     override val observations: String? = null,
+    public val b3Identifier: String? = null,
 ) : Asset {
 
     override val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME

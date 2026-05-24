@@ -53,6 +53,7 @@ Papéis modelados nas entidades `Owner`, `Brokerage` e `Issuer` do diagrama ER (
 - **`TransactionType`:** `PURCHASE` aumenta posição; `SALE` reduz.
 - **`FinancialGoal`:** `targetValue > 0` no `init`.
 - **Datas:** `kotlinx.datetime` (`LocalDate`, `YearMonth`).
+- **`FixedIncomeAsset.b3Identifier`:** opcional (`String?`), exclusivo de renda fixa; texto livre; valor persistido após `trim()`; `null` se vazio após trim (identificador B3 para conciliação manual com posição B3; sem validação de formato na entidade).
 
 ---
 
@@ -60,7 +61,7 @@ Papéis modelados nas entidades `Owner`, `Brokerage` e `Issuer` do diagrama ER (
 
 ### 6.1 `Asset`
 
-Subtipos e campos distintivos estão no diagrama ER (`Asset`, `FixedIncomeAsset`, `VariableIncomeAsset`, `InvestmentFundAsset`).
+Subtipos e campos distintivos estão no diagrama ER (`Asset`, `FixedIncomeAsset`, `VariableIncomeAsset`, `InvestmentFundAsset`). Em renda fixa, `b3Identifier` opcional identifica o título na B3 para conciliação manual.
 
 ### 6.2 `AssetTransaction`
 
@@ -118,6 +119,7 @@ erDiagram
         LocalDate expirationDate
         Double contractedYield
         Double cdiRelativeYield "opcional"
+        String b3Identifier "opcional"
         String type "enum FixedIncomeAssetType"
         String subType "enum FixedIncomeSubType"
         String liquidity "enum Liquidity"

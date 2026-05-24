@@ -11,6 +11,7 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
         api(projects.domain.entity)
+        api(projects.domain.usecases)
         api(projects.features.designSystem)
     }
 }

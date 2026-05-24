@@ -94,6 +94,7 @@ public class GetHistoryTableDataUseCase(
                         expirationDate = asset.expirationDate,
                         contractedYield = asset.contractedYield,
                         cdiRelativeYield = asset.cdiRelativeYield,
+                        b3Identifier = asset.b3Identifier,
                         issuerName = asset.issuer.name,
                         liquidity = asset.liquidity,
                         observations = asset.observations ?: "",
