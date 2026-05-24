@@ -54,7 +54,7 @@ internal class UpsertAssetUseCaseTest {
             observations = "nota",
         )
         val result = useCase(UpsertAssetUseCase.Param(asset)).getOrThrow()
-        assertEquals(42L, result)
+        assertEquals(42L, result.id)
         val slot = slot<FixedIncomeAsset>()
         coVerify(exactly = 1) { assetRepository.upsert(capture(slot)) }
         assertEquals("nota", slot.captured.observations)
@@ -109,7 +109,7 @@ internal class UpsertAssetUseCaseTest {
             ticker = "PETR4",
         )
         val result = useCase(UpsertAssetUseCase.Param(asset)).getOrThrow()
-        assertEquals(7L, result)
+        assertEquals(7L, result.id)
         coVerify(exactly = 1) { assetRepository.upsert(any()) }
     }
 
@@ -127,7 +127,7 @@ internal class UpsertAssetUseCaseTest {
             expirationDate = futureDate,
         )
         val result = useCase(UpsertAssetUseCase.Param(asset)).getOrThrow()
-        assertEquals(99L, result)
+        assertEquals(99L, result.id)
     }
 
     @Test

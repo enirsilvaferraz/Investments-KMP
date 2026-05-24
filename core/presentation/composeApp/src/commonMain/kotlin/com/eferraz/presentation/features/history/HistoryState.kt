@@ -18,6 +18,7 @@ internal data class HistoryState(
     val liquidity: Choice<Liquidity> = Choice(null, Liquidity.entries),
     val goal: Choice<FinancialGoal> = Choice(null, emptyList()),
     val transactions: List<AssetTransaction> = emptyList(),
+    val isImporting: Boolean = false,
 ) {
 
     data class Choice<T>(

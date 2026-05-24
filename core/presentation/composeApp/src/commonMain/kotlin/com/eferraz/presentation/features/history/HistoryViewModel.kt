@@ -16,6 +16,7 @@ import com.eferraz.usecases.cruds.GetTransactionsUseCase
 import com.eferraz.usecases.entities.HoldingHistoryView
 import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
 import com.eferraz.usecases.services.ExportToCsvUseCase
+import com.eferraz.usecases.services.ImportB3FileUseCase
 import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +37,7 @@ internal class HistoryViewModel(
     private val updateFixedIncomeAndFundsHistoryValueUseCase: UpdateFixedIncomeAndFundsHistoryValueUseCase,
     private val updateVariableIncomeValues: SyncVariableIncomeValuesUseCase,
     private val exportToCsvUseCase: ExportToCsvUseCase,
+    private val importB3FileUseCase: ImportB3FileUseCase,
 ) : ViewModel() {
 
     val state: StateFlow<HistoryState> field = MutableStateFlow(HistoryState())
@@ -83,6 +85,7 @@ internal class HistoryViewModel(
             is HistoryIntent.SelectLiquidity -> selectLiquidity(intent.liquidity)
             is HistoryIntent.SelectGoal -> selectGoal(intent.goal)
             is HistoryIntent.ExportFixedIncomeCsv -> exportFixedIncomeCsv()
+            is HistoryIntent.ImportB3File -> importB3File()
         }
     }
 
@@ -148,6 +151,17 @@ internal class HistoryViewModel(
         }
     }
 
+    private fun importB3File() {
+        state.update { it.copy(isImporting = true) }
+        viewModelScope.launch {
+            try {
+                importB3FileUseCase(Unit)
+            } finally {
+                state.update { it.copy(isImporting = false) }
+            }
+        }
+    }
+
     internal fun loadInitialData() {
 
         val period = state.value.period.selected!!
@@ -183,6 +197,7 @@ internal sealed interface HistoryIntent {
     data object LoadInitialData : HistoryIntent
     data object Sync : HistoryIntent
     data object ExportFixedIncomeCsv : HistoryIntent
+    data object ImportB3File : HistoryIntent
     data class UpdateEntryValue(val entry: HoldingHistoryEntry, val value: Double) : HistoryIntent
     data class SelectPeriod(val period: YearMonth) : HistoryIntent
     data class SelectBrokerage(val brokerage: Brokerage) : HistoryIntent

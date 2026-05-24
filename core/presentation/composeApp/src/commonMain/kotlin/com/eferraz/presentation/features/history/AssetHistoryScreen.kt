@@ -1,19 +1,23 @@
 package com.eferraz.presentation.features.history
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -104,6 +108,9 @@ public fun HoldingHistoryRoute(
     val onExportFixedIncomeClick = remember(vm) {
         { vm.processIntent(HistoryIntent.ExportFixedIncomeCsv) }
     }
+    val onImportClick = remember(vm) {
+        { vm.processIntent(HistoryIntent.ImportB3File) }
+    }
 
     HoldingHistoryScreen(
         dataRows = state.tableData,
@@ -125,6 +132,8 @@ public fun HoldingHistoryRoute(
         onGoalChange = onGoalChange,
         onSyncClick = onSyncClick,
         onExportFixedIncomeClick = onExportFixedIncomeClick,
+        isImporting = state.isImporting,
+        onImportClick = onImportClick,
         transactions = state.transactions,
         onEditHolding = onEditHolding,
         onTransactionManagerRequest = onTransactionManagerRequest,
@@ -153,6 +162,8 @@ internal fun HoldingHistoryScreen(
     onGoalChange: (FinancialGoal) -> Unit,
     onSyncClick: () -> Unit,
     onExportFixedIncomeClick: () -> Unit,
+    isImporting: Boolean,
+    onImportClick: () -> Unit,
     transactions: List<AssetTransaction>,
     onEditHolding: (Long) -> Unit,
     onTransactionManagerRequest: (Long) -> Unit,
@@ -169,6 +180,8 @@ internal fun HoldingHistoryScreen(
             Actions(
                 showClose = navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary,
                 onSyncClick = onSyncClick,
+                isImporting = isImporting,
+                onImportClick = onImportClick,
                 onExportFixedIncomeClick = onExportFixedIncomeClick,
                 onCloseClick = { scope.launch { navigator.navigateBack() } }
             )
@@ -214,6 +227,8 @@ internal fun HoldingHistoryScreen(
 private fun Actions(
     showClose: Boolean,
     onSyncClick: () -> Unit,
+    isImporting: Boolean,
+    onImportClick: () -> Unit,
     onExportFixedIncomeClick: () -> Unit,
     onCloseClick: () -> Unit,
 ) {
@@ -232,6 +247,22 @@ private fun Actions(
             imageVector = Icons.Default.Sync,
             contentDescription = "Sincronizar"
         )
+    }
+
+    if (isImporting) {
+        Box(
+            modifier = Modifier.size(48.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+        }
+    } else {
+        IconButton(onClick = onImportClick) {
+            Icon(
+                imageVector = Icons.Default.FileUpload,
+                contentDescription = "Importar posições B3"
+            )
+        }
     }
 
     IconButton(onClick = onExportFixedIncomeClick) {

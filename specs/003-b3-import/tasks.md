@@ -25,8 +25,8 @@ Gradle `:domain:usecases` → `core/domain/usecases/` | `:data:filestore` → `c
 
 **Purpose**: Dependências FileMapper-KMP e ligação do módulo `filestore` ao port de domínio.
 
-- [ ] T001 Add FileMapper-KMP version `1.0.0` to `[versions]` and declare `filemapper-kmp` library alias under `[libraries]` in `build-logic/gradle/libs.versions.toml`
-- [ ] T002 Add `implementation(libs.filemapper.kmp)`, `implementation(projects.domain.usecases)`, and verify `kotlinx-serialization-core` (or equivalent from catalog) in `commonMain` dependencies of `core/data/filestore/build.gradle.kts`
+- [X] T001 Add FileMapper-KMP version `1.0.0` to `[versions]` and declare `filemapper-kmp` library alias under `[libraries]` in `build-logic/gradle/libs.versions.toml`
+- [X] T002 Add `implementation(libs.filemapper.kmp)`, `implementation(projects.domain.usecases)`, and verify `kotlinx-serialization-core` (or equivalent from catalog) in `commonMain` dependencies of `core/data/filestore/build.gradle.kts`
 
 ---
 
@@ -36,8 +36,8 @@ Gradle `:domain:usecases` → `core/domain/usecases/` | `:data:filestore` → `c
 
 **⚠️ CRITICAL**: Nenhuma user story começa antes desta fase.
 
-- [ ] T003 Create public `B3ImportPort` interface with `suspend fun importAndLog(): Result<Unit>` in `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/repositories/B3ImportPort.kt`
-- [ ] T004 Create `ImportB3FileUseCase` extending `AppUseCase<Unit, Unit>` with `withTimeout(30_000L)` wrapping the **entire** `port.importAndLog().getOrThrow()` (picker + parse — alinhado a SC-001/FR-011); on `TimeoutCancellationException` print timeout message to stdout (`println`, FR-011/FR-011a) then rethrow in `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/services/ImportB3FileUseCase.kt` (depends on T003)
+- [X] T003 Create public `B3ImportPort` interface with `suspend fun importAndLog(): Result<Unit>` in `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/repositories/B3ImportPort.kt`
+- [X] T004 Create `ImportB3FileUseCase` extending `AppUseCase<Unit, Unit>` with `withTimeout(30_000L)` wrapping the **entire** `port.importAndLog().getOrThrow()` (picker + parse — alinhado a SC-001/FR-011); on `TimeoutCancellationException` print timeout message to stdout (`println`, FR-011/FR-011a) then rethrow in `core/domain/usecases/src/commonMain/kotlin/com/eferraz/usecases/services/ImportB3FileUseCase.kt` (depends on T003)
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -51,21 +51,21 @@ Gradle `:domain:usecases` → `core/domain/usecases/` | `:data:filestore` → `c
 
 ### Tests for User Story 1
 
-- [ ] T016 [US1] Create `ImportB3FileUseCaseTest` with MockK for `B3ImportPort` covering success, `Result.failure`, and `TimeoutCancellationException` when mocked `importAndLog()` exceeds 30s (relógio do UseCase — inclui picker simulado lento); verify timeout `println` when feasible using `GIVEN_WHEN_THEN` naming in `core/domain/usecases/src/jvmTest/kotlin/com/eferraz/usecases/services/ImportB3FileUseCaseTest.kt`
+- [X] T016 [US1] Create `ImportB3FileUseCaseTest` with MockK for `B3ImportPort` covering success, `Result.failure`, and `TimeoutCancellationException` when mocked `importAndLog()` exceeds 30s (relógio do UseCase — inclui picker simulado lento); verify timeout `println` when feasible using `GIVEN_WHEN_THEN` naming in `core/domain/usecases/src/jvmTest/kotlin/com/eferraz/usecases/services/ImportB3FileUseCaseTest.kt`
 
 ### Implementation for User Story 1
 
-- [ ] T005 [P] [US1] Create internal `B3StockPosition` DTO with `@ColumnName` annotations per `data-model.md` in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3StockPosition.kt`
-- [ ] T006 [P] [US1] Create internal `B3EtfPosition` DTO in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3EtfPosition.kt`
-- [ ] T007 [P] [US1] Create internal `B3FundPosition` DTO in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3FundPosition.kt`
-- [ ] T008 [P] [US1] Create internal `B3FixedIncomePosition` DTO in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3FixedIncomePosition.kt`
-- [ ] T009 [P] [US1] Create internal `B3TreasuryPosition` DTO in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3TreasuryPosition.kt`
-- [ ] T010 [US1] Implement `B3ImportPortImpl` in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/B3ImportPortImpl.kt`: `FileMapperPicker.pickFile(FileType.XLSX)`; parse em `Dispatchers.Default` (plan/research); **Fase A** parse/validação das cinco guias B3 presentes (`Acoes`, `ETF`, `Fundo de Investimento`, `Renda Fixa`, `Tesouro Direto`) via `importData<T>` sem `println` de dados; column set per `specs/003-b3-import/data-model.md`; **Fase B** log header → linhas → totais calculados; filtros blank/total rows; FR-010 guias vazias; FR-012 guias desconhecidas ignoradas; FR-013 zero guias B3 → sucesso silencioso; `EMPTY_FILE` for 0-byte/ilegível workbook; FR-008/FR-014: log `AccessDeniedException`/`SecurityException` e I/O no console; FR-015 falha atómica `MISSING_COLUMNS` (depends on T005–T009)
-- [ ] T011 [US1] Register `singleOf(::B3ImportPortImpl).bind<B3ImportPort>()` in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/di/FileStoreModule.kt` (depends on T010)
-- [ ] T012 [P] [US1] Add `isImporting: Boolean = false` to `HistoryState` in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryState.kt`
-- [ ] T013 [US1] Add `data object ImportB3File : HistoryIntent` to sealed interface in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryViewModel.kt`
-- [ ] T014 [US1] Wire `ImportB3File` in `HistoryViewModel`: inject `ImportB3FileUseCase`; set `isImporting = true` **immediately on intent** (antes de `invoke` — cobre diálogo + parse, FR-009); on completion/cancel/failure always set `isImporting = false` — **no** `errorMessage` or Snackbar; on Android/iOS bypass (ignore intent or no-op before UseCase) in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryViewModel.kt` (depends on T004, T012, T013)
-- [ ] T015 [US1] Add import `IconButton` left of export in `Actions` composable; when `state.isImporting`, replace with `CircularProgressIndicator` using the **same** `Modifier.size` as o `IconButton` (FR-009); wire `onImportClick` → `HistoryIntent.ImportB3File` in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/AssetHistoryScreen.kt` (depends on T012, T014)
+- [X] T005 [P] [US1] Create internal `B3StockPosition` DTO with `@ColumnName` annotations per `data-model.md` in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3StockPosition.kt`
+- [X] T006 [P] [US1] Create internal `B3EtfPosition` DTO in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3EtfPosition.kt`
+- [X] T007 [P] [US1] Create internal `B3FundPosition` DTO in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3FundPosition.kt`
+- [X] T008 [P] [US1] Create internal `B3FixedIncomePosition` DTO in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3FixedIncomePosition.kt`
+- [X] T009 [P] [US1] Create internal `B3TreasuryPosition` DTO in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/dto/B3TreasuryPosition.kt`
+- [X] T010 [US1] Implement `B3ImportPortImpl` in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/B3ImportPortImpl.kt`: `FileMapperPicker.pickFile(FileType.XLSX)`; parse em `Dispatchers.Default` (plan/research); **Fase A** parse/validação das cinco guias B3 presentes (`Acoes`, `ETF`, `Fundo de Investimento`, `Renda Fixa`, `Tesouro Direto`) via `importData<T>` sem `println` de dados; column set per `specs/003-b3-import/data-model.md`; **Fase B** log header → linhas → totais calculados; filtros blank/total rows; FR-010 guias vazias; FR-012 guias desconhecidas ignoradas; FR-013 zero guias B3 → sucesso silencioso; `EMPTY_FILE` for 0-byte/ilegível workbook; FR-008/FR-014: log `AccessDeniedException`/`SecurityException` e I/O no console; FR-015 falha atómica `MISSING_COLUMNS` (depends on T005–T009)
+- [X] T011 [US1] Register `singleOf(::B3ImportPortImpl).bind<B3ImportPort>()` in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/di/FileStoreModule.kt` (depends on T010)
+- [X] T012 [P] [US1] Add `isImporting: Boolean = false` to `HistoryState` in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryState.kt`
+- [X] T013 [US1] Add `data object ImportB3File : HistoryIntent` to sealed interface in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryViewModel.kt`
+- [X] T014 [US1] Wire `ImportB3File` in `HistoryViewModel`: inject `ImportB3FileUseCase`; set `isImporting = true` **immediately on intent** (antes de `invoke` — cobre diálogo + parse, FR-009); on completion/cancel/failure always set `isImporting = false` — **no** `errorMessage` or Snackbar; on Android/iOS bypass (ignore intent or no-op before UseCase) in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryViewModel.kt` (depends on T004, T012, T013)
+- [X] T015 [US1] Add import `IconButton` left of export in `Actions` composable; when `state.isImporting`, replace with `CircularProgressIndicator` using the **same** `Modifier.size` as o `IconButton` (FR-009); wire `onImportClick` → `HistoryIntent.ImportB3File` in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/AssetHistoryScreen.kt` (depends on T012, T014)
 
 **Checkpoint**: User Story 1 fully functional on Desktop — MVP deliverable
 
@@ -79,8 +79,8 @@ Gradle `:domain:usecases` → `core/domain/usecases/` | `:data:filestore` → `c
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] **Verificação US2** (já coberto por T010): confirmar em revisão/código que `B3ImportPortImpl` usa `FileMapperPicker.pickFile(FileType.XLSX)` para filtro nativo `.xlsx` (FR-003); documentar no PR se o SO de teste suporta filtro visual
-- [ ] T018 [US2] Add post-selection extension/MIME validation in `B3ImportPortImpl`: reject non-`.xlsx` with `println` reason `INVALID_FORMAT`, return `Result.failure(...)` — no UI message; ViewModel only clears `isImporting` in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/B3ImportPortImpl.kt` (depends on T010)
+- [X] T017 [US2] **Verificação US2** (já coberto por T010): confirmar em revisão/código que `B3ImportPortImpl` usa `FileMapperPicker.pickFile(FileType.XLSX)` para filtro nativo `.xlsx` (FR-003); documentar no PR se o SO de teste suporta filtro visual
+- [X] T018 [US2] Add post-selection extension/MIME validation in `B3ImportPortImpl`: reject non-`.xlsx` with `println` reason `INVALID_FORMAT`, return `Result.failure(...)` — no UI message; ViewModel only clears `isImporting` in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/B3ImportPortImpl.kt` (depends on T010)
 
 **Checkpoint**: File-type restriction independently verifiable per quickstart scenario "Arquivo não-xlsx"
 
@@ -94,8 +94,8 @@ Gradle `:domain:usecases` → `core/domain/usecases/` | `:data:filestore` → `c
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] Ensure `B3ImportPortImpl.importAndLog()` returns `Result.success(Unit)` when `FileMapperPicker.pickFile` returns `null` — no `println`, no throw — in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/B3ImportPortImpl.kt`
-- [ ] T020 [US3] Ensure `HistoryViewModel` restores `isImporting = false` on cancel success path without error state in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryViewModel.kt` (depends on T014, T019)
+- [X] T019 [US3] Ensure `B3ImportPortImpl.importAndLog()` returns `Result.success(Unit)` when `FileMapperPicker.pickFile` returns `null` — no `println`, no throw — in `core/data/filestore/src/commonMain/kotlin/com/eferraz/filestore/b3/B3ImportPortImpl.kt`
+- [X] T020 [US3] Ensure `HistoryViewModel` restores `isImporting = false` on cancel success path without error state in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryViewModel.kt` (depends on T014, T019)
 
 **Checkpoint**: Cancel flow independently verifiable per FR-007 / SC-004
 
@@ -105,10 +105,10 @@ Gradle `:domain:usecases` → `core/domain/usecases/` | `:data:filestore` → `c
 
 **Purpose**: Build, testes JVM e validação manual Desktop; documentar bypass mobile.
 
-- [ ] T021 Run `./gradlew :domain:usecases:compileKotlinJvm :data:filestore:compileKotlinJvm :features:composeApp:compileKotlinJvm` and fix compile errors
-- [ ] T022 Run `./gradlew :domain:usecases:jvmTest` and ensure `ImportB3FileUseCaseTest` passes
+- [X] T021 Run `./gradlew :domain:usecases:compileKotlinJvm :data:filestore:compileKotlinJvm :features:composeApp:compileKotlinJvm` and fix compile errors
+- [X] T022 Run `./gradlew :domain:usecases:jvmTest` and ensure `ImportB3FileUseCaseTest` passes
 - [ ] T023 Execute manual validation scenarios from `specs/003-b3-import/quickstart.md` on Desktop (`./gradlew :apps:desktopApp:run`)
-- [ ] T024 Document Android/iOS bypass in code comment or KDoc on `HistoryViewModel` import handler: button may remain visible but must not invoke picker/UseCase on non-Desktop in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryViewModel.kt`
+- [X] T024 Document Android/iOS bypass in code comment or KDoc on `HistoryViewModel` import handler: button may remain visible but must not invoke picker/UseCase on non-Desktop in `core/presentation/composeApp/src/commonMain/kotlin/com/eferraz/presentation/features/history/HistoryViewModel.kt`
 
 ---
 

@@ -10,5 +10,8 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
         implementation(projects.domain.entity)
+        implementation(projects.domain.usecases)
+        implementation(libs.filemapper.kmp)
+        implementation(libs.kotlinx.serialization)
     }
 }
