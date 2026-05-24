@@ -19,6 +19,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ internal fun TableInputMoney(
     onValueChange: (Double?) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    textColor: Color? = null,
 ) {
 
     val actualInteractionSource = remember { MutableInteractionSource() }
@@ -44,6 +46,7 @@ internal fun TableInputMoney(
         onValueChange = onValueChange,
         modifier = modifier,
         enabled = enabled,
+        textColor = textColor,
         interactionSource = actualInteractionSource
     )
 }
@@ -55,6 +58,7 @@ private fun TableInputMoney(
     onValueChange: (Double?) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    textColor: Color? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     isHovered: Boolean? = null,
     isFocused: Boolean? = null,
@@ -85,7 +89,7 @@ private fun TableInputMoney(
     }
 
     val colors = MaterialTheme.colorScheme
-    val textColor = if (enabled) colors.onSurface else colors.onSurfaceVariant
+    val resolvedTextColor = textColor ?: (if (enabled) colors.onSurface else colors.onSurfaceVariant)
 
     TableInputLookAndFeel(
         modifier = modifier,
@@ -104,7 +108,7 @@ private fun TableInputMoney(
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyMedium.copy(
                 textAlign = TextAlign.End,
-                color = textColor
+                color = resolvedTextColor
             ),
             visualTransformation = CurrencyVisualTransformation
         )

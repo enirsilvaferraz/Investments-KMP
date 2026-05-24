@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,6 +52,7 @@ import com.eferraz.design_system.scaffolds.AppScreenScaffold
 import com.eferraz.design_system.theme.getInfoColor
 import com.eferraz.design_system.theme.getSuccessColor
 import com.eferraz.design_system.theme.getWarningColor
+import com.eferraz.design_system.theme.historyMutedTextColor
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.goals.FinancialGoal
@@ -275,6 +277,10 @@ private fun Actions(
     }
 }
 
+@Composable
+private fun historyRowTextColor(row: HoldingHistoryView): Color =
+    if (row.isLiquidated) historyMutedTextColor() else LocalContentColor.current
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Table(
@@ -305,19 +311,22 @@ private fun Table(
                 UiTableDataColumn(
                     text = "Corretora",
                     width = TableColumnWidth.MaxIntrinsic,
-                    comparable = { it.brokerageName }
+                    comparable = { it.brokerageName },
+                    content = { row -> Text(row.brokerageName, color = historyRowTextColor(row)) }
                 ),
 
                 UiTableDataColumn(
                     text = "Display Name",
                     width = TableColumnWidth.Flex(1f),
                     comparable = { it.displayName },
+                    content = { row -> Text(row.displayName, color = historyRowTextColor(row)) }
                 ),
 
                 UiTableDataColumn(
                     text = "Observação",
                     width = TableColumnWidth.MaxIntrinsic,
                     comparable = { it.observations },
+                    content = { row -> Text(row.observations, color = historyRowTextColor(row)) }
                 ),
 
                 UiTableDataColumn(
@@ -325,7 +334,7 @@ private fun Table(
                     width = TableColumnWidth.MaxIntrinsic,
                     alignment = Alignment.CenterEnd,
                     comparable = { it.previousValue },
-                    content = { Text(it.previousValue.currencyFormat()) }
+                    content = { row -> Text(row.previousValue.currencyFormat(), color = historyRowTextColor(row)) }
                 ),
 
                 UiTableDataColumn(
@@ -337,7 +346,8 @@ private fun Table(
                         TableInputMoney(
                             value = rowData.currentValue,
                             onValueChange = { value -> onValueChange(rowData, value ?: 0.0) },
-                            enabled = rowData.isCurrentValueEnabled()
+                            enabled = rowData.isCurrentValueEnabled(),
+                            textColor = if (rowData.isLiquidated) historyMutedTextColor() else null,
                         )
                     }
                 ),
@@ -352,7 +362,7 @@ private fun Table(
                             it.totalBalance == 0.0 -> {
                                 TextButton(
                                     { onTransactionManagerRequest(it.entry) },
-                                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray.copy(alpha = .5f))
+                                    colors = ButtonDefaults.textButtonColors(contentColor = historyMutedTextColor())
                                 ) {
                                     Text(text = "Adicionar")
                                 }
@@ -368,7 +378,7 @@ private fun Table(
                                         color = when {
                                             it.totalBalance < 0 -> getWarningColor()
                                             it.totalBalance > 0 -> getInfoColor()
-                                            else -> Color.Gray.copy(alpha = .5f)
+                                            else -> historyMutedTextColor()
                                         }
                                     )
                                 }
@@ -388,7 +398,7 @@ private fun Table(
                             color = when {
                                 it.appreciation < 0 -> MaterialTheme.colorScheme.error
                                 it.appreciation > 0 -> getSuccessColor()
-                                else -> Color.Gray.copy(alpha = .5f)
+                                else -> historyMutedTextColor()
                             }
                         )
                     }

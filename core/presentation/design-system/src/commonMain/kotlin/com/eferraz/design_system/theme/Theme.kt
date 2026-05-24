@@ -367,3 +367,7 @@ public fun getSituationTextColor(situation: String?): Color {
         else -> colors.onSurface
     }
 }
+
+@Composable
+public fun historyMutedTextColor(): Color =
+    Color.Gray.copy(alpha = 0.5f)

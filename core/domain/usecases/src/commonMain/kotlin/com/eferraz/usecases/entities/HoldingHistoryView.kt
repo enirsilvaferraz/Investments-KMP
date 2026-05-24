@@ -31,14 +31,18 @@ public data class HoldingHistoryView(
         currentValue = it.currentValue,
         appreciation = it.appreciation,
         totalBalance = it.totalBalance,
-        b3IdentifierStatus = when (it) {
-            is FixedIncomeHistoryTableData ->
+        b3IdentifierStatus = when {
+            it.currentValue == 0.0 -> B3IdentifierStatus.NotApplicable
+            it is FixedIncomeHistoryTableData ->
                 it.b3Identifier?.trim()?.takeIf { id -> id.isNotBlank() }
                     ?.let(B3IdentifierStatus::Informed)
                     ?: B3IdentifierStatus.NotInformed
             else -> B3IdentifierStatus.NotApplicable
         },
     )
+
+    public val isLiquidated: Boolean
+        get() = currentValue == 0.0
 
     public fun isCurrentValueEnabled(): Boolean =
         category != InvestmentCategory.VARIABLE_INCOME
