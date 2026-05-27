@@ -25,4 +25,8 @@ internal data class B3EtfPosition(
         quantity, availableQuantity, unavailableQuantity, reason,
         closingPrice, updatedValue,
     )
+
+    override fun b3Identifier(): String = ticker
+
+    override fun b3Value(): Double = closingPrice.toDouble()
 }

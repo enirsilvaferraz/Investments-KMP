@@ -32,4 +32,8 @@ internal data class B3FixedIncomePosition(
         counterparty, mtmPrice, mtmValue, curvePrice, curveValue, closingPrice,
         closingValue,
     )
+
+    override fun b3Identifier(): String = code
+
+    override fun b3Value(): Double = curveValue.toDouble()
 }

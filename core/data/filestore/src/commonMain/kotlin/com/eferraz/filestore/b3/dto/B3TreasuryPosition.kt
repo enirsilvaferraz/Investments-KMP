@@ -25,4 +25,8 @@ internal data class B3TreasuryPosition(
         availableQuantity, unavailableQuantity, reason, appliedValue, grossValue,
         netValue, updatedValue,
     )
+
+    override fun b3Identifier(): String = isinCode
+
+    override fun b3Value(): Double = updatedValue.toDouble()
 }
