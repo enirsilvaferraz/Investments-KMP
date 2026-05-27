@@ -4,8 +4,10 @@ import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.TransactionBalance
@@ -48,7 +50,7 @@ public class GetHistoryTableDataUseCase(
             .onFailure { println("Error: ${it.message}") }
             .getOrNull() ?: emptyList()
 
-        return results
+        val filtered = results
             .filter {
                 param.category == null || when (param.category) {
                     InvestmentCategory.FIXED_INCOME -> it.holding.asset is FixedIncomeAsset
@@ -60,16 +62,19 @@ public class GetHistoryTableDataUseCase(
             .filter { param.goal == null || it.holding.goal == param.goal }
             .filter {
                 param.liquidity == null ||
-                    (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity ||
-                    (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity ||
-                    (it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity
+                        (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity ||
+                        (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity ||
+                        (it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity
             }
-            .map { result ->
+        val sortedBy = filtered
+            .mapNotNull { result ->
 
                 val asset = result.holding.asset
                 val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity
                 val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity
                 val appreciation = result.profitOrLoss.percentage
+
+                if (previousValue == 0.0 && currentValue == 0.0) return@mapNotNull null
 
                 // Obter transações do holding e calcular balanço
                 val transactions = getTransactionsByHoldingUseCase(
@@ -150,6 +155,7 @@ public class GetHistoryTableDataUseCase(
             }
             .toList()
             .sortedBy { it.category }
+        return sortedBy
     }
 
     internal fun FixedIncomeAsset.formated(): String =
@@ -159,9 +165,20 @@ public class GetHistoryTableDataUseCase(
             FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield% (venc: $expirationDate)"
         }
 
-    internal fun VariableIncomeAsset.formated(): String =
-        "${type.name} - $ticker"
+    internal fun VariableIncomeAsset.formated(): String {
+        val typeFormated = when (type) {
+            VariableIncomeAssetType.NATIONAL_STOCK -> "Ação Nacional"
+            VariableIncomeAssetType.INTERNATIONAL_STOCK -> "Ação Internacional"
+            VariableIncomeAssetType.REAL_ESTATE_FUND -> "Fundo Imobiliário"
+            VariableIncomeAssetType.ETF -> "ETF"
+        }
+        return "$typeFormated - $ticker"
+    }
 
     internal fun InvestmentFundAsset.formated(): String =
-        type.name
+        when (type) {
+            InvestmentFundAssetType.PENSION -> "Previdência"
+            InvestmentFundAssetType.STOCK_FUND -> "Fundo de Ação"
+            InvestmentFundAssetType.MULTIMARKET_FUND -> "Fundo Multimercado"
+        } + " - $name"
 }

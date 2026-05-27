@@ -83,6 +83,9 @@ internal class AssetManagementViewModel(
                 )
             }
         } else {
+            // Novo investimento: não reutilizar holding de uma edição anterior na mesma instância do VM
+            // (evita upsert no mesmo `asset_holding` em vez de inserir linha nova).
+            existingHolding = null
             val owner = async { getOwnerUseCase(GetOwnerUseCase.Param).getOrNull() }
             state.update {
                 AssetManagementUiState(

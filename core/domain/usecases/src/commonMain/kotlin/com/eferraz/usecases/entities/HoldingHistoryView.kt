@@ -31,13 +31,13 @@ public data class HoldingHistoryView(
         currentValue = it.currentValue,
         appreciation = it.appreciation,
         totalBalance = it.totalBalance,
-        b3IdentifierStatus = when {
-            it.currentValue == 0.0 -> B3IdentifierStatus.NotApplicable
-            it is FixedIncomeHistoryTableData ->
-                it.b3Identifier?.trim()?.takeIf { id -> id.isNotBlank() }
-                    ?.let(B3IdentifierStatus::Informed)
-                    ?: B3IdentifierStatus.NotInformed
-            else -> B3IdentifierStatus.NotApplicable
+        b3IdentifierStatus = when (it) {
+            is FixedIncomeHistoryTableData -> it.b3Identifier?.trim()?.takeIf { id -> id.isNotBlank() }
+                ?.let(B3IdentifierStatus::Informed)
+                ?: B3IdentifierStatus.NotInformed
+
+            is VariableIncomeHistoryTableData -> it.ticker.let(B3IdentifierStatus::Informed)
+            is InvestmentFundHistoryTableData -> B3IdentifierStatus.NotInformed
         },
     )
 
