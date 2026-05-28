@@ -17,6 +17,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -30,14 +31,14 @@ public fun AppContentDialog(
 
     Card(
         modifier = modifier.wrapContentWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
 
         Column {
 
             TopAppBar(
                 modifier = Modifier.padding(start = 8.dp, end = 12.dp),
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 title = { Text(title) },
                 actions = {
                     IconButton(onClick = onDismiss) {

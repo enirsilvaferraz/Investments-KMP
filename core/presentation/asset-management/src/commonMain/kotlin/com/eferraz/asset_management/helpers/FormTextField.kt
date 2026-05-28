@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun FormTextField(
-    label: String,
+    label: String= "",
     value: String,
     onValueChange: (String) -> Unit,
     errorMessage: String?,
@@ -65,10 +65,10 @@ internal fun FormTextField(
             shape = RoundedCornerShape(14.dp),
             maxLines = 4,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFF4F5F9),
-                unfocusedContainerColor = Color(0xFFF4F5F9),
-                disabledContainerColor = Color(0xFFF4F5F9),
-                errorContainerColor = Color(0xFFF4F5F9),
+                focusedContainerColor = Color(0xFFEFF0F3),
+                unfocusedContainerColor = Color(0xFFEFF0F3),
+                disabledContainerColor = Color(0xFFEFF0F3),
+                errorContainerColor = Color(0xFFEFF0F3),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,

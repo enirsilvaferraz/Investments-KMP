@@ -1,23 +1,28 @@
 package com.eferraz.asset_management.transactions
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -35,6 +41,7 @@ import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
 import com.eferraz.design_system.scaffolds.AppContentDialog
+import com.eferraz.design_system.theme.AppTheme
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.naming.asLabel
@@ -53,13 +60,15 @@ public fun TransactionFormDialog(
         onDismiss = onDismiss,
     ) {
 
+
         TransactionFormView(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
+            modifier = Modifier,
+//            .verticalScroll(rememberScrollState())
+//            .padding(16.dp),
             holdingId = holdingId,
             onComplete = onDismiss,
         )
+
     }
 }
 
@@ -82,7 +91,7 @@ public fun TransactionFormView(
     }
 
     TransactionFormContent(
-        modifier = modifier,
+        modifier = modifier.padding(horizontal = 24.dp).padding(bottom = 24.dp),
         state = state,
         onEvent = vm::dispatch,
     )
@@ -90,20 +99,42 @@ public fun TransactionFormView(
 
 @Composable
 private fun TransactionFormContent(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     state: TransactionManagementUiState,
     onEvent: (TransactionManagementEvents) -> Unit,
 ) {
 
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
-        TransactionTable(
-            state = state,
-            onEvent = onEvent,
-        )
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+        ) {
+
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp).padding(top = 24.dp, bottom = 12.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                TransactionHeader()
+
+                TransactionTable(
+                    state = state,
+                    onEvent = onEvent,
+                )
+
+                FilledTonalButton(
+                    modifier = Modifier.padding(top = 0.dp).width(135.dp),
+                    onClick = { onEvent(TransactionManagementEvents.AddTransactionDraft) },
+                ) {
+                    Text("Adicionar")
+                }
+            }
+        }
 
         TransactionFormActions(
             state = state,
@@ -113,17 +144,70 @@ private fun TransactionFormContent(
 }
 
 @Composable
+private fun TransactionHeader() {
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        val clip = Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.tertiaryContainer).height(32.dp)
+
+        Box(modifier = clip.width(135.dp), contentAlignment = Alignment.CenterStart) {
+            Text(
+                text = "Data",
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        Box(modifier = clip.width(140.dp), contentAlignment = Alignment.CenterStart) {
+            Text(
+                text = "Transação",
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Box(modifier = clip.weight(0.5f), contentAlignment = Alignment.CenterStart) {
+            Text(
+                text = "Qtde",
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Box(modifier = clip.weight(1.1f), contentAlignment = Alignment.CenterStart) {
+            Text(
+                text = "Valor Unit.",
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Box(modifier = clip.weight(1.1f), contentAlignment = Alignment.CenterStart) {
+            Text(
+                text = "Valor Total",
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Spacer(modifier = Modifier.width(48.dp))
+    }
+}
+
+@Composable
 private fun TransactionFormActions(
     modifier: Modifier = Modifier,
     state: TransactionManagementUiState,
     onEvent: (TransactionManagementEvents) -> Unit,
 ) {
-
-    TextButton(
-        onClick = { onEvent(TransactionManagementEvents.AddTransactionDraft) },
-    ) {
-        Text("Nova transação")
-    }
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -178,7 +262,7 @@ private fun TransactionTableRow(
 
         FormTextField(
             modifier = Modifier.width(135.dp),
-            label = if (index != 0) "" else "Data",
+            label = "", // if (index != 0) "" else "Data",
             value = draft.dateDigits,
             onValueChange = { raw -> onEvent(TransactionManagementEvents.DraftTransactionDateChanged(index, raw)) },
             errorMessage = null, //if (draft.dateError) "Inválido" else null,
@@ -189,7 +273,7 @@ private fun TransactionTableRow(
 
         AppDropdownField(
             modifier = Modifier.width(140.dp),
-            label = if (index != 0) "" else "Transação",
+            label = "", // if (index != 0) "" else "Transação",
             displayValue = draft.type.asLabel(),
             options = TransactionType.entries.toList(),
             itemLabel = { it.asLabel() },
@@ -199,7 +283,7 @@ private fun TransactionTableRow(
         FormTextField(
             readOnly = !isVariableIncome,
             modifier = Modifier.weight(0.5f),
-            label = if (index != 0) "" else "Qtde",
+            label = "", //  if (index != 0) "" else "Qtde",
             value = draft.quantity,
             onValueChange = { onEvent(TransactionManagementEvents.DraftTransactionQuantityChanged(index, it)) },
             errorMessage = null, //if (draft.quantityError) "Inválido" else null,
@@ -208,7 +292,7 @@ private fun TransactionTableRow(
         FormTextField(
             readOnly = !isVariableIncome,
             modifier = Modifier.weight(1.1f),
-            label = if (index != 0) "" else "Valor Unit.",
+            label = "", // if (index != 0) "" else "Valor Unit.",
             value = draft.unitPrice,
             onValueChange = { onEvent(TransactionManagementEvents.DraftTransactionUnitPriceChanged(index, it)) },
             errorMessage = null, //if (draft.unitPriceError) "Inválido" else null,
@@ -216,7 +300,7 @@ private fun TransactionTableRow(
 
         FormTextField(
             modifier = Modifier.weight(1.1f),
-            label = if (index != 0) "" else "Valor Total",
+            label = "", // if (index != 0) "" else "Valor Total",
             value = draft.totalValue,
             onValueChange = { onEvent(TransactionManagementEvents.DraftTransactionTotalValueChanged(index, it)) },
             errorMessage = null, //if (draft.totalValueError) "Inválido" else null,
@@ -224,7 +308,7 @@ private fun TransactionTableRow(
         )
 
         FilledIconButton(
-            modifier = if (index != 0) Modifier else Modifier.padding(top = 26.dp),
+//            modifier = if (index != 0) Modifier else Modifier.padding(top = 26.dp),
             onClick = { onEvent(TransactionManagementEvents.DraftTransactionDeleteClicked(index)) },
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 contentColor = MaterialTheme.colorScheme.error,
@@ -371,16 +455,16 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
 private fun TransactionFormViewPreview(
     @PreviewParameter(TransactionFormPreviewProvider::class) ui: TransactionManagementUiState,
 ) {
-    MaterialTheme {
+    AppTheme {
 
         AppContentDialog(
-            modifier = Modifier.width(800.dp).padding(vertical = 36.dp),
+            modifier = Modifier.width(800.dp).padding(vertical = 0.dp),
             title = "Transações",
             onDismiss = { },
         ) {
 
             TransactionFormContent(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 state = ui,
                 onEvent = {},
             )
