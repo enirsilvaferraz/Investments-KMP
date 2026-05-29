@@ -1,7 +1,14 @@
 <!--
   Sync Impact Report
   ==================
-  Versão: 1.0.0 → 1.1.0
+  Versão: 1.1.0 → 1.1.1
+  Tipo de bump: PATCH (remoção de obrigatoriedade de compilação automática pelo agente)
+
+  Alterações:
+    - Removida exigência de `./gradlew :<módulo>:compileKotlinJvm` após cada alteração de código
+    - Fluxo de desenvolvimento: build/testes Gradle apenas quando pedido ou exigido pela tarefa
+
+  Versão anterior (1.0.0 → 1.1.0):
   Tipo de bump: MINOR (princípio adicionado, reorganização sem remoção)
 
   Princípios modificados:
@@ -106,7 +113,6 @@ Refactors sem mudança de comportamento NÃO exigem atualização.
 
 ## Restrições Técnicas
 
-- **Build rápido**: verificação via `./gradlew :<módulo>:compileKotlinJvm` (apenas JVM).
 - **Injeção de dependências**: Koin — módulos Koin por camada.
 - **Features UI**: DEVEM expor `*Contract.kt` com `*Screen(modifier: Modifier)` e ser registradas em `:apps:umbrellaApp`.
 - **Previews Compose**: no mesmo arquivo do composable, com visibilidade `private`.
@@ -114,9 +120,9 @@ Refactors sem mudança de comportamento NÃO exigem atualização.
 
 ## Fluxo de Desenvolvimento
 
-1. Criar ou alterar código → compilar JVM do módulo tocado → informar resultado.
-2. Alterações em `:domain:usecases` → rodar testes JVM.
-3. Não rodar build automático para alterações exclusivamente em `.md`.
+1. Criar ou alterar código conforme specs e convenções do projeto.
+2. Alterações em `:domain:usecases` → incluir ou atualizar testes unitários (princípio V); executar `./gradlew :domain:usecases:jvmTest` apenas quando o utilizador ou a tarefa pedirem validação.
+3. Compilação Gradle (`compileKotlinJvm`, `assemble`, etc.) **não** é obrigatória após cada implementação pelo agente — só quando pedido explicitamente, em CI/revisão, ou quando a tarefa exigir artefacto de build (ex.: export de schema Room).
 4. Módulo novo → perguntar o nome ao usuário antes de gerar arquivos, caso não informado.
 5. Manter coerência entre código, documentação e regras de IA no mesmo PR.
 
@@ -129,4 +135,4 @@ Esta constituição é a referência máxima do projeto. Em conflito com outros 
 - **Complexidade**: qualquer desvio DEVE ser justificado e registrado.
 - **Guia operacional**: `AGENTS.md` e regras `.mdc` complementam esta constituição.
 
-**Version**: 1.1.0 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-05-17
+**Version**: 1.1.1 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-05-29
