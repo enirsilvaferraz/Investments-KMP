@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,14 +49,14 @@ public fun SummaryCard(
     legend: String? = null,
     icon: ImageVector? = null,
 ) {
-    val roles = MaterialTheme.statusColors(status)
-    val titleStyle = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
-    val legendStyle = MaterialTheme.typography.bodySmall
 
-    OutlinedCard(
+    val roles = MaterialTheme.statusColors(status)
+
+    Card(
         modifier = modifier,
         shape = SummaryCardDefaults.cardShape(),
         colors = CardDefaults.outlinedCardColors(containerColor = roles.container),
+        elevation = CardDefaults.elevatedCardElevation()
 //        border = BorderStroke(1.dp, roles.onFixedVariant),
     ) {
 
@@ -72,11 +73,12 @@ public fun SummaryCard(
 
                 Text(
                     text = title.uppercase(),
-                    style = titleStyle,
+                    style = MaterialTheme.typography.labelSmall,
                     color = roles.onFixedVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
+                    fontWeight = FontWeight.Bold,
                 )
 
                 SummaryCardBadgeSlot(
@@ -88,7 +90,7 @@ public fun SummaryCard(
 
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = roles.onContainer,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -98,8 +100,8 @@ public fun SummaryCard(
 
             Text(
                 text = legend.orEmpty(),
-                style = legendStyle,
-                color = roles.onFixedVariant.copy(alpha = 0.75f),
+                style = MaterialTheme.typography.bodySmall,
+                color = roles.onFixedVariant.copy(alpha = 0.9f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth(),

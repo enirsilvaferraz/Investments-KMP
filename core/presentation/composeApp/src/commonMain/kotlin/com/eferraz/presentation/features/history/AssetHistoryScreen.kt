@@ -1,9 +1,6 @@
 package com.eferraz.presentation.features.history
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,8 +12,6 @@ import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -40,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eferraz.design_system.components.segmented_control.SegmentedControl
 import com.eferraz.design_system.components.segmented_control.SegmentedControlChoice
@@ -56,7 +50,6 @@ import com.eferraz.design_system.theme.historyMutedTextColor
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.goals.FinancialGoal
-import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
@@ -64,6 +57,8 @@ import com.eferraz.naming.BuildCell
 import com.eferraz.naming.BuildIcon
 import com.eferraz.usecases.entities.B3IdentifierStatus
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
+import com.eferraz.presentation.features.summary.SummaryGridWidget
+import com.eferraz.presentation.features.summary.SummaryProperties
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
@@ -141,6 +136,7 @@ public fun HoldingHistoryRoute(
         transactions = state.transactions,
         onEditHolding = onEditHolding,
         onTransactionManagerRequest = onTransactionManagerRequest,
+        summaryProperties = state.summaryProperties,
     )
 }
 
@@ -171,6 +167,7 @@ internal fun HoldingHistoryScreen(
     transactions: List<AssetTransaction>,
     onEditHolding: (Long) -> Unit,
     onTransactionManagerRequest: (Long) -> Unit,
+    summaryProperties: SummaryProperties,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -205,7 +202,7 @@ internal fun HoldingHistoryScreen(
                 onSelect = { choice -> onBrokerageChange(choice.id) }
             )
         },
-        supportingPaneWidthRate = 0.23f,
+        supportingPaneWidthRate = 0.25f,
         supportingPane = {
             Supporting(
                 periodSelected = periodSelected,
@@ -220,8 +217,8 @@ internal fun HoldingHistoryScreen(
                 goalSelected = goalSelected,
                 goalOptions = goalOptions,
                 onGoalChange = onGoalChange,
-                dataRows = dataRows,
-                transactions = transactions
+                transactions = transactions,
+                summaryProperties = summaryProperties,
             )
         }
     )
@@ -443,8 +440,8 @@ private fun Supporting(
     goalSelected: FinancialGoal?,
     goalOptions: List<FinancialGoal>,
     onGoalChange: (FinancialGoal) -> Unit,
-    dataRows: List<HoldingHistoryView>,
     transactions: List<AssetTransaction>,
+    summaryProperties: SummaryProperties,
 ) {
 
     AppScreenPane {
@@ -497,9 +494,9 @@ private fun Supporting(
         )
     }
 
-    Summary(dataRows)
+    SummaryGridWidget(properties = summaryProperties)
 
-    Transactions(transactions)
+//    Transactions(transactions)
 }
 
 @Composable
@@ -552,76 +549,6 @@ private fun Transactions(transactions: List<AssetTransaction>) {
                     Text("")
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun Summary(rows: List<HoldingHistoryView>) { // TODO mover calculos para usecase
-
-    AppScreenPane {
-
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            maxItemsInEachRow = 2
-        ) {
-
-            val prev = rows.sumOf { it.previousValue }
-            val act = rows.sumOf { it.currentValue }
-            val bal = rows.sumOf { it.totalBalance }
-
-            val calc = Appreciation.calculate(
-                previousValue = prev,
-                currentValue = act,
-                contributions = bal,
-                withdrawals = 0.0
-            )
-
-            listOf(
-                "Valor Anterior" to prev.currencyFormat(),
-                "Valor Atual" to act.currencyFormat(),
-                "Aportes" to "--",
-                "Retiradas" to "--",
-                "Balanço / Crescimento" to bal.currencyFormat(),
-                "%" to "--",
-                "Valorização" to "--",
-                "%" to calc.percentage.toPercentage()
-            ).forEach { (title, value) ->
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
-                        )
-                    ) {
-
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-
-                            Text(
-                                title,
-                                style = MaterialTheme.typography.titleSmall,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
-
-                            Text(
-                                value,
-                                style = MaterialTheme.typography.titleLarge.copy(fontSize = 19.sp),
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 }

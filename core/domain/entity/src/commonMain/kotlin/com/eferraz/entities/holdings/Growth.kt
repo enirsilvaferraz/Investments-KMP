@@ -9,7 +9,7 @@ package com.eferraz.entities.holdings
  * @property value O valor financeiro do crescimento (positivo) ou decrescimento (negativo).
  * @property percentage O percentual de crescimento sobre o valor inicial.
  */
-public class Growth private constructor(
+public data class Growth private constructor(
     public val value: Double,
     public val percentage: Double,
 ) {

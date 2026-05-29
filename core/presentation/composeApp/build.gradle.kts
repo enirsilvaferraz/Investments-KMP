@@ -14,6 +14,7 @@ kotlin {
         implementation(projects.domain.usecases)
         implementation(projects.features.naming)
         implementation(projects.features.designSystem)
+        implementation(projects.features.designSystemV2)
 
         implementation(libs.androidx.lifecycle.viewmodel)
         implementation(libs.androidx.lifecycle.runtimeCompose)

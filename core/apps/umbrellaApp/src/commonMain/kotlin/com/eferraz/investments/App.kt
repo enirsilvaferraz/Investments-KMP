@@ -36,6 +36,7 @@ import com.eferraz.asset_management.di.AssetManagementRouting
 import com.eferraz.asset_management.di.TransactionManagementRouting
 import com.eferraz.asset_management.transactions.TransactionFormDialog
 import com.eferraz.design_system.theme.AppTheme
+import com.eferraz.design_system_v2.theme.AppThemeV2
 import com.eferraz.presentation.features.history.HoldingHistoryRoute
 import org.koin.plugin.module.dsl.startKoin
 
@@ -44,8 +45,10 @@ public fun App() {
 
     startKoin<MyKoinApp>()
 
-    AppTheme {
-        AppNavigationHost()
+    AppThemeV2(false) {
+        AppTheme {
+            AppNavigationHost()
+        }
     }
 }
 

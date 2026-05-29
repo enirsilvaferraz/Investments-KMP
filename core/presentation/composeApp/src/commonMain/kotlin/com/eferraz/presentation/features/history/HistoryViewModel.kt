@@ -5,8 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.goals.FinancialGoal
+import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.entities.holdings.Growth
 import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.entities.transactions.TransactionBalance
+import com.eferraz.presentation.features.summary.SummaryProperties
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
@@ -185,9 +189,31 @@ internal class HistoryViewModel(
             }
 
             state.update {
+
                 val tableData1 = tableData.await().map { HoldingHistoryView(it) } // TODO Remover esse map
                 val transactions1 = transactions.await()
-                it.copy(tableData = tableData1, transactions = transactions1)
+
+                val previousValue = tableData1.sumOf { it.previousValue }
+                val actualValue = tableData1.sumOf { it.currentValue }
+
+                val (contributions, withdrawals, _) = TransactionBalance.calculate(transactions1)
+                val (growth, growthPercent) = Growth.calculate(previousValue, actualValue, contributions, withdrawals)
+                val (earnings, earningsPercent) = Appreciation.calculate(previousValue, actualValue, contributions, withdrawals)
+
+                it.copy(
+                    tableData = tableData1,
+                    transactions = transactions1,
+                    summaryProperties = SummaryProperties(
+                        previousValue = previousValue,
+                        actualValue = actualValue,
+                        contributions = contributions,
+                        withdrawals = withdrawals,
+                        growth = growth,
+                        growthPercent = growthPercent,
+                        earnings = earnings,
+                        earningsPercent = earningsPercent,
+                    ),
+                )
             }
         }
     }

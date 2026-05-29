@@ -41,7 +41,7 @@ internal object FixedStatusPalettes {
                 fixed = Color(0xFFECE6F0),
                 fixedDim = Color(0xFFECE6F0),
                 onFixed = Color(0xFF49454F),
-                onFixedVariant = Color(0xFFCAC4D0),
+                onFixedVariant = Color(0xFF757578),
             ),
             info = roles(
                 color = Color(0xFF0061A4),

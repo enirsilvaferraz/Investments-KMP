@@ -13,6 +13,7 @@ kotlin {
         implementation(projects.features.assetManagement)
         implementation(projects.features.composeApp)
         implementation(projects.features.designSystem)
+        implementation(projects.features.designSystemV2)
         implementation(projects.domain.entity)
         implementation(projects.domain.usecases)
         implementation(projects.data.repositories)
