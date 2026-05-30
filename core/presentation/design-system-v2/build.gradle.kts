@@ -11,5 +11,6 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     dependencies {
         implementation(libs.compose.material.icons.extended)
+        implementation(libs.kotlinx.datetime)
     }
 }

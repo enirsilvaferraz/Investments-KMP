@@ -243,6 +243,7 @@ With multiple developers:
 
 ## Notes
 
+- **Build Gradle**: tarefas com `./gradlew` são opcionais para agentes (constitution princípio IX) — executar só se o utilizador pedir ou a tarefa marcar validação como obrigatória
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable

@@ -1,33 +1,23 @@
 <!--
   Sync Impact Report
   ==================
-  Versão: 1.1.0 → 1.1.1
-  Tipo de bump: PATCH (remoção de obrigatoriedade de compilação automática pelo agente)
+  Versão: 1.1.1 → 1.2.0
+  Tipo de bump: MINOR (novo princípio IX — validação sem build automático)
 
   Alterações:
-    - Removida exigência de `./gradlew :<módulo>:compileKotlinJvm` após cada alteração de código
-    - Fluxo de desenvolvimento: build/testes Gradle apenas quando pedido ou exigido pela tarefa
-
-  Versão anterior (1.0.0 → 1.1.0):
-  Tipo de bump: MINOR (princípio adicionado, reorganização sem remoção)
+    - Novo princípio IX: Validação sem Build Automático
+    - Princípio V: esclarecido que escrever testes ≠ executar Gradle
+    - Fluxo de Desenvolvimento: alinhado ao princípio IX
 
   Princípios modificados:
-    I.   (NOVO) SOLID, DRY e Boas Práticas
-    II.  Arquitetura em Camadas → Clean Architecture (absorveu antigo IV "Domínio Isolado")
-    III. Kotlin Multiplatform First (sem alteração)
-    IV.  Plugins Foundation (sem alteração)
-    V.   Testes Obrigatórios em Use Cases (sem alteração)
-    VI.  API Explícita (sem alteração)
-    VII. Documentação Sincronizada (sem alteração)
-    VIII.Idioma e Convenções de Nomes (sem alteração)
-
-  Princípios removidos:
-    - IV antigo ("Domínio Isolado") absorvido pelo novo II
+    - V. Testes Obrigatórios em Use Cases (clarificação execução Gradle)
+    - IX. (NOVO) Validação sem Build Automático
 
   Templates verificados:
-    - plan-template.md        ✅ compatível
+    - plan-template.md        ✅ compatível (Constitution Check genérico)
     - spec-template.md        ✅ compatível
-    - tasks-template.md       ✅ compatível
+    - tasks-template.md       ✅ atualizado (nota sobre build sob pedido)
+    - AGENTS.md               ✅ atualizado
 
   TODOs pendentes: nenhum
 -->
@@ -86,7 +76,7 @@ Alterações em `:domain:usecases` DEVEM incluir ou atualizar testes unitários.
 - Padrão de nome: `GIVEN_WHEN_THEN` (em inglês).
 - MockK para colaboradores externos.
 - Dados de teste no próprio método; evitar factories centralizadas.
-- Validação: `./gradlew :domain:usecases:jvmTest`.
+- **Escrever** testes é obrigatório; **executar** `./gradlew :domain:usecases:jvmTest` só quando o utilizador ou a tarefa pedirem validação (princípio IX).
 
 ### VI. API Explícita
 
@@ -111,6 +101,16 @@ Refactors sem mudança de comportamento NÃO exigem atualização.
 - **Testes**: nomes, KDoc e comentários de seção em inglês.
 - **Pacote base**: `com.eferraz.<nome_do_modulo>` (underscores, sem hífens).
 
+### IX. Validação sem Build Automático
+
+Agentes e ferramentas de IA **NÃO DEVEM** executar Gradle (`compileKotlinJvm`, `assemble`, `jvmTest`, `run`, etc.) para validar funcionamento após implementação ou alteração de código.
+
+- A validação de correção baseia-se em revisão de código, specs, contratos e análise estática — **não** em build local automático.
+- Build e testes Gradle só quando: (a) o utilizador pedir explicitamente; (b) a tarefa ou spec exigir artefacto de build (ex.: schema Room exportado); (c) CI ou revisão de PR.
+- Tarefas em `tasks.md` que mencionem `./gradlew` são **opcionais para o agente** salvo pedido explícito do utilizador ou flag obrigatória na tarefa.
+
+**Rationale**: builds KMP são lentos e consomem recursos; o utilizador valida quando necessário. Escrever testes (princípio V) permanece obrigatório — executá-los não.
+
 ## Restrições Técnicas
 
 - **Injeção de dependências**: Koin — módulos Koin por camada.
@@ -121,10 +121,11 @@ Refactors sem mudança de comportamento NÃO exigem atualização.
 ## Fluxo de Desenvolvimento
 
 1. Criar ou alterar código conforme specs e convenções do projeto.
-2. Alterações em `:domain:usecases` → incluir ou atualizar testes unitários (princípio V); executar `./gradlew :domain:usecases:jvmTest` apenas quando o utilizador ou a tarefa pedirem validação.
-3. Compilação Gradle (`compileKotlinJvm`, `assemble`, etc.) **não** é obrigatória após cada implementação pelo agente — só quando pedido explicitamente, em CI/revisão, ou quando a tarefa exigir artefacto de build (ex.: export de schema Room).
-4. Módulo novo → perguntar o nome ao usuário antes de gerar arquivos, caso não informado.
-5. Manter coerência entre código, documentação e regras de IA no mesmo PR.
+2. Alterações em `:domain:usecases` → incluir ou atualizar testes unitários (princípio V).
+3. **Não** executar build Gradle para validar funcionamento (princípio IX).
+4. Compilação e testes (`compileKotlinJvm`, `jvmTest`, `assemble`, etc.) apenas quando pedido explicitamente, em CI/revisão, ou quando a tarefa exigir artefacto de build.
+5. Módulo novo → perguntar o nome ao usuário antes de gerar arquivos, caso não informado.
+6. Manter coerência entre código, documentação e regras de IA no mesmo PR.
 
 ## Governança
 
@@ -135,4 +136,4 @@ Esta constituição é a referência máxima do projeto. Em conflito com outros 
 - **Complexidade**: qualquer desvio DEVE ser justificado e registrado.
 - **Guia operacional**: `AGENTS.md` e regras `.mdc` complementam esta constituição.
 
-**Version**: 1.1.1 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-05-29
+**Version**: 1.2.0 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-05-29

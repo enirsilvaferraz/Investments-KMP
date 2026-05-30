@@ -2,12 +2,16 @@
 
 Seguir as orientações de @../.specify/memory/constitution.md
 
+## Validação (princípio IX)
+
+**Não** executar `./gradlew` (compile, test, run) para validar funcionamento após alterações de código — só quando o utilizador pedir, a tarefa exigir artefacto de build, ou em CI/revisão. Escrever testes em `:domain:usecases` continua obrigatório (princípio V).
+
 ## Módulos de apresentação (referência)
 
 | Gradle                       | Caminho                                                                                                          |
 |------------------------------|------------------------------------------------------------------------------------------------------------------|
 | `:features:design-system`    | `core/presentation/design-system/`                                                                               |
-| `:features:design-system-v2` | `core/presentation/design-system-v2/` — M3 Expressive; `SummaryCard`, `AppThemeV2` (feature `011-summary-cards`); cores semânticas via `StatusKind` + `MaterialTheme.statusColors(status)` (feature `012-status-theme-colors`) |
+| `:features:design-system-v2` | `core/presentation/design-system-v2/` — M3 Expressive; `SummaryCard`, `MonthYearSelector`, `AppThemeV2` (feature `011-summary-cards`); cores semânticas via `StatusKind` + `MaterialTheme.statusColors(status)` (feature `012-status-theme-colors`) |
 | `:features:composeApp`       | `core/presentation/composeApp/`                                                                                  |
 | `:features:asset-management` | `core/presentation/asset-management/`                                                                            |
 

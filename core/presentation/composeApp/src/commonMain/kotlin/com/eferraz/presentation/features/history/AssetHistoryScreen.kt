@@ -47,6 +47,7 @@ import com.eferraz.design_system.theme.getInfoColor
 import com.eferraz.design_system.theme.getSuccessColor
 import com.eferraz.design_system.theme.getWarningColor
 import com.eferraz.design_system.theme.historyMutedTextColor
+import com.eferraz.design_system_v2.dateselector.MonthYearSelector
 import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.goals.FinancialGoal
@@ -179,6 +180,9 @@ internal fun HoldingHistoryScreen(
         navigator = navigator,
         actions = {
             Actions(
+                periodSelected = periodSelected,
+                periodOptions = periodOptions,
+                onPeriodChange = onPeriodChange,
                 showClose = navigator.currentDestination?.pane == ThreePaneScaffoldRole.Tertiary,
                 onSyncClick = onSyncClick,
                 isImporting = isImporting,
@@ -226,6 +230,9 @@ internal fun HoldingHistoryScreen(
 
 @Composable
 private fun Actions(
+    periodSelected: YearMonth,
+    periodOptions: List<YearMonth>,
+    onPeriodChange: (YearMonth) -> Unit,
     showClose: Boolean,
     onSyncClick: () -> Unit,
     isImporting: Boolean,
@@ -233,6 +240,13 @@ private fun Actions(
     onExportFixedIncomeClick: () -> Unit,
     onCloseClick: () -> Unit,
 ) {
+
+    MonthYearSelector(
+        selected = periodSelected,
+        options = periodOptions,
+        onItemSelect = onPeriodChange,
+//        modifier = Modifier.fillMaxWidth(),
+    )
 
     if (showClose) {
         IconButton(onClick = { onCloseClick() }) {
@@ -444,19 +458,14 @@ private fun Supporting(
     summaryProperties: SummaryProperties,
 ) {
 
-    AppScreenPane {
-
-        SegmentedControl(
-            selected = SegmentedControlChoice(periodSelected, periodSelected.formated()),
-            options = StableList(periodOptions.map { SegmentedControlChoice(it, it.formated()) }),
-            onSelect = { onPeriodChange(it.id) },
-            colors = ToggleButtonDefaults.toggleButtonColors(
-                checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            ),
-            fill = true
-        )
-    }
+//    AppScreenPane {
+//        MonthYearSelector(
+//            selected = periodSelected,
+//            options = periodOptions,
+//            onItemSelect = onPeriodChange,
+//            modifier = Modifier.fillMaxWidth(),
+//        )
+//    }
 
     AppScreenPane {
 
