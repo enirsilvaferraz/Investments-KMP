@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -64,7 +65,11 @@ public fun MonthYearSelector(
             modifier = Modifier.height(32.dp).width(198.dp),
             enabled = enabled,
             onClick = { expanded = true },
-            contentPadding = PaddingValues(start = 12.dp)
+            contentPadding = PaddingValues(start = 12.dp),
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            )
         ) {
             RowItem(itemLabel, selected)
         }
