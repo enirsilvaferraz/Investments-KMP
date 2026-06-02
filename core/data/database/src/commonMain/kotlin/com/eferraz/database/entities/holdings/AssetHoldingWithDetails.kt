@@ -17,26 +17,26 @@ internal data class AssetHoldingWithDetails(
     val holding: AssetHoldingEntity,
 
     @Relation(
-        parentColumn = "assetId",
-        entityColumn = "id"
+        parentColumns = ["assetId"],
+        entityColumns = ["id"],
     )
     val asset: AssetEntity,
 
     @Relation(
-        parentColumn = "ownerId",
-        entityColumn = "id"
+        parentColumns = ["ownerId"],
+        entityColumns = ["id"],
     )
     val owner: OwnerEntity,
 
     @Relation(
-        parentColumn = "brokerageId",
-        entityColumn = "id"
+        parentColumns = ["brokerageId"],
+        entityColumns = ["id"],
     )
     val brokerage: BrokerageEntity,
 
     @Relation(
-        parentColumn = "goalId",
-        entityColumn = "id"
+        parentColumns = ["goalId"],
+        entityColumns = ["id"],
     )
     val goal: List<FinancialGoalEntity> = emptyList()
 )

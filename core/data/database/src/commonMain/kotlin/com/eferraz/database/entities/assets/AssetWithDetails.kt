@@ -14,26 +14,26 @@ internal data class AssetWithDetails(
     val asset: AssetEntity,
 
     @Relation(
-        parentColumn = "issuerId",
-        entityColumn = "id"
+        parentColumns = ["issuerId"],
+        entityColumns = ["id"],
     )
     val issuer: IssuerEntity,
 
     @Relation(
-        parentColumn = "id",
-        entityColumn = "assetId"
+        parentColumns = ["id"],
+        entityColumns = ["assetId"],
     )
     val fixedIncome: FixedIncomeAssetEntity? = null,
 
     @Relation(
-        parentColumn = "id",
-        entityColumn = "assetId"
+        parentColumns = ["id"],
+        entityColumns = ["assetId"],
     )
     val variableIncome: VariableIncomeAssetEntity? = null,
 
     @Relation(
-        parentColumn = "id",
-        entityColumn = "assetId"
+        parentColumns = ["id"],
+        entityColumns = ["assetId"],
     )
     val funds: InvestmentFundAssetEntity? = null,
 )

@@ -13,20 +13,20 @@ internal data class TransactionWithDetails(
     val transaction: AssetTransactionEntity,
 
     @Relation(
-        parentColumn = "id",
-        entityColumn = "transactionId"
+        parentColumns = ["id"],
+        entityColumns = ["transactionId"],
     )
     val fixedIncome: FixedIncomeTransactionEntity? = null,
 
     @Relation(
-        parentColumn = "id",
-        entityColumn = "transactionId"
+        parentColumns = ["id"],
+        entityColumns = ["transactionId"],
     )
     val variableIncome: VariableIncomeTransactionEntity? = null,
 
     @Relation(
-        parentColumn = "id",
-        entityColumn = "transactionId"
+        parentColumns = ["id"],
+        entityColumns = ["transactionId"],
     )
     val funds: FundsTransactionEntity? = null,
 )

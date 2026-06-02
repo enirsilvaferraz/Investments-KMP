@@ -16,20 +16,20 @@ internal class HoldingHistoryWithDetails(
     val holding: AssetHoldingEntity,
 
     @Relation(
-        parentColumn = "holding_assetId",
-        entityColumn = "id"
+        parentColumns = ["holding_assetId"],
+        entityColumns = ["id"],
     )
     val asset: AssetEntity,
 
     @Relation(
-        parentColumn = "holding_ownerId",
-        entityColumn = "id"
+        parentColumns = ["holding_ownerId"],
+        entityColumns = ["id"],
     )
     val owner: OwnerEntity,
 
     @Relation(
-        parentColumn = "holding_brokerageId",
-        entityColumn = "id"
+        parentColumns = ["holding_brokerageId"],
+        entityColumns = ["id"],
     )
     val brokerage: BrokerageEntity,
 )
