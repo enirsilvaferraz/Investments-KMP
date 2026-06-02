@@ -46,9 +46,9 @@ public fun FixedIncomeSubType.asLabel(): String =
 
 public fun VariableIncomeAssetType.asLabel(): String =
     when (this) {
-        VariableIncomeAssetType.NATIONAL_STOCK -> "Ação nacional"
-        VariableIncomeAssetType.INTERNATIONAL_STOCK -> "Ação internacional"
-        VariableIncomeAssetType.REAL_ESTATE_FUND -> "Fundo imobiliário"
+        VariableIncomeAssetType.NATIONAL_STOCK -> "Ação"
+        VariableIncomeAssetType.INTERNATIONAL_STOCK -> "Internacional"
+        VariableIncomeAssetType.REAL_ESTATE_FUND -> "FII"
         VariableIncomeAssetType.ETF -> "ETF"
     }
 

@@ -28,8 +28,10 @@ import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,6 +62,10 @@ import com.eferraz.usecases.entities.B3IdentifierStatus
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.features.summary.SummaryGridWidget
 import com.eferraz.presentation.features.summary.SummaryProperties
+import com.eferraz.presentation.features.walletfilters.WalletFiltersPanel
+import com.eferraz.presentation.features.walletfilters.WalletFiltersPreviewCatalog
+import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
+import com.eferraz.presentation.features.walletfilters.forDisplay
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
@@ -502,6 +508,19 @@ private fun Supporting(
             fill = true
         )
     }
+
+    val walletFilterOptions = remember { WalletFiltersPreviewCatalog.fullPanelOptions }
+    var walletFilterState by remember { mutableStateOf(WalletFiltersUiState.initial()) }
+    val walletFilterDisplayOptions =
+        remember(walletFilterOptions, walletFilterState.selectedClassIds) {
+            walletFilterOptions.forDisplay(walletFilterState)
+        }
+
+    WalletFiltersPanel(
+        options = walletFilterOptions,
+        state = walletFilterState,
+        onStateChange = { walletFilterState = it },
+    )
 
     SummaryGridWidget(properties = summaryProperties)
 

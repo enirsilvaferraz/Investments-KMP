@@ -18,5 +18,6 @@ kotlin {
 
         implementation(libs.androidx.lifecycle.viewmodel)
         implementation(libs.androidx.lifecycle.runtimeCompose)
+        implementation(libs.kotlinx.datetime)
     }
 }
