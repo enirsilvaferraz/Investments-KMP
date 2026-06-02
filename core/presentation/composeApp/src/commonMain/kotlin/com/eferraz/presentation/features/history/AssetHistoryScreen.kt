@@ -65,7 +65,6 @@ import com.eferraz.presentation.features.summary.SummaryProperties
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanel
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPreviewCatalog
 import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
-import com.eferraz.presentation.features.walletfilters.forDisplay
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
@@ -511,10 +510,6 @@ private fun Supporting(
 
     val walletFilterOptions = remember { WalletFiltersPreviewCatalog.fullPanelOptions }
     var walletFilterState by remember { mutableStateOf(WalletFiltersUiState.initial()) }
-    val walletFilterDisplayOptions =
-        remember(walletFilterOptions, walletFilterState.selectedClassIds) {
-            walletFilterOptions.forDisplay(walletFilterState)
-        }
 
     WalletFiltersPanel(
         options = walletFilterOptions,

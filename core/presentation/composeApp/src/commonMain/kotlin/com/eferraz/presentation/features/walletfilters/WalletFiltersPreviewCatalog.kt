@@ -17,23 +17,14 @@ internal object WalletFiltersPreviewCatalog {
 
     private fun opt(id: String, short: String, full: String = short) = FilterOption(id, short, full)
 
-    private val rfSubtypeSection =
-        SubtypeSectionModel(
-            classKind = AssetClassKind.FixedIncome,
-            options = FixedIncomeSubType.entries.map { opt(it.asLabel(), it.asLabel()) }
-        )
+    private val rfSubtypeOptions =
+        FixedIncomeSubType.entries.map { opt(it.asLabel(), it.asLabel()) }
 
-    private val rvSubtypeSection =
-        SubtypeSectionModel(
-            classKind = AssetClassKind.VariableIncome,
-            options = VariableIncomeAssetType.entries.map { opt(it.asLabel(), it.asLabel()) }
-        )
+    private val rvSubtypeOptions =
+        VariableIncomeAssetType.entries.map { opt(it.asLabel(), it.asLabel()) }
 
-    private val fundsSubtypeSection =
-        SubtypeSectionModel(
-            classKind = AssetClassKind.Funds,
-            options = InvestmentFundAssetType.entries.map { opt(it.asLabel(), it.asLabel()) }
-        )
+    private val fundsSubtypeOptions =
+        InvestmentFundAssetType.entries.map { opt(it.asLabel(), it.asLabel()) }
 
     private val liquidityAll =
         listOf(
@@ -65,13 +56,24 @@ internal object WalletFiltersPreviewCatalog {
             YearMonth(2030, Month.JANUARY),
         )
 
+    private val classOptions =
+        InvestmentCategory.entries.map { opt(it.name, it.formated()) }
+
     val fullPanelOptions: WalletFiltersPanelOptions =
         WalletFiltersPanelOptions(
-            classOptions = InvestmentCategory.entries.map { opt(it.formated(), it.formated()) } ,
-            subtypeSections = listOf(rfSubtypeSection, rvSubtypeSection, fundsSubtypeSection),
-            liquidityOptions = liquidityAll,
-            b3Options = b3Both,
-            settledOptions = settledBoth,
-            maturityMonths = maturityFull,
+            commons =
+                WalletFiltersComunsSectionOptions(
+                    classOptions = classOptions,
+                    b3Options = b3Both,
+                    settledOptions = settledBoth,
+                ),
+            fixedIncome =
+                WalletFiltersFixedIncomeSectionOptions(
+                    subtypeOptions = rfSubtypeOptions,
+                    liquidityOptions = liquidityAll,
+                    maturityMonths = maturityFull,
+                ),
+            variableIncome = WalletFiltersVariableIncomeSectionOptions(subtypeOptions = rvSubtypeOptions),
+            funds = WalletFiltersFundsSectionOptions(subtypeOptions = fundsSubtypeOptions),
         )
 }

@@ -9,8 +9,8 @@ internal fun WalletFiltersUiState.toggleClass(id: String): WalletFiltersUiState 
     val nextSubtypeIds =
         if (removing) {
             selectedSubtypeIds.filterNot { subtypeId ->
-                WalletFiltersCatalog.assetClassForSubtypeId(subtypeId) ==
-                    WalletFiltersCatalog.assetClassForClassId(id)
+                WalletFiltersCatalog.categoryForSubtypeId(subtypeId) ==
+                    WalletFiltersCatalog.categoryForClassId(id)
             }.toSet()
         } else {
             selectedSubtypeIds
