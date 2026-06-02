@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import com.eferraz.design_system_v2.filter.FilterSectionHeader
 import com.eferraz.design_system_v2.filter.FilterToggleGroup
 import com.eferraz.design_system_v2.filter.FilterToggleOption
-import com.eferraz.design_system_v2.filter.FilterToggleSize
 import com.eferraz.design_system_v2.filter.MaturityFilterDropdown
 import com.eferraz.design_system_v2.theme.AppThemeV2
 import com.eferraz.entities.assets.InvestmentCategory
@@ -105,7 +104,6 @@ private fun ComunsSection(
             options = section.classOptions,
             selectedIds = state.selectedClassIds,
             onToggle = { onStateChange(state.toggleClass(it)) },
-            size = FilterToggleSize.Standard,
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -218,7 +216,6 @@ private fun SubtypeToggleBlock(
         subtypeOptions.toToggleOptions(),
         selectedSubtypeIds,
         onToggleSubtype,
-        size = FilterToggleSize.Standard,
     )
 }
 
@@ -286,7 +283,6 @@ private fun MaturityFilterSection(
         )
 
         MaturityFilterDropdown(
-            modifier = Modifier.padding(top = 3.dp),
             selection = selection,
             months = months,
             onSelectMonth = onSelectMonth,
@@ -301,7 +297,6 @@ private fun ToggleSection(
     options: List<FilterOption>,
     selectedIds: Set<String>,
     onToggle: (String) -> Unit,
-    size: FilterToggleSize = FilterToggleSize.Standard,
     modifier: Modifier = Modifier,
 ) {
     if (options.isEmpty()) return
@@ -319,7 +314,6 @@ private fun ToggleSection(
             options = options.toToggleOptions(),
             selectedIds = selectedIds,
             onToggle = onToggle,
-            size = size,
         )
     }
 }

@@ -3,30 +3,34 @@ package com.eferraz.design_system_v2.filter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,65 +52,71 @@ public fun MaturityFilterDropdown(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-
     var expanded by remember { mutableStateOf(false) }
+    var anchorWidthPx by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
     val label = remember(selection) { maturitySelectionLabel(selection) }
+    val hasSelection = selection != null
+    val chipColors = FilterChipDefaults.filterChipColors()
+    val menuWidthModifier =
+        if (anchorWidthPx > 0) {
+            Modifier.width(with(density) { anchorWidthPx.toDp() })
+        } else {
+            Modifier
+        }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { if (enabled) expanded = it },
         modifier = modifier.fillMaxWidth(),
     ) {
-
-        FilledTonalButton(
-            onClick = { expanded = true },
+        FilterChip(
+            selected = hasSelection,
+            onClick = { if (enabled) expanded = true },
             enabled = enabled,
-            modifier = Modifier
-                .height(40.dp)
-                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = enabled),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            ),
-        ) {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-
+            label = {
                 Text(
                     text = label,
-                    modifier = Modifier.weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
                 )
-
+            },
+            trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            }
-        }
+            },
+            modifier =
+                Modifier.fillMaxWidth()
+                    .onSizeChanged { anchorWidthPx = it.width }
+                    .semantics {
+                        role = Role.DropdownList
+                        contentDescription = label
+                        if (hasSelection) {
+                            stateDescription = "Selecionado"
+                        }
+                    },
+            colors = chipColors,
+            border = FilterChipDefaults.filterChipBorder(enabled = enabled, selected = hasSelection),
+            elevation = null,
+        )
 
         ExposedDropdownMenu(
+            modifier = menuWidthModifier,
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.large,
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ) {
-
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-
-                MaturityDropdownItem(MaturityAnyLabel, selection == null) {
-                    expanded = false
-                    onSelectMonth(null)
-                }
+                MaturityDropdownItem(
+                    text = MaturityAnyLabel,
+                    selected = selection == null,
+                    onClick = {
+                        expanded = false
+                        onSelectMonth(null)
+                    },
+                )
 
                 months.forEach { month ->
                     MaturityDropdownItem(
@@ -125,16 +135,31 @@ public fun MaturityFilterDropdown(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MaturityDropdownItem(text: String, selected: Boolean, onClick: () -> Unit) {
-
+private fun MaturityDropdownItem(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
     DropdownMenuItem(
+        modifier =
+            Modifier.height(38.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .then(
+                    if (selected) {
+                        Modifier.background(MaterialTheme.colorScheme.tertiaryContainer)
+                    } else {
+                        Modifier
+                    },
+                ),
+        text = {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         onClick = onClick,
-        text = { Text(text = text, style = MaterialTheme.typography.bodyLarge) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .then(if (selected) Modifier.background(MaterialTheme.colorScheme.tertiaryContainer) else Modifier),
-        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
     )
 }
 
@@ -182,12 +207,12 @@ private class MaturityFilterPreviewProvider : PreviewParameterProvider<YearMonth
 private fun MaturityFilterDropdownPreview(
     @PreviewParameter(MaturityFilterPreviewProvider::class) initialSelection: YearMonth?,
 ) {
-
-    val previewMonths = listOf(
-        YearMonth(2026, Month.DECEMBER),
-        YearMonth(2027, Month.NOVEMBER),
-        YearMonth(2028, Month.MARCH),
-    )
+    val previewMonths =
+        listOf(
+            YearMonth(2026, Month.DECEMBER),
+            YearMonth(2027, Month.NOVEMBER),
+            YearMonth(2028, Month.MARCH),
+        )
 
     var selection by remember { mutableStateOf(initialSelection) }
 

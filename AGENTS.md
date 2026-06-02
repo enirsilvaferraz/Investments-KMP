@@ -19,7 +19,7 @@ Seguir as orientações de @../.specify/memory/constitution.md
 
 ## Filtros da carteira (design-system-v2 + composeApp)
 
-- **`FilterToggleGroup`** / **`FilterToggleOption`** (`filter/FilterToggleGroup.kt`): multi-selecção M3 Expressive (`FilterToggleSize.Standard` ~40dp / `Small` ~32dp), tooltips quando `contentDescription != label`.
+- **`FilterToggleGroup`** / **`FilterToggleOption`** (`filter/FilterToggleGroup.kt`): multi-selecção com **`FilterChip`** M3 (tamanho e tipografia padrão do componente, sem ícones), `FlowRow` com espaçamento 8dp; tooltips quando `contentDescription != label`.
 - **`FilterSectionHeader`**: cabeçalho de secção com ícone + label uppercase.
 - **`WalletFiltersPanel`** (`composeApp/.../walletfilters/`): painel em `OutlinedCard`; modelos/catálogo/previews em `WalletFilters.kt`, UI em `WalletFiltersPanel.kt`.
 

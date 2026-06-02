@@ -1,27 +1,22 @@
 package com.eferraz.design_system_v2.filter
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.ToggleButton
-import androidx.compose.material3.ToggleButtonColors
-import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -29,19 +24,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.eferraz.design_system_v2.theme.AppThemeV2
 
@@ -52,45 +46,30 @@ public data class FilterToggleOption<T>(
     val contentDescription: String = label,
 )
 
-public enum class FilterToggleSize {
-    Standard,
-    Small,
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 public fun <T> FilterToggleGroup(
     options: List<FilterToggleOption<T>>,
     selectedIds: Set<T>,
     onToggle: (T) -> Unit,
     modifier: Modifier = Modifier,
-    size: FilterToggleSize = FilterToggleSize.Small,
     enabled: Boolean = true,
 ) {
-
     if (options.isEmpty()) return
 
-    val colors = ToggleButtonDefaults.toggleButtonColors()
-    val textStyle = FilterToggleGroupDefaults.textStyle(size)
-    val toggleHeight = FilterToggleGroupDefaults.toggleHeight(size)
+    val colors = FilterChipDefaults.filterChipColors()
 
-    Row(
-        modifier = modifier.horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(FilterToggleGroupDefaults.ChipSpacing),
     ) {
-
-        options.forEachIndexed { index, option ->
-
-            FilterToggleButtonWithOptionalTooltip(
+        options.forEach { option ->
+            FilterToggleChipWithOptionalTooltip(
                 option = option,
-                checked = option.id in selectedIds,
-                onCheckedChange = { onToggle(option.id) },
+                selected = option.id in selectedIds,
+                onClick = { onToggle(option.id) },
                 enabled = enabled,
-                indexInRow = index,
-                rowSize = options.size,
                 colors = colors,
-                textStyle = textStyle,
-                toggleHeight = toggleHeight,
             )
         }
     }
@@ -98,39 +77,34 @@ public fun <T> FilterToggleGroup(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun <T> FilterToggleButtonWithOptionalTooltip(
+private fun <T> FilterToggleChipWithOptionalTooltip(
     option: FilterToggleOption<T>,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    selected: Boolean,
+    onClick: () -> Unit,
     enabled: Boolean,
-    indexInRow: Int,
-    rowSize: Int,
-    colors: ToggleButtonColors,
-    textStyle: TextStyle,
-    toggleHeight: Dp,
+    colors: SelectableChipColors,
     modifier: Modifier = Modifier,
 ) {
     val showTooltip = option.contentDescription != option.label
 
     @Composable
-    fun Button() {
-        FilterToggleButton(
+    fun Chip(chipModifier: Modifier = Modifier) {
+        FilterToggleChip(
             option = option,
-            checked = checked,
-            onCheckedChange = onCheckedChange,
+            selected = selected,
+            onClick = onClick,
             enabled = enabled,
-            indexInRow = indexInRow,
-            rowSize = rowSize,
             colors = colors,
-            textStyle = textStyle,
-            toggleHeight = toggleHeight
+            modifier = chipModifier,
         )
     }
 
     if (showTooltip) {
-
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Below,
+                ),
             tooltip = {
                 PlainTooltip {
                     Text(option.contentDescription)
@@ -139,77 +113,56 @@ private fun <T> FilterToggleButtonWithOptionalTooltip(
             state = rememberTooltipState(),
             modifier = modifier,
         ) {
-            Button()
+            Chip()
         }
-
     } else {
-
-        Box(
-            modifier = modifier
-        ) {
-            Button()
-        }
+        Chip(chipModifier = modifier)
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun <T> FilterToggleButton(
+private fun <T> FilterToggleChip(
     option: FilterToggleOption<T>,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    selected: Boolean,
+    onClick: () -> Unit,
     enabled: Boolean,
-    indexInRow: Int,
-    rowSize: Int,
-    colors: ToggleButtonColors,
-    textStyle: TextStyle,
-    toggleHeight: Dp,
+    colors: SelectableChipColors,
     modifier: Modifier = Modifier,
 ) {
-
-    val touchPaddingVertical =
-        ((FilterToggleGroupDefaults.MinTouchTarget - toggleHeight) / 2).coerceAtLeast(0.dp)
-
-    ToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        enabled = enabled,
+    Box(
         modifier =
-            modifier
-                .minimumInteractiveComponentSize()
-                .padding(vertical = touchPaddingVertical)
-                .height(toggleHeight)
-                .defaultMinSize(minWidth = FilterToggleGroupDefaults.MinTouchTarget)
-                .semantics {
+            modifier.defaultMinSize(
+                minWidth = FilterToggleGroupDefaults.MinTouchTarget,
+                minHeight = FilterToggleGroupDefaults.MinTouchTarget,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        FilterChip(
+            selected = selected,
+            onClick = onClick,
+            enabled = enabled,
+            label = {
+                Text(
+                    text = option.label,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            },
+            modifier =
+                Modifier.semantics {
                     role = Role.Checkbox
                     contentDescription = option.contentDescription
-                    if (checked) {
+                    if (selected) {
                         stateDescription = "Selecionado"
                     }
                 },
-        colors = colors,
-        shapes = connectedShapesForIndex(indexInRow, rowSize, toggleHeight),
-    ) {
-        Text(
-            text = option.label,
-            style = textStyle,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            colors = colors,
+            border = FilterChipDefaults.filterChipBorder(enabled = enabled, selected = selected),
+            // Evita highlight rectangular no hover em Compose Desktop (CMP #2868).
+            elevation = null,
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun connectedShapesForIndex(
-    indexInRow: Int,
-    rowSize: Int,
-    toggleHeight: Dp,
-) = when {
-    rowSize == 1 -> ToggleButtonDefaults.shapesFor(toggleHeight)
-    indexInRow == 0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-    indexInRow == rowSize - 1 -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
 }
 
 private data class FilterToggleGroupPreviewCase(
@@ -244,45 +197,27 @@ private class FilterToggleGroupPreviewProvider : PreviewParameterProvider<Filter
                 ),
                 initialSelected = setOf(),
             ),
-            FilterToggleGroupPreviewCase(
-                options = listOf(
-                    FilterToggleOption("Sim", "Sim", contentDescription = "B3 informado: Sim"),
-                ),
-                initialSelected = setOf(),
-            ),
         )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview(name = "Light", showBackground = true, widthDp = 360, uiMode = AndroidUiModes.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark", showBackground = true, widthDp = 360, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 private fun FilterToggleGroupPreview(
     @PreviewParameter(FilterToggleGroupPreviewProvider::class) previewCase: FilterToggleGroupPreviewCase,
 ) {
-
     AppThemeV2 {
-
         Surface {
+            Column(modifier = Modifier.padding(16.dp)) {
+                var selected by remember(previewCase) { mutableStateOf(previewCase.initialSelected) }
 
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-
-                FilterToggleSize.entries.forEach {
-
-                    var selected by remember(previewCase) { mutableStateOf(previewCase.initialSelected) }
-
-                    FilterToggleGroup(
-                        options = previewCase.options,
-                        selectedIds = selected,
-                        onToggle = { id ->
-                            selected = if (id in selected) selected - id else selected + id
-                        },
-                        size = it,
-                    )
-                }
+                FilterToggleGroup(
+                    options = previewCase.options,
+                    selectedIds = selected,
+                    onToggle = { id ->
+                        selected = if (id in selected) selected - id else selected + id
+                    },
+                )
             }
         }
     }
