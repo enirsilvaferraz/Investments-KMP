@@ -1,5 +1,6 @@
 package com.eferraz.presentation.features.walletfilters
 
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.YesOrNo
@@ -36,7 +37,14 @@ internal fun WalletFiltersUiState.selectMaturity(yearMonth: YearMonth): WalletFi
 internal fun WalletFiltersUiState.selectMaturityAny(): WalletFiltersUiState =
     copy(maturitySelection = null)
 
-internal fun WalletFiltersUiState.reset(): WalletFiltersUiState = WalletFiltersUiState.defaultForHistory()
+internal fun WalletFiltersUiState.toggleBrokerage(brokerage: Brokerage): WalletFiltersUiState =
+    copy(selectedBrokerage = if (brokerage == selectedBrokerage) null else brokerage)
+
+internal fun WalletFiltersUiState.reset(): WalletFiltersUiState =
+    WalletFiltersUiState.defaultForHistory().copy(brokerageOptions = brokerageOptions)
+
+internal fun WalletFiltersUiState.revertToHistoryDefaults(): WalletFiltersUiState =
+    WalletFiltersUiState.defaultForHistory().copy(brokerageOptions = brokerageOptions)
 
 internal fun WalletFiltersUiState.isClassSelected(assetClass: AssetClass): Boolean =
     assetClass in selectedCategories

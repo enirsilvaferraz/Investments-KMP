@@ -5,6 +5,15 @@ import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.holdings.HoldingHistoryEntry
+import com.eferraz.usecases.TestDataFactory.createAssetHolding
+import com.eferraz.usecases.TestDataFactory.createBrokerage
+import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
+import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry
+import com.eferraz.usecases.TestDataFactory.createInvestmentFundAsset
+import com.eferraz.usecases.TestDataFactory.createVariableIncomeAsset
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
@@ -13,6 +22,18 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class WalletHistoryFilterTest {
+
+    private val filter = FilterHoldingHistoryUseCase(context = Dispatchers.Unconfined)
+
+    private fun matches(
+        candidate: WalletHistoryFilterCandidate,
+        criteria: WalletHistoryFilterCriteria,
+    ): Boolean = runBlocking {
+        val entry = candidate.toTestEntry()
+        filter(FilterHoldingHistoryUseCase.Param(listOf(entry), criteria))
+            .getOrThrow()
+            .contains(entry)
+    }
 
     private val rfCdb = candidate(
         assetClass = AssetClass.FIXED_INCOME,
@@ -62,8 +83,8 @@ class WalletHistoryFilterTest {
         val criteria = WalletHistoryFilterCriteria()
 
         // WHEN
-        val active = matchesWalletHistoryFilter(rfCdb, criteria)
-        val liquidated = matchesWalletHistoryFilter(liquidatedRf, criteria)
+        val active = matches(rfCdb, criteria)
+        val liquidated = matches(liquidatedRf, criteria)
 
         // THEN
         assertTrue(active)
@@ -80,8 +101,8 @@ class WalletHistoryFilterTest {
         val criteria = WalletHistoryFilterCriteria(settled = setOf(false))
 
         // WHEN
-        val active = matchesWalletHistoryFilter(rfCdb, criteria)
-        val liquidated = matchesWalletHistoryFilter(liquidatedRf, criteria)
+        val active = matches(rfCdb, criteria)
+        val liquidated = matches(liquidatedRf, criteria)
 
         // THEN
         assertTrue(active)
@@ -98,8 +119,8 @@ class WalletHistoryFilterTest {
         val criteria = WalletHistoryFilterCriteria(assetClasses = setOf(AssetClass.FIXED_INCOME))
 
         // WHEN
-        val rf = matchesWalletHistoryFilter(rfCdb, criteria)
-        val rv = matchesWalletHistoryFilter(rvStock, criteria)
+        val rf = matches(rfCdb, criteria)
+        val rv = matches(rvStock, criteria)
 
         // THEN
         assertTrue(rf)
@@ -121,9 +142,9 @@ class WalletHistoryFilterTest {
         )
 
         // WHEN
-        val rf = matchesWalletHistoryFilter(rfCdb, criteria)
-        val rv = matchesWalletHistoryFilter(rvStock, criteria)
-        val fundMatch = matchesWalletHistoryFilter(fund, criteria)
+        val rf = matches(rfCdb, criteria)
+        val rv = matches(rvStock, criteria)
+        val fundMatch = matches(fund, criteria)
 
         // THEN
         assertTrue(rf)
@@ -144,8 +165,8 @@ class WalletHistoryFilterTest {
         )
 
         // WHEN
-        val informed = matchesWalletHistoryFilter(rfCdb, criteria)
-        val notInformed = matchesWalletHistoryFilter(rfLci, criteria)
+        val informed = matches(rfCdb, criteria)
+        val notInformed = matches(rfLci, criteria)
 
         // THEN
         assertTrue(informed)
@@ -162,9 +183,9 @@ class WalletHistoryFilterTest {
         val criteria = WalletHistoryFilterCriteria(liquidities = setOf(Liquidity.DAILY))
 
         // WHEN
-        val rfDaily = matchesWalletHistoryFilter(rfCdb, criteria)
-        val rfAtMaturity = matchesWalletHistoryFilter(rfLci, criteria)
-        val rvMatch = matchesWalletHistoryFilter(rvStock, criteria)
+        val rfDaily = matches(rfCdb, criteria)
+        val rfAtMaturity = matches(rfLci, criteria)
+        val rvMatch = matches(rvStock, criteria)
 
         // THEN
         assertTrue(rfDaily)
@@ -182,9 +203,9 @@ class WalletHistoryFilterTest {
         val criteria = WalletHistoryFilterCriteria(maturityUpTo = YearMonth(2026, Month.JUNE))
 
         // WHEN
-        val rfInRange = matchesWalletHistoryFilter(rfCdb, criteria)
-        val rfAfter = matchesWalletHistoryFilter(rfLci, criteria)
-        val rvMatch = matchesWalletHistoryFilter(rvStock, criteria)
+        val rfInRange = matches(rfCdb, criteria)
+        val rfAfter = matches(rfLci, criteria)
+        val rvMatch = matches(rvStock, criteria)
 
         // THEN
         assertTrue(rfInRange)
@@ -226,9 +247,9 @@ class WalletHistoryFilterTest {
         val criteria = WalletHistoryFilterCriteria(maturityUpTo = YearMonth(2026, Month.NOVEMBER))
 
         // WHEN
-        val mayMatch = matchesWalletHistoryFilter(assetMay, criteria)
-        val novemberMatch = matchesWalletHistoryFilter(assetNovember, criteria)
-        val decemberMatch = matchesWalletHistoryFilter(assetDecember, criteria)
+        val mayMatch = matches(assetMay, criteria)
+        val novemberMatch = matches(assetNovember, criteria)
+        val decemberMatch = matches(assetDecember, criteria)
 
         // THEN
         assertTrue(mayMatch)
@@ -248,9 +269,9 @@ class WalletHistoryFilterTest {
         val dailyAfterMonth = rfCdb.copy(expirationDate = LocalDate(2027, Month.JANUARY, 1))
 
         // WHEN
-        val withoutExpirationMatch = matchesWalletHistoryFilter(dailyWithoutExpiration, criteria)
-        val afterMonthMatch = matchesWalletHistoryFilter(dailyAfterMonth, criteria)
-        val atMaturityAfterMonth = matchesWalletHistoryFilter(rfLci, criteria)
+        val withoutExpirationMatch = matches(dailyWithoutExpiration, criteria)
+        val afterMonthMatch = matches(dailyAfterMonth, criteria)
+        val atMaturityAfterMonth = matches(rfLci, criteria)
 
         // THEN
         assertTrue(withoutExpirationMatch)
@@ -268,8 +289,8 @@ class WalletHistoryFilterTest {
         val criteria = WalletHistoryFilterCriteria(b3Informed = setOf(true, false))
 
         // WHEN
-        val informed = matchesWalletHistoryFilter(rfCdb, criteria)
-        val notInformed = matchesWalletHistoryFilter(rfLci, criteria)
+        val informed = matches(rfCdb, criteria)
+        val notInformed = matches(rfLci, criteria)
 
         // THEN
         assertTrue(informed)
@@ -286,14 +307,14 @@ class WalletHistoryFilterTest {
         val criteria = WalletHistoryFilterCriteria.defaultForHistory()
 
         // WHEN
-        val active = matchesWalletHistoryFilter(rfCdb, criteria)
-        val liquidated = matchesWalletHistoryFilter(liquidatedRf, criteria)
+        val active = matches(rfCdb, criteria)
+        val liquidated = matches(liquidatedRf, criteria)
         val emptyCriteria = WalletHistoryFilterCriteria()
 
         // THEN
         assertTrue(active)
         assertFalse(liquidated)
-        assertTrue(matchesWalletHistoryFilter(liquidatedRf, emptyCriteria))
+        assertTrue(matches(liquidatedRf, emptyCriteria))
     }
 
     /**
@@ -311,14 +332,109 @@ class WalletHistoryFilterTest {
         )
 
         // WHEN
-        val cdb = matchesWalletHistoryFilter(rfCdb, criteria)
-        val lci = matchesWalletHistoryFilter(rfLci, criteria)
-        val rvMatch = matchesWalletHistoryFilter(rvStock, criteria)
+        val cdb = matches(rfCdb, criteria)
+        val lci = matches(rfLci, criteria)
+        val rvMatch = matches(rvStock, criteria)
 
         // THEN
         assertTrue(cdb)
         assertTrue(lci)
         assertTrue(rvMatch)
+    }
+
+    /**
+     * Brokerage: single id → only matching candidate passes.
+     */
+    @Test
+    fun `GIVEN single brokerage id WHEN matchesWalletHistoryFilter THEN only that brokerage passes`() {
+
+        // GIVEN
+        val criteria = WalletHistoryFilterCriteria(brokerageIds = setOf(1L))
+        val atBroker1 = rfCdb.copy(brokerageId = 1L)
+        val atBroker2 = rfCdb.copy(brokerageId = 2L)
+
+        // WHEN
+        val match1 = matches(atBroker1, criteria)
+        val match2 = matches(atBroker2, criteria)
+
+        // THEN
+        assertTrue(match1)
+        assertFalse(match2)
+    }
+
+    /**
+     * Brokerage: OR two ids → either brokerage passes.
+     */
+    @Test
+    fun `GIVEN two brokerage ids WHEN matchesWalletHistoryFilter THEN OR passes`() {
+
+        // GIVEN
+        val criteria = WalletHistoryFilterCriteria(brokerageIds = setOf(1L, 2L))
+
+        // WHEN
+        val match1 = matches(rfCdb.copy(brokerageId = 1L), criteria)
+        val match2 = matches(rfCdb.copy(brokerageId = 2L), criteria)
+        val match3 = matches(rfCdb.copy(brokerageId = 3L), criteria)
+
+        // THEN
+        assertTrue(match1)
+        assertTrue(match2)
+        assertFalse(match3)
+    }
+
+    /**
+     * Brokerage AND asset class: fixed income at broker 1 only.
+     */
+    @Test
+    fun `GIVEN brokerage and fixed income WHEN matchesWalletHistoryFilter THEN AND applies`() {
+
+        // GIVEN
+        val criteria = WalletHistoryFilterCriteria(
+            brokerageIds = setOf(1L),
+            assetClasses = setOf(AssetClass.FIXED_INCOME),
+        )
+
+        // WHEN
+        val rfBroker1 = matches(rfCdb.copy(brokerageId = 1L), criteria)
+        val rvBroker1 = matches(rvStock.copy(brokerageId = 1L), criteria)
+        val rfBroker2 = matches(rfCdb.copy(brokerageId = 2L), criteria)
+
+        // THEN
+        assertTrue(rfBroker1)
+        assertFalse(rvBroker1)
+        assertFalse(rfBroker2)
+    }
+
+    /**
+     * Empty brokerageIds → group inactive, all pass.
+     */
+    @Test
+    fun `GIVEN empty brokerage ids WHEN matchesWalletHistoryFilter THEN group inactive`() {
+
+        // GIVEN
+        val criteria = WalletHistoryFilterCriteria()
+
+        // WHEN
+        val match = matches(rfCdb.copy(brokerageId = 99L), criteria)
+
+        // THEN
+        assertTrue(match)
+    }
+
+    /**
+     * Nonexistent brokerage id in criteria → no candidate passes.
+     */
+    @Test
+    fun `GIVEN nonexistent brokerage id WHEN matchesWalletHistoryFilter THEN no match`() {
+
+        // GIVEN
+        val criteria = WalletHistoryFilterCriteria(brokerageIds = setOf(99L))
+
+        // WHEN
+        val match = matches(rfCdb.copy(brokerageId = 1L), criteria)
+
+        // THEN
+        assertFalse(match)
     }
 
     private fun candidate(
@@ -328,6 +444,7 @@ class WalletHistoryFilterTest {
         b3Informed: Boolean,
         settled: Boolean,
         expirationDate: LocalDate?,
+        brokerageId: Long = 1L,
     ): WalletHistoryFilterCandidate =
         WalletHistoryFilterCandidate(
             assetClass = assetClass,
@@ -336,5 +453,39 @@ class WalletHistoryFilterTest {
             b3Informed = b3Informed,
             settled = settled,
             expirationDate = expirationDate,
+            brokerageId = brokerageId,
         )
+
+    private fun WalletHistoryFilterCandidate.toTestEntry(): HoldingHistoryEntry {
+        val endOfMonthValue = if (settled) 0.0 else 100.0
+        val asset =
+            when (val subtype = subtype) {
+                is WalletHistorySubtype.FixedIncome ->
+                    createFixedIncomeAsset(
+                        type = subtype.value,
+                        expirationDate = expirationDate ?: LocalDate(2026, Month.JUNE, 1),
+                    ).copy(
+                        liquidity = liquidity ?: Liquidity.DAILY,
+                        b3Identifier = if (b3Informed) "b3" else null,
+                    )
+
+                is WalletHistorySubtype.VariableIncome ->
+                    createVariableIncomeAsset(type = subtype.value)
+
+                is WalletHistorySubtype.InvestmentFund ->
+                    createInvestmentFundAsset(type = subtype.value)
+                        .copy(
+                            liquidity = liquidity ?: Liquidity.DAILY,
+                            expirationDate = expirationDate,
+                        )
+            }
+        return createHoldingHistoryEntry(
+            holding = createAssetHolding(
+                asset = asset,
+                brokerage = createBrokerage(id = brokerageId),
+            ),
+            endOfMonthValue = endOfMonthValue,
+            endOfMonthQuantity = 1.0,
+        )
+    }
 }

@@ -1,7 +1,6 @@
 package com.eferraz.presentation.features.history
 
 import com.eferraz.entities.holdings.AssetHolding
-import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.presentation.features.summary.SummaryProperties
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanelOptions
@@ -14,7 +13,6 @@ internal data class HistoryState(
     val summaryProperties: SummaryProperties = SummaryProperties(),
     val selectedHolding: AssetHolding? = null,
     val period: Choice<YearMonth> = Choice(null, emptyList()),
-    val brokerage: Choice<Brokerage> = Choice(null, emptyList()),
     val walletFilters: WalletFiltersUiState = WalletFiltersUiState.defaultForHistory(),
     val walletFilterOptions: WalletFiltersPanelOptions = WalletFiltersPanelOptions(),
     val transactions: List<AssetTransaction> = emptyList(),

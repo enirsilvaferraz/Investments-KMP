@@ -22,7 +22,7 @@ Seguir as orientações de @../.specify/memory/constitution.md
 - **`FilterToggleGroup`** / **`FilterToggleOption`** (`filter/FilterToggleGroup.kt`): multi-selecção com **`FilterChip`** M3 (tamanho e tipografia padrão do componente, sem ícones), `FlowRow` com espaçamento 8dp; tooltips quando `contentDescription != label`.
 - **`FilterSectionHeader`**: cabeçalho de secção com ícone + label uppercase.
 - **`WalletFiltersPanel`** (`composeApp/.../walletfilters/`): painel em `OutlinedCard`; modelos/catálogo/previews em `WalletFilters.kt`, UI em `WalletFiltersPanel.kt`.
-- **Histórico + filtros** (`composeApp/.../history/`): estado `walletFilters` / `walletFilterOptions` no `HistoryViewModel`; `defaultForHistory()` + `deriveWalletFiltersPanelOptions(facets)`; mapper `WalletFiltersToCriteria.kt`; domínio `WalletHistoryFilter.kt` + `GetHistoryTableDataUseCase.Param(walletFilter)`.
+- **Histórico + filtros** (`composeApp/.../history/`): `WalletFiltersUiState` (painel + `selectedBrokerage` / `brokerageOptions` derivadas do mês); `facetCriteriaForPanelOptions()` (facetas do painel restritas pela corretora) e `facetCriteriaForBrokerageOptions()` (corretoras visíveis restritas pelo painel); `deriveWalletFiltersPanelOptions(facets)`; domínio `FilterHoldingHistoryEntriesUseCase` + `GetHistoryTableDataUseCase.Param(referenceDate, walletFilter)` (feature `018-holding-history-filter`).
 
 ## Posição e transações (`:domain:entity`, feature `017-holding-transactions`)
 

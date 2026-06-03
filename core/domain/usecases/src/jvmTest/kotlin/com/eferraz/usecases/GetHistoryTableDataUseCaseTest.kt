@@ -170,7 +170,6 @@ internal class GetHistoryTableDataUseCaseTest {
     val param =
         GetHistoryTableDataUseCase.Param(
             referenceDate = YearMonth(2026, Month.JUNE),
-            brokerage = null,
             walletFilter = WalletHistoryFilterCriteria.defaultForHistory(),
         )
 

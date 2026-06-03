@@ -1,6 +1,7 @@
 package com.eferraz.presentation.features.walletfilters
 
 import androidx.compose.runtime.Immutable
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentFundAssetType
@@ -56,6 +57,8 @@ internal data class WalletFiltersUiState(
     val selectedB3: Set<YesOrNo> = emptySet(),
     val selectedSettled: Set<YesOrNo> = emptySet(),
     val maturitySelection: YearMonth? = null,
+    val selectedBrokerage: Brokerage? = null,
+    val brokerageOptions: List<Brokerage> = emptyList(),
 ) {
     companion object {
         fun initial(): WalletFiltersUiState = WalletFiltersUiState()

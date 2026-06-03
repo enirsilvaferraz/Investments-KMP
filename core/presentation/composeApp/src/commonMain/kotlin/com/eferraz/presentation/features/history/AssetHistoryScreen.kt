@@ -58,6 +58,7 @@ import com.eferraz.presentation.features.summary.SummaryProperties
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanel
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanelOptions
 import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
+import com.eferraz.presentation.features.walletfilters.toggleBrokerage
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
@@ -85,9 +86,6 @@ public fun HoldingHistoryRoute(
             )
         }
     }
-    val onBrokerageChange = remember(vm) {
-        { b: Brokerage -> vm.processIntent(HistoryIntent.SelectBrokerage(b)) }
-    }
     val onPeriodChange = remember(vm) {
         { p: YearMonth -> vm.processIntent(HistoryIntent.SelectPeriod(p)) }
     }
@@ -107,9 +105,6 @@ public fun HoldingHistoryRoute(
     HoldingHistoryScreen(
         dataRows = state.tableData,
         onValueChange = onValueChange,
-        brokerageSelected = state.brokerage.selected,
-        brokerageOptions = state.brokerage.options,
-        onBrokerageChange = onBrokerageChange,
         periodSelected = state.period.selected!!,
         periodOptions = state.period.options,
         onPeriodChange = onPeriodChange,
@@ -131,9 +126,6 @@ public fun HoldingHistoryRoute(
 internal fun HoldingHistoryScreen(
     dataRows: List<HoldingHistoryView>,
     onValueChange: (HoldingHistoryView, Double) -> Unit,
-    brokerageSelected: Brokerage?,
-    brokerageOptions: List<Brokerage>,
-    onBrokerageChange: (Brokerage) -> Unit,
     periodSelected: YearMonth,
     periodOptions: List<YearMonth>,
     onPeriodChange: (YearMonth) -> Unit,
@@ -179,9 +171,11 @@ internal fun HoldingHistoryScreen(
         },
         subMainPane = {
             SegmentedControl(
-                selected = brokerageSelected?.let { SegmentedControlChoice(it, it.name) },
-                options = StableList(brokerageOptions.map { SegmentedControlChoice(it, it.name) }),
-                onSelect = { choice -> onBrokerageChange(choice.id) }
+                selected = walletFilters.selectedBrokerage?.let { SegmentedControlChoice(it, it.name) },
+                options = StableList(walletFilters.brokerageOptions.map { SegmentedControlChoice(it, it.name) }),
+                onSelect = { choice ->
+                    onWalletFiltersChange(walletFilters.toggleBrokerage(choice.id))
+                },
             )
         },
         supportingPaneWidthRate = 0.25f,

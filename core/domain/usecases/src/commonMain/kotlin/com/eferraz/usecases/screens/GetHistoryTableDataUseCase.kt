@@ -6,13 +6,11 @@ import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
-import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.AppUseCase
 import com.eferraz.usecases.MergeHistoryUseCase
 import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HistoryTableData
-import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.entities.InvestmentFundHistoryTableData
 import com.eferraz.usecases.entities.VariableIncomeHistoryTableData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -29,12 +27,12 @@ import org.koin.core.annotation.Factory
 @Factory
 public class GetHistoryTableDataUseCase(
     private val mergeHistoryUseCase: MergeHistoryUseCase,
+    private val filterHoldingHistoryUseCase: FilterHoldingHistoryUseCase,
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<GetHistoryTableDataUseCase.Param, List<HistoryTableData>>(context) {
 
     public data class Param(
         val referenceDate: YearMonth,
-        val brokerage: Brokerage?,
         val walletFilter: WalletHistoryFilterCriteria,
     )
 
@@ -44,9 +42,12 @@ public class GetHistoryTableDataUseCase(
             .onFailure { println("Error: ${it.message}") }
             .getOrNull() ?: emptyList()
 
-        val filtered = results
-            .filter { param.brokerage == null || it.holding.brokerage == param.brokerage }
-            .filter { matchesWalletHistoryFilter(it.toWalletHistoryFilterCandidate(), param.walletFilter) }
+        val currentEntries = results.map { it.currentEntry }
+
+        val filteredEntries = filterHoldingHistoryUseCase(FilterHoldingHistoryUseCase.Param(currentEntries, param.walletFilter)).getOrElse { emptyList() }
+
+        val passingHoldingIds = filteredEntries.map { it.holding.id }.toSet()
+        val filtered = results.filter { it.holding.id in passingHoldingIds }
         val sortedBy = filtered
             .mapNotNull { result ->
 
@@ -157,35 +158,3 @@ public class GetHistoryTableDataUseCase(
         } + " - $name"
 }
 
-internal fun HoldingHistoryResult.toWalletHistoryFilterCandidate(): WalletHistoryFilterCandidate {
-    val asset = holding.asset
-    val currentValue = currentEntry.endOfMonthValue * currentEntry.endOfMonthQuantity
-    return when (asset) {
-        is FixedIncomeAsset -> WalletHistoryFilterCandidate(
-            assetClass = asset.assetClass,
-            subtype = WalletHistorySubtype.FixedIncome(asset.type),
-            liquidity = asset.liquidity,
-            b3Informed = asset.b3Identifier.orEmpty().trim().isNotEmpty(),
-            settled = currentValue == 0.0,
-            expirationDate = asset.expirationDate,
-        )
-
-        is VariableIncomeAsset -> WalletHistoryFilterCandidate(
-            assetClass = asset.assetClass,
-            subtype = WalletHistorySubtype.VariableIncome(asset.type),
-            liquidity = asset.liquidity,
-            b3Informed = true,
-            settled = currentValue == 0.0,
-            expirationDate = null,
-        )
-
-        is InvestmentFundAsset -> WalletHistoryFilterCandidate(
-            assetClass = asset.assetClass,
-            subtype = WalletHistorySubtype.InvestmentFund(asset.type),
-            liquidity = asset.liquidity,
-            b3Informed = false,
-            settled = currentValue == 0.0,
-            expirationDate = asset.expirationDate,
-        )
-    }
-}
