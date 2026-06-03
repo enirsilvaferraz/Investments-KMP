@@ -13,6 +13,7 @@ import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.TransactionBalance
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
 
@@ -45,6 +46,14 @@ public data class HoldingHistoryRow private constructor(
 
     public val displayName: String
         get() = formatDisplayName(currentEntry.holding.asset)
+
+    /** Data de vencimento quando o ativo possui (renda fixa ou fundo com vencimento). */
+    public val expirationDate: LocalDate?
+        get() = when (val asset = currentEntry.holding.asset) {
+            is FixedIncomeAsset -> asset.expirationDate
+            is InvestmentFundAsset -> asset.expirationDate
+            is VariableIncomeAsset -> null
+        }
 
     public val observation: String
         get() = currentEntry.holding.asset.observations.orEmpty()
@@ -135,16 +144,16 @@ public data class HoldingHistoryRow private constructor(
 
         private fun FixedIncomeAsset.formattedDisplayName(): String =
             when (indexer) {
-                YieldIndexer.POST_FIXED -> "${type.name} de $contractedYield% do CDI (venc: $expirationDate)"
-                YieldIndexer.PRE_FIXED -> "${type.name} de $contractedYield% a.a. (venc: $expirationDate)"
-                YieldIndexer.INFLATION_LINKED -> "${type.name} + $contractedYield% (venc: $expirationDate)"
+                YieldIndexer.POST_FIXED -> "${type.name} de $contractedYield% do CDI"
+                YieldIndexer.PRE_FIXED -> "${type.name} de $contractedYield% a.a."
+                YieldIndexer.INFLATION_LINKED -> "${type.name} + $contractedYield%"
             }
 
         private fun VariableIncomeAsset.formattedDisplayName(): String {
             val typeLabel = when (type) {
-                VariableIncomeAssetType.NATIONAL_STOCK -> "Ação Nacional"
-                VariableIncomeAssetType.INTERNATIONAL_STOCK -> "Ação Internacional"
-                VariableIncomeAssetType.REAL_ESTATE_FUND -> "Fundo Imobiliário"
+                VariableIncomeAssetType.NATIONAL_STOCK -> "Ação Nac"
+                VariableIncomeAssetType.INTERNATIONAL_STOCK -> "Ação Int"
+                VariableIncomeAssetType.REAL_ESTATE_FUND -> "FII"
                 VariableIncomeAssetType.ETF -> "ETF"
             }
             return "$typeLabel - $ticker"
@@ -154,7 +163,7 @@ public data class HoldingHistoryRow private constructor(
             val typeLabel = when (type) {
                 InvestmentFundAssetType.PENSION -> "Previdência"
                 InvestmentFundAssetType.STOCK_FUND -> "Fundo de Ação"
-                InvestmentFundAssetType.MULTIMARKET_FUND -> "Fundo Multimercado"
+                InvestmentFundAssetType.MULTIMARKET_FUND -> "Multimercado"
             }
             return "$typeLabel - $name"
         }

@@ -76,6 +76,8 @@ internal class HoldingHistoryRowTest {
         assertEquals(AssetClass.FIXED_INCOME, row.assetClass)
         assertEquals(Liquidity.DAILY, row.liquidity)
         assertEquals("XP Investimentos", row.brokerageName)
+        assertEquals("CDB de 12.0% a.a.", row.displayName)
+        assertEquals(LocalDate(2030, Month.JUNE, 1), row.expirationDate)
         assertEquals("Obs test", row.observation)
         assertEquals(100.0, row.previousValue, 0.01)
         assertEquals(110.0, row.currentValue, 0.01)
@@ -125,6 +127,7 @@ internal class HoldingHistoryRowTest {
         assertEquals("PETR4", status.value)
         assertEquals(Liquidity.D_PLUS_DAYS, row.liquidity)
         assertEquals("Ação Nacional - PETR4", row.displayName)
+        assertEquals(null, row.expirationDate)
         assertEquals(false, row.isCurrentValueEnabled())
     }
 
@@ -240,6 +243,36 @@ internal class HoldingHistoryRowTest {
         assertEquals(100.0, row.appreciationValue, 0.01)
         assertEquals(10.0, row.appreciationPercentage, 0.01)
         assertEquals("Fundo Multimercado - Multimercado Alpha", row.displayName)
+        assertEquals(null, row.expirationDate)
+    }
+
+    /**
+     * Investment fund with expiration date exposes it on the row.
+     */
+    @Test
+    fun `GIVEN investment fund with expiration WHEN build THEN expirationDate is set`() {
+
+        // GIVEN
+        val period = YearMonth(2024, Month.MARCH)
+        val expiration = LocalDate(2028, Month.DECEMBER, 15)
+        val asset = InvestmentFundAsset(
+            id = 4,
+            name = "Fund With Maturity",
+            issuer = issuer,
+            type = InvestmentFundAssetType.PENSION,
+            liquidity = Liquidity.AT_MATURITY,
+            liquidityDays = 0,
+            expirationDate = expiration,
+        )
+        val holding = AssetHolding(id = 4, asset = asset, owner = owner, brokerage = brokerage)
+        val current = HoldingHistoryEntry(holding = holding, referenceDate = period)
+
+        // WHEN
+        val row = HoldingHistoryRow.build(period, emptyList(), listOf(current)).single()
+
+        // THEN
+        assertEquals(expiration, row.expirationDate)
+        assertEquals("Previdência - Fund With Maturity", row.displayName)
     }
 
     /**

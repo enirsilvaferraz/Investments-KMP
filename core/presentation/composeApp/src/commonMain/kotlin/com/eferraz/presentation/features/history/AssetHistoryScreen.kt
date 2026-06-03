@@ -253,6 +253,14 @@ private fun Actions(
 private fun historyRowTextColor(row: HoldingHistoryRow): Color =
     if (row.isLiquidated) historyMutedTextColor() else LocalContentColor.current
 
+@Composable
+private fun appreciationTextColor(amount: Double): Color =
+    when {
+        amount < 0 -> MaterialTheme.colorScheme.error
+        amount > 0 -> getSuccessColor()
+        else -> historyMutedTextColor()
+    }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Table(
@@ -292,6 +300,16 @@ private fun Table(
                     width = TableColumnWidth.Flex(1f),
                     comparable = { it.displayName },
                     content = { row -> Text(row.displayName, color = historyRowTextColor(row)) }
+                ),
+
+                UiTableDataColumn(
+                    text = "Vencimento",
+                    width = TableColumnWidth.MaxIntrinsic,
+                    comparable = { it.expirationDate.formated() },
+                    content = { row ->
+                        val label = row.expirationDate?.formated().orEmpty()
+                        Text(label, color = historyRowTextColor(row))
+                    }
                 ),
 
                 UiTableDataColumn(
@@ -362,16 +380,25 @@ private fun Table(
                 UiTableDataColumn(
                     text = "Valorização",
                     width = TableColumnWidth.MaxIntrinsic,
+                    alignment = Alignment.CenterEnd,
+                    comparable = { it.appreciationValue },
+                    content = { row ->
+                        Text(
+                            text = row.appreciationValue.currencyFormat(),
+                            color = appreciationTextColor(row.appreciationValue),
+                        )
+                    }
+                ),
+
+                UiTableDataColumn(
+                    text = "%",
+                    width = TableColumnWidth.MaxIntrinsic,
                     alignment = Alignment.Center,
                     comparable = { it.appreciationPercentage },
-                    content = {
+                    content = { row ->
                         Text(
-                            text = it.appreciationPercentage.toPercentage(),
-                            color = when {
-                                it.appreciationPercentage < 0 -> MaterialTheme.colorScheme.error
-                                it.appreciationPercentage > 0 -> getSuccessColor()
-                                else -> historyMutedTextColor()
-                            }
+                            text = row.appreciationPercentage.toPercentage(),
+                            color = appreciationTextColor(row.appreciationPercentage),
                         )
                     }
                 ),
