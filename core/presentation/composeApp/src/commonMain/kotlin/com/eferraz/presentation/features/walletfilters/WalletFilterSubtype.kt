@@ -21,7 +21,7 @@ internal fun WalletFilterSubtype.assetClass(): AssetClass =
 
 internal val subtypesByAssetClass: Map<AssetClass, List<WalletFilterSubtype>> =
     mapOf(
-        AssetClass.FIXED_INCOME to FixedIncomeAssetType.entries.map { WalletFilterSubtype.FixedIncome(it) },
+        AssetClass.FIXED_INCOME to FixedIncomeAssetType.entries.filter { it != FixedIncomeAssetType.DEBENTURE }.map { WalletFilterSubtype.FixedIncome(it) },
         AssetClass.VARIABLE_INCOME to VariableIncomeAssetType.entries.map { WalletFilterSubtype.VariableIncome(it) },
         AssetClass.INVESTMENT_FUND to InvestmentFundAssetType.entries.map { WalletFilterSubtype.InvestmentFund(it) },
     )

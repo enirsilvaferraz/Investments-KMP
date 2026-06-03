@@ -172,13 +172,13 @@ internal fun HoldingHistoryScreen(
         subMainPane = {
             SegmentedControl(
                 selected = walletFilters.selectedBrokerage?.let { SegmentedControlChoice(it, it.name) },
-                options = StableList(walletFilters.brokerageOptions.map { SegmentedControlChoice(it, it.name) }),
+                options = StableList(walletFilterOptions.commons.brokerageOptions.map { SegmentedControlChoice(it.id, it.id.name) },),
                 onSelect = { choice ->
                     onWalletFiltersChange(walletFilters.toggleBrokerage(choice.id))
                 },
             )
         },
-        supportingPaneWidthRate = 0.25f,
+        supportingPaneWidthRate = 0.255f,
         supportingPane = {
             Supporting(
                 walletFilterOptions = walletFilterOptions,

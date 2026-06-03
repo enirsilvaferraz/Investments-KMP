@@ -17,16 +17,6 @@ internal fun WalletFiltersUiState.toWalletHistoryFilterCriteria(): WalletHistory
         brokerageIds = selectedBrokerage?.id?.let { setOf(it) } ?: emptySet(),
     )
 
-/** Facetas do painel: só corretora activa; grupos do painel inactivos (FR-009). */
-internal fun WalletFiltersUiState.facetCriteriaForPanelOptions(): WalletHistoryFilterCriteria =
-    WalletHistoryFilterCriteria(
-        brokerageIds = selectedBrokerage?.id?.let { setOf(it) } ?: emptySet(),
-    )
-
-/** Opções de corretora: critérios do painel activos; corretora inactiva (paridade com classe). */
-internal fun WalletFiltersUiState.facetCriteriaForBrokerageOptions(): WalletHistoryFilterCriteria =
-    toWalletHistoryFilterCriteria().copy(brokerageIds = emptySet())
-
 private fun WalletFilterSubtype.toWalletHistorySubtype(): WalletHistorySubtype =
     when (this) {
         is WalletFilterSubtype.FixedIncome -> WalletHistorySubtype.FixedIncome(value)

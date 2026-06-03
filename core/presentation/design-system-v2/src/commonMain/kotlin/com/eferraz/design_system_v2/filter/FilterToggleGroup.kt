@@ -156,7 +156,7 @@ private fun <T> FilterToggleChip(
         colors = colors,
         border = FilterChipDefaults.filterChipBorder(enabled = enabled, selected = selected),
         elevation = null, // Evita highlight rectangular no hover em Compose Desktop (CMP #2868).
-        contentPadding = PaddingValues(horizontal = 4.dp)
+        contentPadding = PaddingValues(horizontal = 2.dp)
     )
 }
 

@@ -3,18 +3,16 @@ package com.eferraz.presentation.features.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.entities.holdings.Appreciation
-import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Growth
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.presentation.features.summary.SummaryProperties
+import com.eferraz.presentation.features.walletfilters.WalletFiltersCatalog
 import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
-import com.eferraz.presentation.features.walletfilters.deriveWalletFiltersPanelOptions
 import com.eferraz.presentation.features.walletfilters.revertToHistoryDefaults
-import com.eferraz.presentation.features.walletfilters.toWalletFilterHoldingFacet
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
+import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetCurrentYearMonthUseCase
-import com.eferraz.usecases.entities.HistoryTableData
 import com.eferraz.usecases.entities.HoldingHistoryView
 import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
 import com.eferraz.usecases.screens.maturityFilterMonthRange
@@ -33,6 +31,7 @@ import org.koin.core.annotation.KoinViewModel
 internal class HistoryViewModel(
     private val getCurrentYearMonthUseCase: GetCurrentYearMonthUseCase,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
+    private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val getHistoryTableDataUseCase: GetHistoryTableDataUseCase,
     private val updateFixedIncomeAndFundsHistoryValueUseCase: UpdateFixedIncomeAndFundsHistoryValueUseCase,
     private val updateVariableIncomeValues: SyncVariableIncomeValuesUseCase,
@@ -134,47 +133,31 @@ internal class HistoryViewModel(
     }
 
     internal fun loadInitialData() {
-
         val period = state.value.period.selected!!
         val filters = state.value.walletFilters
         val walletFilter = filters.toWalletHistoryFilterCriteria()
-        val panelFacetCriteria = filters.facetCriteriaForPanelOptions()
-        val brokerageFacetCriteria = filters.facetCriteriaForBrokerageOptions()
 
         viewModelScope.launch {
-
-            val panelFacetRows = async {
-                getHistoryTableDataUseCase(
-                    GetHistoryTableDataUseCase.Param(period, panelFacetCriteria),
-                ).getOrNull() ?: emptyList()
+            val currentMonth = async { getCurrentYearMonthUseCase(Unit).getOrThrow() }
+            val brokerages = async {
+                getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrNull().orEmpty()
             }
-
-            val brokerageFacetRows = async {
-                getHistoryTableDataUseCase(
-                    GetHistoryTableDataUseCase.Param(period, brokerageFacetCriteria),
-                ).getOrNull() ?: emptyList()
-            }
-
             val tableRows = async {
-                getHistoryTableDataUseCase(
-                    GetHistoryTableDataUseCase.Param(period, walletFilter),
-                ).getOrNull() ?: emptyList()
+                getHistoryTableDataUseCase(GetHistoryTableDataUseCase.Param(period, walletFilter))
+                    .getOrNull() ?: emptyList()
             }
 
-            val currentMonth = getCurrentYearMonthUseCase(Unit).getOrThrow()
-            val panelFacetData = panelFacetRows.await()
-            val facets = panelFacetData.map { HoldingHistoryView(it).toWalletFilterHoldingFacet() }
+            val maturityMonths = maturityFilterMonthRange(currentMonth.await())
+            val brokerageOptions =
+                brokerages.await()
+                    .sortedBy { it.name }
+                    .map(WalletFiltersCatalog::brokerageOption)
             val walletFilterOptions =
-                deriveWalletFiltersPanelOptions(
-                    facets = facets,
-                    maturityMonths = maturityFilterMonthRange(currentMonth),
-                )
+                WalletFiltersCatalog.staticPanelOptions(maturityMonths, brokerageOptions)
 
-            val brokerageOptions = brokerageFacetRows.await().deriveBrokerageOptions()
+            val availableBrokerageIds = brokerageOptions.map { it.id.id }.toSet()
             val selectedBrokerage =
-                filters.selectedBrokerage?.takeIf { selected ->
-                    brokerageOptions.any { it.id == selected.id }
-                }
+                filters.selectedBrokerage?.takeIf { it.id in availableBrokerageIds }
 
             val tableData = tableRows.await().map { HoldingHistoryView(it) }
 
@@ -190,10 +173,7 @@ internal class HistoryViewModel(
                 it.copy(
                     tableData = tableData,
                     walletFilterOptions = walletFilterOptions,
-                    walletFilters = it.walletFilters.copy(
-                        brokerageOptions = brokerageOptions,
-                        selectedBrokerage = selectedBrokerage,
-                    ),
+                    walletFilters = filters.copy(selectedBrokerage = selectedBrokerage),
                     summaryProperties = SummaryProperties(
                         previousValue = previousValue,
                         actualValue = actualValue,
@@ -209,11 +189,6 @@ internal class HistoryViewModel(
         }
     }
 }
-
-private fun List<HistoryTableData>.deriveBrokerageOptions(): List<Brokerage> =
-    map { it.currentEntry.holding.brokerage }
-        .distinctBy { it.id }
-        .sortedBy { it.name }
 
 internal sealed interface HistoryIntent {
     data object LoadInitialData : HistoryIntent

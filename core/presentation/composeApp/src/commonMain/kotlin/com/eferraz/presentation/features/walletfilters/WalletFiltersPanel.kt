@@ -279,7 +279,7 @@ private fun PanelLabel(
     ) {
 
         FilterSectionHeader(
-            modifier = Modifier.width(120.dp),
+            modifier = Modifier.width(105.dp),
             icon = icon,
             label = label,
         )
