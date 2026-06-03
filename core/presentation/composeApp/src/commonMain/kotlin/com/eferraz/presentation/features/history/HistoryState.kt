@@ -4,12 +4,12 @@ import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanelOptions
 import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
-import com.eferraz.usecases.entities.HoldingHistoryView
+import com.eferraz.usecases.entities.HoldingHistoryRow
 import com.eferraz.usecases.entities.MonthSummary
 import kotlinx.datetime.YearMonth
 
 internal data class HistoryState(
-    val tableData: List<HoldingHistoryView> = emptyList(),
+    val tableData: List<HoldingHistoryRow> = emptyList(),
     val monthSummary: MonthSummary = MonthSummary(),
     val selectedHolding: AssetHolding? = null,
     val period: Choice<YearMonth> = Choice(null, emptyList()),

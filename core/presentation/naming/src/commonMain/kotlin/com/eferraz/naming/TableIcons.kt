@@ -2,8 +2,10 @@ package com.eferraz.naming
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.EventBusy
+import androidx.compose.material.icons.filled.EventSeat
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,12 +33,14 @@ public fun Liquidity.BuildIcon() {
 
     val icon = when (this) {
         Liquidity.DAILY -> Icons.Default.EventAvailable
-        else -> Icons.Default.EventBusy
+        Liquidity.D_PLUS_DAYS -> Icons.Default.CalendarMonth
+        Liquidity.AT_MATURITY -> Icons.Default.EventBusy
     }
 
     val color = when (this) {
         Liquidity.DAILY -> getSuccessColor()
-        else -> MaterialTheme.colorScheme.error
+        Liquidity.D_PLUS_DAYS -> getWarningColor()
+        Liquidity.AT_MATURITY -> MaterialTheme.colorScheme.error
     }
 
     val tooltipText = asLabel()

@@ -46,15 +46,12 @@ import com.eferraz.design_system.theme.getSuccessColor
 import com.eferraz.design_system.theme.getWarningColor
 import com.eferraz.design_system.theme.historyMutedTextColor
 import com.eferraz.design_system_v2.dateselector.MonthYearSelector
-import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.naming.BuildCell
 import com.eferraz.naming.BuildIcon
-import com.eferraz.usecases.entities.B3IdentifierStatus
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.features.summary.SummaryGridWidget
-import com.eferraz.usecases.entities.MonthSummary
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanel
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanelOptions
 import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
@@ -62,7 +59,9 @@ import com.eferraz.presentation.features.walletfilters.toggleBrokerage
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
-import com.eferraz.usecases.entities.HoldingHistoryView
+import com.eferraz.usecases.entities.B3IdentifierStatus
+import com.eferraz.usecases.entities.HoldingHistoryRow
+import com.eferraz.usecases.entities.MonthSummary
 import com.seanproctor.datatable.TableColumnWidth
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
@@ -80,7 +79,7 @@ public fun HoldingHistoryRoute(
     if (state.period.selected == null) return
 
     val onValueChange = remember(vm) {
-        { entry: HoldingHistoryView, value: Double ->
+        { entry: HoldingHistoryRow, value: Double ->
             vm.processIntent(
                 HistoryIntent.UpdateEntryValue(entry.entry, value)
             )
@@ -124,8 +123,8 @@ public fun HoldingHistoryRoute(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun HoldingHistoryScreen(
-    dataRows: List<HoldingHistoryView>,
-    onValueChange: (HoldingHistoryView, Double) -> Unit,
+    dataRows: List<HoldingHistoryRow>,
+    onValueChange: (HoldingHistoryRow, Double) -> Unit,
     periodSelected: YearMonth,
     periodOptions: List<YearMonth>,
     onPeriodChange: (YearMonth) -> Unit,
@@ -251,15 +250,15 @@ private fun Actions(
 }
 
 @Composable
-private fun historyRowTextColor(row: HoldingHistoryView): Color =
+private fun historyRowTextColor(row: HoldingHistoryRow): Color =
     if (row.isLiquidated) historyMutedTextColor() else LocalContentColor.current
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Table(
     modifier: Modifier = Modifier,
-    data: List<HoldingHistoryView>,
-    onValueChange: (HoldingHistoryView, Double) -> Unit,
+    data: List<HoldingHistoryRow>,
+    onValueChange: (HoldingHistoryRow, Double) -> Unit,
     onSelect: (HoldingHistoryEntry) -> Unit,
     onTransactionManagerRequest: (HoldingHistoryEntry) -> Unit,
 ) {
@@ -267,7 +266,7 @@ private fun Table(
     val columns = remember(onValueChange, data) {
 
         StableList(
-            listOf<UiTableDataColumn<HoldingHistoryView>>(
+            listOf<UiTableDataColumn<HoldingHistoryRow>>(
 
                 UiTableDataColumn(
                     text = "",
@@ -276,7 +275,7 @@ private fun Table(
                     content = {
                         Row {
                             it.assetClass.BuildIcon()
-                            it.liquidity?.BuildIcon()
+                            it.liquidity.BuildIcon()
                         }
                     }
                 ),
@@ -298,8 +297,8 @@ private fun Table(
                 UiTableDataColumn(
                     text = "Observação",
                     width = TableColumnWidth.MaxIntrinsic,
-                    comparable = { it.observations },
-                    content = { row -> Text(row.observations, color = historyRowTextColor(row)) }
+                    comparable = { it.observation },
+                    content = { row -> Text(row.observation, color = historyRowTextColor(row)) }
                 ),
 
                 UiTableDataColumn(
@@ -329,10 +328,10 @@ private fun Table(
                     text = "Transações",
                     width = TableColumnWidth.MaxIntrinsic,
                     alignment = Alignment.Center,
-                    comparable = { it.totalBalance },
+                    comparable = { it.periodTransactionValue },
                     content = {
                         when {
-                            it.totalBalance == 0.0 -> {
+                            it.periodTransactionValue == 0.0 -> {
                                 TextButton(
                                     { onTransactionManagerRequest(it.entry) },
                                     colors = ButtonDefaults.textButtonColors(contentColor = historyMutedTextColor())
@@ -347,10 +346,10 @@ private fun Table(
 //                                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray.copy(alpha = .5f))
                                 ) {
                                     Text(
-                                        text = it.totalBalance.currencyFormat(),
+                                        text = it.periodTransactionValue.currencyFormat(),
                                         color = when {
-                                            it.totalBalance < 0 -> getWarningColor()
-                                            it.totalBalance > 0 -> getInfoColor()
+                                            it.periodTransactionValue < 0 -> getWarningColor()
+                                            it.periodTransactionValue > 0 -> getInfoColor()
                                             else -> historyMutedTextColor()
                                         }
                                     )
@@ -364,13 +363,13 @@ private fun Table(
                     text = "Valorização",
                     width = TableColumnWidth.MaxIntrinsic,
                     alignment = Alignment.Center,
-                    comparable = { it.appreciation },
+                    comparable = { it.appreciationPercentage },
                     content = {
                         Text(
-                            text = it.appreciation.toPercentage(),
+                            text = it.appreciationPercentage.toPercentage(),
                             color = when {
-                                it.appreciation < 0 -> MaterialTheme.colorScheme.error
-                                it.appreciation > 0 -> getSuccessColor()
+                                it.appreciationPercentage < 0 -> MaterialTheme.colorScheme.error
+                                it.appreciationPercentage > 0 -> getSuccessColor()
                                 else -> historyMutedTextColor()
                             }
                         )

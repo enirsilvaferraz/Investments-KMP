@@ -11,10 +11,9 @@ import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetCurrentYearMonthUseCase
 import com.eferraz.usecases.cruds.GetHoldingHistoriesUseCase
-import com.eferraz.usecases.entities.HoldingHistoryView
+import com.eferraz.usecases.entities.HoldingHistoryRow
 import com.eferraz.usecases.holdings.CreateHistoryUseCase
 import com.eferraz.usecases.screens.FilterHoldingHistoryUseCase
-import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
 import com.eferraz.usecases.screens.GetMonthSummaryUseCase
 import com.eferraz.usecases.services.ExportToCsvUseCase
 import com.eferraz.usecases.services.ImportB3FileUseCase
@@ -33,7 +32,6 @@ internal class HistoryViewModel(
     private val getCurrentYearMonthUseCase: GetCurrentYearMonthUseCase,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
-    private val getHistoryTableDataUseCase: GetHistoryTableDataUseCase,
     private val getMonthSummaryUseCase: GetMonthSummaryUseCase,
     private val getHoldingHistoriesUseCase: GetHoldingHistoriesUseCase,
     private val filterHoldingHistoryUseCase: FilterHoldingHistoryUseCase,
@@ -148,38 +146,31 @@ internal class HistoryViewModel(
             val walletFilterOptions = WalletFiltersCatalog.staticPanelOptions(period, brokerages)
 
             // 1. Obter dados da tabela
-            val currentEntries =
+            val currentEntries = async {
                 getHoldingHistoriesUseCase(GetHoldingHistoriesUseCase.ByReferenceDate(period)).getOrNull()?.takeIf { it.isNotEmpty() }
                     ?: createHistoryUseCase(CreateHistoryUseCase.Param(period)).getOrThrow()
+            }
 
-            val previousEntries =
+            val previousEntries = async {
                 getHoldingHistoriesUseCase(GetHoldingHistoriesUseCase.ByReferenceDate(period.minusMonth())).getOrNull()?.takeIf { it.isNotEmpty() }
                     ?: createHistoryUseCase(CreateHistoryUseCase.Param(period)).getOrThrow()
+            }
 
             // 2. Filtrar dados da tabela
             val walletFilter = state.value.walletFilters.toWalletHistoryFilterCriteria()
 
-            val filteredCurrentEntries = filterHoldingHistoryUseCase(FilterHoldingHistoryUseCase.Param(currentEntries, walletFilter)).getOrThrow()
-            val filteredPreviousEntries = previousEntries.filter { it.holding.id in filteredCurrentEntries.map { it.holding.id } }
+            val filteredCurrentEntries = filterHoldingHistoryUseCase(FilterHoldingHistoryUseCase.Param(currentEntries.await(), walletFilter)).getOrThrow()
+            val filteredPreviousEntries = previousEntries.await().filter { it.holding.id in filteredCurrentEntries.map { it.holding.id } }
 
-            // 3. Converter em tabela
+            // 3. Construir dados da tabela
+            val tableRows = HoldingHistoryRow.build(period, filteredPreviousEntries, filteredCurrentEntries)//.sortedBy { it.assetClass }
 
+            // 4. Obter resumo do mês
+            val monthSummary = getMonthSummaryUseCase(GetMonthSummaryUseCase.Param(referenceDate = period, current = filteredCurrentEntries, previous = filteredPreviousEntries),).getOrThrow()
 
-            // 4. Converter em resumo
-            val monthSummary = getMonthSummaryUseCase(
-                GetMonthSummaryUseCase.Param(referenceDate = period, current = filteredCurrentEntries, previous = filteredPreviousEntries),
-            ).getOrThrow()
-
-
-            val tableRows = getHistoryTableDataUseCase(GetHistoryTableDataUseCase.Param(period, walletFilter))
-                .getOrNull().orEmpty().map { HoldingHistoryView(it) }
-
+            // 5. Atualiza tela
             state.update {
-                it.copy(
-                    tableData = tableRows,
-                    walletFilterOptions = walletFilterOptions,
-                    monthSummary = monthSummary,
-                )
+                it.copy(tableData = tableRows, walletFilterOptions = walletFilterOptions, monthSummary = monthSummary)
             }
         }
     }
