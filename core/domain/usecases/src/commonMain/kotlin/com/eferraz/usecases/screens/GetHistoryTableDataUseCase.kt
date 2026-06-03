@@ -2,13 +2,10 @@ package com.eferraz.usecases.screens
 
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.InvestmentFundAssetType
-import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
-import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.AppUseCase
@@ -16,6 +13,7 @@ import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.MergeHistoryUseCase
 import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HistoryTableData
+import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.entities.InvestmentFundHistoryTableData
 import com.eferraz.usecases.entities.VariableIncomeHistoryTableData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,34 +36,19 @@ public class GetHistoryTableDataUseCase(
 
     public data class Param(
         val referenceDate: YearMonth,
-        val category: InvestmentCategory?,
         val brokerage: Brokerage?,
-        val goal: FinancialGoal?,
-        val liquidity: Liquidity?,
+        val walletFilter: WalletHistoryFilterCriteria,
     )
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
 
-        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, param.category))
+        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, category = null))
             .onFailure { println("Error: ${it.message}") }
             .getOrNull() ?: emptyList()
 
         val filtered = results
-            .filter {
-                param.category == null || when (param.category) {
-                    InvestmentCategory.FIXED_INCOME -> it.holding.asset is FixedIncomeAsset
-                    InvestmentCategory.VARIABLE_INCOME -> it.holding.asset is VariableIncomeAsset
-                    InvestmentCategory.INVESTMENT_FUND -> it.holding.asset is InvestmentFundAsset
-                }
-            }
             .filter { param.brokerage == null || it.holding.brokerage == param.brokerage }
-            .filter { param.goal == null || it.holding.goal == param.goal }
-            .filter {
-                param.liquidity == null ||
-                        (it.holding.asset as? InvestmentFundAsset)?.liquidity == param.liquidity ||
-                        (it.holding.asset as? FixedIncomeAsset)?.liquidity == param.liquidity ||
-                        (it.holding.asset as? VariableIncomeAsset)?.liquidity == param.liquidity
-            }
+            .filter { matchesWalletHistoryFilter(it.toWalletHistoryFilterCandidate(), param.walletFilter) }
         val sortedBy = filtered
             .mapNotNull { result ->
 
@@ -73,8 +56,6 @@ public class GetHistoryTableDataUseCase(
                 val previousValue = result.previousEntry.endOfMonthValue * result.previousEntry.endOfMonthQuantity
                 val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity
                 val appreciation = result.profitOrLoss.percentage
-
-                if (previousValue == 0.0 && currentValue == 0.0) return@mapNotNull null
 
                 // Obter transações do holding e calcular balanço
                 val transactions = getTransactionsByHoldingUseCase(
@@ -181,4 +162,37 @@ public class GetHistoryTableDataUseCase(
             InvestmentFundAssetType.STOCK_FUND -> "Fundo de Ação"
             InvestmentFundAssetType.MULTIMARKET_FUND -> "Fundo Multimercado"
         } + " - $name"
+}
+
+internal fun HoldingHistoryResult.toWalletHistoryFilterCandidate(): WalletHistoryFilterCandidate {
+    val asset = holding.asset
+    val currentValue = currentEntry.endOfMonthValue * currentEntry.endOfMonthQuantity
+    return when (asset) {
+        is FixedIncomeAsset -> WalletHistoryFilterCandidate(
+            category = asset.category,
+            subtype = WalletHistorySubtype.FixedIncome(asset.subType),
+            liquidity = asset.liquidity,
+            b3Informed = asset.b3Identifier.orEmpty().trim().isNotEmpty(),
+            settled = currentValue == 0.0,
+            expirationDate = asset.expirationDate,
+        )
+
+        is VariableIncomeAsset -> WalletHistoryFilterCandidate(
+            category = asset.category,
+            subtype = WalletHistorySubtype.VariableIncome(asset.type),
+            liquidity = asset.liquidity,
+            b3Informed = true,
+            settled = currentValue == 0.0,
+            expirationDate = null,
+        )
+
+        is InvestmentFundAsset -> WalletHistoryFilterCandidate(
+            category = asset.category,
+            subtype = WalletHistorySubtype.InvestmentFund(asset.type),
+            liquidity = asset.liquidity,
+            b3Informed = false,
+            settled = currentValue == 0.0,
+            expirationDate = asset.expirationDate,
+        )
+    }
 }

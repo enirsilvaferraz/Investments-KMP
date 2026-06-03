@@ -36,7 +36,7 @@ internal fun WalletFiltersUiState.selectMaturity(yearMonth: YearMonth): WalletFi
 internal fun WalletFiltersUiState.selectMaturityAny(): WalletFiltersUiState =
     copy(maturitySelection = null)
 
-internal fun WalletFiltersUiState.reset(): WalletFiltersUiState = WalletFiltersUiState.initial()
+internal fun WalletFiltersUiState.reset(): WalletFiltersUiState = WalletFiltersUiState.defaultForHistory()
 
 internal fun WalletFiltersUiState.isClassSelected(category: InvestmentCategory): Boolean =
     category in selectedCategories

@@ -12,7 +12,7 @@ Seguir as orientações de @../.specify/memory/constitution.md
 |------------------------------|------------------------------------------------------------------------------------------------------------------|
 | `:features:design-system`    | `core/presentation/design-system/`                                                                               |
 | `:features:design-system-v2` | `core/presentation/design-system-v2/` — M3 Expressive; `SummaryCard`, `MonthYearSelector`, `AppThemeV2` (feature `011-summary-cards`); cores semânticas via `StatusKind` + `MaterialTheme.statusColors(status)` (feature `012-status-theme-colors`); filtros: `FilterToggleGroup`, `FilterSectionHeader` em `filter/` (feature `014-wallet-filters`) |
-| `:features:composeApp`       | `core/presentation/composeApp/` — inclui `walletfilters/` (`WalletFiltersPanel`, feature `014-wallet-filters`; wiring em histórico ainda futuro) |
+| `:features:composeApp`       | `core/presentation/composeApp/` — inclui `walletfilters/` (`WalletFiltersPanel`, feature `014-wallet-filters`; wiring no histórico via `HistoryViewModel`, feature `015-history-wallet-filters`) |
 | `:features:asset-management` | `core/presentation/asset-management/`                                                                            |
 
 `design-system-v2` é biblioteca Compose (sem `*Contract.kt` / sem registo obrigatório em `umbrellaApp`, como o v1).
@@ -22,6 +22,7 @@ Seguir as orientações de @../.specify/memory/constitution.md
 - **`FilterToggleGroup`** / **`FilterToggleOption`** (`filter/FilterToggleGroup.kt`): multi-selecção com **`FilterChip`** M3 (tamanho e tipografia padrão do componente, sem ícones), `FlowRow` com espaçamento 8dp; tooltips quando `contentDescription != label`.
 - **`FilterSectionHeader`**: cabeçalho de secção com ícone + label uppercase.
 - **`WalletFiltersPanel`** (`composeApp/.../walletfilters/`): painel em `OutlinedCard`; modelos/catálogo/previews em `WalletFilters.kt`, UI em `WalletFiltersPanel.kt`.
+- **Histórico + filtros** (`composeApp/.../history/`): estado `walletFilters` / `walletFilterOptions` no `HistoryViewModel`; `defaultForHistory()` + `deriveWalletFiltersPanelOptions(facets)`; mapper `WalletFiltersToCriteria.kt`; domínio `WalletHistoryFilter.kt` + `GetHistoryTableDataUseCase.Param(walletFilter)`.
 
 ## Cores semânticas de status (design-system-v2)
 

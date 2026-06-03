@@ -15,6 +15,8 @@ public data class HoldingHistoryView(
     val previousValue: Double,
     val currentValue: Double,
     val appreciation: Double,
+    val totalContributions: Double,
+    val totalWithdrawals: Double,
     val totalBalance: Double,
     val b3IdentifierStatus: B3IdentifierStatus,
 ) {
@@ -30,6 +32,8 @@ public data class HoldingHistoryView(
         previousValue = it.previousValue,
         currentValue = it.currentValue,
         appreciation = it.appreciation,
+        totalContributions = it.totalContributions,
+        totalWithdrawals = it.totalWithdrawals,
         totalBalance = it.totalBalance,
         b3IdentifierStatus = when (it) {
             is FixedIncomeHistoryTableData -> it.b3Identifier?.trim()?.takeIf { id -> id.isNotBlank() }

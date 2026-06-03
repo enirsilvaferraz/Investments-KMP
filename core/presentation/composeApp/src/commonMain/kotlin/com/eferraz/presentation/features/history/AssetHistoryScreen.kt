@@ -14,24 +14,20 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,9 +46,6 @@ import com.eferraz.design_system.theme.getSuccessColor
 import com.eferraz.design_system.theme.getWarningColor
 import com.eferraz.design_system.theme.historyMutedTextColor
 import com.eferraz.design_system_v2.dateselector.MonthYearSelector
-import com.eferraz.entities.assets.InvestmentCategory
-import com.eferraz.entities.assets.Liquidity
-import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.AssetTransaction
@@ -63,7 +56,7 @@ import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.features.summary.SummaryGridWidget
 import com.eferraz.presentation.features.summary.SummaryProperties
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanel
-import com.eferraz.presentation.features.walletfilters.WalletFiltersPreviewCatalog
+import com.eferraz.presentation.features.walletfilters.WalletFiltersPanelOptions
 import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
 import com.eferraz.presentation.helpers.Formatters.formated
 import com.eferraz.presentation.helpers.currencyFormat
@@ -98,14 +91,8 @@ public fun HoldingHistoryRoute(
     val onPeriodChange = remember(vm) {
         { p: YearMonth -> vm.processIntent(HistoryIntent.SelectPeriod(p)) }
     }
-    val onCategoryChange = remember(vm) {
-        { c: InvestmentCategory -> vm.processIntent(HistoryIntent.SelectCategory(c)) }
-    }
-    val onLiquidityChange = remember(vm) {
-        { l: Liquidity -> vm.processIntent(HistoryIntent.SelectLiquidity(l)) }
-    }
-    val onGoalChange = remember(vm) {
-        { g: FinancialGoal -> vm.processIntent(HistoryIntent.SelectGoal(g)) }
+    val onWalletFiltersChange = remember(vm) {
+        { filters: WalletFiltersUiState -> vm.processIntent(HistoryIntent.WalletFiltersChanged(filters)) }
     }
     val onSyncClick = remember(vm) {
         { vm.processIntent(HistoryIntent.Sync) }
@@ -126,20 +113,13 @@ public fun HoldingHistoryRoute(
         periodSelected = state.period.selected!!,
         periodOptions = state.period.options,
         onPeriodChange = onPeriodChange,
-        categorySelected = state.category.selected,
-        categoryOptions = state.category.options,
-        onCategoryChange = onCategoryChange,
-        liquiditySelected = state.liquidity.selected,
-        liquidityOptions = state.liquidity.options,
-        onLiquidityChange = onLiquidityChange,
-        goalSelected = state.goal.selected,
-        goalOptions = state.goal.options,
-        onGoalChange = onGoalChange,
+        walletFilterOptions = state.walletFilterOptions,
+        walletFilters = state.walletFilters,
+        onWalletFiltersChange = onWalletFiltersChange,
         onSyncClick = onSyncClick,
         onExportFixedIncomeClick = onExportFixedIncomeClick,
         isImporting = state.isImporting,
         onImportClick = onImportClick,
-        transactions = state.transactions,
         onEditHolding = onEditHolding,
         onTransactionManagerRequest = onTransactionManagerRequest,
         summaryProperties = state.summaryProperties,
@@ -157,20 +137,13 @@ internal fun HoldingHistoryScreen(
     periodSelected: YearMonth,
     periodOptions: List<YearMonth>,
     onPeriodChange: (YearMonth) -> Unit,
-    categorySelected: InvestmentCategory?,
-    categoryOptions: List<InvestmentCategory>,
-    onCategoryChange: (InvestmentCategory) -> Unit,
-    liquiditySelected: Liquidity?,
-    liquidityOptions: List<Liquidity>,
-    onLiquidityChange: (Liquidity) -> Unit,
-    goalSelected: FinancialGoal?,
-    goalOptions: List<FinancialGoal>,
-    onGoalChange: (FinancialGoal) -> Unit,
+    walletFilterOptions: WalletFiltersPanelOptions,
+    walletFilters: WalletFiltersUiState,
+    onWalletFiltersChange: (WalletFiltersUiState) -> Unit,
     onSyncClick: () -> Unit,
     onExportFixedIncomeClick: () -> Unit,
     isImporting: Boolean,
     onImportClick: () -> Unit,
-    transactions: List<AssetTransaction>,
     onEditHolding: (Long) -> Unit,
     onTransactionManagerRequest: (Long) -> Unit,
     summaryProperties: SummaryProperties,
@@ -214,19 +187,9 @@ internal fun HoldingHistoryScreen(
         supportingPaneWidthRate = 0.25f,
         supportingPane = {
             Supporting(
-                periodSelected = periodSelected,
-                periodOptions = periodOptions,
-                onPeriodChange = onPeriodChange,
-                categorySelected = categorySelected,
-                categoryOptions = categoryOptions,
-                onCategoryChange = onCategoryChange,
-                liquiditySelected = liquiditySelected,
-                liquidityOptions = liquidityOptions,
-                onLiquidityChange = onLiquidityChange,
-                goalSelected = goalSelected,
-                goalOptions = goalOptions,
-                onGoalChange = onGoalChange,
-                transactions = transactions,
+                walletFilterOptions = walletFilterOptions,
+                walletFilters = walletFilters,
+                onWalletFiltersChange = onWalletFiltersChange,
                 summaryProperties = summaryProperties,
             )
         }
@@ -444,82 +407,21 @@ private fun Table(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun Supporting(
-    periodSelected: YearMonth,
-    periodOptions: List<YearMonth>,
-    onPeriodChange: (YearMonth) -> Unit,
-    categorySelected: InvestmentCategory?,
-    categoryOptions: List<InvestmentCategory>,
-    onCategoryChange: (InvestmentCategory) -> Unit,
-    liquiditySelected: Liquidity?,
-    liquidityOptions: List<Liquidity>,
-    onLiquidityChange: (Liquidity) -> Unit,
-    goalSelected: FinancialGoal?,
-    goalOptions: List<FinancialGoal>,
-    onGoalChange: (FinancialGoal) -> Unit,
-    transactions: List<AssetTransaction>,
+    walletFilterOptions: WalletFiltersPanelOptions,
+    walletFilters: WalletFiltersUiState,
+    onWalletFiltersChange: (WalletFiltersUiState) -> Unit,
     summaryProperties: SummaryProperties,
 ) {
 
-//    AppScreenPane {
-//        MonthYearSelector(
-//            selected = periodSelected,
-//            options = periodOptions,
-//            onItemSelect = onPeriodChange,
-//            modifier = Modifier.fillMaxWidth(),
-//        )
-//    }
-
-    AppScreenPane {
-
-        SegmentedControl(
-            selected = categorySelected?.let { SegmentedControlChoice(it, it.formated()) },
-            options = StableList(categoryOptions.map { SegmentedControlChoice(it, it.formated()) }),
-            onSelect = { onCategoryChange(it.id) },
-            colors = ToggleButtonDefaults.toggleButtonColors(
-                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            ),
-            fill = true
-        )
-
-        SegmentedControl(
-            selected = liquiditySelected?.let { SegmentedControlChoice(it, it.formated()) },
-            options = StableList(liquidityOptions.map { SegmentedControlChoice(it, it.formated()) }),
-            onSelect = { onLiquidityChange(it.id) },
-            colors = ToggleButtonDefaults.toggleButtonColors(
-                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            ),
-            fill = true
-        )
-
-        SegmentedControl(
-            selected = goalSelected?.let { SegmentedControlChoice(it, it.name) },
-            options = StableList(goalOptions.map { SegmentedControlChoice(it, it.name) }),
-            onSelect = { onGoalChange(it.id) },
-            colors = ToggleButtonDefaults.toggleButtonColors(
-                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            ),
-            fill = true
-        )
-    }
-
-    val walletFilterOptions = remember { WalletFiltersPreviewCatalog.fullPanelOptions }
-    var walletFilterState by remember { mutableStateOf(WalletFiltersUiState.initial()) }
-
     WalletFiltersPanel(
         options = walletFilterOptions,
-        state = walletFilterState,
-        onStateChange = { walletFilterState = it },
+        state = walletFilters,
+        onStateChange = onWalletFiltersChange,
     )
 
     SummaryGridWidget(properties = summaryProperties)
-
-//    Transactions(transactions)
 }
 
 @Composable

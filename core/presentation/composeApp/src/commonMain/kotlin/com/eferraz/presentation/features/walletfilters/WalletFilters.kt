@@ -59,6 +59,10 @@ internal data class WalletFiltersUiState(
 ) {
     companion object {
         fun initial(): WalletFiltersUiState = WalletFiltersUiState()
+
+        /** Default do histórico: só «Não liquidado» activo (FR-008 / SC-004). */
+        fun defaultForHistory(): WalletFiltersUiState =
+            WalletFiltersUiState(selectedSettled = setOf(YesOrNo.NO))
     }
 }
 
@@ -164,3 +168,82 @@ private val WalletFilterSubtype.fullLabel: String
             is WalletFilterSubtype.VariableIncome -> value.asLabel()
             is WalletFilterSubtype.InvestmentFund -> value.asLabel()
         }
+
+/**
+ * Deriva opções do painel a partir das facetas do mês (FR-018/FR-012).
+ *
+ * Selecções inválidas no [WalletFiltersUiState] não são podadas aqui; o match em
+ * domain ignora IDs ausentes das opções derivadas.
+ */
+internal fun deriveWalletFiltersPanelOptions(
+    facets: List<WalletFilterHoldingFacet>,
+    maturityMonths: List<YearMonth>,
+): WalletFiltersPanelOptions {
+    if (facets.isEmpty()) return WalletFiltersPanelOptions()
+
+    val categories = mutableSetOf<InvestmentCategory>()
+    val subtypesByCategory = mutableMapOf<InvestmentCategory, MutableSet<WalletFilterSubtype>>()
+    val liquidities = mutableSetOf<Liquidity>()
+    val b3Values = mutableSetOf<YesOrNo>()
+    val settledValues = mutableSetOf<YesOrNo>()
+
+    for (facet in facets) {
+        categories += facet.category
+        subtypesByCategory.getOrPut(facet.category) { mutableSetOf() } += facet.subtype
+        liquidities += facet.liquidity
+        b3Values += facet.b3Informed
+        settledValues += facet.settled
+    }
+
+    val subtypesPresent = subtypesByCategory.mapValues { it.value.toSet() }
+
+    return WalletFiltersPanelOptions(
+        commons =
+            WalletFiltersPanelOptions.Commons(
+                classOptions =
+                    InvestmentCategory.entries
+                        .filter { it in categories }
+                        .map(WalletFiltersCatalog::classOption),
+                b3Options = deriveSimNaoToggleOptions(b3Values, WalletFiltersCatalog::b3Option),
+                settledOptions = deriveSimNaoToggleOptions(settledValues, WalletFiltersCatalog::settledOption),
+            ),
+        fixedIncome =
+            WalletFiltersPanelOptions.FixedIncome(
+                subtypeOptions = subtypeOptionsForCategory(InvestmentCategory.FIXED_INCOME, subtypesPresent),
+                liquidityOptions =
+                    Liquidity.entries
+                        .filter { it in liquidities }
+                        .map(WalletFiltersCatalog::liquidityOption),
+                maturityMonths = maturityMonths,
+            ),
+        variableIncome =
+            WalletFiltersPanelOptions.VariableIncome(
+                subtypeOptions = subtypeOptionsForCategory(InvestmentCategory.VARIABLE_INCOME, subtypesPresent),
+            ),
+        funds =
+            WalletFiltersPanelOptions.Funds(
+                subtypeOptions = subtypeOptionsForCategory(InvestmentCategory.INVESTMENT_FUND, subtypesPresent),
+            ),
+    )
+}
+
+private fun subtypeOptionsForCategory(
+    category: InvestmentCategory,
+    present: Map<InvestmentCategory, Set<WalletFilterSubtype>>,
+): List<FilterOption<WalletFilterSubtype>> {
+    val presentSubtypes = present[category].orEmpty()
+    if (presentSubtypes.isEmpty()) return emptyList()
+    return subtypesByCategory[category]
+        .orEmpty()
+        .filter { it in presentSubtypes }
+        .map(WalletFiltersCatalog::subtypeOption)
+}
+
+/** FR-018d: secção oculta unless both Sim and Não exist in portfolio data. */
+private fun deriveSimNaoToggleOptions(
+    values: Set<YesOrNo>,
+    optionFor: (YesOrNo) -> FilterOption<YesOrNo>,
+): List<FilterOption<YesOrNo>> {
+    if (YesOrNo.YES !in values || YesOrNo.NO !in values) return emptyList()
+    return YesOrNo.entries.map(optionFor)
+}

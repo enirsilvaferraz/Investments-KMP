@@ -17,6 +17,8 @@ import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HoldingHistoryView
 import com.eferraz.usecases.entities.InvestmentFundHistoryTableData
 import com.eferraz.usecases.entities.VariableIncomeHistoryTableData
+import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
+import com.eferraz.usecases.screens.WalletHistoryFilterCriteria
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
@@ -155,5 +157,23 @@ internal class GetHistoryTableDataUseCaseTest {
 
     // THEN
     assertEquals(B3IdentifierStatus.NotApplicable, view.b3IdentifierStatus)
+  }
+
+  /**
+   * History screen passes walletFilter via Param; default excludes settled positions (contract T9).
+   */
+  @Test
+  fun `GIVEN defaultForHistory Param WHEN walletFilter settled THEN only non-settled active`() {
+
+    // GIVEN
+    val param =
+        GetHistoryTableDataUseCase.Param(
+            referenceDate = YearMonth(2026, Month.JUNE),
+            brokerage = null,
+            walletFilter = WalletHistoryFilterCriteria.defaultForHistory(),
+        )
+
+    // THEN
+    assertEquals(setOf(false), param.walletFilter.settled)
   }
 }

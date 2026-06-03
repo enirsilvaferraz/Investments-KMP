@@ -2,23 +2,22 @@ package com.eferraz.presentation.features.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eferraz.entities.assets.InvestmentCategory
-import com.eferraz.entities.assets.Liquidity
-import com.eferraz.entities.goals.FinancialGoal
 import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Growth
 import com.eferraz.entities.holdings.HoldingHistoryEntry
-import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.presentation.features.summary.SummaryProperties
+import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
+import com.eferraz.presentation.features.walletfilters.deriveWalletFiltersPanelOptions
+import com.eferraz.presentation.features.walletfilters.toWalletFilterHoldingFacet
 import com.eferraz.usecases.GetDataPeriodUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetCurrentYearMonthUseCase
-import com.eferraz.usecases.cruds.GetFinancialGoalsUseCase
-import com.eferraz.usecases.cruds.GetTransactionsUseCase
 import com.eferraz.usecases.entities.HoldingHistoryView
 import com.eferraz.usecases.screens.GetHistoryTableDataUseCase
+import com.eferraz.usecases.screens.WalletHistoryFilterCriteria
+import com.eferraz.usecases.screens.maturityFilterMonthRange
 import com.eferraz.usecases.services.ExportToCsvUseCase
 import com.eferraz.usecases.services.ImportB3FileUseCase
 import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
@@ -35,9 +34,7 @@ internal class HistoryViewModel(
     private val getCurrentYearMonthUseCase: GetCurrentYearMonthUseCase,
     private val getDataPeriodUseCase: GetDataPeriodUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
-    private val getGoalUseCase: GetFinancialGoalsUseCase,
     private val getHistoryTableDataUseCase: GetHistoryTableDataUseCase,
-    private val getTransactionsUseCase: GetTransactionsUseCase,
     private val updateFixedIncomeAndFundsHistoryValueUseCase: UpdateFixedIncomeAndFundsHistoryValueUseCase,
     private val updateVariableIncomeValues: SyncVariableIncomeValuesUseCase,
     private val exportToCsvUseCase: ExportToCsvUseCase,
@@ -62,15 +59,10 @@ internal class HistoryViewModel(
                 getBrokeragesUseCase(GetBrokeragesUseCase.Param).getOrThrow()
             }
 
-            val goals = async {
-                getGoalUseCase(GetFinancialGoalsUseCase.All).getOrThrow()
-            }
-
             state.update {
                 it.copy(
-                    goal = it.goal.copy(options = goals.await()),
                     brokerage = it.brokerage.copy(options = brokerages.await()),
-                    period = HistoryState.Choice(selected.await(), periods.await())
+                    period = HistoryState.Choice(selected.await(), periods.await()),
                 )
             }
 
@@ -84,41 +76,31 @@ internal class HistoryViewModel(
             is HistoryIntent.Sync -> sync()
             is HistoryIntent.UpdateEntryValue -> updateEntryValue(intent.entry, intent.value)
             is HistoryIntent.SelectPeriod -> selectPeriod(intent.period)
-            is HistoryIntent.SelectCategory -> selectCategory(intent.category)
             is HistoryIntent.SelectBrokerage -> selectBrokerage(intent.brokerage)
-            is HistoryIntent.SelectLiquidity -> selectLiquidity(intent.liquidity)
-            is HistoryIntent.SelectGoal -> selectGoal(intent.goal)
+            is HistoryIntent.WalletFiltersChanged -> walletFiltersChanged(intent.filters)
             is HistoryIntent.ExportFixedIncomeCsv -> exportFixedIncomeCsv()
             is HistoryIntent.ImportB3File -> importB3File()
         }
     }
 
     private fun selectPeriod(period: YearMonth) {
-        state.update { it.copy(period = it.period.copy(selected = period)) }
+        state.update {
+            it.copy(
+                period = it.period.copy(selected = period),
+                walletFilters = WalletFiltersUiState.defaultForHistory(),
+            )
+        }
         processIntent(HistoryIntent.LoadInitialData)
     }
 
-    private fun selectCategory(category: InvestmentCategory) {
-        val value = if (category == state.value.category.selected) null else category
-        state.update { it.copy(category = it.category.copy(selected = value)) }
-        processIntent(HistoryIntent.LoadInitialData)
+    private fun walletFiltersChanged(filters: WalletFiltersUiState) {
+        state.update { it.copy(walletFilters = filters) }
+        loadInitialData()
     }
 
     private fun selectBrokerage(brokerage: Brokerage) {
         val value = if (brokerage == state.value.brokerage.selected) null else brokerage
         state.update { it.copy(brokerage = it.brokerage.copy(selected = value)) }
-        processIntent(HistoryIntent.LoadInitialData)
-    }
-
-    private fun selectLiquidity(liquidity: Liquidity) {
-        val value = if (liquidity == state.value.liquidity.selected) null else liquidity
-        state.update { it.copy(liquidity = it.liquidity.copy(selected = value)) }
-        processIntent(HistoryIntent.LoadInitialData)
-    }
-
-    private fun selectGoal(goal: FinancialGoal) {
-        val value = if (goal == state.value.goal.selected) null else goal
-        state.update { it.copy(goal = it.goal.copy(selected = value)) }
         processIntent(HistoryIntent.LoadInitialData)
     }
 
@@ -169,40 +151,47 @@ internal class HistoryViewModel(
     internal fun loadInitialData() {
 
         val period = state.value.period.selected!!
-        val category = state.value.category.selected
         val brokerage = state.value.brokerage.selected
-        val goal = state.value.goal.selected
-        val liquidity = state.value.liquidity.selected
+        val walletFilter = state.value.walletFilters.toWalletHistoryFilterCriteria()
+        val facetCriteria = WalletHistoryFilterCriteria()
 
         viewModelScope.launch {
 
-            val transactions = async {
-                getTransactionsUseCase(
-                    GetTransactionsUseCase.ReferenceDate(period)
+            val unfilteredRows = async {
+                getHistoryTableDataUseCase(
+                    GetHistoryTableDataUseCase.Param(period, brokerage, facetCriteria)
                 ).getOrNull() ?: emptyList()
             }
 
-            val tableData = async {
+            val tableRows = async {
                 getHistoryTableDataUseCase(
-                    GetHistoryTableDataUseCase.Param(period, category, brokerage, goal, liquidity)
+                    GetHistoryTableDataUseCase.Param(period, brokerage, walletFilter)
                 ).getOrNull() ?: emptyList()
             }
+
+            val currentMonth = getCurrentYearMonthUseCase(Unit).getOrThrow()
+            val unfiltered = unfilteredRows.await()
+            val facets = unfiltered.map { HoldingHistoryView(it).toWalletFilterHoldingFacet() }
+            val walletFilterOptions =
+                deriveWalletFiltersPanelOptions(
+                    facets = facets,
+                    maturityMonths = maturityFilterMonthRange(currentMonth),
+                )
+
+            val tableData = tableRows.await().map { HoldingHistoryView(it) }
+
+            val previousValue = tableData.sumOf { it.previousValue }
+            val actualValue = tableData.sumOf { it.currentValue }
+            val contributions = tableData.sumOf { it.totalContributions }
+            val withdrawals = tableData.sumOf { it.totalWithdrawals }
+
+            val (growth, growthPercent) = Growth.calculate(previousValue, actualValue, contributions, withdrawals)
+            val (earnings, earningsPercent) = Appreciation.calculate(previousValue, actualValue, contributions, withdrawals)
 
             state.update {
-
-                val tableData1 = tableData.await().map { HoldingHistoryView(it) } // TODO Remover esse map
-                val transactions1 = transactions.await()
-
-                val previousValue = tableData1.sumOf { it.previousValue }
-                val actualValue = tableData1.sumOf { it.currentValue }
-
-                val (contributions, withdrawals, _) = TransactionBalance.calculate(transactions1)
-                val (growth, growthPercent) = Growth.calculate(previousValue, actualValue, contributions, withdrawals)
-                val (earnings, earningsPercent) = Appreciation.calculate(previousValue, actualValue, contributions, withdrawals)
-
                 it.copy(
-                    tableData = tableData1,
-                    transactions = transactions1,
+                    tableData = tableData,
+                    walletFilterOptions = walletFilterOptions,
                     summaryProperties = SummaryProperties(
                         previousValue = previousValue,
                         actualValue = actualValue,
@@ -227,7 +216,5 @@ internal sealed interface HistoryIntent {
     data class UpdateEntryValue(val entry: HoldingHistoryEntry, val value: Double) : HistoryIntent
     data class SelectPeriod(val period: YearMonth) : HistoryIntent
     data class SelectBrokerage(val brokerage: Brokerage) : HistoryIntent
-    data class SelectCategory(val category: InvestmentCategory) : HistoryIntent
-    data class SelectLiquidity(val liquidity: Liquidity) : HistoryIntent
-    data class SelectGoal(val goal: FinancialGoal) : HistoryIntent
+    data class WalletFiltersChanged(val filters: WalletFiltersUiState) : HistoryIntent
 }
