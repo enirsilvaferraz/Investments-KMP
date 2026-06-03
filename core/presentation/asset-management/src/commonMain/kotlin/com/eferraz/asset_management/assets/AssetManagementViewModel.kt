@@ -37,14 +37,14 @@ internal class AssetManagementViewModel(
 
         is AssetManagementEvents.ScreenEntered -> loadInitialState(event.holdingId)
 
-        is AssetManagementEvents.CategoryChanged -> state.update { it.copy(category = event.category) }
+        is AssetManagementEvents.AssetClassChanged -> state.update { it.copy(assetClass = event.assetClass) }
         is AssetManagementEvents.IssuerChanged -> state.update { it.copy(issuer = event.issuer, issuerError = null) }
         is AssetManagementEvents.ObservationsChanged -> state.update { it.copy(observations = event.value) }
         is AssetManagementEvents.B3IdentifierChanged -> state.update { it.copy(b3Identifier = event.value) }
         is AssetManagementEvents.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
 
+        is AssetManagementEvents.YieldIndexerChanged -> state.update { it.copy(yieldIndexer = event.indexer, yieldIndexerError = null) }
         is AssetManagementEvents.FixedTypeChanged -> state.update { it.copy(fixedType = event.type, fixedTypeError = null) }
-        is AssetManagementEvents.FixedSubTypeChanged -> state.update { it.copy(fixedSubType = event.subType, fixedSubTypeError = null) }
         is AssetManagementEvents.FixedExpirationChanged -> state.update { it.copy(fixedExpiration = dateToDigits(event.raw), fixedExpirationError = null) }
 
         is AssetManagementEvents.FixedYieldChanged -> state.update { it.copy(fixedYield = event.value, fixedYieldError = null) }

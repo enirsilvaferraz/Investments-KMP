@@ -1,7 +1,7 @@
 package com.eferraz.filestore
 
 import com.eferraz.entities.assets.FixedIncomeAsset
-import com.eferraz.entities.assets.FixedIncomeAssetType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import kotlin.math.roundToLong
@@ -60,10 +60,10 @@ internal class AssetFileStoreImpl : AssetFileStore {
     }
 
     private fun FixedIncomeAsset.displayNameForCsv(): String =
-        when (type) {
-            FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI"
-            FixedIncomeAssetType.PRE_FIXED -> "${subType.name} de $contractedYield% a.a."
-            FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield%"
+        when (indexer) {
+            YieldIndexer.POST_FIXED -> "${type.name} de $contractedYield% do CDI"
+            YieldIndexer.PRE_FIXED -> "${type.name} de $contractedYield% a.a."
+            YieldIndexer.INFLATION_LINKED -> "${type.name} + $contractedYield%"
         }
 
     private fun LocalDate.formattedForCsv(): String =

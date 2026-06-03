@@ -1,8 +1,8 @@
 package com.eferraz.usecases.screens
 
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.usecases.TestDataFactory.createAssetHolding
 import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
@@ -162,8 +162,8 @@ class GetHistoryMaturityMonthsUseCaseTest {
         return FixedIncomeHistoryTableData(
             currentEntry = entry,
             brokerageName = "Broker",
-            subType = FixedIncomeSubType.CDB,
-            type = FixedIncomeAssetType.PRE_FIXED,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
             expirationDate = expirationDate,
             contractedYield = 10.0,
             cdiRelativeYield = null,
@@ -179,7 +179,7 @@ class GetHistoryMaturityMonthsUseCaseTest {
             totalWithdrawals = 0.0,
             totalBalance = 0.0,
             displayName = "CDB",
-            category = InvestmentCategory.FIXED_INCOME,
+            assetClass = AssetClass.FIXED_INCOME,
         )
     }
 }

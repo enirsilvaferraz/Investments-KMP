@@ -1,7 +1,7 @@
 package com.eferraz.usecases.screens
 
 import com.eferraz.entities.assets.FixedIncomeAsset
-import com.eferraz.entities.assets.FixedIncomeAssetType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.VariableIncomeAsset
@@ -42,7 +42,7 @@ public class GetHistoryTableDataUseCase(
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
 
-        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, category = null))
+        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, assetClass = null))
             .onFailure { println("Error: ${it.message}") }
             .getOrNull() ?: emptyList()
 
@@ -75,7 +75,7 @@ public class GetHistoryTableDataUseCase(
                     is FixedIncomeAsset -> FixedIncomeHistoryTableData(
                         currentEntry = result.currentEntry,
                         brokerageName = result.holding.brokerage.name,
-                        subType = asset.subType,
+                        indexer = asset.indexer,
                         type = asset.type,
                         expirationDate = asset.expirationDate,
                         contractedYield = asset.contractedYield,
@@ -135,15 +135,15 @@ public class GetHistoryTableDataUseCase(
                 }
             }
             .toList()
-            .sortedBy { it.category }
+            .sortedBy { it.assetClass }
         return sortedBy
     }
 
     internal fun FixedIncomeAsset.formated(): String =
-        when (type) {
-            FixedIncomeAssetType.POST_FIXED -> "${subType.name} de $contractedYield% do CDI (venc: $expirationDate)"
-            FixedIncomeAssetType.PRE_FIXED -> "${subType.name} de $contractedYield% a.a. (venc: $expirationDate)"
-            FixedIncomeAssetType.INFLATION_LINKED -> "${subType.name} + $contractedYield% (venc: $expirationDate)"
+        when (indexer) {
+            YieldIndexer.POST_FIXED -> "${type.name} de $contractedYield% do CDI (venc: $expirationDate)"
+            YieldIndexer.PRE_FIXED -> "${type.name} de $contractedYield% a.a. (venc: $expirationDate)"
+            YieldIndexer.INFLATION_LINKED -> "${type.name} + $contractedYield% (venc: $expirationDate)"
         }
 
     internal fun VariableIncomeAsset.formated(): String {
@@ -169,8 +169,8 @@ internal fun HoldingHistoryResult.toWalletHistoryFilterCandidate(): WalletHistor
     val currentValue = currentEntry.endOfMonthValue * currentEntry.endOfMonthQuantity
     return when (asset) {
         is FixedIncomeAsset -> WalletHistoryFilterCandidate(
-            category = asset.category,
-            subtype = WalletHistorySubtype.FixedIncome(asset.subType),
+            assetClass = asset.assetClass,
+            subtype = WalletHistorySubtype.FixedIncome(asset.type),
             liquidity = asset.liquidity,
             b3Informed = asset.b3Identifier.orEmpty().trim().isNotEmpty(),
             settled = currentValue == 0.0,
@@ -178,7 +178,7 @@ internal fun HoldingHistoryResult.toWalletHistoryFilterCandidate(): WalletHistor
         )
 
         is VariableIncomeAsset -> WalletHistoryFilterCandidate(
-            category = asset.category,
+            assetClass = asset.assetClass,
             subtype = WalletHistorySubtype.VariableIncome(asset.type),
             liquidity = asset.liquidity,
             b3Informed = true,
@@ -187,7 +187,7 @@ internal fun HoldingHistoryResult.toWalletHistoryFilterCandidate(): WalletHistor
         )
 
         is InvestmentFundAsset -> WalletHistoryFilterCandidate(
-            category = asset.category,
+            assetClass = asset.assetClass,
             subtype = WalletHistorySubtype.InvestmentFund(asset.type),
             liquidity = asset.liquidity,
             b3Informed = false,

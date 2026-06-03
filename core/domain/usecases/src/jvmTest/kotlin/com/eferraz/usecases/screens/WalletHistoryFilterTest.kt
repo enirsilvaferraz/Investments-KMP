@@ -1,7 +1,7 @@
 package com.eferraz.usecases.screens
 
-import com.eferraz.entities.assets.FixedIncomeSubType
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
+import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
@@ -15,8 +15,8 @@ import kotlin.test.assertTrue
 class WalletHistoryFilterTest {
 
     private val rfCdb = candidate(
-        category = InvestmentCategory.FIXED_INCOME,
-        subtype = WalletHistorySubtype.FixedIncome(FixedIncomeSubType.CDB),
+        assetClass = AssetClass.FIXED_INCOME,
+        subtype = WalletHistorySubtype.FixedIncome(FixedIncomeAssetType.CDB),
         liquidity = Liquidity.DAILY,
         b3Informed = true,
         settled = false,
@@ -24,8 +24,8 @@ class WalletHistoryFilterTest {
     )
 
     private val rfLci = candidate(
-        category = InvestmentCategory.FIXED_INCOME,
-        subtype = WalletHistorySubtype.FixedIncome(FixedIncomeSubType.LCI),
+        assetClass = AssetClass.FIXED_INCOME,
+        subtype = WalletHistorySubtype.FixedIncome(FixedIncomeAssetType.LCI),
         liquidity = Liquidity.AT_MATURITY,
         b3Informed = false,
         settled = false,
@@ -33,7 +33,7 @@ class WalletHistoryFilterTest {
     )
 
     private val rvStock = candidate(
-        category = InvestmentCategory.VARIABLE_INCOME,
+        assetClass = AssetClass.VARIABLE_INCOME,
         subtype = WalletHistorySubtype.VariableIncome(VariableIncomeAssetType.NATIONAL_STOCK),
         liquidity = Liquidity.DAILY,
         b3Informed = true,
@@ -42,7 +42,7 @@ class WalletHistoryFilterTest {
     )
 
     private val fund = candidate(
-        category = InvestmentCategory.INVESTMENT_FUND,
+        assetClass = AssetClass.INVESTMENT_FUND,
         subtype = WalletHistorySubtype.InvestmentFund(InvestmentFundAssetType.STOCK_FUND),
         liquidity = Liquidity.DAILY,
         b3Informed = false,
@@ -95,7 +95,7 @@ class WalletHistoryFilterTest {
     fun `GIVEN only fixed income category WHEN matchesWalletHistoryFilter THEN only RF passes`() {
 
         // GIVEN
-        val criteria = WalletHistoryFilterCriteria(categories = setOf(InvestmentCategory.FIXED_INCOME))
+        val criteria = WalletHistoryFilterCriteria(assetClasses = setOf(AssetClass.FIXED_INCOME))
 
         // WHEN
         val rf = matchesWalletHistoryFilter(rfCdb, criteria)
@@ -114,9 +114,9 @@ class WalletHistoryFilterTest {
 
         // GIVEN
         val criteria = WalletHistoryFilterCriteria(
-            categories = setOf(
-                InvestmentCategory.FIXED_INCOME,
-                InvestmentCategory.VARIABLE_INCOME,
+            assetClasses = setOf(
+                AssetClass.FIXED_INCOME,
+                AssetClass.VARIABLE_INCOME,
             ),
         )
 
@@ -139,7 +139,7 @@ class WalletHistoryFilterTest {
 
         // GIVEN
         val criteria = WalletHistoryFilterCriteria(
-            categories = setOf(InvestmentCategory.FIXED_INCOME),
+            assetClasses = setOf(AssetClass.FIXED_INCOME),
             b3Informed = setOf(true),
         )
 
@@ -200,24 +200,24 @@ class WalletHistoryFilterTest {
 
         // GIVEN
         val assetMay = candidate(
-            category = InvestmentCategory.FIXED_INCOME,
-            subtype = WalletHistorySubtype.FixedIncome(FixedIncomeSubType.CDB),
+            assetClass = AssetClass.FIXED_INCOME,
+            subtype = WalletHistorySubtype.FixedIncome(FixedIncomeAssetType.CDB),
             liquidity = Liquidity.DAILY,
             b3Informed = true,
             settled = false,
             expirationDate = LocalDate(2026, Month.MAY, 1),
         )
         val assetNovember = candidate(
-            category = InvestmentCategory.FIXED_INCOME,
-            subtype = WalletHistorySubtype.FixedIncome(FixedIncomeSubType.LCI),
+            assetClass = AssetClass.FIXED_INCOME,
+            subtype = WalletHistorySubtype.FixedIncome(FixedIncomeAssetType.LCI),
             liquidity = Liquidity.DAILY,
             b3Informed = true,
             settled = false,
             expirationDate = LocalDate(2026, Month.NOVEMBER, 1),
         )
         val assetDecember = candidate(
-            category = InvestmentCategory.FIXED_INCOME,
-            subtype = WalletHistorySubtype.FixedIncome(FixedIncomeSubType.CDB),
+            assetClass = AssetClass.FIXED_INCOME,
+            subtype = WalletHistorySubtype.FixedIncome(FixedIncomeAssetType.CDB),
             liquidity = Liquidity.AT_MATURITY,
             b3Informed = true,
             settled = false,
@@ -305,8 +305,8 @@ class WalletHistoryFilterTest {
         // GIVEN
         val criteria = WalletHistoryFilterCriteria(
             subtypes = setOf(
-                WalletHistorySubtype.FixedIncome(FixedIncomeSubType.CDB),
-                WalletHistorySubtype.FixedIncome(FixedIncomeSubType.LCI),
+                WalletHistorySubtype.FixedIncome(FixedIncomeAssetType.CDB),
+                WalletHistorySubtype.FixedIncome(FixedIncomeAssetType.LCI),
             ),
         )
 
@@ -322,7 +322,7 @@ class WalletHistoryFilterTest {
     }
 
     private fun candidate(
-        category: InvestmentCategory,
+        assetClass: AssetClass,
         subtype: WalletHistorySubtype,
         liquidity: Liquidity?,
         b3Informed: Boolean,
@@ -330,7 +330,7 @@ class WalletHistoryFilterTest {
         expirationDate: LocalDate?,
     ): WalletHistoryFilterCandidate =
         WalletHistoryFilterCandidate(
-            category = category,
+            assetClass = assetClass,
             subtype = subtype,
             liquidity = liquidity,
             b3Informed = b3Informed,

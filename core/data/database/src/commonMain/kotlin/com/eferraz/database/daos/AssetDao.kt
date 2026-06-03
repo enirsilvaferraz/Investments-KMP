@@ -9,7 +9,7 @@ import com.eferraz.database.entities.assets.AssetWithDetails
 import com.eferraz.database.entities.assets.FixedIncomeAssetEntity
 import com.eferraz.database.entities.assets.InvestmentFundAssetEntity
 import com.eferraz.database.entities.assets.VariableIncomeAssetEntity
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 
 /**
  * DAO para operações CRUD na tabela assets e suas subclasses.
@@ -48,18 +48,18 @@ internal interface AssetDao {
     suspend fun getAll(): List<AssetWithDetails>
 
     @Transaction
-    @Query("SELECT * FROM assets WHERE category = 'VARIABLE_INCOME'")
+    @Query("SELECT * FROM assets WHERE asset_class = 'VARIABLE_INCOME'")
     suspend fun getAllVariableIncomeAssets(): List<AssetWithDetails>
 
     @Transaction
-    @Query("SELECT * FROM assets WHERE category = :category")
-    suspend fun getByType(category: InvestmentCategory): List<AssetWithDetails>
+    @Query("SELECT * FROM assets WHERE asset_class = :assetClass")
+    suspend fun getByType(assetClass: AssetClass): List<AssetWithDetails>
 
     @Transaction
     @Query(
         """
         SELECT * FROM assets 
-        WHERE category = 'VARIABLE_INCOME' 
+        WHERE asset_class = 'VARIABLE_INCOME' 
         AND id IN (
             SELECT assetId FROM variable_income_assets WHERE ticker = :ticker
         )

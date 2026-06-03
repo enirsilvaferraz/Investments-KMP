@@ -8,7 +8,7 @@ import com.eferraz.usecases.screens.WalletHistorySubtype
 
 internal fun WalletFiltersUiState.toWalletHistoryFilterCriteria(): WalletHistoryFilterCriteria =
     WalletHistoryFilterCriteria(
-        categories = selectedCategories,
+        assetClasses = selectedCategories,
         subtypes = selectedSubtypes.map { it.toWalletHistorySubtype() }.toSet(),
         liquidities = selectedLiquidities,
         b3Informed = selectedB3.toBooleanSet(),

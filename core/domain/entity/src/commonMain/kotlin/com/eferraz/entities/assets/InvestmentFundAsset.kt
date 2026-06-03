@@ -24,5 +24,5 @@ public data class InvestmentFundAsset(
     override val observations: String? = null
 ) : Asset {
 
-    override val category: InvestmentCategory = InvestmentCategory.INVESTMENT_FUND
+    override val assetClass: AssetClass = AssetClass.INVESTMENT_FUND
 }

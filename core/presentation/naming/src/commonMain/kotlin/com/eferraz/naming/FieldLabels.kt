@@ -1,15 +1,15 @@
 package com.eferraz.naming
 
 import com.eferraz.entities.assets.Asset
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.YesOrNo
 import com.eferraz.entities.transactions.TransactionType
 
@@ -26,23 +26,22 @@ public fun Asset.asLabel(): String =
         is VariableIncomeAsset -> "Renda Variável"
     }
 
+public fun YieldIndexer.asLabel(): String =
+    when (this) {
+        YieldIndexer.POST_FIXED -> "Pós-fixado"
+        YieldIndexer.PRE_FIXED -> "Pré-fixado"
+        YieldIndexer.INFLATION_LINKED -> "Atrelado à inflação"
+    }
 
 public fun FixedIncomeAssetType.asLabel(): String =
     when (this) {
-        FixedIncomeAssetType.POST_FIXED -> "Pós-fixado"
-        FixedIncomeAssetType.PRE_FIXED -> "Pré-fixado"
-        FixedIncomeAssetType.INFLATION_LINKED -> "Atrelado à inflação"
-    }
-
-public fun FixedIncomeSubType.asLabel(): String =
-    when (this) {
-        FixedIncomeSubType.CDB -> "CDB"
-        FixedIncomeSubType.LCI -> "LCI"
-        FixedIncomeSubType.LCA -> "LCA"
-        FixedIncomeSubType.LIG -> "LIG"
-        FixedIncomeSubType.DEBENTURE -> "Debênture"
-        FixedIncomeSubType.SELIC -> "Tesouro Selic"
-        FixedIncomeSubType.PRECATORIO -> "Precatório"
+        FixedIncomeAssetType.CDB -> "CDB"
+        FixedIncomeAssetType.LCI -> "LCI"
+        FixedIncomeAssetType.LCA -> "LCA"
+        FixedIncomeAssetType.LIG -> "LIG"
+        FixedIncomeAssetType.DEBENTURE -> "Debênture"
+        FixedIncomeAssetType.SELIC -> "Tesouro Selic"
+        FixedIncomeAssetType.PRECATORIO -> "Precatório"
     }
 
 public fun VariableIncomeAssetType.asLabel(): String =
@@ -60,11 +59,11 @@ public fun InvestmentFundAssetType.asLabel(): String =
         InvestmentFundAssetType.MULTIMARKET_FUND -> "Fundo multimercado"
     }
 
-public fun InvestmentCategory.asLabel(): String =
+public fun AssetClass.asLabel(): String =
     when (this) {
-        InvestmentCategory.FIXED_INCOME -> "Renda fixa"
-        InvestmentCategory.VARIABLE_INCOME -> "Renda variável"
-        InvestmentCategory.INVESTMENT_FUND -> "Fundo de investimento"
+        AssetClass.FIXED_INCOME -> "Renda fixa"
+        AssetClass.VARIABLE_INCOME -> "Renda variável"
+        AssetClass.INVESTMENT_FUND -> "Fundo de investimento"
     }
 
 public fun Liquidity.asLabel(): String =

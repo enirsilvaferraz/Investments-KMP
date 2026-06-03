@@ -1,11 +1,11 @@
 package com.eferraz.usecases.entities
 
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import kotlinx.datetime.LocalDate
 
@@ -73,7 +73,7 @@ public sealed interface HistoryTableData {
 
     public val displayName: String
 
-    public val category: InvestmentCategory
+    public val assetClass: AssetClass
 }
 
 /**
@@ -83,11 +83,11 @@ public data class FixedIncomeHistoryTableData(
     override val currentEntry: HoldingHistoryEntry,
     override val brokerageName: String,
     /**
-     * Subcategoria do ativo de renda fixa.
+     * Indexador de rentabilidade.
      */
-    public val subType: FixedIncomeSubType,
+    public val indexer: YieldIndexer,
     /**
-     * Tipo de cálculo de rendimento.
+     * Tipo de produto de renda fixa (CDB, LCI, etc.).
      */
     public val type: FixedIncomeAssetType,
     /**
@@ -117,7 +117,7 @@ public data class FixedIncomeHistoryTableData(
     override val totalWithdrawals: Double,
     override val totalBalance: Double,
     override val displayName: String,
-    override val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME
+    override val assetClass: AssetClass = AssetClass.FIXED_INCOME
 ) : HistoryTableData
 
 /**
@@ -152,7 +152,7 @@ public data class VariableIncomeHistoryTableData(
     override val totalWithdrawals: Double,
     override val totalBalance: Double,
     override val displayName: String,
-    override val category: InvestmentCategory = InvestmentCategory.VARIABLE_INCOME
+    override val assetClass: AssetClass = AssetClass.VARIABLE_INCOME
 ) : HistoryTableData
 
 /**
@@ -191,5 +191,5 @@ public data class InvestmentFundHistoryTableData(
     override val totalWithdrawals: Double,
     override val totalBalance: Double,
     override val displayName: String,
-    override val category: InvestmentCategory = InvestmentCategory.INVESTMENT_FUND
+    override val assetClass: AssetClass = AssetClass.INVESTMENT_FUND
 ) : HistoryTableData

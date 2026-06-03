@@ -1,6 +1,6 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry
@@ -31,13 +31,13 @@ public class MergeHistoryUseCase(
 
     public data class Param(
         val referenceDate: YearMonth,
-        val category: InvestmentCategory?
+        val assetClass: AssetClass?
     )
 
     override suspend fun execute(param: Param): List<HoldingHistoryResult> {
 
         val holdings = assetHoldingRepository.getAll()
-//        val holdings = assetHoldingRepository.getByCategory(param.category)
+//        val holdings = assetHoldingRepository.getByAssetClass(param.assetClass)
 //            .filter { holding ->
 //                when (val asset = holding.asset) {
 //                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY || asset.issuer.isInLiquidation || asset.observations?.contains("FGTS") ?: false

@@ -1,8 +1,8 @@
 package com.eferraz.presentation.features.walletfilters
 
 import androidx.compose.runtime.Immutable
-import com.eferraz.entities.assets.FixedIncomeSubType
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
+import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
@@ -22,7 +22,7 @@ internal data class WalletFiltersPanelOptions(
     /** Filtros comuns — classe, B3 informado e liquidados. */
     @Immutable
     internal data class Commons(
-        val classOptions: List<FilterOption<InvestmentCategory>> = emptyList(),
+        val classOptions: List<FilterOption<AssetClass>> = emptyList(),
         val b3Options: List<FilterOption<YesOrNo>> = emptyList(),
         val settledOptions: List<FilterOption<YesOrNo>> = emptyList(),
     )
@@ -50,7 +50,7 @@ internal data class WalletFiltersPanelOptions(
 
 @Immutable
 internal data class WalletFiltersUiState(
-    val selectedCategories: Set<InvestmentCategory> = emptySet(),
+    val selectedCategories: Set<AssetClass> = emptySet(),
     val selectedSubtypes: Set<WalletFilterSubtype> = emptySet(),
     val selectedLiquidities: Set<Liquidity> = emptySet(),
     val selectedB3: Set<YesOrNo> = emptySet(),
@@ -67,7 +67,7 @@ internal data class WalletFiltersUiState(
 }
 
 internal data class WalletFilterHoldingFacet(
-    val category: InvestmentCategory,
+    val assetClass: AssetClass,
     val subtype: WalletFilterSubtype,
     val liquidity: Liquidity,
     val b3Informed: YesOrNo,
@@ -77,11 +77,11 @@ internal data class WalletFilterHoldingFacet(
 
 internal object WalletFiltersCatalog {
 
-    fun classOption(category: InvestmentCategory): FilterOption<InvestmentCategory> =
+    fun classOption(assetClass: AssetClass): FilterOption<AssetClass> =
         FilterOption(
-            id = category,
-            shortLabel = category.shortLabel,
-            fullLabel = category.formated(),
+            id = assetClass,
+            shortLabel = assetClass.shortLabel,
+            fullLabel = assetClass.formated(),
         )
 
     fun subtypeOption(subtype: WalletFilterSubtype): FilterOption<WalletFilterSubtype> =
@@ -125,12 +125,12 @@ internal object WalletFiltersCatalog {
         )
 }
 
-private val InvestmentCategory.shortLabel
+private val AssetClass.shortLabel
     get() =
         when (this) {
-            InvestmentCategory.FIXED_INCOME -> "RF"
-            InvestmentCategory.VARIABLE_INCOME -> "RV"
-            InvestmentCategory.INVESTMENT_FUND -> "Fundos"
+            AssetClass.FIXED_INCOME -> "RF"
+            AssetClass.VARIABLE_INCOME -> "RV"
+            AssetClass.INVESTMENT_FUND -> "Fundos"
         }
 
 private val WalletFilterSubtype.shortLabel: String
@@ -138,13 +138,13 @@ private val WalletFilterSubtype.shortLabel: String
         when (this) {
             is WalletFilterSubtype.FixedIncome ->
                 when (value) {
-                    FixedIncomeSubType.CDB -> "CDB"
-                    FixedIncomeSubType.LCI -> "LCI"
-                    FixedIncomeSubType.LCA -> "LCA"
-                    FixedIncomeSubType.LIG -> "LIG"
-                    FixedIncomeSubType.DEBENTURE -> "Deb."
-                    FixedIncomeSubType.SELIC -> "Selic"
-                    FixedIncomeSubType.PRECATORIO -> "Prec."
+                    FixedIncomeAssetType.CDB -> "CDB"
+                    FixedIncomeAssetType.LCI -> "LCI"
+                    FixedIncomeAssetType.LCA -> "LCA"
+                    FixedIncomeAssetType.LIG -> "LIG"
+                    FixedIncomeAssetType.DEBENTURE -> "Deb."
+                    FixedIncomeAssetType.SELIC -> "Selic"
+                    FixedIncomeAssetType.PRECATORIO -> "Prec."
                 }
             is WalletFilterSubtype.VariableIncome ->
                 when (value) {
@@ -181,27 +181,27 @@ internal fun deriveWalletFiltersPanelOptions(
 ): WalletFiltersPanelOptions {
     if (facets.isEmpty()) return WalletFiltersPanelOptions()
 
-    val categories = mutableSetOf<InvestmentCategory>()
-    val subtypesByCategory = mutableMapOf<InvestmentCategory, MutableSet<WalletFilterSubtype>>()
+    val categories = mutableSetOf<AssetClass>()
+    val subtypesByAssetClass = mutableMapOf<AssetClass, MutableSet<WalletFilterSubtype>>()
     val liquidities = mutableSetOf<Liquidity>()
     val b3Values = mutableSetOf<YesOrNo>()
     val settledValues = mutableSetOf<YesOrNo>()
 
     for (facet in facets) {
-        categories += facet.category
-        subtypesByCategory.getOrPut(facet.category) { mutableSetOf() } += facet.subtype
+        categories += facet.assetClass
+        subtypesByAssetClass.getOrPut(facet.assetClass) { mutableSetOf() } += facet.subtype
         liquidities += facet.liquidity
         b3Values += facet.b3Informed
         settledValues += facet.settled
     }
 
-    val subtypesPresent = subtypesByCategory.mapValues { it.value.toSet() }
+    val subtypesPresent = subtypesByAssetClass.mapValues { it.value.toSet() }
 
     return WalletFiltersPanelOptions(
         commons =
             WalletFiltersPanelOptions.Commons(
                 classOptions =
-                    InvestmentCategory.entries
+                    AssetClass.entries
                         .filter { it in categories }
                         .map(WalletFiltersCatalog::classOption),
                 b3Options = deriveSimNaoToggleOptions(b3Values, WalletFiltersCatalog::b3Option),
@@ -209,7 +209,7 @@ internal fun deriveWalletFiltersPanelOptions(
             ),
         fixedIncome =
             WalletFiltersPanelOptions.FixedIncome(
-                subtypeOptions = subtypeOptionsForCategory(InvestmentCategory.FIXED_INCOME, subtypesPresent),
+                subtypeOptions = subtypeOptionsForAssetClass(AssetClass.FIXED_INCOME, subtypesPresent),
                 liquidityOptions =
                     Liquidity.entries
                         .filter { it in liquidities }
@@ -218,22 +218,22 @@ internal fun deriveWalletFiltersPanelOptions(
             ),
         variableIncome =
             WalletFiltersPanelOptions.VariableIncome(
-                subtypeOptions = subtypeOptionsForCategory(InvestmentCategory.VARIABLE_INCOME, subtypesPresent),
+                subtypeOptions = subtypeOptionsForAssetClass(AssetClass.VARIABLE_INCOME, subtypesPresent),
             ),
         funds =
             WalletFiltersPanelOptions.Funds(
-                subtypeOptions = subtypeOptionsForCategory(InvestmentCategory.INVESTMENT_FUND, subtypesPresent),
+                subtypeOptions = subtypeOptionsForAssetClass(AssetClass.INVESTMENT_FUND, subtypesPresent),
             ),
     )
 }
 
-private fun subtypeOptionsForCategory(
-    category: InvestmentCategory,
-    present: Map<InvestmentCategory, Set<WalletFilterSubtype>>,
+private fun subtypeOptionsForAssetClass(
+    assetClass: AssetClass,
+    present: Map<AssetClass, Set<WalletFilterSubtype>>,
 ): List<FilterOption<WalletFilterSubtype>> {
-    val presentSubtypes = present[category].orEmpty()
+    val presentSubtypes = present[assetClass].orEmpty()
     if (presentSubtypes.isEmpty()) return emptyList()
-    return subtypesByCategory[category]
+    return subtypesByAssetClass[assetClass]
         .orEmpty()
         .filter { it in presentSubtypes }
         .map(WalletFiltersCatalog::subtypeOption)

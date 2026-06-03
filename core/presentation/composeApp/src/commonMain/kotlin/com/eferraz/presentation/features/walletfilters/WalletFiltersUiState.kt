@@ -1,17 +1,17 @@
 package com.eferraz.presentation.features.walletfilters
 
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.YesOrNo
 import kotlinx.datetime.YearMonth
 
-internal fun WalletFiltersUiState.toggleClass(category: InvestmentCategory): WalletFiltersUiState {
-    val removing = category in selectedCategories
+internal fun WalletFiltersUiState.toggleClass(assetClass: AssetClass): WalletFiltersUiState {
+    val removing = assetClass in selectedCategories
     return copy(
-        selectedCategories = selectedCategories.toggle(category),
+        selectedCategories = selectedCategories.toggle(assetClass),
         selectedSubtypes =
             if (removing) {
-                selectedSubtypes.filterNot { it.category() == category }.toSet()
+                selectedSubtypes.filterNot { it.assetClass() == assetClass }.toSet()
             } else {
                 selectedSubtypes
             },
@@ -38,7 +38,7 @@ internal fun WalletFiltersUiState.selectMaturityAny(): WalletFiltersUiState =
 
 internal fun WalletFiltersUiState.reset(): WalletFiltersUiState = WalletFiltersUiState.defaultForHistory()
 
-internal fun WalletFiltersUiState.isClassSelected(category: InvestmentCategory): Boolean =
-    category in selectedCategories
+internal fun WalletFiltersUiState.isClassSelected(assetClass: AssetClass): Boolean =
+    assetClass in selectedCategories
 
 private fun <T> Set<T>.toggle(id: T): Set<T> = if (id in this) this - id else this + id

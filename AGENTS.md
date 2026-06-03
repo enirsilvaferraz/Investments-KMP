@@ -24,6 +24,13 @@ Seguir as orientações de @../.specify/memory/constitution.md
 - **`WalletFiltersPanel`** (`composeApp/.../walletfilters/`): painel em `OutlinedCard`; modelos/catálogo/previews em `WalletFilters.kt`, UI em `WalletFiltersPanel.kt`.
 - **Histórico + filtros** (`composeApp/.../history/`): estado `walletFilters` / `walletFilterOptions` no `HistoryViewModel`; `defaultForHistory()` + `deriveWalletFiltersPanelOptions(facets)`; mapper `WalletFiltersToCriteria.kt`; domínio `WalletHistoryFilter.kt` + `GetHistoryTableDataUseCase.Param(walletFilter)`.
 
+## Taxonomia de ativos (`:domain:entity`, feature `016-asset-taxonomy-refactor`)
+
+- **`AssetClass`**: classe de ativo (renda fixa, variável, fundo) — substitui `InvestmentCategory`.
+- **`YieldIndexer`**: indexador de rentabilidade em renda fixa (somente RF).
+- **`AssetType`**: interface marcadora; tipo de produto via `FixedIncomeAssetType`, `VariableIncomeAssetType`, `InvestmentFundAssetType`.
+- Documentação canónica: `core/domain/entity/docs/DOMAIN.md`.
+
 ## Cores semânticas de status (design-system-v2)
 
 - **`StatusKind`** (`theme/StatusColors.kt`): enum único — `Default`, `Info`, `Warning`, `Positive`, `Negative`.

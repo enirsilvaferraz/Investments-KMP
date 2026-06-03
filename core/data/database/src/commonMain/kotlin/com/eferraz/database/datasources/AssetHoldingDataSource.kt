@@ -1,6 +1,6 @@
 package com.eferraz.database.datasources
 
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.holdings.AssetHolding
 
 public interface AssetHoldingDataSource {
@@ -9,7 +9,7 @@ public interface AssetHoldingDataSource {
     public suspend fun getByAssetId(assetId: Long): AssetHolding?
     public suspend fun getAll(): List<AssetHolding>
     public suspend fun getAllVariableIncomeAssets(): List<AssetHolding>
-    public suspend fun getByCategory(category: InvestmentCategory): List<AssetHolding>
+    public suspend fun getByAssetClass(assetClass: AssetClass): List<AssetHolding>
     public suspend fun getByGoalId(goalId: Long): List<AssetHolding>
     public suspend fun delete(id: Long)
 }

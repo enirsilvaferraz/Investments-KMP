@@ -278,10 +278,10 @@ private fun Table(
                 UiTableDataColumn(
                     text = "",
                     width = TableColumnWidth.MaxIntrinsic,
-                    comparable = { it.category },
+                    comparable = { it.assetClass },
                     content = {
                         Row {
-                            it.category.BuildIcon()
+                            it.assetClass.BuildIcon()
                             it.liquidity?.BuildIcon()
                         }
                     }

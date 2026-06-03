@@ -42,7 +42,7 @@ import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
 import com.eferraz.design_system.scaffolds.AppContentDialog
 import com.eferraz.design_system.theme.AppTheme
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.naming.asLabel
 import org.koin.compose.viewmodel.koinViewModel
@@ -240,7 +240,7 @@ private fun TransactionTable(
             TransactionTableRow(
                 draft = draft,
                 index = index,
-                isVariableIncome = state.category == InvestmentCategory.VARIABLE_INCOME,
+                isVariableIncome = state.assetClass == AssetClass.VARIABLE_INCOME,
                 onEvent = onEvent,
             )
         }
@@ -337,31 +337,31 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
         previewState(
             listOf(
                 TransactionDraftUi(
-                    category = InvestmentCategory.FIXED_INCOME,
+                    assetClass = AssetClass.FIXED_INCOME,
                     dateDigits = "20250110",
                     type = TransactionType.PURCHASE,
                     totalValue = "5000.00"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.FIXED_INCOME,
+                    assetClass = AssetClass.FIXED_INCOME,
                     dateDigits = "20250215",
                     type = TransactionType.PURCHASE,
                     totalValue = "3500.00"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.FIXED_INCOME,
+                    assetClass = AssetClass.FIXED_INCOME,
                     dateDigits = "20250320",
                     type = TransactionType.SALE,
                     totalValue = "1200.00"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.FIXED_INCOME,
+                    assetClass = AssetClass.FIXED_INCOME,
                     dateDigits = "20250401",
                     type = TransactionType.PURCHASE,
                     totalValue = "8000.00"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.FIXED_INCOME,
+                    assetClass = AssetClass.FIXED_INCOME,
                     dateDigits = "20250510",
                     type = TransactionType.SALE,
                     totalValue = "2700.00"
@@ -371,7 +371,7 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
         previewState(
             listOf(
                 TransactionDraftUi(
-                    category = InvestmentCategory.VARIABLE_INCOME,
+                    assetClass = AssetClass.VARIABLE_INCOME,
                     dateDigits = "20250110",
                     type = TransactionType.PURCHASE,
                     quantity = "100",
@@ -379,7 +379,7 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
                     totalValue = "2850.0"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.VARIABLE_INCOME,
+                    assetClass = AssetClass.VARIABLE_INCOME,
                     dateDigits = "20250202",
                     type = TransactionType.PURCHASE,
                     quantity = "50",
@@ -387,7 +387,7 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
                     totalValue = "1560.0"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.VARIABLE_INCOME,
+                    assetClass = AssetClass.VARIABLE_INCOME,
                     dateDigits = "20250315",
                     type = TransactionType.SALE,
                     quantity = "30",
@@ -395,7 +395,7 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
                     totalValue = "1020.0"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.VARIABLE_INCOME,
+                    assetClass = AssetClass.VARIABLE_INCOME,
                     dateDigits = "20250420",
                     type = TransactionType.PURCHASE,
                     quantity = "200",
@@ -403,7 +403,7 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
                     totalValue = "5950.0"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.VARIABLE_INCOME,
+                    assetClass = AssetClass.VARIABLE_INCOME,
                     dateDigits = "20250505",
                     type = TransactionType.SALE,
                     quantity = "80",
@@ -415,31 +415,31 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<Transact
         previewState(
             listOf(
                 TransactionDraftUi(
-                    category = InvestmentCategory.INVESTMENT_FUND,
+                    assetClass = AssetClass.INVESTMENT_FUND,
                     dateDigits = "20250110",
                     type = TransactionType.PURCHASE,
                     totalValue = "10000.00"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.INVESTMENT_FUND,
+                    assetClass = AssetClass.INVESTMENT_FUND,
                     dateDigits = "20250210",
                     type = TransactionType.PURCHASE,
                     totalValue = "5000.00"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.INVESTMENT_FUND,
+                    assetClass = AssetClass.INVESTMENT_FUND,
                     dateDigits = "20250312",
                     type = TransactionType.SALE,
                     totalValue = "3000.00"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.INVESTMENT_FUND,
+                    assetClass = AssetClass.INVESTMENT_FUND,
                     dateDigits = "20250415",
                     type = TransactionType.PURCHASE,
                     totalValue = "7500.00"
                 ),
                 TransactionDraftUi(
-                    category = InvestmentCategory.INVESTMENT_FUND,
+                    assetClass = AssetClass.INVESTMENT_FUND,
                     dateDigits = "20250520",
                     type = TransactionType.SALE,
                     totalValue = "4200.00"

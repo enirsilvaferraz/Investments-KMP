@@ -5,8 +5,8 @@ import kotlinx.datetime.LocalDate
 /**
  * Representa um ativo de renda fixa. As suas propriedades definem o "contrato" do título.
  *
- * @property type O tipo de cálculo de rendimento (pós-fixado, pré-fixado, etc.).
- * @property subType O instrumento de renda fixa (CDB, LCI, etc.).
+ * @property indexer O indexador de rentabilidade (pós-fixado, pré-fixado, etc.).
+ * @property type O instrumento de renda fixa (CDB, LCI, etc.).
  * @property expirationDate Data de vencimento do título.
  * @property contractedYield Rentabilidade contratada no momento da aplicação.
  * @property cdiRelativeYield Rentabilidade relativa ao CDI (opcional).
@@ -17,8 +17,8 @@ import kotlinx.datetime.LocalDate
 public data class FixedIncomeAsset(
     override val id: Long = 0,
     override val issuer: Issuer,
+    public val indexer: YieldIndexer,
     public val type: FixedIncomeAssetType,
-    public val subType: FixedIncomeSubType,
     public val expirationDate: LocalDate,
     public val contractedYield: Double,
     public val cdiRelativeYield: Double? = null,
@@ -27,5 +27,5 @@ public data class FixedIncomeAsset(
     public val b3Identifier: String? = null,
 ) : Asset {
 
-    override val category: InvestmentCategory = InvestmentCategory.FIXED_INCOME
+    override val assetClass: AssetClass = AssetClass.FIXED_INCOME
 }

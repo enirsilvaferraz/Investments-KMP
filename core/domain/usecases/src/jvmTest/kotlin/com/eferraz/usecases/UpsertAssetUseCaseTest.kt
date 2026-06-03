@@ -2,7 +2,7 @@ package com.eferraz.usecases
 
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Issuer
@@ -45,8 +45,8 @@ internal class UpsertAssetUseCaseTest {
         val asset = FixedIncomeAsset(
             id = 0L,
             issuer = issuer,
-            type = FixedIncomeAssetType.PRE_FIXED,
-            subType = FixedIncomeSubType.CDB,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
             expirationDate = futureDate,
             contractedYield = 10.5,
             cdiRelativeYield = 110.0,
@@ -71,8 +71,8 @@ internal class UpsertAssetUseCaseTest {
         val asset = FixedIncomeAsset(
             id = 0L,
             issuer = issuer,
-            type = FixedIncomeAssetType.PRE_FIXED,
-            subType = FixedIncomeSubType.CDB,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
             expirationDate = futureDate,
             contractedYield = 10.5,
             liquidity = Liquidity.DAILY,
@@ -94,8 +94,8 @@ internal class UpsertAssetUseCaseTest {
         val asset = FixedIncomeAsset(
             id = 0L,
             issuer = Issuer(id = 0L, name = "Banco"),
-            type = FixedIncomeAssetType.PRE_FIXED,
-            subType = FixedIncomeSubType.CDB,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
             expirationDate = futureDate,
             contractedYield = 1.0,
             liquidity = Liquidity.DAILY,
@@ -113,8 +113,8 @@ internal class UpsertAssetUseCaseTest {
         val asset = FixedIncomeAsset(
             id = 0L,
             issuer = issuer,
-            type = FixedIncomeAssetType.PRE_FIXED,
-            subType = FixedIncomeSubType.CDB,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
             expirationDate = pastDate,
             contractedYield = 1.0,
             liquidity = Liquidity.DAILY,

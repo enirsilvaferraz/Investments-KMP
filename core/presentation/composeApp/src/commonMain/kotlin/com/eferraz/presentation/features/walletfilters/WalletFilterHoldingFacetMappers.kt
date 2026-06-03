@@ -25,8 +25,8 @@ internal fun AssetHolding.toWalletFilterHoldingFacet(settled: YesOrNo): WalletFi
 
 internal fun FixedIncomeAsset.toWalletFilterHoldingFacet(settled: YesOrNo): WalletFilterHoldingFacet =
     WalletFilterHoldingFacet(
-        category = category,
-        subtype = WalletFilterSubtype.FixedIncome(subType),
+        assetClass = assetClass,
+        subtype = WalletFilterSubtype.FixedIncome(type),
         liquidity = liquidity,
         b3Informed = b3Identifier.toYesOrNoFromPresence(),
         settled = settled,
@@ -35,7 +35,7 @@ internal fun FixedIncomeAsset.toWalletFilterHoldingFacet(settled: YesOrNo): Wall
 
 internal fun VariableIncomeAsset.toWalletFilterHoldingFacet(settled: YesOrNo): WalletFilterHoldingFacet =
     WalletFilterHoldingFacet(
-        category = category,
+        assetClass = assetClass,
         subtype = WalletFilterSubtype.VariableIncome(type),
         liquidity = liquidity,
         b3Informed = YesOrNo.YES,
@@ -45,7 +45,7 @@ internal fun VariableIncomeAsset.toWalletFilterHoldingFacet(settled: YesOrNo): W
 
 internal fun InvestmentFundAsset.toWalletFilterHoldingFacet(settled: YesOrNo): WalletFilterHoldingFacet =
     WalletFilterHoldingFacet(
-        category = category,
+        assetClass = assetClass,
         subtype = WalletFilterSubtype.InvestmentFund(type),
         liquidity = liquidity,
         b3Informed = YesOrNo.NO,

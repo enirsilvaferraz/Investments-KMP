@@ -12,7 +12,7 @@ import com.eferraz.entities.assets.Liquidity
  * Entidade Room para a tabela base assets.
  * Representa os campos comuns a todos os tipos de ativos.
  *
- * @property category Discriminador: 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND'
+ * @property assetClass Discriminador: 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND'
  */
 @Entity(
     tableName = "assets",
@@ -26,7 +26,7 @@ import com.eferraz.entities.assets.Liquidity
     ],
     indices = [
         Index(value = ["issuerId"]),
-        Index(value = ["category"])
+        Index(value = ["asset_class"])
     ]
 )
 internal data class AssetEntity(
@@ -42,8 +42,8 @@ internal data class AssetEntity(
     @ColumnInfo(name = "issuerId")
     val issuerId: Long,
 
-    @ColumnInfo(name = "category")
-    val category: String, // 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND' // TODO Transformar em enum Category
+    @ColumnInfo(name = "asset_class")
+    val assetClass: String, // 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND' // TODO Transformar em enum Category
 
     @ColumnInfo(name = "liquidity")
     val liquidity: Liquidity,

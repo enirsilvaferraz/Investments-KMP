@@ -1,6 +1,6 @@
 package com.eferraz.presentation.features.walletfilters
 
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.YesOrNo
 import kotlinx.datetime.Month
@@ -13,17 +13,17 @@ import kotlinx.datetime.YearMonth
 internal object WalletFiltersPreviewCatalog {
 
     private val rfSubtypeOptions =
-        subtypesByCategory[InvestmentCategory.FIXED_INCOME]
+        subtypesByAssetClass[AssetClass.FIXED_INCOME]
             .orEmpty()
             .map(WalletFiltersCatalog::subtypeOption)
 
     private val rvSubtypeOptions =
-        subtypesByCategory[InvestmentCategory.VARIABLE_INCOME]
+        subtypesByAssetClass[AssetClass.VARIABLE_INCOME]
             .orEmpty()
             .map(WalletFiltersCatalog::subtypeOption)
 
     private val fundsSubtypeOptions =
-        subtypesByCategory[InvestmentCategory.INVESTMENT_FUND]
+        subtypesByAssetClass[AssetClass.INVESTMENT_FUND]
             .orEmpty()
             .map(WalletFiltersCatalog::subtypeOption)
 
@@ -49,7 +49,7 @@ internal object WalletFiltersPreviewCatalog {
         )
 
     private val classOptions =
-        InvestmentCategory.entries.map(WalletFiltersCatalog::classOption)
+        AssetClass.entries.map(WalletFiltersCatalog::classOption)
 
     val fullPanelOptions: WalletFiltersPanelOptions =
         WalletFiltersPanelOptions(

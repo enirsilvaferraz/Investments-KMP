@@ -8,7 +8,7 @@ import com.eferraz.database.datasources.AssetHoldingDataSource
 import com.eferraz.database.datasources.FinancialGoalDataSource
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.entities.assets.Asset
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Owner
@@ -80,9 +80,9 @@ internal class AssetHoldingDataSourceImpl(
         return getHoldingsByAssets(assetsMap)
     }
 
-    override suspend fun getByCategory(category: InvestmentCategory): List<AssetHolding> {
-        val assetsMap = assetDataSource.getByType(category).associateBy { asset -> asset.id }
-        val holdingsWithDetails = assetHoldingDao.getAllWithAssetByCategory(category)
+    override suspend fun getByAssetClass(assetClass: AssetClass): List<AssetHolding> {
+        val assetsMap = assetDataSource.getByAssetClass(assetClass).associateBy { asset -> asset.id }
+        val holdingsWithDetails = assetHoldingDao.getAllWithAssetByCategory(assetClass)
 
         return holdingsWithDetails.mapNotNull { holdingWithDetails ->
             val goal = holdingWithDetails.holding.goalId?.let {

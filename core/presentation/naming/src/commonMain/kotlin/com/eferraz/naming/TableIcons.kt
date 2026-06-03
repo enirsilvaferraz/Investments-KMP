@@ -16,7 +16,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.design_system.theme.getSuccessColor
 import com.eferraz.design_system.theme.getWarningColor
@@ -61,14 +61,14 @@ public fun Liquidity.BuildIcon() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun InvestmentCategory.BuildIcon() {
+public fun AssetClass.BuildIcon() {
 
     val icon = Icons.Default.AttachMoney
 
     val color = when (this) {
-        InvestmentCategory.FIXED_INCOME -> getSuccessColor()
-        InvestmentCategory.VARIABLE_INCOME -> MaterialTheme.colorScheme.error
-        InvestmentCategory.INVESTMENT_FUND -> getWarningColor()
+        AssetClass.FIXED_INCOME -> getSuccessColor()
+        AssetClass.VARIABLE_INCOME -> MaterialTheme.colorScheme.error
+        AssetClass.INVESTMENT_FUND -> getWarningColor()
     }
 
     val tooltipText = asLabel()

@@ -3,7 +3,7 @@ package com.eferraz.asset_management.transactions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.design_system.input.date.dateToDigits
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.usecases.DeleteTransactionUseCase
 import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.SaveTransactionUseCase
@@ -86,7 +86,7 @@ internal class TransactionManagementViewModel(
 
         // TODO fazer upsert em lote -> consultar no banco de dados e fazer essa operação no usecase
         val removeIds = current.initialSnapshot.mapNotNull { it.id }.toSet() - current.transactions.mapNotNull { it.id }.toSet()
-        val upserts = current.transactions.mapNotNull { it.toDomainTransaction(holding, current.category) }
+        val upserts = current.transactions.mapNotNull { it.toDomainTransaction(holding, current.assetClass) }
 
         runCatching {
 
@@ -113,7 +113,7 @@ internal class TransactionManagementViewModel(
         val currentDate = getCurrentDateUseCase(Unit).getOrThrow().toString().replace("-", "")
 
         // TODO Débito Técnico -> Nao trabalhar com dateDigits e sim com LocalDate
-        val blank = TransactionDraftUi(isNew = true, dateDigits = currentDate, category = state.value.category)
+        val blank = TransactionDraftUi(isNew = true, dateDigits = currentDate, assetClass = state.value.assetClass)
 
         state.update { it.copy(transactions = it.transactions + blank) }
     }
@@ -121,7 +121,7 @@ internal class TransactionManagementViewModel(
     private fun updateDraft(index: Int, update: (TransactionDraftUi) -> TransactionDraftUi) =
         state.update { current ->
             var draft = update(current.transactions[index])
-            if (current.category == InvestmentCategory.VARIABLE_INCOME) {
+            if (current.assetClass == AssetClass.VARIABLE_INCOME) {
                 draft = draft.syncVariableIncomeTotal()
             }
             current.copy(transactions = current.transactions.toMutableList().apply { this[index] = draft })

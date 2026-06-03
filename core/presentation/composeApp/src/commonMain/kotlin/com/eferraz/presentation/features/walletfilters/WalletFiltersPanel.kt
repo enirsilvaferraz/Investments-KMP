@@ -32,7 +32,7 @@ import com.eferraz.design_system_v2.filter.FilterSectionHeader
 import com.eferraz.design_system_v2.filter.FilterToggleGroup
 import com.eferraz.design_system_v2.filter.MaturityFilterDropdown
 import com.eferraz.design_system_v2.theme.AppThemeV2
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import kotlinx.datetime.YearMonth
 
 @Composable
@@ -61,7 +61,7 @@ internal fun WalletFiltersPanel(
                 onStateChange = onStateChange,
             )
 
-            if (state.isClassSelected(InvestmentCategory.FIXED_INCOME)) {
+            if (state.isClassSelected(AssetClass.FIXED_INCOME)) {
                 RendaFixaSection(
                     section = options.fixedIncome,
                     state = state,
@@ -69,7 +69,7 @@ internal fun WalletFiltersPanel(
                 )
             }
 
-            if (state.isClassSelected(InvestmentCategory.VARIABLE_INCOME)) {
+            if (state.isClassSelected(AssetClass.VARIABLE_INCOME)) {
                 RendaVariavelSection(
                     section = options.variableIncome,
                     selectedSubtypes = state.selectedSubtypes,
@@ -77,7 +77,7 @@ internal fun WalletFiltersPanel(
                 )
             }
 
-            if (state.isClassSelected(InvestmentCategory.INVESTMENT_FUND)) {
+            if (state.isClassSelected(AssetClass.INVESTMENT_FUND)) {
                 FundosSection(
                     section = options.funds,
                     selectedSubtypes = state.selectedSubtypes,

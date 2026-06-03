@@ -1,6 +1,6 @@
 package com.eferraz.presentation.helpers
 
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.transactions.TransactionType
 import kotlinx.datetime.LocalDate
@@ -37,11 +37,11 @@ internal object Formatters {
             Liquidity.D_PLUS_DAYS -> "D+${liquidityDays ?: 0}"
         }
 
-    internal fun InvestmentCategory?.formated(): String =
+    internal fun AssetClass?.formated(): String =
         when (this) {
-            InvestmentCategory.FIXED_INCOME -> "Renda Fixa"
-            InvestmentCategory.VARIABLE_INCOME -> "Renda Variável"
-            InvestmentCategory.INVESTMENT_FUND -> "Fundos"
+            AssetClass.FIXED_INCOME -> "Renda Fixa"
+            AssetClass.VARIABLE_INCOME -> "Renda Variável"
+            AssetClass.INVESTMENT_FUND -> "Fundos"
             else -> ""
         }
 

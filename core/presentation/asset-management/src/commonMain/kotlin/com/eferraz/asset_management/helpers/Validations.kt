@@ -1,8 +1,8 @@
 package com.eferraz.asset_management.helpers
 
 import com.eferraz.asset_management.assets.AssetManagementUiState
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.CNPJ
-import com.eferraz.entities.assets.InvestmentCategory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -15,10 +15,10 @@ internal fun MutableStateFlow<AssetManagementUiState>.checkErros(): Boolean {
         brokerageError = if (state.brokerage == null) "Obrigatório" else null,
     )
 
-    val validated = when (state.category) {
-        InvestmentCategory.FIXED_INCOME -> withCommon.validateFixedIncome()
-        InvestmentCategory.VARIABLE_INCOME -> withCommon.validateVariableIncome()
-        InvestmentCategory.INVESTMENT_FUND -> withCommon.validateFund()
+    val validated = when (state.assetClass) {
+        AssetClass.FIXED_INCOME -> withCommon.validateFixedIncome()
+        AssetClass.VARIABLE_INCOME -> withCommon.validateVariableIncome()
+        AssetClass.INVESTMENT_FUND -> withCommon.validateFund()
     }
 
     this.update { validated }
@@ -27,8 +27,8 @@ internal fun MutableStateFlow<AssetManagementUiState>.checkErros(): Boolean {
 }
 
 private fun AssetManagementUiState.validateFixedIncome(): AssetManagementUiState = copy(
+    yieldIndexerError = if (yieldIndexer == null) "Obrigatório" else null,
     fixedTypeError = if (fixedType == null) "Obrigatório" else null,
-    fixedSubTypeError = if (fixedSubType == null) "Obrigatório" else null,
     fixedExpirationError = if (fixedExpiration.isNullOrBlank()) "Obrigatório" else if (localDateFromIsoDateDigits(fixedExpiration) == null) "Data inválida" else null,
     fixedYieldError = if (fixedYield.isNullOrBlank()) "Obrigatório" else if (fixedYield.toDoubleOrNull() == null) "Número inválido" else null,
     fixedCdiError = if (fixedCdi.isNullOrBlank().not() && fixedCdi.toDoubleOrNull() == null) "Número inválido" else null,

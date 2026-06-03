@@ -1,7 +1,7 @@
 package com.eferraz.usecases.entities
 
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
@@ -29,8 +29,8 @@ internal class HoldingHistoryViewTest {
             FixedIncomeHistoryTableData(
                 currentEntry = referenceEntry,
                 brokerageName = "Broker",
-                subType = FixedIncomeSubType.CDB,
-                type = FixedIncomeAssetType.PRE_FIXED,
+                indexer = YieldIndexer.PRE_FIXED,
+                type = FixedIncomeAssetType.CDB,
                 expirationDate = LocalDate(2030, Month.JUNE, 1),
                 contractedYield = 10.0,
                 cdiRelativeYield = null,
@@ -125,8 +125,8 @@ internal class HoldingHistoryViewTest {
                 FixedIncomeHistoryTableData(
                     currentEntry = referenceEntry,
                     brokerageName = "Broker",
-                    subType = FixedIncomeSubType.CDB,
-                    type = FixedIncomeAssetType.PRE_FIXED,
+                    indexer = YieldIndexer.PRE_FIXED,
+                    type = FixedIncomeAssetType.CDB,
                     expirationDate = LocalDate(2030, Month.JUNE, 1),
                     contractedYield = 10.0,
                     cdiRelativeYield = null,

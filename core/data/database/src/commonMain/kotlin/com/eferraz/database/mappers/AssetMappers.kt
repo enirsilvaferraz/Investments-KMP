@@ -13,6 +13,16 @@ import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.VariableIncomeAsset
 
 /**
+ * Literais persistidos em `assets.asset_class` e `asset_transactions.asset_class`.
+ * Fonte única para mappers de ativos e transações (R5).
+ */
+internal object PersistedAssetClass {
+    const val FIXED_INCOME = "FIXED_INCOME"
+    const val VARIABLE_INCOME = "VARIABLE_INCOME"
+    const val INVESTMENT_FUND = "INVESTMENT_FUND"
+}
+
+/**
  * Mappers para conversão entre entidades de domínio e entidades de banco de dados de ativos.
  */
 
@@ -22,8 +32,8 @@ internal fun AssetWithDetails.toDomain(): Asset =
         fixedIncome != null -> FixedIncomeAsset(
             id = asset.id,
             issuer = issuer.toDomain(),
+            indexer = fixedIncome.indexer,
             type = fixedIncome.type,
-            subType = fixedIncome.subType,
             expirationDate = fixedIncome.expirationDate,
             contractedYield = fixedIncome.contractedYield,
             cdiRelativeYield = fixedIncome.cdiRelativeYield,
@@ -71,10 +81,10 @@ internal fun Issuer.toEntity() =
 
 internal fun Asset.toEntity(): AssetWithDetails {
 
-    val (category, liquidity) = when (this) {
-        is FixedIncomeAsset -> "FIXED_INCOME" to liquidity
-        is VariableIncomeAsset -> "VARIABLE_INCOME" to liquidity
-        is InvestmentFundAsset -> "INVESTMENT_FUND" to liquidity
+    val (assetClass, liquidity) = when (this) {
+        is FixedIncomeAsset -> PersistedAssetClass.FIXED_INCOME to liquidity
+        is VariableIncomeAsset -> PersistedAssetClass.VARIABLE_INCOME to liquidity
+        is InvestmentFundAsset -> PersistedAssetClass.INVESTMENT_FUND to liquidity
     }
 
     val name = when (this) {
@@ -87,7 +97,7 @@ internal fun Asset.toEntity(): AssetWithDetails {
         id = id,
         name = name,
         issuerId = issuer.id,
-        category = category,
+        assetClass = assetClass,
         liquidity = liquidity,
         observations = observations
     )
@@ -99,8 +109,8 @@ internal fun Asset.toEntity(): AssetWithDetails {
             issuer = issuer.toEntity(),
             fixedIncome = FixedIncomeAssetEntity(
                 assetId = id,
+                indexer = indexer,
                 type = type,
-                subType = subType,
                 expirationDate = expirationDate,
                 contractedYield = contractedYield,
                 cdiRelativeYield = cdiRelativeYield,

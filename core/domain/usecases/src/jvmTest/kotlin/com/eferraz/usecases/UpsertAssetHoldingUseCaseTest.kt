@@ -2,7 +2,7 @@ package com.eferraz.usecases
 
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.holdings.AssetHolding
@@ -42,8 +42,8 @@ internal class UpsertAssetHoldingUseCaseTest {
         val asset = FixedIncomeAsset(
             id = 1L,
             issuer = issuer,
-            type = FixedIncomeAssetType.PRE_FIXED,
-            subType = FixedIncomeSubType.CDB,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
             expirationDate = futureDate,
             contractedYield = 1.0,
             liquidity = Liquidity.DAILY,
@@ -61,8 +61,8 @@ internal class UpsertAssetHoldingUseCaseTest {
         val asset = FixedIncomeAsset(
             id = 1L,
             issuer = issuer,
-            type = FixedIncomeAssetType.PRE_FIXED,
-            subType = FixedIncomeSubType.CDB,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
             expirationDate = futureDate,
             contractedYield = 1.0,
             liquidity = Liquidity.DAILY,

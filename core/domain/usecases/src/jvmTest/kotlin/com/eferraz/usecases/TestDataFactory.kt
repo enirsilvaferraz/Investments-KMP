@@ -5,7 +5,7 @@ import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.assets.InvestmentFundAsset
 import com.eferraz.entities.assets.InvestmentFundAssetType
@@ -38,11 +38,11 @@ object TestDataFactory {
     fun createFixedIncomeAsset(
         id: Long = 2,
         issuer: Issuer = createIssuer(),
-        type: FixedIncomeAssetType = FixedIncomeAssetType.PRE_FIXED,
-        subType: FixedIncomeSubType = FixedIncomeSubType.CDB,
+        indexer: YieldIndexer = YieldIndexer.PRE_FIXED,
+        type: FixedIncomeAssetType = FixedIncomeAssetType.CDB,
         expirationDate: LocalDate = LocalDate(2025, Month.JANUARY, 1),
         contractedYield: Double = 10.0,
-    ) = FixedIncomeAsset(id, issuer, type, subType, expirationDate, contractedYield, liquidity = Liquidity.D_PLUS_DAYS)
+    ) = FixedIncomeAsset(id, issuer, indexer, type, expirationDate, contractedYield, liquidity = Liquidity.D_PLUS_DAYS)
 
     fun createInvestmentFundAsset(
         id: Long = 3,

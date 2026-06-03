@@ -37,9 +37,9 @@ import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
 import com.eferraz.design_system.scaffolds.AppContentDialog
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
@@ -134,10 +134,10 @@ private fun FormContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
-        when (ui.category) {
-            InvestmentCategory.FIXED_INCOME -> FixedIncomeFields(ui, onEvent)
-            InvestmentCategory.VARIABLE_INCOME -> VariableIncomeFields(ui, onEvent)
-            InvestmentCategory.INVESTMENT_FUND -> FundFields(ui, onEvent)
+        when (ui.assetClass) {
+            AssetClass.FIXED_INCOME -> FixedIncomeFields(ui, onEvent)
+            AssetClass.VARIABLE_INCOME -> VariableIncomeFields(ui, onEvent)
+            AssetClass.INVESTMENT_FUND -> FundFields(ui, onEvent)
         }
 
         FormTwoColumnsRow(
@@ -192,15 +192,26 @@ private fun FixedIncomeFields(
         left = {
             AppDropdownField(
                 label = "Categoria",
-                displayValue = ui.category.asLabel(),
-                options = InvestmentCategory.entries.toList(),
+                displayValue = ui.assetClass.asLabel(),
+                options = AssetClass.entries.toList(),
                 itemLabel = { it.asLabel() },
-                onItemSelect = { onEvent(AssetManagementEvents.CategoryChanged(it)) },
+                onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
                 enabled = ui.asset == null,
                 required = true,
             )
         },
         middle = {
+            AppDropdownField(
+                label = "Indexador",
+                displayValue = ui.yieldIndexer?.asLabel().orEmpty(),
+                options = YieldIndexer.entries.toList(),
+                itemLabel = { it.asLabel() },
+                onItemSelect = { onEvent(AssetManagementEvents.YieldIndexerChanged(it)) },
+                error = ui.yieldIndexerError,
+                required = true,
+            )
+        },
+        right = {
             AppDropdownField(
                 label = "Tipo",
                 displayValue = ui.fixedType?.asLabel().orEmpty(),
@@ -208,17 +219,6 @@ private fun FixedIncomeFields(
                 itemLabel = { it.asLabel() },
                 onItemSelect = { onEvent(AssetManagementEvents.FixedTypeChanged(it)) },
                 error = ui.fixedTypeError,
-                required = true,
-            )
-        },
-        right = {
-            AppDropdownField(
-                label = "Subtipo",
-                displayValue = ui.fixedSubType?.asLabel().orEmpty(),
-                options = FixedIncomeSubType.entries.toList(),
-                itemLabel = { it.asLabel() },
-                onItemSelect = { onEvent(AssetManagementEvents.FixedSubTypeChanged(it)) },
-                error = ui.fixedSubTypeError,
                 required = true,
             )
         },
@@ -293,10 +293,10 @@ private fun VariableIncomeFields(
         left = {
             AppDropdownField(
                 label = "Categoria",
-                displayValue = ui.category.asLabel(),
-                options = InvestmentCategory.entries.toList(),
+                displayValue = ui.assetClass.asLabel(),
+                options = AssetClass.entries.toList(),
                 itemLabel = { it.asLabel() },
-                onItemSelect = { onEvent(AssetManagementEvents.CategoryChanged(it)) },
+                onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
                 enabled = ui.asset == null,
                 required = true,
             )
@@ -340,10 +340,10 @@ private fun FundFields(
         left = {
             AppDropdownField(
                 label = "Categoria",
-                displayValue = ui.category.asLabel(),
-                options = InvestmentCategory.entries.toList(),
+                displayValue = ui.assetClass.asLabel(),
+                options = AssetClass.entries.toList(),
                 itemLabel = { it.asLabel() },
-                onItemSelect = { onEvent(AssetManagementEvents.CategoryChanged(it)) },
+                onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
                 enabled = ui.asset == null,
                 required = true,
             )
@@ -419,9 +419,9 @@ private fun Actions(
 
 private class AssetFormPreviewProvider : PreviewParameterProvider<AssetManagementUiState> {
     override val values: Sequence<AssetManagementUiState> = sequenceOf(
-        AssetManagementUiState(category = InvestmentCategory.FIXED_INCOME, brokerages = listOf(Brokerage(1L, "XP Investimentos"))),
-        AssetManagementUiState(category = InvestmentCategory.VARIABLE_INCOME),
-        AssetManagementUiState(category = InvestmentCategory.INVESTMENT_FUND),
+        AssetManagementUiState(assetClass = AssetClass.FIXED_INCOME, brokerages = listOf(Brokerage(1L, "XP Investimentos"))),
+        AssetManagementUiState(assetClass = AssetClass.VARIABLE_INCOME),
+        AssetManagementUiState(assetClass = AssetClass.INVESTMENT_FUND),
     )
 }
 

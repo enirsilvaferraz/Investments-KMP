@@ -11,5 +11,5 @@ public sealed interface Asset {
     public val id: Long
     public val issuer: Issuer
     public val observations: String?
-    public val category: InvestmentCategory
+    public val assetClass: AssetClass
 }

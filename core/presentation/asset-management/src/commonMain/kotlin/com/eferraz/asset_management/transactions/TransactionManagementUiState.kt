@@ -2,7 +2,7 @@ package com.eferraz.asset_management.transactions
 
 import androidx.compose.runtime.Immutable
 import com.eferraz.asset_management.helpers.localDateFromIsoDateDigits
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.FixedIncomeTransaction
@@ -18,8 +18,8 @@ internal data class TransactionManagementUiState(
     val isSaving: Boolean = false,
     val isCompleted: Boolean = false,
 ) {
-    internal val category: InvestmentCategory
-        get() = holding?.asset?.category ?: InvestmentCategory.FIXED_INCOME
+    internal val assetClass: AssetClass
+        get() = holding?.asset?.assetClass ?: AssetClass.FIXED_INCOME
 
     internal val isDirty: Boolean
         get() = initialSnapshot != transactions
@@ -31,7 +31,7 @@ internal data class TransactionManagementUiState(
 @Immutable
 internal data class TransactionDraftUi(
     val id: Long? = null,
-    val category: InvestmentCategory,
+    val assetClass: AssetClass,
     val isNew: Boolean = false,
     val dateDigits: String = "",
     val type: TransactionType = TransactionType.PURCHASE,
@@ -45,13 +45,13 @@ internal data class TransactionDraftUi(
         get() = localDateFromIsoDateDigits(dateDigits) == null
 
     val quantityError: Boolean
-        get() = category == InvestmentCategory.VARIABLE_INCOME && quantity.toDoubleOrNull() == null
+        get() = assetClass == AssetClass.VARIABLE_INCOME && quantity.toDoubleOrNull() == null
 
     val unitPriceError: Boolean
-        get() = category == InvestmentCategory.VARIABLE_INCOME && unitPrice.toDoubleOrNull() == null
+        get() = assetClass == AssetClass.VARIABLE_INCOME && unitPrice.toDoubleOrNull() == null
 
     val totalValueError: Boolean
-        get() = category != InvestmentCategory.VARIABLE_INCOME && totalValue.toDoubleOrNull() == null
+        get() = assetClass != AssetClass.VARIABLE_INCOME && totalValue.toDoubleOrNull() == null
 
     internal companion object {
 
@@ -66,22 +66,22 @@ internal data class TransactionDraftUi(
                 unitPrice = if (value is VariableIncomeTransaction) value.unitPrice.toString() else "",
                 totalValue = value.totalValue.toString(),
                 observations = value.observations.orEmpty(),
-                category = value.holding.asset.category
+                assetClass = value.holding.asset.assetClass
             )
         }
     }
 
     internal fun toDomainTransaction(
         holding: AssetHolding,
-        category: InvestmentCategory,
+        assetClass: AssetClass,
     ): AssetTransaction? {
 
         val date = localDateFromIsoDateDigits(dateDigits) ?: return null
         val draftId = id ?: 0L
 
-        return when (category) {
+        return when (assetClass) {
 
-            InvestmentCategory.VARIABLE_INCOME -> VariableIncomeTransaction(
+            AssetClass.VARIABLE_INCOME -> VariableIncomeTransaction(
                 id = draftId,
                 holding = holding,
                 date = date,
@@ -91,7 +91,7 @@ internal data class TransactionDraftUi(
                 observations = observations.ifBlank { null },
             )
 
-            InvestmentCategory.FIXED_INCOME -> FixedIncomeTransaction(
+            AssetClass.FIXED_INCOME -> FixedIncomeTransaction(
                 id = draftId,
                 holding = holding,
                 date = date,
@@ -100,7 +100,7 @@ internal data class TransactionDraftUi(
                 observations = observations.ifBlank { null },
             )
 
-            InvestmentCategory.INVESTMENT_FUND -> FundsTransaction(
+            AssetClass.INVESTMENT_FUND -> FundsTransaction(
                 id = draftId,
                 holding = holding,
                 date = date,

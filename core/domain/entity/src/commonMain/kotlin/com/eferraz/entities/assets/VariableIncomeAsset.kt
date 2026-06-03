@@ -40,5 +40,5 @@ public data class VariableIncomeAsset(
      */
     public val liquidityDays: Int = 2
 
-    override val category: InvestmentCategory = InvestmentCategory.VARIABLE_INCOME
+    override val assetClass: AssetClass = AssetClass.VARIABLE_INCOME
 }

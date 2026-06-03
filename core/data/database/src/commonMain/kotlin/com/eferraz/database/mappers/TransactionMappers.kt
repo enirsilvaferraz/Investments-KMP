@@ -22,10 +22,10 @@ internal fun AssetTransaction.toEntity(): TransactionWithDetails {
         holdingId = holding.id,
         transactionDate = date,
         type = type,
-        category = when (this) {
-            is FixedIncomeTransaction -> "FIXED_INCOME"
-            is VariableIncomeTransaction -> "VARIABLE_INCOME"
-            is FundsTransaction -> "FUNDS"
+        assetClass = when (this) {
+            is FixedIncomeTransaction -> PersistedAssetClass.FIXED_INCOME
+            is VariableIncomeTransaction -> PersistedAssetClass.VARIABLE_INCOME
+            is FundsTransaction -> PersistedAssetClass.INVESTMENT_FUND
         },
         observations = observations
     )

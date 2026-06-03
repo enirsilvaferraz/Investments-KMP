@@ -17,7 +17,7 @@ Aplicativo de **carteira de investimentos**: cadastro de ativos, posições por 
 
 | Pacote         | Conteúdo principal                                                                                         |
 |----------------|------------------------------------------------------------------------------------------------------------|
-| `assets`       | `Asset` (sealed), RF/RV/Fundo, `Issuer`, `Liquidity`, enums, `CNPJ`, `MaturityDate`, `InvestmentCategory`  |
+| `assets`       | `Asset` (sealed), RF/RV/Fundo, `Issuer`, `Liquidity`, enums, `CNPJ`, `MaturityDate`, `AssetClass`, `YieldIndexer`, `AssetType`  |
 | `holdings`     | `AssetHolding`, `Owner`, `Brokerage`, `HoldingHistoryEntry`, `Appreciation`, `Growth`, `StockQuoteHistory` |
 | `transactions` | `AssetTransaction` (sealed), `TransactionType`, `TransactionBalance`                                       |
 | `goals`        | `FinancialGoal`, `GoalInvestmentPlan`, `GrowthRate`, `GoalMonthlyData`, `ProjectedGoal`, `GoalProjections` |
@@ -45,7 +45,7 @@ Papéis modelados nas entidades `Owner`, `Brokerage` e `Issuer` do diagrama ER (
 
 ## 5. Invariantes e decisões de modelo
 
-- **`Asset` (interface):** `id`, `issuer`, `observations`. **`name`** existe em RV e fundo; **RF** não tem `name` no tipo atual (exibição pode compor tipo, subtipo, rentabilidade e vencimento na UI).
+- **`Asset` (interface):** `id`, `issuer`, `observations`, `assetClass`. **`name`** existe em RV e fundo; **RF** não tem `name` no tipo atual (exibição pode compor indexador, tipo de produto, rentabilidade e vencimento na UI).
 - **`expirationDate`:** obrigatória em RF; inexistente em RV; opcional em fundo.
 - **RV:** `liquidity` = `D_PLUS_DAYS`, `liquidityDays` = `2` (fixos, não parâmetros do construtor).
 - **`Liquidity`:** `DAILY`, `AT_MATURITY`, `D_PLUS_DAYS` (com `liquidityDays` onde fizer sentido).
@@ -83,7 +83,7 @@ Regras de valor por subtipo constam em `FixedIncomeTransaction`, `FundsTransacti
 
 ### 6.5 Enums
 
-`FixedIncomeAssetType`, `FixedIncomeSubType`, `VariableIncomeAssetType`, `InvestmentFundAssetType`, `TransactionType`, `InvestmentCategory`, `Liquidity` — valores no código-fonte (sem duplicar lista longa aqui).
+`AssetClass`, `YieldIndexer`, `FixedIncomeAssetType` (produto RF), `VariableIncomeAssetType`, `InvestmentFundAssetType` (`AssetType`), `TransactionType`, `Liquidity` — valores no código-fonte (sem duplicar lista longa aqui).
 
 ---
 
@@ -113,6 +113,7 @@ erDiagram
         Long id
         Issuer issuer
         String observations "opcional"
+        String assetClass "enum AssetClass"
     }
     FixedIncomeAsset {
         Long id
@@ -120,8 +121,8 @@ erDiagram
         Double contractedYield
         Double cdiRelativeYield "opcional"
         String b3Identifier "opcional"
-        String type "enum FixedIncomeAssetType"
-        String subType "enum FixedIncomeSubType"
+        String indexer "enum YieldIndexer"
+        String type "enum FixedIncomeAssetType produto"
         String liquidity "enum Liquidity"
     }
     VariableIncomeAsset {
@@ -371,7 +372,7 @@ erDiagram
 
 **Ligações só no módulo `entity` (Kotlin):** import ou tipo em propriedade; `when` em `TransactionBalance`; `GoalProjections` / `ProjectedGoal` por `calculate`.
 
-**Sem referência a outros tipos do domínio neste módulo:** `MandatoryText`, `MaturityDate` (VOs isolados). **`InvestmentCategory`:** definido no módulo, sem uso por outras classes aqui.
+**Sem referência a outros tipos do domínio neste módulo:** `MandatoryText`, `MaturityDate` (VOs isolados). **`AssetClass`:** exposto em `Asset.assetClass`; **`YieldIndexer`:** exclusivo de RF (`FixedIncomeAsset.indexer`).
 
 **Fora do Mermaid:** enums (§6.5 e código-fonte); **`EntityModule`** (Koin, não é modelo de domínio).
 

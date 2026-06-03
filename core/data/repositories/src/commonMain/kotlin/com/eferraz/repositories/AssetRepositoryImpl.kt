@@ -2,7 +2,7 @@ package com.eferraz.repositories
 
 import com.eferraz.database.datasources.AssetDataSource
 import com.eferraz.entities.assets.Asset
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.usecases.repositories.AssetRepository
 import org.koin.core.annotation.Factory
 
@@ -17,8 +17,8 @@ internal class AssetRepositoryImpl(
     override suspend fun delete(id: Long) =
         dataSource.delete(id)
 
-    override suspend fun getByType(category: InvestmentCategory) =
-        dataSource.getByType(category)
+    override suspend fun getByAssetClass(assetClass: AssetClass) =
+        dataSource.getByAssetClass(assetClass)
 
     override suspend fun getById(id: Long) =
         dataSource.getByID(id)

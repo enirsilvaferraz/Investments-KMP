@@ -5,7 +5,7 @@ import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.PrimaryKey
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
+import com.eferraz.entities.assets.YieldIndexer
 import kotlinx.datetime.LocalDate
 
 /**
@@ -30,11 +30,11 @@ internal data class FixedIncomeAssetEntity(
     @ColumnInfo(name = "assetId")
     val assetId: Long,
 
+    @ColumnInfo(name = "indexer")
+    val indexer: YieldIndexer,
+
     @ColumnInfo(name = "type")
     val type: FixedIncomeAssetType,
-
-    @ColumnInfo(name = "subType")
-    val subType: FixedIncomeSubType,
 
     @ColumnInfo(name = "expirationDate")
     val expirationDate: LocalDate,

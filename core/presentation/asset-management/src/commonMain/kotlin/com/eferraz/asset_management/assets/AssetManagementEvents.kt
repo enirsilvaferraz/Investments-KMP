@@ -1,12 +1,12 @@
 package com.eferraz.asset_management.assets
 
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.FixedIncomeSubType
-import com.eferraz.entities.assets.InvestmentCategory
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.holdings.Brokerage
 
 internal sealed class AssetManagementEvents {
@@ -14,13 +14,13 @@ internal sealed class AssetManagementEvents {
     data class ScreenEntered(val holdingId: Long?) : AssetManagementEvents()
     data class BrokerageChanged(val brokerage: Brokerage) : AssetManagementEvents()
 
-    data class CategoryChanged(val category: InvestmentCategory) : AssetManagementEvents()
+    data class AssetClassChanged(val assetClass: AssetClass) : AssetManagementEvents()
     data class IssuerChanged(val issuer: Issuer) : AssetManagementEvents()
     data class ObservationsChanged(val value: String) : AssetManagementEvents()
     data class B3IdentifierChanged(val value: String) : AssetManagementEvents()
 
+    data class YieldIndexerChanged(val indexer: YieldIndexer) : AssetManagementEvents()
     data class FixedTypeChanged(val type: FixedIncomeAssetType) : AssetManagementEvents()
-    data class FixedSubTypeChanged(val subType: FixedIncomeSubType) : AssetManagementEvents()
     data class FixedExpirationChanged(val raw: String) : AssetManagementEvents()
     data class FixedYieldChanged(val value: String) : AssetManagementEvents()
     data class FixedCdiChanged(val value: String) : AssetManagementEvents()

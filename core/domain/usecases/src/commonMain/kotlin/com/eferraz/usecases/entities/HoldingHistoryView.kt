@@ -1,12 +1,12 @@
 package com.eferraz.usecases.entities
 
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 
 public data class HoldingHistoryView(
     val entry: HoldingHistoryEntry,
-    val category: InvestmentCategory,
+    val assetClass: AssetClass,
     val brokerageName: String,
     val issuerName: String,
     val displayName: String,
@@ -23,7 +23,7 @@ public data class HoldingHistoryView(
 
     public constructor(it: HistoryTableData) : this(
         entry = it.currentEntry,
-        category = it.category,
+        assetClass = it.assetClass,
         brokerageName = it.brokerageName,
         issuerName = it.issuerName,
         displayName = it.displayName,
@@ -49,5 +49,5 @@ public data class HoldingHistoryView(
         get() = currentValue == 0.0
 
     public fun isCurrentValueEnabled(): Boolean =
-        category != InvestmentCategory.VARIABLE_INCOME
+        assetClass != AssetClass.VARIABLE_INCOME
 }

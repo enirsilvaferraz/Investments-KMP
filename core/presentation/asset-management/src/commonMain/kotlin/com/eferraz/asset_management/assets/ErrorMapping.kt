@@ -1,11 +1,11 @@
 package com.eferraz.asset_management.assets
 
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 
 /**
  * Aplica [ValidateException.messages] (chaves do [com.eferraz.usecases.cruds.UpsertAssetUseCase]
  * e de emissor/corretora) nos campos `*Error`.
- * Chave inexistente → `null` nesse alvo; erros de campo de categorias fora de [s.category] ignoram-se.
+ * Chave inexistente → `null` nesse alvo; erros de campo de classes fora de [s.assetClass] ignoram-se.
  */
 internal fun Map<String, String>.remoteFieldErrorsOn(s: AssetManagementUiState) = s.withClearedFieldErrors().run {
 
@@ -13,20 +13,20 @@ internal fun Map<String, String>.remoteFieldErrorsOn(s: AssetManagementUiState) 
         issuerError = this@remoteFieldErrorsOn["issuer"],
     )
 
-    when (s.category) {
+    when (s.assetClass) {
 
-        InvestmentCategory.FIXED_INCOME -> common.copy(
+        AssetClass.FIXED_INCOME -> common.copy(
             fixedExpirationError = this@remoteFieldErrorsOn["expirationDate"],
             fixedYieldError = this@remoteFieldErrorsOn["contractedYield"],
             fixedCdiError = this@remoteFieldErrorsOn["cdiRelativeYield"],
         )
 
-        InvestmentCategory.VARIABLE_INCOME -> common.copy(
+        AssetClass.VARIABLE_INCOME -> common.copy(
             variableTickerError = this@remoteFieldErrorsOn["ticker"] ?: this@remoteFieldErrorsOn["assetName"],
             cnpjError = this@remoteFieldErrorsOn["cnpj"],
         )
 
-        InvestmentCategory.INVESTMENT_FUND -> common.copy(
+        AssetClass.INVESTMENT_FUND -> common.copy(
             fundNameError = this@remoteFieldErrorsOn["name"],
             fundLiquidityDaysError = this@remoteFieldErrorsOn["liquidityDays"],
             fundExpirationError = this@remoteFieldErrorsOn["expirationDate"],

@@ -8,7 +8,7 @@ import androidx.room3.Transaction
 import androidx.room3.Upsert
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.database.entities.holdings.AssetHoldingWithDetails
-import com.eferraz.entities.assets.InvestmentCategory
+import com.eferraz.entities.assets.AssetClass
 /**
  * DAO para operações CRUD na tabela asset_holdings.
  */
@@ -43,10 +43,10 @@ internal interface AssetHoldingDao {
         """
         SELECT * FROM asset_holdings
         INNER JOIN assets ON asset_holdings.assetId = assets.id
-        WHERE assets.category = :category
+        WHERE assets.asset_class = :assetClass
     """
     )
-    suspend fun getAllWithAssetByCategory(category: InvestmentCategory): List<AssetHoldingWithDetails>
+    suspend fun getAllWithAssetByCategory(assetClass: AssetClass): List<AssetHoldingWithDetails>
 
     @Transaction
     @Query("SELECT * FROM asset_holdings WHERE goalId = :goalId")
