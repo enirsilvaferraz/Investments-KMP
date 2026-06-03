@@ -5,7 +5,6 @@ import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
 import com.eferraz.database.entities.transaction.FundsTransactionEntity
 import com.eferraz.database.entities.transaction.TransactionWithDetails
 import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
-import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.FixedIncomeTransaction
 import com.eferraz.entities.transactions.FundsTransaction
@@ -15,11 +14,11 @@ import com.eferraz.entities.transactions.VariableIncomeTransaction
  * Mappers para conversão entre entidades de domínio e entidades de banco de dados de transações.
  */
 
-internal fun AssetTransaction.toEntity(): TransactionWithDetails {
+internal fun AssetTransaction.toEntity(holdingId: Long): TransactionWithDetails {
 
     val baseEntity = AssetTransactionEntity(
         id = id,
-        holdingId = holding.id,
+        holdingId = holdingId,
         transactionDate = date,
         type = type,
         assetClass = when (this) {
@@ -59,7 +58,7 @@ internal fun AssetTransaction.toEntity(): TransactionWithDetails {
     }
 }
 
-internal fun TransactionWithDetails.toDomain(holding: AssetHolding): AssetTransaction {
+internal fun TransactionWithDetails.toDomain(): AssetTransaction {
 
     val base = transaction
 
@@ -67,7 +66,6 @@ internal fun TransactionWithDetails.toDomain(holding: AssetHolding): AssetTransa
 
         fixedIncome != null -> FixedIncomeTransaction(
             id = base.id,
-            holding = holding,
             date = base.transactionDate,
             type = base.type,
             totalValue = fixedIncome.totalValue,
@@ -76,7 +74,6 @@ internal fun TransactionWithDetails.toDomain(holding: AssetHolding): AssetTransa
 
         variableIncome != null -> VariableIncomeTransaction(
             id = base.id,
-            holding = holding,
             date = base.transactionDate,
             type = base.type,
             quantity = variableIncome.quantity,
@@ -86,7 +83,6 @@ internal fun TransactionWithDetails.toDomain(holding: AssetHolding): AssetTransa
 
         funds != null -> FundsTransaction(
             id = base.id,
-            holding = holding,
             date = base.transactionDate,
             type = base.type,
             totalValue = funds.totalValue,

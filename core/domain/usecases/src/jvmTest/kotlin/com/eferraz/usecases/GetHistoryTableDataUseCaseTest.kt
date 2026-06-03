@@ -91,10 +91,10 @@ internal class GetHistoryTableDataUseCaseTest {
   }
 
   /**
-   * Variable income history row maps to NotApplicable (empty history column).
+   * Variable income history row maps ticker to Informed B3 status.
    */
   @Test
-  fun `GIVEN variable income row WHEN map to HoldingHistoryView THEN status is NotApplicable`() {
+  fun `GIVEN variable income row WHEN map to HoldingHistoryView THEN status is Informed with ticker`() {
 
     // GIVEN
     val row =
@@ -121,14 +121,15 @@ internal class GetHistoryTableDataUseCaseTest {
     val view = HoldingHistoryView(row)
 
     // THEN
-    assertEquals(B3IdentifierStatus.NotApplicable, view.b3IdentifierStatus)
+    val status = assertIs<B3IdentifierStatus.Informed>(view.b3IdentifierStatus)
+    assertEquals("PETR4", status.value)
   }
 
   /**
-   * Investment fund history row maps to NotApplicable (empty history column).
+   * Investment fund history row maps to NotInformed (no B3 identifier on fund assets).
    */
   @Test
-  fun `GIVEN investment fund row WHEN map to HoldingHistoryView THEN status is NotApplicable`() {
+  fun `GIVEN investment fund row WHEN map to HoldingHistoryView THEN status is NotInformed`() {
 
     // GIVEN
     val row =
@@ -156,7 +157,7 @@ internal class GetHistoryTableDataUseCaseTest {
     val view = HoldingHistoryView(row)
 
     // THEN
-    assertEquals(B3IdentifierStatus.NotApplicable, view.b3IdentifierStatus)
+    assertEquals(B3IdentifierStatus.NotInformed, view.b3IdentifierStatus)
   }
 
   /**

@@ -27,8 +27,16 @@ internal interface AssetHoldingDao {
     @Query("SELECT * FROM asset_holdings WHERE id = :id")
     suspend fun getById(id: Long): AssetHoldingEntity?
 
+    @Transaction
+    @Query("SELECT * FROM asset_holdings WHERE id = :id")
+    suspend fun getByIdWithDetails(id: Long): AssetHoldingWithDetails?
+
     @Query("SELECT * FROM asset_holdings WHERE assetId = :assetId")
     suspend fun getByAssetId(assetId: Long): AssetHoldingEntity?
+
+    @Transaction
+    @Query("SELECT * FROM asset_holdings WHERE assetId = :assetId")
+    suspend fun getByAssetIdWithDetails(assetId: Long): AssetHoldingWithDetails?
 
     @Query("DELETE FROM asset_holdings WHERE id = :id")
     suspend fun deleteById(id: Long)

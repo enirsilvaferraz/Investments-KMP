@@ -1,6 +1,5 @@
 package com.eferraz.entities.transactions
 
-import com.eferraz.entities.holdings.AssetHolding
 import kotlinx.datetime.LocalDate
 
 /**
@@ -9,7 +8,6 @@ import kotlinx.datetime.LocalDate
  */
 public data class FixedIncomeTransaction(
     override val id: Long,
-    override val holding: AssetHolding,
     override val date: LocalDate,
     override val type: TransactionType,
     override val totalValue: Double,

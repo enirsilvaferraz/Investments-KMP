@@ -181,6 +181,7 @@ erDiagram
     AssetHolding {
         Long id
         FinancialGoal goal "opcional"
+        List transactions "AssetTransaction ordenada"
     }
     Owner {
         Long id
@@ -281,14 +282,12 @@ erDiagram
         Double withdrawals
         Double balance
     }
-    AssetTransaction }o--|| AssetHolding : "holding"
     AssetTransaction ||--o| FixedIncomeTransaction : "implements"
     AssetTransaction ||--o| VariableIncomeTransaction : "implements"
     AssetTransaction ||--o| FundsTransaction : "implements"
-    AssetTransaction }o--o| Asset : "holding.asset"
-    FixedIncomeTransaction }o--o{ FixedIncomeAsset : "RF via holding"
-    VariableIncomeTransaction }o--o{ VariableIncomeAsset : "RV via holding"
-    FundsTransaction }o--o{ InvestmentFundAsset : "fundo via holding"
+    FixedIncomeTransaction }o--o{ FixedIncomeAsset : "RF no agregado"
+    VariableIncomeTransaction }o--o{ VariableIncomeAsset : "RV no agregado"
+    FundsTransaction }o--o{ InvestmentFundAsset : "fundo no agregado"
     TransactionBalance }o--o{ AssetTransaction : "calculate List"
     TransactionBalance }o--o{ FixedIncomeTransaction : "when branch"
     TransactionBalance }o--o{ VariableIncomeTransaction : "when branch"
@@ -363,10 +362,9 @@ erDiagram
 |-----------------|----------|---------|-------------------|----------|
 | `holdings` | `AssetHolding` | posição de | `assets` | `Asset` |
 | `holdings` | `AssetHolding` | meta opcional | `goals` | `FinancialGoal` |
-| `holdings` | `AssetHolding` | transações | `transactions` | `AssetTransaction` |
+| `holdings` | `AssetHolding` | transações (agregado) | `transactions` | `AssetTransaction` |
 | `goals` | `FinancialGoal` | titular | `holdings` | `Owner` |
-| `transactions` | `AssetTransaction` | pertence a | `holdings` | `AssetHolding` |
-| `transactions` | subtipos de transação | ativo via holding | `assets` | RF / RV / Fundo |
+| `holdings` | `HoldingHistoryEntry` | posição hidratada | `holdings` | `AssetHolding` + `transactions` |
 | `holdings` | `StockQuoteHistory` | mesmo ticker | `assets` | `VariableIncomeAsset` |
 | `holdings` | `Appreciation` / `Growth` | usam fluxos | `transactions` | `AssetTransaction` |
 

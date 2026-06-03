@@ -24,6 +24,13 @@ Seguir as orientações de @../.specify/memory/constitution.md
 - **`WalletFiltersPanel`** (`composeApp/.../walletfilters/`): painel em `OutlinedCard`; modelos/catálogo/previews em `WalletFilters.kt`, UI em `WalletFiltersPanel.kt`.
 - **Histórico + filtros** (`composeApp/.../history/`): estado `walletFilters` / `walletFilterOptions` no `HistoryViewModel`; `defaultForHistory()` + `deriveWalletFiltersPanelOptions(facets)`; mapper `WalletFiltersToCriteria.kt`; domínio `WalletHistoryFilter.kt` + `GetHistoryTableDataUseCase.Param(walletFilter)`.
 
+## Posição e transações (`:domain:entity`, feature `017-holding-transactions`)
+
+- **Grafo de leitura**: `HoldingHistoryEntry` → `AssetHolding` → `transactions` (lista completa, ordenada por data).
+- **Transação**: `AssetTransaction` **sem** propriedade `holding`; escrita via `SaveTransactionUseCase.Param(holding, transaction)`.
+- **Leitura**: não usar `GetTransactionsByHoldingUseCase`; transações via `@Relation` Room em `AssetHoldingWithDetails` → `HoldingMappers.toDomain`.
+- Plano: `specs/017-holding-transactions/plan.md`.
+
 ## Taxonomia de ativos (`:domain:entity`, feature `016-asset-taxonomy-refactor`)
 
 - **`AssetClass`**: classe de ativo (renda fixa, variável, fundo) — substitui `InvestmentCategory`.

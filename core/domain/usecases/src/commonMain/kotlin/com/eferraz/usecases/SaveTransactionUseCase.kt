@@ -1,5 +1,6 @@
 package com.eferraz.usecases
 
+import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.usecases.repositories.AssetTransactionRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -12,8 +13,8 @@ public class SaveTransactionUseCase(
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<SaveTransactionUseCase.Param, Long>(context) {
 
-    public data class Param(val transaction: AssetTransaction)
+    public data class Param(val holding: AssetHolding, val transaction: AssetTransaction)
 
     override suspend fun execute(param: Param): Long =
-        assetTransactionRepository.upsert(param.transaction)
+        assetTransactionRepository.upsert(param.holding, param.transaction)
 }

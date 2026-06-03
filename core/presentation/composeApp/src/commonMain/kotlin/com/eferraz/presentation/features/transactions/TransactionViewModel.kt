@@ -11,8 +11,8 @@ import com.eferraz.entities.transactions.FixedIncomeTransaction
 import com.eferraz.entities.transactions.FundsTransaction
 import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.entities.transactions.VariableIncomeTransaction
-import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.SaveTransactionUseCase
+import com.eferraz.usecases.cruds.GetAssetHoldingUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -22,7 +22,7 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class TransactionViewModel(
-    private val getTransactionsByHoldingUseCase: GetTransactionsByHoldingUseCase,
+    private val getAssetHoldingUseCase: GetAssetHoldingUseCase,
     private val saveTransactionUseCase: SaveTransactionUseCase,
 ) : ViewModel() {
 
@@ -44,20 +44,16 @@ internal class TransactionViewModel(
     }
 
     private fun loadTransactions(holding: AssetHolding) {
-        _state.update { it.copy(selectedHolding = holding, isLoading = true) }
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(holding))
-                .onSuccess { transactions ->
-                    _state.update {
-                        it.copy(
-                            transactions = transactions.sortedByDescending { it.date },
-                            isLoading = false
-                        )
-                    }
-                }
-                .onFailure {
-                    _state.update { it.copy(isLoading = false) }
-                }
+            val hydrated = getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(holding.id)).getOrNull() ?: holding
+            _state.update {
+                it.copy(
+                    selectedHolding = hydrated,
+                    transactions = hydrated.transactions.sortedByDescending { tx -> tx.date },
+                    isLoading = false,
+                )
+            }
         }
     }
 
@@ -85,7 +81,6 @@ internal class TransactionViewModel(
         _state.update { state ->
             val newFormData = state.formData.copy(quantity = quantity)
             val updatedFormData = if (state.selectedHolding?.asset is VariableIncomeAsset) {
-                // Calcula totalValue automaticamente para Renda Variável
                 val qty = quantity.toDoubleOrNull() ?: 0.0
                 val unitPrice = state.formData.unitPrice.toDoubleOrNull() ?: 0.0
                 val totalValue = (qty * unitPrice)
@@ -104,7 +99,6 @@ internal class TransactionViewModel(
         _state.update { state ->
             val newFormData = state.formData.copy(unitPrice = unitPrice)
             val updatedFormData = if (state.selectedHolding?.asset is VariableIncomeAsset) {
-                // Calcula totalValue automaticamente para Renda Variável
                 val qty = state.formData.quantity.toDoubleOrNull() ?: 0.0
                 val price = unitPrice.toDoubleOrNull() ?: 0.0
                 val totalValue = (qty * price)
@@ -142,11 +136,11 @@ internal class TransactionViewModel(
 
         viewModelScope.launch {
             try {
-                val transaction = createTransaction(holding, formData)
-                saveTransactionUseCase(SaveTransactionUseCase.Param(transaction))
+                val transaction = createTransaction(formData)
+                saveTransactionUseCase(SaveTransactionUseCase.Param(holding, transaction))
                     .onSuccess {
                         clearForm()
-                        loadTransactions(holding) // Recarrega transações
+                        loadTransactions(holding)
                         _state.update { it.copy(successMessage = "Transação salva com sucesso!") }
                     }
                     .onFailure { e ->
@@ -158,12 +152,12 @@ internal class TransactionViewModel(
         }
     }
 
-    private fun createTransaction(holding: AssetHolding, formData: TransactionFormData,): AssetTransaction {
+    private fun createTransaction(formData: TransactionFormData): AssetTransaction {
 
-        val date = LocalDate.parse(formData.date) // parseDate(formData.date) ?: throw IllegalArgumentException("Data inválida")
+        val date = LocalDate.parse(formData.date)
         val type = formData.type ?: throw IllegalArgumentException("Tipo de transação obrigatório")
 
-        return when (holding.asset) {
+        return when (_state.value.selectedHolding?.asset) {
             is VariableIncomeAsset -> {
                 val quantity = formData.quantity.toDoubleOrNull()
                     ?: throw IllegalArgumentException("Quantidade inválida")
@@ -172,7 +166,6 @@ internal class TransactionViewModel(
 
                 VariableIncomeTransaction(
                     id = 0,
-                    holding = holding,
                     date = date,
                     type = type,
                     quantity = quantity,
@@ -186,7 +179,6 @@ internal class TransactionViewModel(
 
                 FixedIncomeTransaction(
                     id = 0,
-                    holding = holding,
                     date = date,
                     type = type,
                     totalValue = totalValue
@@ -199,12 +191,13 @@ internal class TransactionViewModel(
 
                 FundsTransaction(
                     id = 0,
-                    holding = holding,
                     date = date,
                     type = type,
                     totalValue = totalValue
                 )
             }
+
+            else -> throw IllegalArgumentException("Posição não selecionada")
         }
     }
 
@@ -243,7 +236,6 @@ internal class TransactionViewModel(
                     }
                 }
 
-                // Valida valor total calculado
                 val qty = formData.quantity.toDoubleOrNull() ?: 0.0
                 val price = formData.unitPrice.toDoubleOrNull() ?: 0.0
                 val totalValue = qty * price
@@ -263,27 +255,10 @@ internal class TransactionViewModel(
                 }
             }
 
-            null -> {
-                // Sem holding selecionado, não valida campos específicos
-            }
+            null -> Unit
         }
 
         return errors
-    }
-
-    private fun parseDate(dateString: String): LocalDate? {
-        if (dateString.length != 10) return null
-        val parts = dateString.split("/")
-        if (parts.size != 3) return null
-
-        return try {
-            val day = parts[0].toInt()
-            val month = parts[1].toInt()
-            val year = parts[2].toInt()
-            LocalDate(year, month, day)
-        } catch (e: Exception) {
-            null
-        }
     }
 
     private fun clearForm() {

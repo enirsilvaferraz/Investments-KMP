@@ -1,7 +1,6 @@
 package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.AssetTransactionDao
-import com.eferraz.database.datasources.AssetHoldingDataSource
 import com.eferraz.database.datasources.AssetTransactionDataSource
 import com.eferraz.database.mappers.toDomain
 import com.eferraz.database.mappers.toEntity
@@ -13,20 +12,20 @@ import org.koin.core.annotation.Factory
 @Factory(binds = [AssetTransactionDataSource::class])
 internal class AssetTransactionDataSourceImpl(
     private val assetTransactionDao: AssetTransactionDao,
-    private val assetHoldingDataSource: AssetHoldingDataSource,
 ) : AssetTransactionDataSource {
 
-    override suspend fun save(transaction: AssetTransaction): Long =
-        assetTransactionDao.save(transaction.toEntity())
+    override suspend fun save(holding: AssetHolding, transaction: AssetTransaction): Long =
+        assetTransactionDao.save(transaction.toEntity(holding.id))
 
-    override suspend fun find(id: Long, holding: AssetHolding): AssetTransaction? {
+    override suspend fun find(id: Long, holdingId: Long): AssetTransaction? {
         val transactionWithDetails = assetTransactionDao.find(id) ?: return null
-        return transactionWithDetails.toDomain(holding)
+        if (transactionWithDetails.transaction.holdingId != holdingId) return null
+        return transactionWithDetails.toDomain()
     }
 
     override suspend fun getAllByHolding(holding: AssetHolding): List<AssetTransaction> {
         val transactionsWithDetails = assetTransactionDao.getAllByHoldingId(holding.id)
-        return transactionsWithDetails.map { it.toDomain(holding) }
+        return transactionsWithDetails.map { it.toDomain() }
     }
 
     override suspend fun getAllByHoldingAndDateRange(
@@ -39,7 +38,7 @@ internal class AssetTransactionDataSourceImpl(
             startDate = startDate,
             endDate = endDate
         )
-        return transactionsWithDetails.map { it.toDomain(holding) }
+        return transactionsWithDetails.map { it.toDomain() }
     }
 
     override suspend fun getByGoalAndReferenceDate(
@@ -51,19 +50,18 @@ internal class AssetTransactionDataSourceImpl(
             goalId = goalId,
             startDate = startDate,
             endDate = endDate
-        ).map {
-            it.toDomain(assetHoldingDataSource.getById(it.transaction.holdingId))
-        }
+        ).map { it.toDomain() }
 
     override suspend fun getByReferenceDate(startDate: LocalDate, endDate: LocalDate): List<AssetTransaction> =
         assetTransactionDao.getByDateRange(
             startDate = startDate,
             endDate = endDate
-        ).map {
-            it.toDomain(assetHoldingDataSource.getById(it.transaction.holdingId))
-        }
+        ).map { it.toDomain() }
 
-    override suspend fun delete(id: Long) {
-        assetTransactionDao.deleteById(id)
+    override suspend fun delete(holdingId: Long, id: Long) {
+        val existing = assetTransactionDao.find(id)
+        if (existing?.transaction?.holdingId == holdingId) {
+            assetTransactionDao.deleteById(id)
+        }
     }
 }

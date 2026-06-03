@@ -6,7 +6,6 @@ import com.eferraz.entities.holdings.Appreciation
 import com.eferraz.entities.holdings.Growth
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.transactions.TransactionBalance
-import com.eferraz.usecases.repositories.AssetTransactionRepository
 import com.eferraz.usecases.repositories.DateProvider
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,7 +25,6 @@ import org.koin.core.annotation.Factory
 @Factory
 public class GetGoalHistoryUseCase(
     private val historyRepository: HoldingHistoryRepository,
-    private val transactionRepository: AssetTransactionRepository,
     private val dateProvider: DateProvider,
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<GetGoalHistoryUseCase.Param, Map<YearMonth, GoalMonthlyData>>(context) {
@@ -48,9 +46,12 @@ public class GetGoalHistoryUseCase(
             val current = historyRepository.getByGoalAndReferenceDate(month, param.goal).groupBy { it.referenceDate }
             val currentValue = current[month]?.sumOf { it.endOfMonthValue } ?: 0.0
 
-            val balance = TransactionBalance.calculate(
-                transactions = transactionRepository.getByGoalAndReferenceDate(month, param.goal)
-            )
+            val monthTransactions = (current[month] ?: emptyList()).flatMap { entry ->
+                entry.holding.transactions.filter {
+                    it.date.year == month.year && it.date.month == month.month
+                }
+            }
+            val balance = TransactionBalance.calculate(monthTransactions)
 
             val data = if (month == param.previousDate) {
                 GoalMonthlyData(

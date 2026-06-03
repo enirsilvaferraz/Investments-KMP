@@ -1,6 +1,5 @@
 package com.eferraz.entities.transactions
 
-import com.eferraz.entities.holdings.AssetHolding
 import kotlinx.datetime.LocalDate
 
 /**
@@ -13,11 +12,6 @@ public sealed interface AssetTransaction {
      * O identificador único da transação.
      */
     public val id: Long
-
-    /**
-     * A posição (holding) à qual esta transação pertence.
-     */
-    public val holding: AssetHolding
 
     /**
      * A data da transação.

@@ -1,62 +1,48 @@
 package com.eferraz.entities.transactions
 
-import com.eferraz.entities.holdings.AssetHolding
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TransactionBalanceTest {
 
-    private val holding = mockk<AssetHolding> {
-        every { id } returns 1L
-    }
-
     private fun createVariableIncomeTransaction(
         type: TransactionType,
         quantity: Double,
         unitPrice: Double,
         date: LocalDate = LocalDate(2025, 1, 15),
-    ): VariableIncomeTransaction {
-        return mockk {
-            every { holding } returns this@TransactionBalanceTest.holding
-            every { this@mockk.type } returns type
-            every { this@mockk.quantity } returns quantity
-            every { this@mockk.unitPrice } returns unitPrice
-            every { totalValue } returns quantity * unitPrice
-            every { this@mockk.date } returns date
-            every { id } returns 0L
-        }
-    }
+    ): VariableIncomeTransaction =
+        VariableIncomeTransaction(
+            id = 0L,
+            date = date,
+            type = type,
+            quantity = quantity,
+            unitPrice = unitPrice,
+        )
 
     private fun createFixedIncomeTransaction(
         type: TransactionType,
         totalValue: Double,
         date: LocalDate = LocalDate(2025, 1, 10),
-    ): FixedIncomeTransaction {
-        return mockk {
-            every { holding } returns this@TransactionBalanceTest.holding
-            every { this@mockk.type } returns type
-            every { this@mockk.totalValue } returns totalValue
-            every { this@mockk.date } returns date
-            every { id } returns 0L
-        }
-    }
+    ): FixedIncomeTransaction =
+        FixedIncomeTransaction(
+            id = 0L,
+            date = date,
+            type = type,
+            totalValue = totalValue,
+        )
 
     private fun createFundsTransaction(
         type: TransactionType,
         totalValue: Double,
         date: LocalDate = LocalDate(2025, 1, 5),
-    ): FundsTransaction {
-        return mockk {
-            every { holding } returns this@TransactionBalanceTest.holding
-            every { this@mockk.type } returns type
-            every { this@mockk.totalValue } returns totalValue
-            every { this@mockk.date } returns date
-            every { id } returns 0L
-        }
-    }
+    ): FundsTransaction =
+        FundsTransaction(
+            id = 0L,
+            date = date,
+            type = type,
+            totalValue = totalValue,
+        )
 
     /**
      * Empty transaction list yields zero contributions, withdrawals and balance.

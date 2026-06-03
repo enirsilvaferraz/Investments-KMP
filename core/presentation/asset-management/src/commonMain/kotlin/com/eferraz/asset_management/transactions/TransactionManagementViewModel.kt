@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.eferraz.design_system.input.date.dateToDigits
 import com.eferraz.entities.assets.AssetClass
 import com.eferraz.usecases.DeleteTransactionUseCase
-import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.SaveTransactionUseCase
 import com.eferraz.usecases.cruds.GetAssetHoldingUseCase
 import com.eferraz.usecases.cruds.GetCurrentDateUseCase
@@ -19,7 +18,6 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 internal class TransactionManagementViewModel(
     private val getAssetHoldingUseCase: GetAssetHoldingUseCase,
-    private val getTransactionsByHoldingUseCase: GetTransactionsByHoldingUseCase,
     private val saveTransactionUseCase: SaveTransactionUseCase,
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val deleteTransactionUseCase: DeleteTransactionUseCase,
@@ -62,17 +60,15 @@ internal class TransactionManagementViewModel(
         val holding = async { holdingId?.let { getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(it)).getOrNull() } }
         val resolved = holding.await() ?: return@launch
 
-        getTransactionsByHoldingUseCase(GetTransactionsByHoldingUseCase.Param(resolved))
-            .onSuccess { transactions ->
-                state.update {
-                    TransactionManagementUiState(
-                        holding = resolved,
+        val sorted = resolved.transactions.sortedBy { it.date }
+        state.update {
+            TransactionManagementUiState(
+                holding = resolved,
 
-                        // TODO DT -> Mover o sorte para o UseCase?
-                        initialSnapshot = transactions.sortedBy { it.date }.map(TransactionDraftUi::fromDomain),
-                    )
-                }
-            }
+                // TODO DT -> Mover o sorte para o UseCase?
+                initialSnapshot = sorted.map { TransactionDraftUi.fromDomain(it, resolved.asset.assetClass) },
+            )
+        }
     }
 
     private fun onSave() = viewModelScope.launch {
@@ -86,18 +82,18 @@ internal class TransactionManagementViewModel(
 
         // TODO fazer upsert em lote -> consultar no banco de dados e fazer essa operação no usecase
         val removeIds = current.initialSnapshot.mapNotNull { it.id }.toSet() - current.transactions.mapNotNull { it.id }.toSet()
-        val upserts = current.transactions.mapNotNull { it.toDomainTransaction(holding, current.assetClass) }
+        val upserts = current.transactions.mapNotNull { it.toDomainTransaction(current.assetClass) }
 
         runCatching {
 
             // TODO Debito tecnico -> Fazer a persistencia dos dados de forma transacional
 
             removeIds.forEach { id ->
-                deleteTransactionUseCase(DeleteTransactionUseCase.Param(id)).getOrThrow()
+                deleteTransactionUseCase(DeleteTransactionUseCase.Param(holding, id)).getOrThrow()
             }
 
             upserts.forEach { transaction ->
-                saveTransactionUseCase(SaveTransactionUseCase.Param(transaction)).getOrThrow()
+                saveTransactionUseCase(SaveTransactionUseCase.Param(holding, transaction)).getOrThrow()
             }
 
         }.onSuccess {

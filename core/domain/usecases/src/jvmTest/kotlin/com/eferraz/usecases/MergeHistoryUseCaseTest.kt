@@ -17,7 +17,6 @@ import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.holdings.Owner
 import com.eferraz.usecases.holdings.CreateHistoryUseCase
 import com.eferraz.usecases.repositories.AssetHoldingRepository
-import com.eferraz.usecases.repositories.AssetTransactionRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -41,7 +40,6 @@ class MergeHistoryUseCaseTest {
     private lateinit var mockAssetHoldingRepository: AssetHoldingRepository
     private lateinit var mockHoldingHistoryRepository: HoldingHistoryRepository
     private lateinit var mockCreateHistoryUseCase: CreateHistoryUseCase
-    private lateinit var mockAssetTransactionRepository: AssetTransactionRepository
     private lateinit var mergeHistoryUseCase: MergeHistoryUseCase
 
     @BeforeTest
@@ -49,13 +47,11 @@ class MergeHistoryUseCaseTest {
         mockAssetHoldingRepository = mockk<AssetHoldingRepository>(relaxed = true)
         mockHoldingHistoryRepository = mockk<HoldingHistoryRepository>(relaxed = true)
         mockCreateHistoryUseCase = mockk<CreateHistoryUseCase>(relaxed = true)
-        mockAssetTransactionRepository = mockk<AssetTransactionRepository>(relaxed = true)
 
         mergeHistoryUseCase = MergeHistoryUseCase(
             holdingHistoryRepository = mockHoldingHistoryRepository,
             assetHoldingRepository = mockAssetHoldingRepository,
             createHistoryUseCase = mockCreateHistoryUseCase,
-            assetTransactionRepository = mockAssetTransactionRepository,
             context = Dispatchers.Unconfined,
         )
     }

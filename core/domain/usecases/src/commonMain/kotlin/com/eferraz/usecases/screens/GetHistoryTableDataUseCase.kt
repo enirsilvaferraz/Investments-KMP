@@ -9,7 +9,6 @@ import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.AppUseCase
-import com.eferraz.usecases.GetTransactionsByHoldingUseCase
 import com.eferraz.usecases.MergeHistoryUseCase
 import com.eferraz.usecases.entities.FixedIncomeHistoryTableData
 import com.eferraz.usecases.entities.HistoryTableData
@@ -30,7 +29,6 @@ import org.koin.core.annotation.Factory
 @Factory
 public class GetHistoryTableDataUseCase(
     private val mergeHistoryUseCase: MergeHistoryUseCase,
-    private val getTransactionsByHoldingUseCase: GetTransactionsByHoldingUseCase,
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<GetHistoryTableDataUseCase.Param, List<HistoryTableData>>(context) {
 
@@ -57,14 +55,9 @@ public class GetHistoryTableDataUseCase(
                 val currentValue = result.currentEntry.endOfMonthValue * result.currentEntry.endOfMonthQuantity
                 val appreciation = result.profitOrLoss.percentage
 
-                // Obter transações do holding e calcular balanço
-                val transactions = getTransactionsByHoldingUseCase(
-                    GetTransactionsByHoldingUseCase.Param(result.holding)
-                )
-                    .getOrNull()
-                    ?.filter { it.date.month == param.referenceDate.month && it.date.year == param.referenceDate.year }
-                    ?: emptyList()
-
+                val transactions = result.holding.transactions.filter {
+                    it.date.year == param.referenceDate.year && it.date.month == param.referenceDate.month
+                }
                 val transactionBalance = TransactionBalance.calculate(transactions)
                 val totalContributions = transactionBalance.contributions
                 val totalWithdrawals = transactionBalance.withdrawals

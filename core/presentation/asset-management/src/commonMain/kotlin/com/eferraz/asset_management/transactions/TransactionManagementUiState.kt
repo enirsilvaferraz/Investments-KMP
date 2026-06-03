@@ -55,9 +55,8 @@ internal data class TransactionDraftUi(
 
     internal companion object {
 
-        internal fun fromDomain(value: AssetTransaction): TransactionDraftUi {
-
-            return TransactionDraftUi(
+        internal fun fromDomain(value: AssetTransaction, assetClass: AssetClass): TransactionDraftUi =
+            TransactionDraftUi(
                 id = value.id,
                 isNew = false,
                 dateDigits = value.date.toString().replace("-", ""),
@@ -66,15 +65,11 @@ internal data class TransactionDraftUi(
                 unitPrice = if (value is VariableIncomeTransaction) value.unitPrice.toString() else "",
                 totalValue = value.totalValue.toString(),
                 observations = value.observations.orEmpty(),
-                assetClass = value.holding.asset.assetClass
+                assetClass = assetClass,
             )
-        }
     }
 
-    internal fun toDomainTransaction(
-        holding: AssetHolding,
-        assetClass: AssetClass,
-    ): AssetTransaction? {
+    internal fun toDomainTransaction(assetClass: AssetClass): AssetTransaction? {
 
         val date = localDateFromIsoDateDigits(dateDigits) ?: return null
         val draftId = id ?: 0L
@@ -83,7 +78,6 @@ internal data class TransactionDraftUi(
 
             AssetClass.VARIABLE_INCOME -> VariableIncomeTransaction(
                 id = draftId,
-                holding = holding,
                 date = date,
                 type = type,
                 quantity = quantity.toDouble(),
@@ -93,7 +87,6 @@ internal data class TransactionDraftUi(
 
             AssetClass.FIXED_INCOME -> FixedIncomeTransaction(
                 id = draftId,
-                holding = holding,
                 date = date,
                 type = type,
                 totalValue = totalValue.toDouble(),
@@ -102,7 +95,6 @@ internal data class TransactionDraftUi(
 
             AssetClass.INVESTMENT_FUND -> FundsTransaction(
                 id = draftId,
-                holding = holding,
                 date = date,
                 type = type,
                 totalValue = totalValue.toDouble(),

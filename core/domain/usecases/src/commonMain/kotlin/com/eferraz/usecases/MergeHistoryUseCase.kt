@@ -8,16 +8,11 @@ import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.usecases.entities.HoldingHistoryResult
 import com.eferraz.usecases.holdings.CreateHistoryUseCase
 import com.eferraz.usecases.repositories.AssetHoldingRepository
-import com.eferraz.usecases.repositories.AssetTransactionRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.minus
 import kotlinx.datetime.minusMonth
-import kotlinx.datetime.plus
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -25,7 +20,6 @@ public class MergeHistoryUseCase(
     private val holdingHistoryRepository: HoldingHistoryRepository,
     private val assetHoldingRepository: AssetHoldingRepository,
     private val createHistoryUseCase: CreateHistoryUseCase,
-    private val assetTransactionRepository: AssetTransactionRepository,
     context: CoroutineDispatcher = Dispatchers.Default,
 ) : AppUseCase<MergeHistoryUseCase.Param, List<HoldingHistoryResult>>(context) {
 
@@ -37,28 +31,18 @@ public class MergeHistoryUseCase(
     override suspend fun execute(param: Param): List<HoldingHistoryResult> {
 
         val holdings = assetHoldingRepository.getAll()
-//        val holdings = assetHoldingRepository.getByAssetClass(param.assetClass)
-//            .filter { holding ->
-//                when (val asset = holding.asset) {
-//                    is FixedIncomeAsset -> asset.expirationDate < LocalDate(2026, 12, 30) || asset.liquidity == Liquidity.DAILY || asset.issuer.isInLiquidation || asset.observations?.contains("FGTS") ?: false
-//                    else -> false
-//                }
-//            }
 
         val previos = mapByReferenceDate(param.referenceDate.minusMonth(), holdings)
         val current = mapByReferenceDate(param.referenceDate, holdings)
 
         return holdings.map { holding ->
-            // TODO melhorar a performance
+            val currentEntry = current[holding.id] ?: create(param.referenceDate, holding)
+            val previousEntry = previos[holding.id] ?: create(param.referenceDate.minusMonth(), holding)
 
-            val currentEntry = current[holding] ?: create(param.referenceDate, holding)
-            val previousEntry = previos[holding] ?: create(param.referenceDate.minusMonth(), holding)
-
-            val startDate = LocalDate(param.referenceDate.year, param.referenceDate.month, 1)
-            val endDate = startDate.plus(DatePeriod(months = 1)).minus(DatePeriod(days = 1))
-            val transactions = assetTransactionRepository.getAllByHoldingAndDateRange(holding, startDate, endDate)
-
-            val balance = TransactionBalance.calculate(transactions)
+            val monthTransactions = holding.transactions.filter {
+                it.date.year == param.referenceDate.year && it.date.month == param.referenceDate.month
+            }
+            val balance = TransactionBalance.calculate(monthTransactions)
 
             val appreciation = Appreciation.calculate(
                 previousValue = previousEntry.endOfMonthValue,
@@ -77,18 +61,14 @@ public class MergeHistoryUseCase(
     private suspend fun mapByReferenceDate(
         referenceDate: YearMonth,
         holdings: List<AssetHolding>
-    ): Map<AssetHolding, HoldingHistoryEntry?> {
+    ): Map<Long, HoldingHistoryEntry?> {
 
-        val histories: Map<AssetHolding, HoldingHistoryEntry> = holdingHistoryRepository.getByReferenceDate(
-            referenceDate
-        ).associateBy(
-            keySelector = { historyEntry -> historyEntry.holding },
-            valueTransform = { historyEntry -> historyEntry }
-        )
+        val historiesByHoldingId = holdingHistoryRepository.getByReferenceDate(referenceDate)
+            .associateBy { it.holding.id }
 
         return holdings.associateBy(
-            keySelector = { holding -> holding },
-            valueTransform = { holding -> histories[holding] }
+            keySelector = { it.id },
+            valueTransform = { historiesByHoldingId[it.id] }
         )
     }
 }

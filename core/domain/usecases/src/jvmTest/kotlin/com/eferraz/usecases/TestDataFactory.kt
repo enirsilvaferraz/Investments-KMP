@@ -15,6 +15,7 @@ import com.eferraz.entities.holdings.Owner
 import com.eferraz.entities.holdings.StockQuoteHistory
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.transactions.AssetTransaction
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
@@ -59,7 +60,8 @@ object TestDataFactory {
         asset: Asset = createVariableIncomeAsset(),
         owner: Owner = createOwner(),
         brokerage: Brokerage = createBrokerage(),
-    ) = AssetHolding(id, asset, owner, brokerage)
+        transactions: List<AssetTransaction> = emptyList(),
+    ) = AssetHolding(id, asset, owner, brokerage, transactions = transactions)
 
     fun createHoldingHistoryEntry(
         id: Long? = null,
