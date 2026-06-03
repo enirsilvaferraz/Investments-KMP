@@ -128,8 +128,8 @@ internal object WalletFiltersCatalog {
 private val AssetClass.shortLabel
     get() =
         when (this) {
-            AssetClass.FIXED_INCOME -> "RF"
-            AssetClass.VARIABLE_INCOME -> "RV"
+            AssetClass.FIXED_INCOME -> "Renda Fixa"
+            AssetClass.VARIABLE_INCOME -> "R. Variável"
             AssetClass.INVESTMENT_FUND -> "Fundos"
         }
 
@@ -212,7 +212,7 @@ internal fun deriveWalletFiltersPanelOptions(
                 subtypeOptions = subtypeOptionsForAssetClass(AssetClass.FIXED_INCOME, subtypesPresent),
                 liquidityOptions =
                     Liquidity.entries
-                        .filter { it in liquidities }
+                        .filter { it in liquidities && it != Liquidity.D_PLUS_DAYS }
                         .map(WalletFiltersCatalog::liquidityOption),
                 maturityMonths = maturityMonths,
             ),

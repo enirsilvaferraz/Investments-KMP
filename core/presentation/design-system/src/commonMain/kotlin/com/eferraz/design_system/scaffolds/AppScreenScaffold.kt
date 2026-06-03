@@ -76,7 +76,9 @@ public fun <T> AppScreenScaffold(
     val cornerPadding = 24
 
     Scaffold(
-        modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest).padding(top = 12.dp),
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+            .padding(top = 12.dp),
         topBar = {
             TopAppBar(
                 title = {
@@ -99,9 +101,9 @@ public fun <T> AppScreenScaffold(
             BoxWithConstraints {
 
                 SupportingPaneScaffold(
-                    modifier = Modifier.background(
-                        MaterialTheme.colorScheme.surfaceContainerLowest
-                    ).padding(end = cornerPadding.dp),
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                        .padding(end = cornerPadding.dp),
                     directive = navigator.scaffoldDirective.copy(
                         horizontalPartitionSpacerSize = cornerPadding.dp,
                         defaultPanePreferredWidth = maxWidth * supportingPaneWidthRate

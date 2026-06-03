@@ -5,6 +5,6 @@ import androidx.compose.ui.unit.dp
 
 internal object FilterToggleGroupDefaults {
 
-    val ChipSpacing: Dp = 8.dp
-    val MinTouchTarget: Dp = 48.dp
+    val ChipSpacing: Dp = 6.dp
+    val MinTouchTarget: Dp = 36.dp
 }

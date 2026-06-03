@@ -1,12 +1,14 @@
 package com.eferraz.design_system_v2.filter
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -24,13 +26,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.ui.tooling.preview.Preview
@@ -130,39 +132,32 @@ private fun <T> FilterToggleChip(
     colors: SelectableChipColors,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        enabled = enabled,
+        label = {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = option.label,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        },
         modifier =
-            modifier.defaultMinSize(
-                minWidth = FilterToggleGroupDefaults.MinTouchTarget,
-                minHeight = FilterToggleGroupDefaults.MinTouchTarget,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        FilterChip(
-            selected = selected,
-            onClick = onClick,
-            enabled = enabled,
-            label = {
-                Text(
-                    text = option.label,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
-            modifier =
-                Modifier.semantics {
-                    role = Role.Checkbox
-                    contentDescription = option.contentDescription
-                    if (selected) {
-                        stateDescription = "Selecionado"
-                    }
-                },
-            colors = colors,
-            border = FilterChipDefaults.filterChipBorder(enabled = enabled, selected = selected),
-            // Evita highlight rectangular no hover em Compose Desktop (CMP #2868).
-            elevation = null,
-        )
-    }
+            modifier.semantics {
+                role = Role.Checkbox
+                contentDescription = option.contentDescription
+                if (selected) {
+                    stateDescription = "Selecionado"
+                }
+            }.width(IntrinsicSize.Max),
+        colors = colors,
+        border = FilterChipDefaults.filterChipBorder(enabled = enabled, selected = selected),
+        elevation = null, // Evita highlight rectangular no hover em Compose Desktop (CMP #2868).
+        contentPadding = PaddingValues(horizontal = 4.dp)
+    )
 }
 
 private data class FilterToggleGroupPreviewCase(

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +34,6 @@ import com.eferraz.design_system_v2.filter.FilterToggleGroup
 import com.eferraz.design_system_v2.filter.MaturityFilterDropdown
 import com.eferraz.design_system_v2.theme.AppThemeV2
 import com.eferraz.entities.assets.AssetClass
-import kotlinx.datetime.YearMonth
 
 @Composable
 internal fun WalletFiltersPanel(
@@ -49,6 +49,7 @@ internal fun WalletFiltersPanel(
     ) {
 
         PanelHeader(
+            imageVector = WalletFilterSectionIcons.panelHeader,
             title = "Filtros",
             onReset = { onStateChange(state.reset()) },
         )
@@ -95,34 +96,41 @@ private fun ComunsSection(
     onStateChange: (WalletFiltersUiState) -> Unit,
 ) {
 
-    FilterSection {
+    PanelCard {
 
-        ToggleSection(
+        PanelLabel(
             icon = WalletFilterSectionIcons.assetClass,
             label = "Classe",
-            options = section.classOptions,
-            selectedIds = state.selectedCategories,
-            onToggle = { onStateChange(state.toggleClass(it)) },
-        )
+        ) {
 
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            FilterToggleGroup(
+                options = section.classOptions.toToggleOptions(),
+                selectedIds = state.selectedCategories,
+                onToggle = { onStateChange(state.toggleClass(it)) },
+            )
+        }
 
-            ToggleSection(
-                icon = WalletFilterSectionIcons.b3Informed,
-                label = "B3 informado",
-                options = section.b3Options,
+        PanelLabel(
+            icon = WalletFilterSectionIcons.b3Informed,
+            label = "B3 Code",
+        ) {
+
+            FilterToggleGroup(
+                options = section.b3Options.toToggleOptions(),
                 selectedIds = state.selectedB3,
                 onToggle = { onStateChange(state.toggleB3(it)) },
-                modifier = Modifier.weight(1f),
             )
+        }
 
-            ToggleSection(
-                icon = WalletFilterSectionIcons.settled,
-                label = "Liquidados",
-                options = section.settledOptions,
+        PanelLabel(
+            icon = WalletFilterSectionIcons.settled,
+            label = "Liquidados",
+        ) {
+
+            FilterToggleGroup(
+                options = section.settledOptions.toToggleOptions(),
                 selectedIds = state.selectedSettled,
                 onToggle = { onStateChange(state.toggleSettled(it)) },
-                modifier = Modifier.weight(1f),
             )
         }
     }
@@ -135,36 +143,43 @@ private fun RendaFixaSection(
     onStateChange: (WalletFiltersUiState) -> Unit,
 ) {
 
-    FilterSection {
+    PanelCard {
 
-        SubtypeToggleBlock(
-            title = "Renda Fixa",
-            subtypeOptions = section.subtypeOptions,
-            selectedSubtypes = state.selectedSubtypes,
-            onToggleSubtype = { onStateChange(state.toggleSubtype(it)) },
-        )
+        PanelLabel(
+            label = "R. Fixa",
+            icon = WalletFilterSectionIcons.subtype
+        ) {
 
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            FilterToggleGroup(
+                section.subtypeOptions.toToggleOptions(),
+                state.selectedSubtypes,
+                { onStateChange(state.toggleSubtype(it)) }
+            )
+        }
 
-            ToggleSection(
-                modifier = Modifier.weight(1f),
-                icon = WalletFilterSectionIcons.liquidity,
-                label = "Liquidez",
-                options = section.liquidityOptions,
+        PanelLabel(
+            icon = WalletFilterSectionIcons.liquidity,
+            label = "Liquidez",
+        ) {
+
+            FilterToggleGroup(
+                options = section.liquidityOptions.toToggleOptions(),
                 selectedIds = state.selectedLiquidities,
                 onToggle = { onStateChange(state.toggleLiquidity(it)) },
             )
+        }
 
-            MaturityFilterSection(
-                modifier = Modifier.weight(1f),
+        PanelLabel(
+            icon = WalletFilterSectionIcons.maturity,
+            label = "Vence até",
+        ) {
+
+            MaturityFilterDropdown(
                 selection = state.maturitySelection,
                 months = section.maturityMonths,
                 onSelectMonth = { month ->
-                    onStateChange(
-                        if (month == null) state.selectMaturityAny() else state.selectMaturity(month),
-                    )
-                },
-                sectionIcon = WalletFilterSectionIcons.maturity,
+                    onStateChange(if (month == null) state.selectMaturityAny() else state.selectMaturity(month))
+                }
             )
         }
     }
@@ -176,13 +191,19 @@ private fun RendaVariavelSection(
     selectedSubtypes: Set<WalletFilterSubtype>,
     onToggleSubtype: (WalletFilterSubtype) -> Unit,
 ) {
-    FilterSection {
-        SubtypeToggleBlock(
-            title = "Renda Variável",
-            subtypeOptions = section.subtypeOptions,
-            selectedSubtypes = selectedSubtypes,
-            onToggleSubtype = onToggleSubtype,
-        )
+    PanelCard {
+
+        PanelLabel(
+            label = "R. Variável",
+            icon = WalletFilterSectionIcons.subtype
+        ) {
+
+            FilterToggleGroup(
+                section.subtypeOptions.toToggleOptions(),
+                selectedSubtypes,
+                onToggleSubtype,
+            )
+        }
     }
 }
 
@@ -192,51 +213,42 @@ private fun FundosSection(
     selectedSubtypes: Set<WalletFilterSubtype>,
     onToggleSubtype: (WalletFilterSubtype) -> Unit,
 ) {
-    FilterSection {
-        SubtypeToggleBlock(
-            title = "Fundos",
-            subtypeOptions = section.subtypeOptions,
-            selectedSubtypes = selectedSubtypes,
-            onToggleSubtype = onToggleSubtype,
-        )
+    PanelCard {
+
+        PanelLabel(
+            label = "Fundos",
+            icon = WalletFilterSectionIcons.subtype
+        ) {
+
+            FilterToggleGroup(
+                section.subtypeOptions.toToggleOptions(),
+                selectedSubtypes,
+                onToggleSubtype,
+            )
+        }
     }
 }
 
 @Composable
-private fun SubtypeToggleBlock(
-    title: String,
-    subtypeOptions: List<FilterOption<WalletFilterSubtype>>,
-    selectedSubtypes: Set<WalletFilterSubtype>,
-    onToggleSubtype: (WalletFilterSubtype) -> Unit,
-) {
-
-    FilterSectionHeader(
-        icon = WalletFilterSectionIcons.subtype,
-        label = title,
-    )
-
-    FilterToggleGroup(
-        subtypeOptions.toToggleOptions(),
-        selectedSubtypes,
-        onToggleSubtype,
-    )
-}
-
-@Composable
-private fun PanelHeader(
+internal fun PanelHeader(
+    imageVector: ImageVector?,
     title: String,
     onReset: (() -> Unit)?,
 ) {
+
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Icon(
-            imageVector = WalletFilterSectionIcons.panelHeader,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+
+        imageVector?.let {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
 
         Text(
             text = title,
@@ -253,70 +265,38 @@ private fun PanelHeader(
 }
 
 @Composable
-private fun FilterSection(
+private fun PanelLabel(
+    modifier: Modifier = Modifier,
+    label: String,
+    icon: ImageVector,
+    content: @Composable () -> Unit,
+) {
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        FilterSectionHeader(
+            modifier = Modifier.width(120.dp),
+            icon = icon,
+            label = label,
+        )
+
+        content()
+    }
+}
+
+@Composable
+private fun PanelCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     OutlinedCard {
         Column(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp).fillMaxWidth(),
             content = content,
-        )
-    }
-}
-
-@Composable
-private fun MaturityFilterSection(
-    selection: YearMonth?,
-    months: List<YearMonth>,
-    onSelectMonth: (YearMonth?) -> Unit,
-    modifier: Modifier = Modifier,
-    sectionIcon: ImageVector = WalletFilterSectionIcons.maturity,
-) {
-    if (months.isEmpty()) return
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        FilterSectionHeader(
-            icon = sectionIcon,
-            label = "Vence até",
-        )
-
-        MaturityFilterDropdown(
-            selection = selection,
-            months = months,
-            onSelectMonth = onSelectMonth,
-        )
-    }
-}
-
-@Composable
-private fun <T> ToggleSection(
-    icon: ImageVector,
-    label: String,
-    options: List<FilterOption<T>>,
-    selectedIds: Set<T>,
-    onToggle: (T) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    if (options.isEmpty()) return
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        FilterSectionHeader(
-            icon = icon,
-            label = label,
-        )
-
-        FilterToggleGroup(
-            options = options.toToggleOptions(),
-            selectedIds = selectedIds,
-            onToggle = onToggle,
         )
     }
 }
@@ -326,13 +306,19 @@ private class WalletFiltersPanelPreviewProvider : PreviewParameterProvider<Walle
         sequenceOf(WalletFiltersPreviewCatalog.fullPanelOptions)
 }
 
-@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_NO)
-@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_NO, widthDp = 500)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES, widthDp = 500)
 @Composable
 private fun WalletFiltersPanelPreviewEdgeCases(
     @PreviewParameter(WalletFiltersPanelPreviewProvider::class) case: WalletFiltersPanelOptions,
 ) {
-    var state by remember { mutableStateOf(WalletFiltersUiState.initial()) }
+    var state by remember {
+        mutableStateOf(
+            WalletFiltersUiState(
+                selectedCategories = AssetClass.entries.toSet(),
+            )
+        )
+    }
 
     AppThemeV2 {
         Surface {

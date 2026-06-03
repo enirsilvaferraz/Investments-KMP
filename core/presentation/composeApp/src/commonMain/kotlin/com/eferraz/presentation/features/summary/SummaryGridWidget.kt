@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.eferraz.design_system_v2.summary.SummaryCard
 import com.eferraz.design_system_v2.theme.AppThemeV2
 import com.eferraz.design_system_v2.theme.StatusKind
+import com.eferraz.presentation.features.walletfilters.PanelHeader
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
 
@@ -68,6 +69,10 @@ internal fun SummaryGridWidget(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(contentPadding),
     ) {
+
+        PanelHeader(
+            imageVector = null, title = "Resumo", onReset = null
+        )
 
         Row(horizontalArrangement = Arrangement.spacedBy(contentPadding)) {
 

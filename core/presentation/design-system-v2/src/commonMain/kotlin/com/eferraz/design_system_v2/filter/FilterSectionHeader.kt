@@ -37,15 +37,15 @@ public fun FilterSectionHeader(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(24.dp).semantics { hideFromAccessibility() },
-            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(16.dp).semantics { hideFromAccessibility() },
+//            tint = MaterialTheme.colorScheme.primary,
         )
 
         Text(
             text = label.uppercase(),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
+//            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
