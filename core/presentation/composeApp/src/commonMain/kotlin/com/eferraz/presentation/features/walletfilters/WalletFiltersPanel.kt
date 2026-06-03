@@ -30,7 +30,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.eferraz.design_system_v2.filter.FilterSectionHeader
 import com.eferraz.design_system_v2.filter.FilterToggleGroup
-import com.eferraz.design_system_v2.filter.FilterToggleOption
 import com.eferraz.design_system_v2.filter.MaturityFilterDropdown
 import com.eferraz.design_system_v2.theme.AppThemeV2
 import com.eferraz.entities.assets.InvestmentCategory
@@ -73,7 +72,7 @@ internal fun WalletFiltersPanel(
             if (state.isClassSelected(InvestmentCategory.VARIABLE_INCOME)) {
                 RendaVariavelSection(
                     section = options.variableIncome,
-                    selectedSubtypeIds = state.selectedSubtypeIds,
+                    selectedSubtypes = state.selectedSubtypes,
                     onToggleSubtype = { onStateChange(state.toggleSubtype(it)) },
                 )
             }
@@ -81,7 +80,7 @@ internal fun WalletFiltersPanel(
             if (state.isClassSelected(InvestmentCategory.INVESTMENT_FUND)) {
                 FundosSection(
                     section = options.funds,
-                    selectedSubtypeIds = state.selectedSubtypeIds,
+                    selectedSubtypes = state.selectedSubtypes,
                     onToggleSubtype = { onStateChange(state.toggleSubtype(it)) },
                 )
             }
@@ -91,7 +90,7 @@ internal fun WalletFiltersPanel(
 
 @Composable
 private fun ComunsSection(
-    section: WalletFiltersComunsSectionOptions,
+    section: WalletFiltersPanelOptions.Commons,
     state: WalletFiltersUiState,
     onStateChange: (WalletFiltersUiState) -> Unit,
 ) {
@@ -102,7 +101,7 @@ private fun ComunsSection(
             icon = WalletFilterSectionIcons.assetClass,
             label = "Classe",
             options = section.classOptions,
-            selectedIds = state.selectedClassIds,
+            selectedIds = state.selectedCategories,
             onToggle = { onStateChange(state.toggleClass(it)) },
         )
 
@@ -112,7 +111,7 @@ private fun ComunsSection(
                 icon = WalletFilterSectionIcons.b3Informed,
                 label = "B3 informado",
                 options = section.b3Options,
-                selectedIds = state.selectedB3Ids,
+                selectedIds = state.selectedB3,
                 onToggle = { onStateChange(state.toggleB3(it)) },
                 modifier = Modifier.weight(1f),
             )
@@ -121,7 +120,7 @@ private fun ComunsSection(
                 icon = WalletFilterSectionIcons.settled,
                 label = "Liquidados",
                 options = section.settledOptions,
-                selectedIds = state.selectedSettledIds,
+                selectedIds = state.selectedSettled,
                 onToggle = { onStateChange(state.toggleSettled(it)) },
                 modifier = Modifier.weight(1f),
             )
@@ -131,7 +130,7 @@ private fun ComunsSection(
 
 @Composable
 private fun RendaFixaSection(
-    section: WalletFiltersFixedIncomeSectionOptions,
+    section: WalletFiltersPanelOptions.FixedIncome,
     state: WalletFiltersUiState,
     onStateChange: (WalletFiltersUiState) -> Unit,
 ) {
@@ -141,7 +140,7 @@ private fun RendaFixaSection(
         SubtypeToggleBlock(
             title = "Renda Fixa",
             subtypeOptions = section.subtypeOptions,
-            selectedSubtypeIds = state.selectedSubtypeIds,
+            selectedSubtypes = state.selectedSubtypes,
             onToggleSubtype = { onStateChange(state.toggleSubtype(it)) },
         )
 
@@ -152,7 +151,7 @@ private fun RendaFixaSection(
                 icon = WalletFilterSectionIcons.liquidity,
                 label = "Liquidez",
                 options = section.liquidityOptions,
-                selectedIds = state.selectedLiquidityIds,
+                selectedIds = state.selectedLiquidities,
                 onToggle = { onStateChange(state.toggleLiquidity(it)) },
             )
 
@@ -160,7 +159,11 @@ private fun RendaFixaSection(
                 modifier = Modifier.weight(1f),
                 selection = state.maturitySelection,
                 months = section.maturityMonths,
-                onSelectMonth = { onStateChange(state.selectMaturity(it)) },
+                onSelectMonth = { month ->
+                    onStateChange(
+                        if (month == null) state.selectMaturityAny() else state.selectMaturity(month),
+                    )
+                },
                 sectionIcon = WalletFilterSectionIcons.maturity,
             )
         }
@@ -169,15 +172,15 @@ private fun RendaFixaSection(
 
 @Composable
 private fun RendaVariavelSection(
-    section: WalletFiltersVariableIncomeSectionOptions,
-    selectedSubtypeIds: Set<String>,
-    onToggleSubtype: (String) -> Unit,
+    section: WalletFiltersPanelOptions.VariableIncome,
+    selectedSubtypes: Set<WalletFilterSubtype>,
+    onToggleSubtype: (WalletFilterSubtype) -> Unit,
 ) {
     FilterSection {
         SubtypeToggleBlock(
             title = "Renda Variável",
             subtypeOptions = section.subtypeOptions,
-            selectedSubtypeIds = selectedSubtypeIds,
+            selectedSubtypes = selectedSubtypes,
             onToggleSubtype = onToggleSubtype,
         )
     }
@@ -185,15 +188,15 @@ private fun RendaVariavelSection(
 
 @Composable
 private fun FundosSection(
-    section: WalletFiltersFundsSectionOptions,
-    selectedSubtypeIds: Set<String>,
-    onToggleSubtype: (String) -> Unit,
+    section: WalletFiltersPanelOptions.Funds,
+    selectedSubtypes: Set<WalletFilterSubtype>,
+    onToggleSubtype: (WalletFilterSubtype) -> Unit,
 ) {
     FilterSection {
         SubtypeToggleBlock(
             title = "Fundos",
             subtypeOptions = section.subtypeOptions,
-            selectedSubtypeIds = selectedSubtypeIds,
+            selectedSubtypes = selectedSubtypes,
             onToggleSubtype = onToggleSubtype,
         )
     }
@@ -202,9 +205,9 @@ private fun FundosSection(
 @Composable
 private fun SubtypeToggleBlock(
     title: String,
-    subtypeOptions: List<FilterOption>,
-    selectedSubtypeIds: Set<String>,
-    onToggleSubtype: (String) -> Unit,
+    subtypeOptions: List<FilterOption<WalletFilterSubtype>>,
+    selectedSubtypes: Set<WalletFilterSubtype>,
+    onToggleSubtype: (WalletFilterSubtype) -> Unit,
 ) {
 
     FilterSectionHeader(
@@ -214,7 +217,7 @@ private fun SubtypeToggleBlock(
 
     FilterToggleGroup(
         subtypeOptions.toToggleOptions(),
-        selectedSubtypeIds,
+        selectedSubtypes,
         onToggleSubtype,
     )
 }
@@ -291,12 +294,12 @@ private fun MaturityFilterSection(
 }
 
 @Composable
-private fun ToggleSection(
+private fun <T> ToggleSection(
     icon: ImageVector,
     label: String,
-    options: List<FilterOption>,
-    selectedIds: Set<String>,
-    onToggle: (String) -> Unit,
+    options: List<FilterOption<T>>,
+    selectedIds: Set<T>,
+    onToggle: (T) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (options.isEmpty()) return
@@ -317,9 +320,6 @@ private fun ToggleSection(
         )
     }
 }
-
-private fun List<FilterOption>.toToggleOptions() =
-    map { FilterToggleOption(it.id, it.shortLabel, it.fullLabel) }
 
 private class WalletFiltersPanelPreviewProvider : PreviewParameterProvider<WalletFiltersPanelOptions> {
     override val values: Sequence<WalletFiltersPanelOptions> =

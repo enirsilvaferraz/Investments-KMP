@@ -1,48 +1,40 @@
 package com.eferraz.presentation.features.walletfilters
 
-import com.eferraz.entities.assets.FixedIncomeSubType
 import com.eferraz.entities.assets.InvestmentCategory
-import com.eferraz.entities.assets.InvestmentFundAssetType
-import com.eferraz.entities.assets.VariableIncomeAssetType
-import com.eferraz.naming.asLabel
-import com.eferraz.presentation.helpers.Formatters.formated
+import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.assets.YesOrNo
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 
 /**
- * Dados estáticos só para previews Compose (sem [WalletFiltersCatalog], [Liquidity] nem `:features:naming`).
- * Evita `ExceptionInInitializerError` no classpath de preview do Android Studio.
+ * Dados estáticos só para previews Compose.
+ * Opções alinhadas a [WalletFiltersCatalog] e enums de `:domain:entity`.
  */
 internal object WalletFiltersPreviewCatalog {
 
-    private fun opt(id: String, short: String, full: String = short) = FilterOption(id, short, full)
-
     private val rfSubtypeOptions =
-        FixedIncomeSubType.entries.map { opt(it.asLabel(), it.asLabel()) }
+        subtypesByCategory[InvestmentCategory.FIXED_INCOME]
+            .orEmpty()
+            .map(WalletFiltersCatalog::subtypeOption)
 
     private val rvSubtypeOptions =
-        VariableIncomeAssetType.entries.map { opt(it.asLabel(), it.asLabel()) }
+        subtypesByCategory[InvestmentCategory.VARIABLE_INCOME]
+            .orEmpty()
+            .map(WalletFiltersCatalog::subtypeOption)
 
     private val fundsSubtypeOptions =
-        InvestmentFundAssetType.entries.map { opt(it.asLabel(), it.asLabel()) }
+        subtypesByCategory[InvestmentCategory.INVESTMENT_FUND]
+            .orEmpty()
+            .map(WalletFiltersCatalog::subtypeOption)
 
     private val liquidityAll =
-        listOf(
-            opt("liquidity:DAILY", "Diária"),
-            opt("liquidity:AT_MATURITY", "Vencimento"),
-        )
+        Liquidity.entries
+            .filter { it != Liquidity.D_PLUS_DAYS }
+            .map(WalletFiltersCatalog::liquidityOption)
 
-    private val b3Both =
-        listOf(
-            opt("b3:yes", "Sim", "Informado na B3"),
-            opt("b3:no", "Não", "Não informado na B3"),
-        )
+    private val b3Both = YesOrNo.entries.map(WalletFiltersCatalog::b3Option)
 
-    private val settledBoth =
-        listOf(
-            opt("settled:yes", "Sim", "Liquidado"),
-            opt("settled:no", "Não", "Não liquidado"),
-        )
+    private val settledBoth = YesOrNo.entries.map(WalletFiltersCatalog::settledOption)
 
     private val maturityFull =
         listOf(
@@ -57,23 +49,25 @@ internal object WalletFiltersPreviewCatalog {
         )
 
     private val classOptions =
-        InvestmentCategory.entries.map { opt(it.name, it.formated()) }
+        InvestmentCategory.entries.map(WalletFiltersCatalog::classOption)
 
     val fullPanelOptions: WalletFiltersPanelOptions =
         WalletFiltersPanelOptions(
-            commons =
-                WalletFiltersComunsSectionOptions(
-                    classOptions = classOptions,
-                    b3Options = b3Both,
-                    settledOptions = settledBoth,
-                ),
-            fixedIncome =
-                WalletFiltersFixedIncomeSectionOptions(
-                    subtypeOptions = rfSubtypeOptions,
-                    liquidityOptions = liquidityAll,
-                    maturityMonths = maturityFull,
-                ),
-            variableIncome = WalletFiltersVariableIncomeSectionOptions(subtypeOptions = rvSubtypeOptions),
-            funds = WalletFiltersFundsSectionOptions(subtypeOptions = fundsSubtypeOptions),
+            commons = WalletFiltersPanelOptions.Commons(
+                classOptions = classOptions,
+                b3Options = b3Both,
+                settledOptions = settledBoth,
+            ),
+            fixedIncome = WalletFiltersPanelOptions.FixedIncome(
+                subtypeOptions = rfSubtypeOptions,
+                liquidityOptions = liquidityAll,
+                maturityMonths = maturityFull,
+            ),
+            variableIncome = WalletFiltersPanelOptions.VariableIncome(
+                subtypeOptions = rvSubtypeOptions,
+            ),
+            funds = WalletFiltersPanelOptions.Funds(
+                subtypeOptions = fundsSubtypeOptions,
+            ),
         )
 }

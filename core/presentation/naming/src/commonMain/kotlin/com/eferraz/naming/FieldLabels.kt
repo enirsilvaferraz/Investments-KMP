@@ -10,6 +10,7 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
+import com.eferraz.entities.assets.YesOrNo
 import com.eferraz.entities.transactions.TransactionType
 
 /** Rótulo do dropdown de corretora no cadastro de investimento. */
@@ -69,8 +70,14 @@ public fun InvestmentCategory.asLabel(): String =
 public fun Liquidity.asLabel(): String =
     when (this) {
         Liquidity.DAILY -> "Diária"
-        Liquidity.AT_MATURITY -> "No vencimento"
-        Liquidity.D_PLUS_DAYS -> "D + dias"
+        Liquidity.AT_MATURITY -> "Vencimento"
+        Liquidity.D_PLUS_DAYS -> "D+dias"
+    }
+
+public fun YesOrNo.asLabel(): String =
+    when (this) {
+        YesOrNo.YES -> "Sim"
+        YesOrNo.NO -> "Não"
     }
 
 public fun TransactionType.asLabel(): String =

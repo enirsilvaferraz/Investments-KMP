@@ -10,17 +10,11 @@ Modelos **de apresentação** em `:features:composeApp` (pacote `walletfilters`)
 
 ## Entidades
 
-### `FilterOptionId` (typealias ou value class)
-
-Identificador estável de uma opção (`String` ou enum sealed por grupo). Usado em `Set<FilterOptionId>` para multi-selecção.
-
----
-
-### `FilterOption`
+### `FilterOption<T>`
 
 | Campo | Tipo | Regras |
 |-------|------|--------|
-| `id` | `FilterOptionId` | Único no âmbito do grupo |
+| `id` | `T` | Valor de domínio (enum / sealed) — identificador da opção no grupo |
 | `shortLabel` | `String` | Exibido no toggle; max 1 linha |
 | `fullLabel` | `String` | Tooltip + `contentDescription` |
 | `group` | `FilterGroupKind` | Agrupa derivação e reset |
@@ -49,10 +43,10 @@ Identificador estável de uma opção (`String` ou enum sealed por grupo). Usado
 | Campo | Tipo | Uso na derivação |
 |-------|------|------------------|
 | `assetClass` | `AssetClassKind` | RF / RV / Fundos |
-| `subtype` | `SubtypeKind` | Subcartões |
+| `subtype` | `WalletFilterSubtype` (`FixedIncomeSubType` / `VariableIncomeAssetType` / `InvestmentFundAssetType`) | Subcartões |
 | `liquidity` | `Liquidity` (entity) ou espelho | Secção Liquidez |
-| `b3Informed` | `Boolean` | B3 Sim/Não |
-| `settled` | `Boolean` | Liquidados Sim/Não |
+| `b3Informed` | `YesOrNo` | B3 Sim/Não |
+| `settled` | `YesOrNo` | Liquidados Sim/Não |
 | `maturity` | `YearMonth?` | Vence até |
 
 Catálogo estático de subtipos por classe: ver `WalletFiltersCatalog` (RF: CDB, LCI, …; RV: FII, …; Fundos: Ação, …) — **filtrar** pela presença nos itens.
@@ -63,11 +57,11 @@ Catálogo estático de subtipos por classe: ver `WalletFiltersCatalog` (RF: CDB,
 
 | Campo | Tipo | Inicial |
 |-------|------|---------|
-| `selectedClassIds` | `Set<FilterOptionId>` | `emptySet()` |
-| `selectedSubtypeIds` | `Set<FilterOptionId>` | `emptySet()` |
-| `selectedLiquidityIds` | `Set<FilterOptionId>` | `emptySet()` |
-| `selectedB3Ids` | `Set<FilterOptionId>` | `emptySet()` |
-| `selectedSettledIds` | `Set<FilterOptionId>` | `emptySet()` |
+| `selectedCategories` | `Set<InvestmentCategory>` | `emptySet()` |
+| `selectedSubtypes` | `Set<WalletFilterSubtype>` | `emptySet()` |
+| `selectedLiquidities` | `Set<Liquidity>` | `emptySet()` |
+| `selectedB3` | `Set<YesOrNo>` | `emptySet()` |
+| `selectedSettled` | `Set<YesOrNo>` | `emptySet()` |
 | `maturitySelection` | `MaturitySelection` | `Any` |
 
 ```kotlin
@@ -78,7 +72,7 @@ sealed interface MaturitySelection {
 ```
 
 **Invariantes**:
-- Subtipos de classe desactivada **não** permanecem em `selectedSubtypeIds` (FR-006).
+- Subtipos de classe desactivada **não** permanecem em `selectedSubtypes` (FR-006).
 - `maturitySelection` ignorado na UI se secção oculta (sem vencimentos nos dados).
 
 ---
