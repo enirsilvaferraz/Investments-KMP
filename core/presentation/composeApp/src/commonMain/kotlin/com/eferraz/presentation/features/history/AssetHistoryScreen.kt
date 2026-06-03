@@ -54,7 +54,7 @@ import com.eferraz.naming.BuildIcon
 import com.eferraz.usecases.entities.B3IdentifierStatus
 import com.eferraz.presentation.design_system.components.inputs.TableInputMoney
 import com.eferraz.presentation.features.summary.SummaryGridWidget
-import com.eferraz.presentation.features.summary.SummaryProperties
+import com.eferraz.usecases.entities.MonthSummary
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanel
 import com.eferraz.presentation.features.walletfilters.WalletFiltersPanelOptions
 import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
@@ -117,7 +117,7 @@ public fun HoldingHistoryRoute(
         onImportClick = onImportClick,
         onEditHolding = onEditHolding,
         onTransactionManagerRequest = onTransactionManagerRequest,
-        summaryProperties = state.summaryProperties,
+        monthSummary = state.monthSummary,
     )
 }
 
@@ -138,7 +138,7 @@ internal fun HoldingHistoryScreen(
     onImportClick: () -> Unit,
     onEditHolding: (Long) -> Unit,
     onTransactionManagerRequest: (Long) -> Unit,
-    summaryProperties: SummaryProperties,
+    monthSummary: MonthSummary,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -184,7 +184,7 @@ internal fun HoldingHistoryScreen(
                 walletFilterOptions = walletFilterOptions,
                 walletFilters = walletFilters,
                 onWalletFiltersChange = onWalletFiltersChange,
-                summaryProperties = summaryProperties,
+                monthSummary = monthSummary,
             )
         }
     )
@@ -406,7 +406,7 @@ private fun Supporting(
     walletFilterOptions: WalletFiltersPanelOptions,
     walletFilters: WalletFiltersUiState,
     onWalletFiltersChange: (WalletFiltersUiState) -> Unit,
-    summaryProperties: SummaryProperties,
+    monthSummary: MonthSummary,
 ) {
 
     WalletFiltersPanel(
@@ -415,7 +415,7 @@ private fun Supporting(
         onStateChange = onWalletFiltersChange,
     )
 
-    SummaryGridWidget(properties = summaryProperties)
+    SummaryGridWidget(properties = monthSummary)
 }
 
 @Composable

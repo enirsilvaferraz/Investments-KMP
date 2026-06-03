@@ -38,7 +38,7 @@ public class GetHistoryTableDataUseCase(
 
     override suspend fun execute(param: Param): List<HistoryTableData> {
 
-        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate, assetClass = null))
+        val results = mergeHistoryUseCase(MergeHistoryUseCase.Param(param.referenceDate))
             .onFailure { println("Error: ${it.message}") }
             .getOrNull() ?: emptyList()
 

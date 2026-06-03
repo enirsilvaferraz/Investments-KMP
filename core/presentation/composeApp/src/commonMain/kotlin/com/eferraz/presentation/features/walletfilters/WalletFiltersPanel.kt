@@ -34,6 +34,8 @@ import com.eferraz.design_system_v2.filter.FilterToggleGroup
 import com.eferraz.design_system_v2.filter.MaturityFilterDropdown
 import com.eferraz.design_system_v2.theme.AppThemeV2
 import com.eferraz.entities.assets.AssetClass
+import kotlinx.datetime.Month
+import kotlinx.datetime.YearMonth
 
 @Composable
 internal fun WalletFiltersPanel(
@@ -303,7 +305,7 @@ private fun PanelCard(
 
 private class WalletFiltersPanelPreviewProvider : PreviewParameterProvider<WalletFiltersPanelOptions> {
     override val values: Sequence<WalletFiltersPanelOptions> =
-        sequenceOf(WalletFiltersPreviewCatalog.fullPanelOptions)
+        sequenceOf( WalletFiltersCatalog.staticPanelOptions(today = YearMonth(2026, Month.OCTOBER), emptyList()))
 }
 
 @Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_NO, widthDp = 500)

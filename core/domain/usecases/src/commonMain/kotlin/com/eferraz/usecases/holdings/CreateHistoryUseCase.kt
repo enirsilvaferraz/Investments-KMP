@@ -3,7 +3,7 @@ package com.eferraz.usecases.holdings
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.usecases.AppUseCase
-import com.eferraz.usecases.holdings.CopyHistoryStrategy
+import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -17,16 +17,18 @@ import org.koin.core.annotation.Factory
  * [Regras de Negócio - Criar novo registro de histórico](../../../../../../../../../docs/RN%20-%20Criar%20novo%20registro%20de%20histórico.md).
  *
  * O processo funciona da seguinte forma:
- * 1. Valida se a data de referência está dentro do período válido (após Out/2025)
- * 2. Seleciona a estratégia apropriada baseada no tipo de ativo (Renda Fixa, Fundos ou Renda Variável)
- * 3. Executa a estratégia para criar ou copiar o histórico
- * 4. Persiste automaticamente o registro criado (upsert)
+ * 1. Carrega todas as posições da carteira
+ * 2. Valida se a data de referência está dentro do período válido (após Out/2025)
+ * 3. Seleciona a estratégia apropriada baseada no tipo de ativo (Renda Fixa, Fundos ou Renda Variável)
+ * 4. Executa a estratégia para criar ou copiar o histórico de cada posição
+ * 5. Persiste automaticamente cada registro criado (upsert)
  *
  * Se a estratégia não conseguir criar um histórico (retornar null), um registro vazio é criado
  * e também persistido, conforme regra de negócio.
  *
  * @param strategies Lista de estratégias disponíveis para criação de histórico
  * @param repository Repositório para persistência dos registros de histórico
+ * @param assetHoldingRepository Repositório de posições da carteira
  * @param context Dispatcher de corrotinas para execução (padrão: Dispatchers.Default)
  *
  * @see CopyHistoryStrategy Para entender as estratégias disponíveis
@@ -36,53 +38,45 @@ import org.koin.core.annotation.Factory
 public class CreateHistoryUseCase(
     private val strategies: List<CopyHistoryStrategy>,
     private val repository: HoldingHistoryRepository,
+    private val assetHoldingRepository: AssetHoldingRepository,
     context: CoroutineDispatcher = Dispatchers.Default,
-) : AppUseCase<CreateHistoryUseCase.Param, HoldingHistoryEntry>(context) {
+) : AppUseCase<CreateHistoryUseCase.Param, List<HoldingHistoryEntry>>(context) {
 
     /**
-     * Parâmetros para criação de histórico.
+     * Parâmetros para criação de histórico em lote.
      *
      * @param referenceDate Mês e ano de referência para o snapshot (formato: YYYY-MM)
-     * @param holding A posição de ativo para a qual o histórico será gerado
      */
-    public data class Param(val referenceDate: YearMonth, val holding: AssetHolding)
+    public data class Param(val referenceDate: YearMonth)
 
     /**
-     * Executa a criação do registro de histórico.
+     * Executa a criação dos registros de histórico para todas as posições.
      *
-     * @param param Parâmetros contendo a data de referência e a posição de ativo
-     * @return Registro de histórico criado (pode ser vazio se não houver dados disponíveis)
-     * @throws IllegalArgumentException Se os parâmetros forem inválidos
+     * @param param Parâmetros contendo a data de referência
+     * @return Registros de histórico criados (podem ser vazios se não houver dados disponíveis)
      */
-    override suspend fun execute(param: Param): HoldingHistoryEntry {
+    override suspend fun execute(param: Param): List<HoldingHistoryEntry> {
+        val holdings = assetHoldingRepository.getAll()
+        return holdings.map { holding -> createForHolding(param.referenceDate, holding) }
+    }
 
-        validateParam(param)
+    private suspend fun createForHolding(
+        referenceDate: YearMonth,
+        holding: AssetHolding,
+    ): HoldingHistoryEntry {
 
-        // Se a data está antes do limite histórico, retorna registro vazio
-        if (isBeforeHistoryLimit(param.referenceDate)) {
-            return createEmptyHistoryEntry(param.holding, param.referenceDate)
+        if (isBeforeHistoryLimit(referenceDate)) {
+            return createEmptyHistoryEntry(holding, referenceDate)
         }
 
-        // Busca estratégia apropriada para o tipo de ativo
-        val strategy = findStrategyForHolding(param.holding)
+        val strategy = findStrategyForHolding(holding)
 
-        // Executa estratégia para criar histórico
-        val historyEntry = strategy?.create(param.referenceDate, param.holding)
-            ?: createEmptyHistoryEntry(param.holding, param.referenceDate)
+        val historyEntry = strategy?.create(referenceDate, holding)
+            ?: createEmptyHistoryEntry(holding, referenceDate)
 
-        // Persiste o registro (conforme regra de negócio: cada histórico criado é salvo automaticamente)
         repository.upsert(historyEntry)
 
         return historyEntry
-    }
-
-    /**
-     * Valida os parâmetros de entrada.
-     *
-     * @throws IllegalArgumentException Se os parâmetros forem inválidos
-     */
-    private fun validateParam(param: Param) {
-        require(param.holding.id > 0) { "Holding ID deve ser maior que zero" }
     }
 
     /**

@@ -7,7 +7,6 @@ import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.usecases.TestDataFactory.createAssetHolding
 import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
 import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry
-import com.eferraz.usecases.holdings.CreateHistoryUseCase
 import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import io.mockk.coEvery
@@ -64,7 +63,6 @@ class MergeHistoryTransactionsTest {
 
         val holdingRepository = mockk<AssetHoldingRepository>()
         val historyRepository = mockk<HoldingHistoryRepository>()
-        val createHistory = mockk<CreateHistoryUseCase>(relaxed = true)
 
         coEvery { holdingRepository.getAll() } returns listOf(holding)
         coEvery { historyRepository.getByReferenceDate(referenceDate) } returns listOf(currentEntry)
@@ -73,12 +71,11 @@ class MergeHistoryTransactionsTest {
         val useCase = MergeHistoryUseCase(
             holdingHistoryRepository = historyRepository,
             assetHoldingRepository = holdingRepository,
-            createHistoryUseCase = createHistory,
             context = Dispatchers.Unconfined,
         )
 
         // WHEN
-        val result = useCase(MergeHistoryUseCase.Param(referenceDate, AssetClass.FIXED_INCOME)).getOrThrow()
+        val result = useCase(MergeHistoryUseCase.Param(referenceDate)).getOrThrow()
 
         // THEN
         assertEquals(1, result.size)

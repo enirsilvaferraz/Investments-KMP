@@ -40,10 +40,11 @@ internal fun WalletFiltersUiState.selectMaturityAny(): WalletFiltersUiState =
 internal fun WalletFiltersUiState.toggleBrokerage(brokerage: Brokerage): WalletFiltersUiState =
     copy(selectedBrokerage = if (brokerage == selectedBrokerage) null else brokerage)
 
-internal fun WalletFiltersUiState.reset(): WalletFiltersUiState = WalletFiltersUiState.defaultForHistory()
+internal fun WalletFiltersUiState.reset(): WalletFiltersUiState =
+    WalletFiltersUiState()
 
 internal fun WalletFiltersUiState.revertToHistoryDefaults(): WalletFiltersUiState =
-    WalletFiltersUiState.defaultForHistory()
+    WalletFiltersUiState()
 
 internal fun WalletFiltersUiState.isClassSelected(assetClass: AssetClass): Boolean =
     assetClass in selectedCategories

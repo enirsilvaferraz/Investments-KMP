@@ -6,10 +6,12 @@ import com.eferraz.usecases.TestDataFactory.createHoldingHistoryEntry
 import com.eferraz.usecases.TestDataFactory.createInvestmentFundAsset
 import com.eferraz.usecases.TestDataFactory.createStockQuoteHistory
 import com.eferraz.usecases.TestDataFactory.createVariableIncomeAsset
-import com.eferraz.usecases.holdings.CreateHistoryUseCase
+import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.usecases.repositories.AssetHoldingRepository
 import com.eferraz.usecases.repositories.AssetRepository
-import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import com.eferraz.usecases.holdings.CopyHistoryStrategy
+import com.eferraz.usecases.holdings.CreateHistoryUseCase
+import com.eferraz.usecases.repositories.HoldingHistoryRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -28,6 +30,7 @@ import kotlin.test.assertNull
 class CreateHistoryUseCaseTest {
 
     private lateinit var mockHoldingHistoryRepository: HoldingHistoryRepository
+    private lateinit var mockAssetHoldingRepository: AssetHoldingRepository
     private lateinit var mockGetQuotesUseCase: GetQuotesUseCase
     private lateinit var mockAssetRepository: AssetRepository
     private lateinit var createHistoryUseCase: CreateHistoryUseCase
@@ -35,6 +38,7 @@ class CreateHistoryUseCaseTest {
     @BeforeTest
     fun setup() {
         mockHoldingHistoryRepository = mockk<HoldingHistoryRepository>(relaxed = true)
+        mockAssetHoldingRepository = mockk<AssetHoldingRepository>(relaxed = true)
         mockGetQuotesUseCase = mockk<GetQuotesUseCase>(relaxed = true)
         mockAssetRepository = mockk<AssetRepository>(relaxed = true)
 
@@ -46,9 +50,19 @@ class CreateHistoryUseCaseTest {
         createHistoryUseCase = CreateHistoryUseCase(
             strategies = strategies,
             repository = mockHoldingHistoryRepository,
+            assetHoldingRepository = mockAssetHoldingRepository,
             context = Dispatchers.Unconfined // Para testes síncronos
         )
     }
+
+    private fun stubHoldings(vararg holdings: AssetHolding) {
+        coEvery { mockAssetHoldingRepository.getAll() } returns holdings.toList()
+    }
+
+    private suspend fun executeFor(holding: AssetHolding, referenceDate: YearMonth) =
+        createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate))
+            .getOrThrow()
+            .single { it.holding.id == holding.id }
 
     // region Teste 1: FixedIncomeAsset - Retorna histórico anterior
 
@@ -63,9 +77,10 @@ class CreateHistoryUseCaseTest {
         val previousEntry = createHoldingHistoryEntry(id = 1, holding = holding, referenceDate = previousDate, endOfMonthValue = 1000.0)
 
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns previousEntry
+        stubHoldings(holding)
 
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert
         val expected = previousEntry.copy(id = null, referenceDate = referenceDate)
@@ -90,8 +105,10 @@ class CreateHistoryUseCaseTest {
 
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns null
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert
         assertEquals(holding, result.holding)
@@ -119,9 +136,10 @@ class CreateHistoryUseCaseTest {
         val previousEntry = createHoldingHistoryEntry(id = 1, holding = holding, referenceDate = previousDate, endOfMonthValue = 2000.0)
 
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns previousEntry
+        stubHoldings(holding)
 
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert
         val expected = previousEntry.copy(id = null, referenceDate = referenceDate)
@@ -146,8 +164,10 @@ class CreateHistoryUseCaseTest {
 
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns null
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert
         assertEquals(holding, result.holding)
@@ -182,8 +202,10 @@ class CreateHistoryUseCaseTest {
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns previousEntry
         coEvery { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) } returns Result.success(quoteHistory)
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // THEN — previous month exists: strategy copies previous row (no quote API)
         assertEquals(holding, result.holding)
@@ -218,8 +240,10 @@ class CreateHistoryUseCaseTest {
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns previousEntry
         coEvery { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) } returns Result.success(quoteHistory)
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // THEN — previous month exists: copy branch (no quote API)
         assertEquals(holding, result.holding)
@@ -253,8 +277,10 @@ class CreateHistoryUseCaseTest {
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns null
         coEvery { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) } returns Result.success(quoteHistory)
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert
         assertEquals(holding, result.holding)
@@ -287,8 +313,10 @@ class CreateHistoryUseCaseTest {
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns null
         coEvery { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) } returns Result.success(quoteHistory)
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert — strategy returns null when quote has no price; use case persists empty row
         assertEquals(holding, result.holding)
@@ -317,8 +345,10 @@ class CreateHistoryUseCaseTest {
 
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(expectedPreviousDate, holding) } returns previousEntry
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert
         val expected = previousEntry.copy(id = null, referenceDate = referenceDate)
@@ -350,8 +380,10 @@ class CreateHistoryUseCaseTest {
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(previousDate, holding) } returns previousEntry
         coEvery { mockGetQuotesUseCase(GetQuotesUseCase.Params(ticker, referenceDate)) } returns Result.success(quoteHistory)
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // THEN — previous month exists: copy branch (no quote API)
         assertEquals(previousQuantity, result.endOfMonthQuantity, 0.01)
@@ -374,8 +406,10 @@ class CreateHistoryUseCaseTest {
         val fixedIncomeAsset = createFixedIncomeAsset()
         val holding = createAssetHolding(id = 1, asset = fixedIncomeAsset)
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert
         assertEquals(holding, result.holding)
@@ -406,8 +440,10 @@ class CreateHistoryUseCaseTest {
         val variableIncomeAsset = createVariableIncomeAsset()
         val holding = createAssetHolding(id = 1, asset = variableIncomeAsset)
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert
         assertEquals(holding, result.holding)
@@ -430,19 +466,20 @@ class CreateHistoryUseCaseTest {
     // region Teste 13: Validação - Holding ID inválido
 
     @Test
-    fun `GIVEN holding with invalid ID THEN throw IllegalArgumentException`() = runTest {
+    fun `GIVEN holding with invalid ID THEN skip holding from batch result`() = runTest {
 
         // Arrange
         val referenceDate = YearMonth(2026, Month.APRIL)
         val fixedIncomeAsset = createFixedIncomeAsset()
         val holding = createAssetHolding(id = 0, asset = fixedIncomeAsset) // ID inválido
+        stubHoldings(holding)
 
-        // Act & Assert
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding))
+        // Act
+        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate))
 
-        assert(result.isFailure)
-        assert(result.exceptionOrNull() is IllegalArgumentException)
-        assertEquals("Holding ID deve ser maior que zero", result.exceptionOrNull()?.message)
+        // Assert
+        assert(result.isSuccess)
+        assertEquals(emptyList(), result.getOrThrow())
 
         // Verifica que nenhuma operação foi executada
         coVerify(exactly = 0) { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(any(), any()) }
@@ -475,8 +512,10 @@ class CreateHistoryUseCaseTest {
 
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(referenceDate, holding) } returns existingEntry
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert — strategy returns current month row as-is (no quote refresh)
         assertEquals(holding, result.holding)
@@ -505,8 +544,10 @@ class CreateHistoryUseCaseTest {
 
         coEvery { mockHoldingHistoryRepository.getByHoldingAndReferenceDate(any(), any()) } returns null
 
+        stubHoldings(holding)
+
         // Act
-        val result = createHistoryUseCase(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = executeFor(holding, referenceDate)
 
         // Assert - Valores padrão conforme RN 4.1
         assertEquals(0.0, result.endOfMonthValue, "Valor de mercado deve ser 0,00")
@@ -529,16 +570,18 @@ class CreateHistoryUseCaseTest {
         val referenceDate = YearMonth(2026, Month.APRIL)
         val variableIncomeAsset = createVariableIncomeAsset()
         val holding = createAssetHolding(id = 1, asset = variableIncomeAsset)
+        stubHoldings(holding)
 
         // Criar use case sem estratégias
         val useCaseWithoutStrategies = CreateHistoryUseCase(
             strategies = emptyList(), // Lista vazia de estratégias
             repository = mockHoldingHistoryRepository,
+            assetHoldingRepository = mockAssetHoldingRepository,
             context = Dispatchers.Unconfined
         )
 
         // Act
-        val result = useCaseWithoutStrategies(CreateHistoryUseCase.Param(referenceDate, holding)).getOrThrow()
+        val result = useCaseWithoutStrategies(CreateHistoryUseCase.Param(referenceDate)).getOrThrow().single()
 
         // Assert
         assertEquals(holding, result.holding)

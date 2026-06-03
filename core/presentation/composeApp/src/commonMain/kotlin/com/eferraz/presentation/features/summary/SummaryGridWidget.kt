@@ -14,7 +14,6 @@ import androidx.compose.material.icons.outlined.KeyboardDoubleArrowUp
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.ui.tooling.preview.Devices
@@ -27,22 +26,11 @@ import com.eferraz.design_system_v2.theme.StatusKind
 import com.eferraz.presentation.features.walletfilters.PanelHeader
 import com.eferraz.presentation.helpers.currencyFormat
 import com.eferraz.presentation.helpers.toPercentage
-
-@Immutable
-internal data class SummaryProperties(
-    val previousValue: Double = 0.0,
-    val actualValue: Double = 0.0,
-    val contributions: Double = 0.0,
-    val withdrawals: Double = 0.0,
-    val growth: Double = 0.0,
-    val growthPercent: Double = 0.0,
-    val earnings: Double = 0.0,
-    val earningsPercent: Double = 0.0,
-)
+import com.eferraz.usecases.entities.MonthSummary
 
 @Composable
 internal fun SummaryGridWidget(
-    properties: SummaryProperties,
+    properties: MonthSummary,
     modifier: Modifier = Modifier,
     contentPadding: Dp = 16.dp,
 ) {
@@ -165,7 +153,7 @@ private fun SummaryGridWidgetPreview() {
     AppThemeV2 {
         Surface {
             SummaryGridWidget(
-                properties = SummaryProperties(
+                properties = MonthSummary(
                     previousValue = 126248.76,
                     actualValue = 126248.76,
                     contributions = 1000.0,

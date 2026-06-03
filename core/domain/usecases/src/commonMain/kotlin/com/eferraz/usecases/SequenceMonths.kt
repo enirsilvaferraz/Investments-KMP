@@ -14,14 +14,14 @@ import kotlinx.datetime.plusMonth
  * @property entries Lista imutável de meses no intervalo [start, end]
  */
 @ConsistentCopyVisibility
-internal data class SequenceMonths private constructor(
+public data class SequenceMonths private constructor(
     val entries: List<YearMonth>,
 ) : List<YearMonth> by entries {
 
-    companion object {
+    public companion object {
 
         /** Limite padrão de meses que podem ser gerados para prevenir loops infinitos */
-        const val DEFAULT_MAX_MONTHS = 120 // 10 anos
+        internal const val DEFAULT_MAX_MONTHS = 120 // 10 anos
 
         /**
          * Constrói uma sequência de meses entre [start] e [end] (ambos inclusivos).
@@ -32,7 +32,7 @@ internal data class SequenceMonths private constructor(
          * @return Uma instância de [SequenceMonths] contendo todos os meses no intervalo
          * @throws IllegalArgumentException se start > end ou se o intervalo exceder maxMonths
          */
-        fun build(
+        public fun build(
             start: YearMonth,
             end: YearMonth,
             maxMonths: Int = DEFAULT_MAX_MONTHS

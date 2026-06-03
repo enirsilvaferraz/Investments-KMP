@@ -1,16 +1,20 @@
 package com.eferraz.presentation.features.walletfilters
 
 import androidx.compose.runtime.Immutable
-import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.assets.YesOrNo
+import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.naming.asLabel
 import com.eferraz.presentation.helpers.Formatters.formated
+import com.eferraz.usecases.SequenceMonths
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.plus
 
 @Immutable
 internal data class WalletFiltersPanelOptions(
@@ -56,114 +60,61 @@ internal data class WalletFiltersUiState(
     val selectedSubtypes: Set<WalletFilterSubtype> = emptySet(),
     val selectedLiquidities: Set<Liquidity> = emptySet(),
     val selectedB3: Set<YesOrNo> = emptySet(),
-    val selectedSettled: Set<YesOrNo> = emptySet(),
+    val selectedSettled: Set<YesOrNo> = setOf(YesOrNo.NO),
     val maturitySelection: YearMonth? = null,
     val selectedBrokerage: Brokerage? = null,
-) {
-    companion object {
-        fun initial(): WalletFiltersUiState = WalletFiltersUiState()
-
-        /** Default do histórico: só «Não liquidado» activo (FR-008 / SC-004). */
-        fun defaultForHistory(): WalletFiltersUiState =
-            WalletFiltersUiState(selectedSettled = setOf(YesOrNo.NO))
-    }
-}
+)
 
 internal object WalletFiltersCatalog {
 
     fun classOption(assetClass: AssetClass): FilterOption<AssetClass> =
-        FilterOption(
-            id = assetClass,
-            shortLabel = assetClass.shortLabel,
-            fullLabel = assetClass.formated(),
-        )
+        FilterOption(id = assetClass, shortLabel = assetClass.shortLabel, fullLabel = assetClass.formated())
 
     fun brokerageOption(brokerage: Brokerage): FilterOption<Brokerage> =
-        FilterOption(
-            id = brokerage,
-            shortLabel = brokerage.name,
-            fullLabel = brokerage.name,
-        )
+        FilterOption(id = brokerage, shortLabel = brokerage.name, fullLabel = brokerage.name)
 
     fun subtypeOption(subtype: WalletFilterSubtype): FilterOption<WalletFilterSubtype> =
-        FilterOption(
-            id = subtype,
-            shortLabel = subtype.shortLabel,
-            fullLabel = subtype.fullLabel,
-        )
+        FilterOption(id = subtype, shortLabel = subtype.shortLabel, fullLabel = subtype.fullLabel)
 
     fun liquidityOption(liquidity: Liquidity): FilterOption<Liquidity> =
-        FilterOption(
-            id = liquidity,
-            shortLabel = liquidity.asLabel(),
-            fullLabel = liquidity.asLabel(),
-        )
+        FilterOption(id = liquidity, shortLabel = liquidity.asLabel(), fullLabel = liquidity.asLabel())
 
     fun b3Option(value: YesOrNo): FilterOption<YesOrNo> =
-        FilterOption(
-            id = value,
-            shortLabel = value.asLabel(),
-            fullLabel = b3FullLabels.getValue(value),
-        )
+        FilterOption(id = value, shortLabel = value.asLabel(), fullLabel = b3FullLabels.getValue(value))
 
     fun settledOption(value: YesOrNo): FilterOption<YesOrNo> =
-        FilterOption(
-            id = value,
-            shortLabel = value.asLabel(),
-            fullLabel = settledFullLabels.getValue(value),
-        )
+        FilterOption(id = value, shortLabel = value.asLabel(), fullLabel = settledFullLabels.getValue(value))
 
     private val b3FullLabels: Map<YesOrNo, String> =
-        mapOf(
-            YesOrNo.YES to "Informado na B3",
-            YesOrNo.NO to "Não informado na B3",
-        )
+        mapOf(YesOrNo.YES to "Informado na B3", YesOrNo.NO to "Não informado na B3")
 
     private val settledFullLabels: Map<YesOrNo, String> =
-        mapOf(
-            YesOrNo.YES to "Liquidado",
-            YesOrNo.NO to "Não liquidado",
-        )
+        mapOf(YesOrNo.YES to "Liquidado", YesOrNo.NO to "Não liquidado")
 
     /** Opções fixas do painel (enums + vencimentos); corretoras vêm à parte (ex. repositório). */
     fun staticPanelOptions(
-        maturityMonths: List<YearMonth>,
-        brokerageOptions: List<FilterOption<Brokerage>> = emptyList(),
+        today: YearMonth,
+        brokerages: List<Brokerage>,
     ): WalletFiltersPanelOptions =
+
         WalletFiltersPanelOptions(
-            commons =
-                WalletFiltersPanelOptions.Commons(
-                    classOptions = AssetClass.entries.map(::classOption),
-                    brokerageOptions = brokerageOptions,
-                    b3Options = YesOrNo.entries.map(::b3Option),
-                    settledOptions = YesOrNo.entries.map(::settledOption),
-                ),
-            fixedIncome =
-                WalletFiltersPanelOptions.FixedIncome(
-                    subtypeOptions =
-                        subtypesByAssetClass[AssetClass.FIXED_INCOME]
-                            .orEmpty()
-                            .map(::subtypeOption),
-                    liquidityOptions =
-                        Liquidity.entries
-                            .filter { it != Liquidity.D_PLUS_DAYS }
-                            .map(::liquidityOption),
-                    maturityMonths = maturityMonths,
-                ),
-            variableIncome =
-                WalletFiltersPanelOptions.VariableIncome(
-                    subtypeOptions =
-                        subtypesByAssetClass[AssetClass.VARIABLE_INCOME]
-                            .orEmpty()
-                            .map(::subtypeOption),
-                ),
-            funds =
-                WalletFiltersPanelOptions.Funds(
-                    subtypeOptions =
-                        subtypesByAssetClass[AssetClass.INVESTMENT_FUND]
-                            .orEmpty()
-                            .map(::subtypeOption),
-                ),
+            commons = WalletFiltersPanelOptions.Commons(
+                classOptions = AssetClass.entries.map(::classOption),
+                brokerageOptions = brokerages.map(::brokerageOption),
+                b3Options = YesOrNo.entries.map(::b3Option),
+                settledOptions = YesOrNo.entries.map(::settledOption),
+            ),
+            fixedIncome = WalletFiltersPanelOptions.FixedIncome(
+                subtypeOptions = subtypesByAssetClass[AssetClass.FIXED_INCOME].orEmpty().map(::subtypeOption),
+                liquidityOptions = Liquidity.entries.filter { it != Liquidity.D_PLUS_DAYS }.map(::liquidityOption),
+                maturityMonths =  SequenceMonths.build(today, today.plus(30, DateTimeUnit.MONTH)).entries,
+            ),
+            variableIncome = WalletFiltersPanelOptions.VariableIncome(
+                subtypeOptions = subtypesByAssetClass[AssetClass.VARIABLE_INCOME].orEmpty().map(::subtypeOption),
+            ),
+            funds = WalletFiltersPanelOptions.Funds(
+                subtypeOptions = subtypesByAssetClass[AssetClass.INVESTMENT_FUND].orEmpty().map(::subtypeOption),
+            ),
         )
 }
 
@@ -188,6 +139,7 @@ private val WalletFilterSubtype.shortLabel: String
                     FixedIncomeAssetType.SELIC -> "Selic"
                     FixedIncomeAssetType.PRECATORIO -> "Prec."
                 }
+
             is WalletFilterSubtype.VariableIncome ->
                 when (value) {
                     VariableIncomeAssetType.NATIONAL_STOCK -> "Ação BR"
@@ -195,6 +147,7 @@ private val WalletFilterSubtype.shortLabel: String
                     VariableIncomeAssetType.REAL_ESTATE_FUND -> "FII"
                     VariableIncomeAssetType.ETF -> "ETF"
                 }
+
             is WalletFilterSubtype.InvestmentFund ->
                 when (value) {
                     InvestmentFundAssetType.STOCK_FUND -> "Ações"
