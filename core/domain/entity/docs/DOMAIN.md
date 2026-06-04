@@ -18,7 +18,7 @@ Aplicativo de **carteira de investimentos**: cadastro de ativos, posições por 
 | Pacote         | Conteúdo principal                                                                                         |
 |----------------|------------------------------------------------------------------------------------------------------------|
 | `assets`       | `Asset` (sealed), RF/RV/Fundo, `Issuer`, `Liquidity`, enums, `CNPJ`, `MaturityDate`, `AssetClass`, `YieldIndexer`, `AssetType`  |
-| `holdings`     | `AssetHolding`, `Owner`, `Brokerage`, `HoldingHistoryEntry`, `Appreciation`, `Growth`, `StockQuoteHistory` |
+| `holdings`     | `AssetHolding`, `Owner`, `Brokerage`, `HoldingHistoryEntry`, `Appreciation`, `Growth`, `IncomeTax`, `StockQuoteHistory` |
 | `transactions` | `AssetTransaction` (sealed), `TransactionType`, `TransactionBalance`                                       |
 | `goals`        | `FinancialGoal`, `GoalInvestmentPlan`, `GrowthRate`, `GoalMonthlyData`, `ProjectedGoal`, `GoalProjections` |
 | `value`        | `MandatoryText`                                                                                            |
@@ -79,6 +79,7 @@ Regras de valor por subtipo constam em `FixedIncomeTransaction`, `FundsTransacti
 
 - **`TransactionBalance`:** `contributions`, `withdrawals`, `balance` a partir de lista de transações.
 - **`Appreciation` / `Growth`:** métricas mensais de posição (ver KDoc).
+- **`IncomeTax`:** IR regressivo sobre lucro em reais — `IncomeTax.calculate(profit, purchaseDate, referenceDate)` devolve `taxRate` (percentual legível, ex. 22,5) e `taxValue` (reais, `Double` bruto). Dias investidos = `purchaseDate.daysUntil(referenceDate)`. Tabela: até 180 dias → 22,5%; 181–360 → 20%; 361–720 → 17,5%; acima de 720 → 15%. `taxValue` zero se lucro ≤ 0. Data de compra é sempre parâmetro do chamador (sem derivação de transações nesta entrega).
 - **`StockQuoteHistory`:** cotação diária OHLCV por `ticker` (mercado; não substitui ledger de transações).
 
 ### 6.5 Enums
@@ -218,6 +219,10 @@ erDiagram
     Growth {
         Double value
         Double percentage
+    }
+    IncomeTax {
+        Double taxRate
+        Double taxValue
     }
     AssetHolding }o--|| Asset : "asset"
     AssetHolding }o--|| Owner : "owner"
