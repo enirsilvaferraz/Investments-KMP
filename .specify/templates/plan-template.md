@@ -40,7 +40,7 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file — incluir princípio IX: planos/tasks NÃO devem exigir build Gradle automático pelo agente salvo pedido explícito ou artefacto de build]
+[Gates determined based on constitution file]
 
 ## Project Structure
 
