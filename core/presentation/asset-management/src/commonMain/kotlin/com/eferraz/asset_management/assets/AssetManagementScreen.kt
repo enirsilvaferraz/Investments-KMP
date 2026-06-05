@@ -1,5 +1,10 @@
 package com.eferraz.asset_management.assets
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -128,7 +133,7 @@ public fun AssetManagementScreen(
             ) {
 
                 Button(
-                    onClick = {},
+                    onClick = { /* TODO NOT IMPLEMENTED YET */ },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
 
@@ -156,6 +161,7 @@ private fun AssetFormView(
     ui: AssetManagementUiState,
     onEvent: (AssetManagementEvents) -> Unit,
 ) {
+
     Column(
         modifier = modifier.padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -172,8 +178,15 @@ private fun AssetFormView(
                 AssetClass.INVESTMENT_FUND -> FundFields(ui, onEvent)
             }
 
-            Actions()
+            FormCardActions(
+                isVisible = true,
+                onClick = { onEvent(AssetManagementEvents.Save) },
+                enabled = !ui.isSaving
+            )
         }
+
+        var isVisible by remember { mutableStateOf(true) }
+
 
         FormSection(
             title = "POSICIONAMENTO",
@@ -205,7 +218,11 @@ private fun AssetFormView(
                 )
             }
 
-            Actions()
+
+            FormCardActions(
+                isVisible = isVisible,
+                onClick = {}
+            )
         }
 
         FormSection(
@@ -221,7 +238,11 @@ private fun AssetFormView(
                 )
             }
 
-            Actions()
+            FormCardActions(
+                onClick = {
+                    isVisible = !isVisible
+                }
+            )
         }
 
         FormSection(
@@ -339,7 +360,7 @@ private fun FormSection(
 
             Column(
                 modifier = Modifier.padding(top = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+//                verticalArrangement = Arrangement.spacedBy(16.dp),
                 content = content
             )
         }
@@ -353,7 +374,7 @@ private fun FormRow(
 ) {
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(top = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         content = content
     )
@@ -661,28 +682,37 @@ private fun FundFields(
 }
 
 @Composable
-private fun Actions(
+private fun FormCardActions(
     modifier: Modifier = Modifier,
-//    onEvent: (AssetManagementEvents) -> Unit,
-//    ui: AssetManagementUiState,
+    isVisible: Boolean = true,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
 ) {
 
-    Column {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut()
+    ) {
 
-        HorizontalDivider(modifier = Modifier.padding(top = 0.dp, bottom = 16.dp), color = DividerDefaults.color.copy(alpha = 0.4f))
-
-        Row(
-            modifier = modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            verticalAlignment = Alignment.Bottom,
+        Column(
+            modifier = modifier.padding(top = 16.dp)
         ) {
 
-            Button(
-//            onClick = { onEvent(AssetManagementEvents.Save) },
-//            enabled = !ui.isSaving,
-                onClick = {}
+            HorizontalDivider(modifier = Modifier.padding(top = 0.dp, bottom = 16.dp), color = DividerDefaults.color.copy(alpha = 0.4f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalAlignment = Alignment.Bottom,
             ) {
-                Text("Salvar")
+
+                Button(
+                    onClick = onClick,
+                    enabled = enabled
+                ) {
+                    Text("Salvar")
+                }
             }
         }
     }
