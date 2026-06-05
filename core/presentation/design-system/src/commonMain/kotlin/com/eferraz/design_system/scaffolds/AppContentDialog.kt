@@ -66,7 +66,7 @@ public fun AppContentDialog(
                             Icon(
                                 modifier = Modifier.size(24.dp),
                                 imageVector = leadingIcon,
-                                contentDescription = "Fechar",
+                                contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }

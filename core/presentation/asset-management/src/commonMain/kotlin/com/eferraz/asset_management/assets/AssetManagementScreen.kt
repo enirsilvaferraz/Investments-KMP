@@ -116,43 +116,11 @@ public fun AssetManagementScreen(
         if (state.isCompleted) onDismiss()
     }
 
-    Column(
+    AssetFormView(
         modifier = modifier.verticalScroll(rememberScrollState()),
-    ) {
-
-        AssetFormView(
-            ui = state,
-            onEvent = vm::dispatch,
-        )
-
-        Surface {
-
-            Row(
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-
-                Button(
-                    onClick = { /* TODO NOT IMPLEMENTED YET */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("Excluir")
-                    }
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                FilledTonalButton({}) {
-                    Text("Concluir")
-                }
-            }
-        }
-    }
+        ui = state,
+        onEvent = vm::dispatch,
+    )
 }
 
 @Composable
@@ -331,6 +299,36 @@ private fun AssetFormView(
                     readOnly = true,
                     suffix = { Text("%") }
                 )
+            }
+        }
+    }
+
+    Surface {
+
+        Row(
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+
+            Button(
+                onClick = { /* TODO NOT IMPLEMENTED YET */ },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("Excluir")
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            FilledTonalButton(
+                onClick = {/* TODO NOT IMPLEMENTED YET */ }
+            ) {
+                Text("Concluir")
             }
         }
     }
