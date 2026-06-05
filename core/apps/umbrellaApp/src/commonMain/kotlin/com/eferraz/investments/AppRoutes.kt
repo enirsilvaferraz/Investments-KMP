@@ -3,7 +3,6 @@ package com.eferraz.investments
 import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.eferraz.asset_management.di.AssetManagementRouting
-import com.eferraz.asset_management.di.TransactionManagementRouting
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -17,7 +16,6 @@ internal val config = SavedStateConfiguration {
         polymorphic(NavKey::class) {
             subclass(HistoryRouting::class, HistoryRouting.serializer())
             subclass(AssetManagementRouting::class, AssetManagementRouting.serializer())
-            subclass(TransactionManagementRouting::class, TransactionManagementRouting.serializer())
         }
     }
 }

@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 
 <!-- SPECKIT START -->
-Plano actual: `specs/020-asset-registration-form/plan.md` — cadastro ATIVO + Posicionamento;
-reuso de UpsertAsset/Holding (001), migração RF `incomeTaxExempt`, save único na barra inferior (sempre habilitado, sem isDirty/snapshot).
-Fora do escopo: Transações, Resumo, Excluir, IncomeTax engine.
+Plano actual: `specs/022-integrate-transaction-form/plan.md` — card de transações inline na AssetManagementScreen;
+`SaveAssetWithTransactionsUseCase` atômico (Room @Transaction); `TransactionDraftUi` em `assets/AssetManagementUiState.kt`; `TransactionFormContent` stateless; `AssetManagementViewModel` unificado; histórico redireciona para `AssetManagementRouting`.
+Fora do escopo: card Resumo, IncomeTax engine, Excluir.
 <!-- SPECKIT END -->
