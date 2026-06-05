@@ -28,7 +28,7 @@ internal fun MutableStateFlow<AssetManagementUiState>.checkErros(): Boolean {
 
 private fun AssetManagementUiState.validateFixedIncome(): AssetManagementUiState = copy(
     yieldIndexerError = if (yieldIndexer == null) "Obrigatório" else null,
-    fixedTypeError = if (fixedType == null) "Obrigatório" else null,
+    typeError = if (type == null) "Obrigatório" else null,
     fixedExpirationError = if (fixedExpiration.isNullOrBlank()) "Obrigatório" else if (localDateFromIsoDateDigits(fixedExpiration) == null) "Data inválida" else null,
     fixedYieldError = if (fixedYield.isNullOrBlank()) "Obrigatório" else if (fixedYield.toDoubleOrNull() == null) "Número inválido" else null,
     fixedCdiError = if (fixedCdi.isNullOrBlank().not() && fixedCdi.toDoubleOrNull() == null) "Número inválido" else null,
@@ -36,14 +36,14 @@ private fun AssetManagementUiState.validateFixedIncome(): AssetManagementUiState
 )
 
 private fun AssetManagementUiState.validateVariableIncome(): AssetManagementUiState = copy(
-    variableTypeError = if (variableType == null) "Obrigatório" else null,
+    typeError = if (type == null) "Obrigatório" else null,
     variableTickerError = if (variableTicker.orEmpty().isBlank()) "Obrigatório" else null,
     cnpjError = if (variableCnpj.isNullOrBlank().not() && runCatching { CNPJ(variableCnpj) }.isFailure) "CNPJ inválido" else null,
 )
 
 private fun AssetManagementUiState.validateFund(): AssetManagementUiState = copy(
     fundNameError = if (fundName.orEmpty().isBlank()) "Obrigatório" else null,
-    fundTypeError = if (fundType == null) "Obrigatório" else null,
+    typeError = if (type == null) "Obrigatório" else null,
     fundLiquidityError = if (fundLiquidity == null) "Obrigatório" else null,
     fundLiquidityDaysError = if ((fundLiquidityDays?.toIntOrNull() ?: -1) <= 0) "Valor inválido" else null,
     fundExpirationError = if (localDateFromIsoDateDigits(fundExpiration) == null) "Data inválida" else null

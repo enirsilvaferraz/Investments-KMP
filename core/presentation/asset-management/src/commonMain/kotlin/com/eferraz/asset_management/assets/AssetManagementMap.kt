@@ -5,8 +5,11 @@ import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.CNPJ
 import com.eferraz.entities.assets.FixedIncomeAsset
+import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentFundAsset
+import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.VariableIncomeAsset
+import com.eferraz.entities.assets.VariableIncomeAssetType
 
 internal fun AssetManagementUiState.buildAsset(): Asset {
     return when (assetClass) {
@@ -22,7 +25,7 @@ private fun AssetManagementUiState.buildFixedIncomeAsset(): FixedIncomeAsset {
         id = asset?.id ?: 0L,
         issuer = issuer!!,
         indexer = yieldIndexer!!,
-        type = fixedType!!,
+        type = type as FixedIncomeAssetType,
         expirationDate = localDateFromIsoDateDigits(fixedExpiration)!!,
         contractedYield = fixedYield?.toDoubleOrNull()!!,
         cdiRelativeYield = fixedCdi?.toDoubleOrNull(),
@@ -38,7 +41,7 @@ private fun AssetManagementUiState.buildVariableIncomeAsset(): VariableIncomeAss
         id = asset?.id ?: 0L,
         name = variableTicker.orEmpty().trim(),
         issuer = issuer!!,
-        type = variableType!!,
+        type = type as VariableIncomeAssetType,
         ticker = variableTicker.orEmpty().trim(),
         cnpj = variableCnpj.takeIf { it.isNullOrBlank().not() }?.let { CNPJ(variableCnpj) },
         observations = observations,
@@ -51,7 +54,7 @@ private fun AssetManagementUiState.buildFundAsset(): InvestmentFundAsset {
         id = asset?.id ?: 0L,
         name = fundName.orEmpty().trim(),
         issuer = issuer!!,
-        type = fundType!!,
+        type = type as InvestmentFundAssetType,
         liquidity = fundLiquidity!!,
         liquidityDays = fundLiquidityDays?.toIntOrNull()!!,
         expirationDate = localDateFromIsoDateDigits(fundExpiration),
@@ -69,7 +72,7 @@ internal fun Asset.toUiState(): AssetManagementUiState {
             issuer = currentAsset.issuer,
             observations = currentAsset.observations,
             yieldIndexer = currentAsset.indexer,
-            fixedType = currentAsset.type,
+            type = currentAsset.type,
             fixedExpiration = currentAsset.expirationDate.toString().replace("-", ""),
             fixedYield = currentAsset.contractedYield.toString(),
             fixedCdi = currentAsset.cdiRelativeYield?.toString(),
@@ -83,7 +86,7 @@ internal fun Asset.toUiState(): AssetManagementUiState {
             issuer = currentAsset.issuer,
             observations = currentAsset.observations,
             variableName = currentAsset.name,
-            variableType = currentAsset.type,
+            type = currentAsset.type,
             variableTicker = currentAsset.ticker,
             variableCnpj = currentAsset.cnpj?.get(),
         )
@@ -94,7 +97,7 @@ internal fun Asset.toUiState(): AssetManagementUiState {
             issuer = currentAsset.issuer,
             observations = currentAsset.observations,
             fundName = currentAsset.name,
-            fundType = currentAsset.type,
+            type = currentAsset.type,
             fundLiquidity = currentAsset.liquidity,
             fundLiquidityDays = currentAsset.liquidityDays.toString(),
             fundExpiration = currentAsset.expirationDate?.toString()?.replace("-", ""),

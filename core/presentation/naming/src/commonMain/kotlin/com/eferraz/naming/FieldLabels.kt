@@ -2,6 +2,7 @@ package com.eferraz.naming
 
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.AssetClass
+import com.eferraz.entities.assets.AssetType
 import com.eferraz.entities.assets.FixedIncomeAsset
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentFundAsset
@@ -9,8 +10,8 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
-import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.assets.YesOrNo
+import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.transactions.TransactionType
 
 /** Rótulo do dropdown de corretora no cadastro de investimento. */
@@ -31,6 +32,13 @@ public fun YieldIndexer.asLabel(): String =
         YieldIndexer.POST_FIXED -> "Pós-fixado"
         YieldIndexer.PRE_FIXED -> "Pré-fixado"
         YieldIndexer.INFLATION_LINKED -> "Atrelado à inflação"
+    }
+
+public fun AssetType.asLabel(): String =
+    when (this) {
+        is FixedIncomeAssetType -> this.asLabel()
+        is InvestmentFundAssetType -> this.asLabel()
+        is VariableIncomeAssetType -> this.asLabel()
     }
 
 public fun FixedIncomeAssetType.asLabel(): String =

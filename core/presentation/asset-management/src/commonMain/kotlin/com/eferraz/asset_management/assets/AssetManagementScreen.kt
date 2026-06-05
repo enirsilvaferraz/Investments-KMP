@@ -140,6 +140,42 @@ private fun AssetFormView(
             icon = Icons.Outlined.AttachMoney
         ) {
 
+            FormRow {
+
+                AppDropdownField(
+                    modifier = Modifier.weight(1f),
+                    label = "Classe do Ativo",
+                    displayValue = ui.assetClass.asLabel(),
+                    options = AssetClass.entries.toList(),
+                    itemLabel = { it.asLabel() },
+                    onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
+                    enabled = ui.asset == null,
+                    required = true,
+                )
+
+                AppDropdownField(
+                    modifier = Modifier.weight(0.9f),
+                    label = "Tipo",
+                    displayValue = ui.type?.asLabel().orEmpty(),
+                    options = FixedIncomeAssetType.entries.toList(),
+                    itemLabel = { it.asLabel() },
+                    onItemSelect = { onEvent(AssetManagementEvents.TypeChanged(it)) },
+                    error = ui.typeError,
+                    required = true,
+                )
+
+                AppDropdownField(
+                    modifier = Modifier.weight(1f),
+                    label = "Emissor",
+                    displayValue = ui.issuer?.name.orEmpty(),
+                    options = ui.issuers,
+                    itemLabel = { it.name },
+                    onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
+                    error = ui.issuerError,
+                    required = true,
+                )
+            }
+
             when (ui.assetClass) {
                 AssetClass.FIXED_INCOME -> FixedIncomeFields(ui, onEvent)
                 AssetClass.VARIABLE_INCOME -> VariableIncomeFields(ui, onEvent)
@@ -414,42 +450,6 @@ private fun FixedIncomeFields(
     FormRow {
 
         AppDropdownField(
-            modifier = Modifier.weight(1f),
-            label = "Classe do Ativo",
-            displayValue = ui.assetClass.asLabel(),
-            options = AssetClass.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
-            enabled = ui.asset == null,
-            required = true,
-        )
-
-        AppDropdownField(
-            modifier = Modifier.weight(0.9f),
-            label = "Tipo",
-            displayValue = ui.fixedType?.asLabel().orEmpty(),
-            options = FixedIncomeAssetType.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvents.FixedTypeChanged(it)) },
-            error = ui.fixedTypeError,
-            required = true,
-        )
-
-        AppDropdownField(
-            modifier = Modifier.weight(1f),
-            label = "Emissor",
-            displayValue = ui.issuer?.name.orEmpty(),
-            options = ui.issuers,
-            itemLabel = { it.name },
-            onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
-            error = ui.issuerError,
-            required = true,
-        )
-    }
-
-    FormRow {
-
-        AppDropdownField(
             modifier = Modifier.weight(.35f),
             label = "Liquidez",
             displayValue = ui.fixedLiquidity?.asLabel().orEmpty(),
@@ -562,41 +562,6 @@ private fun VariableIncomeFields(
 
     FormRow {
 
-        AppDropdownField(
-            modifier = Modifier.weight(1f),
-            label = "Classe do Ativo",
-            displayValue = ui.assetClass.asLabel(),
-            options = AssetClass.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
-            enabled = ui.asset == null,
-            required = true,
-        )
-
-        AppDropdownField(
-            modifier = Modifier.weight(0.9f),
-            label = "Tipo",
-            displayValue = ui.variableType?.asLabel().orEmpty(),
-            options = VariableIncomeAssetType.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvents.VariableTypeChanged(it)) },
-            error = ui.variableTypeError,
-        )
-
-        AppDropdownField(
-            modifier = Modifier.weight(1f),
-            label = "Emissor",
-            displayValue = ui.issuer?.name.orEmpty(),
-            options = ui.issuers,
-            itemLabel = { it.name },
-            onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
-            error = ui.issuerError,
-            required = true,
-        )
-    }
-
-    FormRow {
-
         FormTextField(
             modifier = Modifier.weight(1f),
             label = "Observações gerais",
@@ -623,41 +588,6 @@ private fun FundFields(
     ui: AssetManagementUiState,
     onEvent: (AssetManagementEvents) -> Unit,
 ) {
-
-    FormRow {
-
-        AppDropdownField(
-            modifier = Modifier.weight(1f),
-            label = "Classe do Ativo",
-            displayValue = ui.assetClass.asLabel(),
-            options = AssetClass.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
-            enabled = ui.asset == null,
-            required = true,
-        )
-
-        AppDropdownField(
-            modifier = Modifier.weight(0.9f),
-            label = "Tipo",
-            displayValue = ui.fundType?.asLabel().orEmpty(),
-            options = InvestmentFundAssetType.entries.toList(),
-            itemLabel = { it.asLabel() },
-            onItemSelect = { onEvent(AssetManagementEvents.FundTypeChanged(it)) },
-            error = ui.fundTypeError,
-        )
-
-        AppDropdownField(
-            modifier = Modifier.weight(1f),
-            label = "Emissor",
-            displayValue = ui.issuer?.name.orEmpty(),
-            options = ui.issuers,
-            itemLabel = { it.name },
-            onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
-            error = ui.issuerError,
-            required = true,
-        )
-    }
 
     FormRow {
 

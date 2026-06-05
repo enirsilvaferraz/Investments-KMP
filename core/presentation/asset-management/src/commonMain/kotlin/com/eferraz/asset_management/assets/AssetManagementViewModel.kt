@@ -38,27 +38,28 @@ internal class AssetManagementViewModel(
         is AssetManagementEvents.ScreenEntered -> loadInitialState(event.holdingId)
 
         is AssetManagementEvents.AssetClassChanged -> state.update { it.copy(assetClass = event.assetClass) }
+        is AssetManagementEvents.TypeChanged -> state.update { it.copy(type = event.type, typeError = null) }
         is AssetManagementEvents.IssuerChanged -> state.update { it.copy(issuer = event.issuer, issuerError = null) }
+
         is AssetManagementEvents.ObservationsChanged -> state.update { it.copy(observations = event.value) }
         is AssetManagementEvents.B3IdentifierChanged -> state.update { it.copy(b3Identifier = event.value) }
-        is AssetManagementEvents.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
 
         is AssetManagementEvents.YieldIndexerChanged -> state.update { it.copy(yieldIndexer = event.indexer, yieldIndexerError = null) }
-        is AssetManagementEvents.FixedTypeChanged -> state.update { it.copy(fixedType = event.type, fixedTypeError = null) }
         is AssetManagementEvents.FixedExpirationChanged -> state.update { it.copy(fixedExpiration = dateToDigits(event.raw), fixedExpirationError = null) }
-
         is AssetManagementEvents.FixedYieldChanged -> state.update { it.copy(fixedYield = event.value, fixedYieldError = null) }
         is AssetManagementEvents.FixedCdiChanged -> state.update { it.copy(fixedCdi = event.value, fixedCdiError = null) }
         is AssetManagementEvents.FixedLiquidityChanged -> state.update { it.copy(fixedLiquidity = event.liquidity, fixedLiquidityError = null) }
 
-        is AssetManagementEvents.VariableTypeChanged -> state.update { it.copy(variableType = event.type, variableTypeError = null) }
+//        is AssetManagementEvents.VariableTypeChanged -> state.update { it.copy(type = event.type, variableTypeError = null) }
         is AssetManagementEvents.VariableTickerChanged -> state.update { it.copy(variableTicker = event.value, variableTickerError = null) }
         is AssetManagementEvents.VariableCnpjChanged -> state.update { it.copy(variableCnpj = event.value, cnpjError = null) }
 
         is AssetManagementEvents.FundNameChanged -> state.update { it.copy(fundName = event.value, fundNameError = null) }
-        is AssetManagementEvents.FundTypeChanged -> state.update { it.copy(fundType = event.type, fundTypeError = null) }
+//        is AssetManagementEvents.FundTypeChanged -> state.update { it.copy(type = event.type, fundTypeError = null) }
         is AssetManagementEvents.FundLiquidityDaysChanged -> state.update { it.copy(fundLiquidityDays = event.value, fundLiquidityDaysError = null) }
         is AssetManagementEvents.FundExpirationChanged -> state.update { it.copy(fundExpiration = dateToDigits(event.raw), fundExpirationError = null) }
+
+        is AssetManagementEvents.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
 
         AssetManagementEvents.Save -> onSave()
     }
