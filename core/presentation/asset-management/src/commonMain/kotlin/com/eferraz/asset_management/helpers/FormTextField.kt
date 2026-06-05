@@ -26,6 +26,10 @@ internal fun FormTextField(
     errorMessage: String?,
     modifier: Modifier = Modifier,
     placeholder: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions? = null,
     visualTransformation: VisualTransformation? = null,
     supportingTextWhenNoError: @Composable (() -> Unit)? = null,
@@ -43,7 +47,7 @@ internal fun FormTextField(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 
-       label.takeIf { it.isNotBlank() }?.let {
+       label.takeIf { it.isNotEmpty() }?.let {
            Text(
                text = label,
                style = MaterialTheme.typography.titleSmall,
@@ -64,6 +68,10 @@ internal fun FormTextField(
             visualTransformation = visualTransformation ?: VisualTransformation.None,
             shape = RoundedCornerShape(14.dp),
             maxLines = 4,
+            prefix = prefix,
+            suffix = suffix,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color(0xFFEFF0F3),
                 unfocusedContainerColor = Color(0xFFEFF0F3),

@@ -2,7 +2,10 @@ package com.eferraz.design_system.components.segmented_control
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +45,7 @@ public fun <T> SegmentedControl(
 ) {
 
     Row(
-        modifier = modifier,
+        modifier = modifier.height(IntrinsicSize.Max),
         horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
     ) {
 
@@ -57,7 +60,7 @@ public fun <T> SegmentedControl(
             ToggleButton(
                 checked = selected == option,
                 onCheckedChange = { onSelect(option) },
-                modifier = internalModifier.semantics { role = Role.RadioButton },
+                modifier = internalModifier.semantics { role = Role.RadioButton }.fillMaxHeight(),
                 colors = colors,
                 shapes = when (index) {
                     0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()

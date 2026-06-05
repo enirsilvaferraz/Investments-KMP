@@ -15,8 +15,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -91,7 +89,7 @@ public fun TransactionFormView(
     }
 
     TransactionFormContent(
-        modifier = modifier.padding(horizontal = 24.dp).padding(bottom = 24.dp),
+//        modifier = modifier.padding(horizontal = 24.dp).padding(bottom = 24.dp),
         state = state,
         onEvent = vm::dispatch,
     )
@@ -110,37 +108,37 @@ private fun TransactionFormContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+//        Card(
+//            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+//        ) {
+
+        Column(
+//                modifier = Modifier.padding(horizontal = 24.dp).padding(top = 24.dp, bottom = 12.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            Column(
-                modifier = Modifier.padding(horizontal = 24.dp).padding(top = 24.dp, bottom = 12.dp),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            TransactionHeader()
+
+            TransactionTable(
+                state = state,
+                onEvent = onEvent,
+            )
+
+            FilledTonalButton(
+                modifier = Modifier.padding(top = 0.dp).width(135.dp),
+                onClick = { onEvent(TransactionManagementEvents.AddTransactionDraft) },
             ) {
-
-                TransactionHeader()
-
-                TransactionTable(
-                    state = state,
-                    onEvent = onEvent,
-                )
-
-                FilledTonalButton(
-                    modifier = Modifier.padding(top = 0.dp).width(135.dp),
-                    onClick = { onEvent(TransactionManagementEvents.AddTransactionDraft) },
-                ) {
-                    Text("Adicionar")
-                }
+                Text("Adicionar")
             }
         }
-
-        TransactionFormActions(
-            state = state,
-            onEvent = onEvent,
-        )
     }
+
+//        TransactionFormActions(
+//            state = state,
+//            onEvent = onEvent,
+//        )
+//    }
 }
 
 @Composable
@@ -197,6 +195,19 @@ private fun TransactionHeader() {
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
+
+//        VerticalDivider(modifier = Modifier.padding(horizontal = 4.dp).height(30.dp), color = DividerDefaults.color.copy(alpha = 0.4f))
+
+//        Spacer(modifier = Modifier.width(4.dp))
+//
+//        Box(modifier = clip.weight(1f), contentAlignment = Alignment.CenterStart) {
+//            Text(
+//                text = "IR",
+//                modifier = Modifier.padding(start = 16.dp),
+//                style = MaterialTheme.typography.titleSmall,
+//                color = MaterialTheme.colorScheme.onSurface,
+//            )
+//        }
 
         Spacer(modifier = Modifier.width(48.dp))
     }
@@ -306,6 +317,18 @@ private fun TransactionTableRow(
             errorMessage = null, //if (draft.totalValueError) "Inválido" else null,
             readOnly = isVariableIncome,
         )
+
+//        VerticalDivider(modifier = Modifier.padding(top = 0.dp).height(50.dp), color = DividerDefaults.color.copy(alpha = 0.4f))
+//        Spacer(modifier = Modifier.width(4.dp))
+//
+//        FormTextField(
+//            modifier = Modifier.weight(1f),
+//            label = "", // if (index != 0) "" else "Valor Total",
+//            value = draft.totalValue,
+//            onValueChange = { onEvent(TransactionManagementEvents.DraftTransactionTotalValueChanged(index, it)) },
+//            errorMessage = null, //if (draft.totalValueError) "Inválido" else null,
+//            readOnly = isVariableIncome,
+//        )
 
         FilledIconButton(
 //            modifier = if (index != 0) Modifier else Modifier.padding(top = 26.dp),
