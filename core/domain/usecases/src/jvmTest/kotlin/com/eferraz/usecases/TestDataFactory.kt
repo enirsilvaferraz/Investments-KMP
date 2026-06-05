@@ -61,9 +61,7 @@ object TestDataFactory {
         issuer: Issuer = createIssuer(),
         type: InvestmentFundAssetType = InvestmentFundAssetType.MULTIMARKET_FUND,
         liquidity: Liquidity = Liquidity.D_PLUS_DAYS,
-        liquidityDays: Int = 1,
-        expirationDate: LocalDate? = null,
-    ) = InvestmentFundAsset(id, name, issuer, type, liquidity, liquidityDays, expirationDate)
+    ) = InvestmentFundAsset(id, name, issuer, type, liquidity)
 
     fun createAssetHolding(
         id: Long = 1,

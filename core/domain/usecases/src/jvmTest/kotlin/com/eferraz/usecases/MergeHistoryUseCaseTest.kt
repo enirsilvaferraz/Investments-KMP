@@ -521,8 +521,6 @@ class MergeHistoryUseCaseTest {
                 issuer = defaultIssuer,
                 type = InvestmentFundAssetType.MULTIMARKET_FUND,
                 liquidity = Liquidity.D_PLUS_DAYS,
-                liquidityDays = 1,
-                expirationDate = null,
             )
 
         private fun assetHolding(id: Long = 1L, asset: Asset = variableIncomeAsset()): AssetHolding =

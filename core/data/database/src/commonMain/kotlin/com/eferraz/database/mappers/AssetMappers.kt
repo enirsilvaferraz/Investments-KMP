@@ -58,8 +58,6 @@ internal fun AssetWithDetails.toDomain(): Asset =
             issuer = issuer.toDomain(),
             type = funds.type,
             liquidity = asset.liquidity,
-            liquidityDays = funds.liquidityDays,
-            expirationDate = funds.expirationDate,
             observations = asset.observations
         )
 
@@ -136,8 +134,6 @@ internal fun Asset.toEntity(): AssetWithDetails {
             funds = InvestmentFundAssetEntity(
                 assetId = id,
                 type = type,
-                liquidityDays = liquidityDays,
-                expirationDate = expirationDate
             )
         )
     }

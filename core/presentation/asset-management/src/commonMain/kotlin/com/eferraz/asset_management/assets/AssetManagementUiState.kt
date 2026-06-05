@@ -1,14 +1,32 @@
 package com.eferraz.asset_management.assets
 
 import androidx.compose.runtime.Immutable
+import com.eferraz.design_system.components.segmented_control.SegmentedControlChoice
+import com.eferraz.design_system.core.StableList
 import com.eferraz.entities.assets.Asset
 import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.assets.AssetType
+import com.eferraz.entities.assets.FixedIncomeAssetType
+import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
+import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Owner
+
+internal fun assetTypeOptionsForClass(assetClass: AssetClass): List<AssetType> = when (assetClass) {
+    AssetClass.FIXED_INCOME -> FixedIncomeAssetType.entries.map { it }
+    AssetClass.VARIABLE_INCOME -> VariableIncomeAssetType.entries.map { it }
+    AssetClass.INVESTMENT_FUND -> InvestmentFundAssetType.entries.map { it }
+}
+
+internal fun incomeTaxSelectedFor(exempt: Boolean): SegmentedControlChoice<String> =
+    if (exempt) SegmentedControlChoice("Sim", "Sim") else SegmentedControlChoice("Não", "Não")
+
+internal val incomeTaxSegmentOptions: StableList<SegmentedControlChoice<String>> = StableList(
+    listOf(SegmentedControlChoice("Sim", "Sim"), SegmentedControlChoice("Não", "Não")),
+)
 
 @Immutable
 internal data class AssetManagementUiState(
@@ -42,10 +60,10 @@ internal data class AssetManagementUiState(
     val fundName: String? = null,
 //    val fundType: InvestmentFundAssetType? = null,
     val fundLiquidity: Liquidity? = null,
-    val fundLiquidityDays: String? = null,
-    val fundExpiration: String? = null,
 
     val incomeTaxExempt: Boolean = false,
+    val assetTypeOptions: List<AssetType> = assetTypeOptionsForClass(AssetClass.FIXED_INCOME),
+    val incomeTaxSelected: SegmentedControlChoice<String> = incomeTaxSelectedFor(false),
 
     val issuerError: String? = null,
     val yieldIndexerError: String? = null,
@@ -60,8 +78,6 @@ internal data class AssetManagementUiState(
     val fundNameError: String? = null,
 //    val fundTypeError: String? = null,
     val fundLiquidityError: String? = null,
-    val fundLiquidityDaysError: String? = null,
-    val fundExpirationError: String? = null,
 ) {
 
     /**
@@ -82,16 +98,13 @@ internal data class AssetManagementUiState(
         fundNameError = null,
 //        fundTypeError = null,
         fundLiquidityError = null,
-        fundLiquidityDaysError = null,
-        fundExpirationError = null,
     )
 
     internal fun hasAnyFieldError(): Boolean =
         issuerError != null || brokerageError != null ||
                 yieldIndexerError != null || typeError != null || fixedExpirationError != null ||
                 fixedYieldError != null || fixedCdiError != null || fixedLiquidityError != null || variableTickerError != null || cnpjError != null ||
-                fundNameError != null || fundLiquidityError != null ||
-                fundLiquidityDaysError != null || fundExpirationError != null
+                fundNameError != null || fundLiquidityError != null
 
     /**
      * Limpa tipo e campos específicos da classe anterior; mantém emissor, observações e posicionamento.
@@ -101,6 +114,8 @@ internal data class AssetManagementUiState(
             assetClass = assetClass,
             type = null,
             incomeTaxExempt = false,
+            incomeTaxSelected = incomeTaxSelectedFor(false),
+            assetTypeOptions = assetTypeOptionsForClass(assetClass),
             yieldIndexer = null,
             fixedExpiration = null,
             fixedYield = null,
@@ -112,7 +127,10 @@ internal data class AssetManagementUiState(
             variableCnpj = null,
             fundName = null,
             fundLiquidity = null,
-            fundLiquidityDays = null,
-            fundExpiration = null,
         )
+
+    internal fun withDerivedFields(): AssetManagementUiState = copy(
+        assetTypeOptions = assetTypeOptionsForClass(assetClass),
+        incomeTaxSelected = incomeTaxSelectedFor(incomeTaxExempt),
+    )
 }

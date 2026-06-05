@@ -173,14 +173,6 @@ public data class InvestmentFundHistoryTableData(
      * Regra de liquidez do ativo.
      */
     public val liquidity: Liquidity,
-    /**
-     * Número de dias para liquidação.
-     */
-    public val liquidityDays: Int,
-    /**
-     * Data de vencimento (null se não houver vencimento).
-     */
-    public val expirationDate: LocalDate?,
     override val issuerName: String,
     override val observations: String,
     override val previousValue: Double,

@@ -10,11 +10,7 @@ import com.eferraz.usecases.exceptions.ValidateException
 import com.eferraz.usecases.repositories.AssetRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.koin.core.annotation.Factory
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 /**
  * Grava [Param.asset] via [AssetRepository.upsert]. Valida regras de negócio por subtipo de [Asset].
@@ -27,7 +23,6 @@ public class UpsertAssetUseCase(
 
     public data class Param(val asset: Asset)
 
-    @OptIn(ExperimentalTime::class)
     override suspend fun execute(param: Param): Asset {
 
         val errors = mutableMapOf<String, String>()
@@ -64,7 +59,6 @@ public class UpsertAssetUseCase(
         return m
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun validateFixedIncome(asset: FixedIncomeAsset): Map<String, String> {
 
         val errors = mutableMapOf<String, String>()
@@ -97,25 +91,12 @@ public class UpsertAssetUseCase(
         return errors
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun validateInvestmentFund(asset: InvestmentFundAsset): Map<String, String> {
 
         val errors = mutableMapOf<String, String>()
 
         if (asset.name.isBlank()) {
             errors["name"] = "Campo obrigatório"
-        }
-
-        if (asset.liquidityDays <= 0) {
-            errors["liquidityDays"] = "Dias para resgate deve ser um número positivo"
-        }
-
-        asset.expirationDate?.let { date ->
-
-            val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-            if (date <= today) {
-                errors["expirationDate"] = "Data de vencimento deve ser futura"
-            }
         }
 
         return errors

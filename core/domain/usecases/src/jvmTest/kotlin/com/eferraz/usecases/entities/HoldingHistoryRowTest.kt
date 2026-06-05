@@ -22,6 +22,7 @@ import kotlinx.datetime.YearMonth
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 
 internal class HoldingHistoryRowTest {
 
@@ -173,8 +174,6 @@ internal class HoldingHistoryRowTest {
             issuer = issuer,
             type = InvestmentFundAssetType.MULTIMARKET_FUND,
             liquidity = Liquidity.D_PLUS_DAYS,
-            liquidityDays = 30,
-            expirationDate = null,
         )
         val holding = AssetHolding(id = 3, asset = asset, owner = owner, brokerage = brokerage)
         val current = HoldingHistoryEntry(holding = holding, referenceDate = period)
@@ -201,8 +200,6 @@ internal class HoldingHistoryRowTest {
             issuer = issuer,
             type = InvestmentFundAssetType.MULTIMARKET_FUND,
             liquidity = Liquidity.D_PLUS_DAYS,
-            liquidityDays = 30,
-            expirationDate = null,
         )
         val purchase = FundsTransaction(
             id = 1,
@@ -250,19 +247,16 @@ internal class HoldingHistoryRowTest {
      * Investment fund with expiration date exposes it on the row.
      */
     @Test
-    fun `GIVEN investment fund with expiration WHEN build THEN expirationDate is set`() {
+    fun `GIVEN investment fund WHEN build THEN expirationDate is null`() {
 
         // GIVEN
         val period = YearMonth(2024, Month.MARCH)
-        val expiration = LocalDate(2028, Month.DECEMBER, 15)
         val asset = InvestmentFundAsset(
             id = 4,
             name = "Fund With Maturity",
             issuer = issuer,
             type = InvestmentFundAssetType.PENSION,
             liquidity = Liquidity.AT_MATURITY,
-            liquidityDays = 0,
-            expirationDate = expiration,
         )
         val holding = AssetHolding(id = 4, asset = asset, owner = owner, brokerage = brokerage)
         val current = HoldingHistoryEntry(holding = holding, referenceDate = period)
@@ -271,7 +265,7 @@ internal class HoldingHistoryRowTest {
         val row = HoldingHistoryRow.build(period, emptyList(), listOf(current)).single()
 
         // THEN
-        assertEquals(expiration, row.expirationDate)
+        assertNull(row.expirationDate)
         assertEquals("Previdência - Fund With Maturity", row.displayName)
     }
 

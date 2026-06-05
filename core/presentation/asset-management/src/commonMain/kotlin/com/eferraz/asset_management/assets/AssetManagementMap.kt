@@ -57,8 +57,6 @@ private fun AssetManagementUiState.buildFundAsset(): InvestmentFundAsset {
         issuer = issuer!!,
         type = type as InvestmentFundAssetType,
         liquidity = fundLiquidity!!,
-        liquidityDays = fundLiquidityDays?.toIntOrNull()!!,
-        expirationDate = localDateFromIsoDateDigits(fundExpiration),
         observations = observations,
     )
 }
@@ -101,8 +99,6 @@ internal fun Asset.toUiState(): AssetManagementUiState {
             fundName = currentAsset.name,
             type = currentAsset.type,
             fundLiquidity = currentAsset.liquidity,
-            fundLiquidityDays = currentAsset.liquidityDays.toString(),
-            fundExpiration = currentAsset.expirationDate?.toString()?.replace("-", ""),
         )
     }
 }

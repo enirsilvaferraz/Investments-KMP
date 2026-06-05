@@ -49,7 +49,9 @@ internal class AssetManagementViewModel(
         is AssetManagementEvents.FixedYieldChanged -> state.update { it.copy(fixedYield = event.value, fixedYieldError = null) }
         is AssetManagementEvents.FixedCdiChanged -> state.update { it.copy(fixedCdi = event.value, fixedCdiError = null) }
         is AssetManagementEvents.FixedLiquidityChanged -> state.update { it.copy(fixedLiquidity = event.liquidity, fixedLiquidityError = null) }
-        is AssetManagementEvents.IncomeTaxExemptChanged -> state.update { it.copy(incomeTaxExempt = event.exempt) }
+        is AssetManagementEvents.IncomeTaxExemptChanged -> state.update {
+            it.copy(incomeTaxExempt = event.exempt, incomeTaxSelected = incomeTaxSelectedFor(event.exempt),)
+        }
 
 //        is AssetManagementEvents.VariableTypeChanged -> state.update { it.copy(type = event.type, variableTypeError = null) }
         is AssetManagementEvents.VariableTickerChanged -> state.update { it.copy(variableTicker = event.value, variableTickerError = null) }
@@ -75,7 +77,7 @@ internal class AssetManagementViewModel(
             val holding = getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(holdingId)).getOrNull()
             existingHolding = holding
 
-            val base = holding?.asset?.toUiState() ?: AssetManagementUiState()
+            val base = holding?.asset?.toUiState()?.withDerivedFields() ?: AssetManagementUiState()
             state.update {
                 base.copy(
                     issuers = issuers.await(),

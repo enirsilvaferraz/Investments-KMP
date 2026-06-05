@@ -58,18 +58,12 @@ import com.eferraz.asset_management.helpers.FormTextField
 import com.eferraz.asset_management.transactions.TransactionFormView
 import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.components.segmented_control.SegmentedControl
-import com.eferraz.design_system.components.segmented_control.SegmentedControlChoice
-import com.eferraz.design_system.core.StableList
 import com.eferraz.design_system.input.date.DateFormat
 import com.eferraz.design_system.input.date.DateVisualTransformation
 import com.eferraz.design_system.scaffolds.AppContentDialog
 import com.eferraz.design_system_v2.theme.AppThemeV2
 import com.eferraz.entities.assets.AssetClass
-import com.eferraz.entities.assets.AssetType
-import com.eferraz.entities.assets.FixedIncomeAssetType
-import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
-import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.naming.B3_IDENTIFIER_FIELD_LABEL
@@ -160,7 +154,7 @@ private fun AssetFormView(
                         modifier = Modifier.weight(0.9f),
                         label = "Tipo",
                         displayValue = ui.type?.asLabel().orEmpty(),
-                        options = assetTypeOptionsForClass(ui.assetClass),
+                        options = ui.assetTypeOptions,
                         itemLabel = { it.asLabel() },
                         onItemSelect = { onEvent(AssetManagementEvents.TypeChanged(it)) },
                         error = ui.typeError,
@@ -534,16 +528,10 @@ private fun FixedIncomeFields(
                 )
             }
 
-            val incomeTaxSelected = if (ui.incomeTaxExempt) {
-                SegmentedControlChoice("Sim", "Sim")
-            } else {
-                SegmentedControlChoice("Não", "Não")
-            }
-
             SegmentedControl(
                 modifier = Modifier.height(55.dp),
-                selected = incomeTaxSelected,
-                options = StableList(listOf(SegmentedControlChoice("Sim", "Sim"), SegmentedControlChoice("Não", "Não"))),
+                selected = ui.incomeTaxSelected,
+                options = incomeTaxSegmentOptions,
                 onSelect = { choice ->
                     onEvent(AssetManagementEvents.IncomeTaxExemptChanged(choice.label == "Sim"))
                 },
@@ -602,12 +590,6 @@ private fun FundFields(
             errorMessage = null,
         )
     }
-}
-
-private fun assetTypeOptionsForClass(assetClass: AssetClass): List<AssetType> = when (assetClass) {
-    AssetClass.FIXED_INCOME -> FixedIncomeAssetType.entries.map { it }
-    AssetClass.VARIABLE_INCOME -> VariableIncomeAssetType.entries.map { it }
-    AssetClass.INVESTMENT_FUND -> InvestmentFundAssetType.entries.map { it }
 }
 
 @Composable

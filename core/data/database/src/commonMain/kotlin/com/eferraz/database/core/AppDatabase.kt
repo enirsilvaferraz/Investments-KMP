@@ -32,6 +32,7 @@ import com.eferraz.database.entities.transaction.FundsTransactionEntity
 import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.migrations.Migration3To4
 import com.eferraz.database.migrations.Migration6To7
+import com.eferraz.database.migrations.Migration8To9
 
 @Database(
     entities = [
@@ -59,8 +60,9 @@ import com.eferraz.database.migrations.Migration6To7
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = Migration6To7::class),
         AutoMigration(from = 7, to = 8),
+        AutoMigration(from = 8, to = 9, spec = Migration8To9::class),
     ],
-    version = 8
+    version = 9
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(AppDatabaseConstructor::class)

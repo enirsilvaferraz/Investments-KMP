@@ -160,7 +160,7 @@ internal class UpsertAssetUseCaseTest {
     }
 
     /**
-     * validateFixedIncome does not check expirationDate; only investment funds do (see UpsertAssetUseCase).
+     * validateFixedIncome does not check expirationDate.
      */
     @Test
     fun `GIVEN fixed income past expiration WHEN execute THEN upserts successfully`() = runTest {
@@ -211,8 +211,6 @@ internal class UpsertAssetUseCaseTest {
             issuer = issuer,
             type = InvestmentFundAssetType.MULTIMARKET_FUND,
             liquidity = Liquidity.D_PLUS_DAYS,
-            liquidityDays = 30,
-            expirationDate = futureDate,
         )
         val result = useCase(UpsertAssetUseCase.Param(asset)).getOrThrow()
         assertEquals(99L, result.id)
@@ -227,8 +225,6 @@ internal class UpsertAssetUseCaseTest {
             issuer = issuer,
             type = InvestmentFundAssetType.STOCK_FUND,
             liquidity = Liquidity.DAILY,
-            liquidityDays = 1,
-            expirationDate = null,
         )
         val error = assertFailsWith<ValidateException> {
             useCase(UpsertAssetUseCase.Param(asset)).getOrThrow()

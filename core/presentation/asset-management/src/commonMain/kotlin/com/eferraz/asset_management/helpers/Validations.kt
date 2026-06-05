@@ -45,6 +45,4 @@ private fun AssetManagementUiState.validateFund(): AssetManagementUiState = copy
     fundNameError = if (fundName.orEmpty().isBlank()) "Obrigatório" else null,
     typeError = if (type == null) "Obrigatório" else null,
     fundLiquidityError = if (fundLiquidity == null) "Obrigatório" else null,
-    fundLiquidityDaysError = if ((fundLiquidityDays?.toIntOrNull() ?: -1) <= 0) "Valor inválido" else null,
-    fundExpirationError = if (localDateFromIsoDateDigits(fundExpiration) == null) "Data inválida" else null
 )

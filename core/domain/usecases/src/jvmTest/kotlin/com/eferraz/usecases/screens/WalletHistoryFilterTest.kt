@@ -474,10 +474,7 @@ class WalletHistoryFilterTest {
 
                 is WalletHistorySubtype.InvestmentFund ->
                     createInvestmentFundAsset(type = subtype.value)
-                        .copy(
-                            liquidity = liquidity ?: Liquidity.DAILY,
-                            expirationDate = expirationDate,
-                        )
+                        .copy(liquidity = liquidity ?: Liquidity.DAILY)
             }
         return createHoldingHistoryEntry(
             holding = createAssetHolding(

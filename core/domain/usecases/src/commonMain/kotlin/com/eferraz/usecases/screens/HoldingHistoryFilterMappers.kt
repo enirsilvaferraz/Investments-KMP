@@ -37,7 +37,7 @@ public fun HoldingHistoryEntry.toWalletHistoryFilterCandidate(): WalletHistoryFi
             liquidity = asset.liquidity,
             b3Informed = false,
             settled = settled,
-            expirationDate = asset.expirationDate,
+            expirationDate = null,
             brokerageId = brokerageId,
         )
     }

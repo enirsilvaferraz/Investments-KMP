@@ -28,8 +28,6 @@ internal fun Map<String, String>.remoteFieldErrorsOn(s: AssetManagementUiState) 
 
         AssetClass.INVESTMENT_FUND -> common.copy(
             fundNameError = this@remoteFieldErrorsOn["name"],
-            fundLiquidityDaysError = this@remoteFieldErrorsOn["liquidityDays"],
-            fundExpirationError = this@remoteFieldErrorsOn["expirationDate"],
         )
     }
 }

@@ -5,7 +5,6 @@ import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.PrimaryKey
 import com.eferraz.entities.assets.InvestmentFundAssetType
-import kotlinx.datetime.LocalDate
 
 /**
  * Entidade Room para a tabela investment_fund_assets.
@@ -31,11 +30,5 @@ internal data class InvestmentFundAssetEntity(
 
     @ColumnInfo(name = "type")
     val type: InvestmentFundAssetType,
-
-    @ColumnInfo(name = "liquidityDays")
-    val liquidityDays: Int, // Sempre presente quando liquidityRule = 'D_PLUS_DAYS'
-
-    @ColumnInfo(name = "expirationDate")
-    val expirationDate: LocalDate? = null // Opcional
 
 ) : BaseAssetEntity

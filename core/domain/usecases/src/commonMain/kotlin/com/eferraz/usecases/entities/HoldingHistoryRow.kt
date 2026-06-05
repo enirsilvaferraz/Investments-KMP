@@ -47,13 +47,9 @@ public data class HoldingHistoryRow private constructor(
     public val displayName: String
         get() = formatDisplayName(currentEntry.holding.asset)
 
-    /** Data de vencimento quando o ativo possui (renda fixa ou fundo com vencimento). */
+    /** Data de vencimento quando o ativo possui (somente renda fixa). */
     public val expirationDate: LocalDate?
-        get() = when (val asset = currentEntry.holding.asset) {
-            is FixedIncomeAsset -> asset.expirationDate
-            is InvestmentFundAsset -> asset.expirationDate
-            is VariableIncomeAsset -> null
-        }
+        get() = (currentEntry.holding.asset as? FixedIncomeAsset)?.expirationDate
 
     public val observation: String
         get() = currentEntry.holding.asset.observations.orEmpty()
