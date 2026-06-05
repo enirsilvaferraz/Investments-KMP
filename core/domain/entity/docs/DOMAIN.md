@@ -54,6 +54,7 @@ Papéis modelados nas entidades `Owner`, `Brokerage` e `Issuer` do diagrama ER (
 - **`FinancialGoal`:** `targetValue > 0` no `init`.
 - **Datas:** `kotlinx.datetime` (`LocalDate`, `YearMonth`).
 - **`FixedIncomeAsset.b3Identifier`:** opcional (`String?`), exclusivo de renda fixa; texto livre; valor persistido após `trim()`; `null` se vazio após trim (identificador B3 para conciliação manual com posição B3; sem validação de formato na entidade).
+- **`FixedIncomeAsset.incomeTaxExempt`:** `Boolean`, default `false` ("Não"); exclusivo de renda fixa; indica isenção de IR do título.
 
 ---
 
@@ -61,7 +62,7 @@ Papéis modelados nas entidades `Owner`, `Brokerage` e `Issuer` do diagrama ER (
 
 ### 6.1 `Asset`
 
-Subtipos e campos distintivos estão no diagrama ER (`Asset`, `FixedIncomeAsset`, `VariableIncomeAsset`, `InvestmentFundAsset`). Em renda fixa, `b3Identifier` opcional identifica o título na B3 para conciliação manual.
+Subtipos e campos distintivos estão no diagrama ER (`Asset`, `FixedIncomeAsset`, `VariableIncomeAsset`, `InvestmentFundAsset`). Em renda fixa, `b3Identifier` opcional identifica o título na B3 para conciliação manual; `incomeTaxExempt` indica isenção de IR (default `false`).
 
 ### 6.2 `AssetTransaction`
 
@@ -122,6 +123,7 @@ erDiagram
         Double contractedYield
         Double cdiRelativeYield "opcional"
         String b3Identifier "opcional"
+        Boolean incomeTaxExempt "default false"
         String indexer "enum YieldIndexer"
         String type "enum FixedIncomeAssetType produto"
         String liquidity "enum Liquidity"

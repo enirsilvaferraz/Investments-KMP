@@ -65,6 +65,7 @@ import com.eferraz.design_system.input.date.DateVisualTransformation
 import com.eferraz.design_system.scaffolds.AppContentDialog
 import com.eferraz.design_system_v2.theme.AppThemeV2
 import com.eferraz.entities.assets.AssetClass
+import com.eferraz.entities.assets.AssetType
 import com.eferraz.entities.assets.FixedIncomeAssetType
 import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.Liquidity
@@ -130,244 +131,237 @@ private fun AssetFormView(
     onEvent: (AssetManagementEvents) -> Unit,
 ) {
 
-    Column(
-        modifier = modifier.padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
+    Column(modifier) {
 
-        FormSection(
-            title = "ATIVO",
-            icon = Icons.Outlined.AttachMoney
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
 
-            FormRow {
-
-                AppDropdownField(
-                    modifier = Modifier.weight(1f),
-                    label = "Classe do Ativo",
-                    displayValue = ui.assetClass.asLabel(),
-                    options = AssetClass.entries.toList(),
-                    itemLabel = { it.asLabel() },
-                    onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
-                    enabled = ui.asset == null,
-                    required = true,
-                )
-
-                AppDropdownField(
-                    modifier = Modifier.weight(0.9f),
-                    label = "Tipo",
-                    displayValue = ui.type?.asLabel().orEmpty(),
-                    options = FixedIncomeAssetType.entries.toList(),
-                    itemLabel = { it.asLabel() },
-                    onItemSelect = { onEvent(AssetManagementEvents.TypeChanged(it)) },
-                    error = ui.typeError,
-                    required = true,
-                )
-
-                AppDropdownField(
-                    modifier = Modifier.weight(1f),
-                    label = "Emissor",
-                    displayValue = ui.issuer?.name.orEmpty(),
-                    options = ui.issuers,
-                    itemLabel = { it.name },
-                    onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
-                    error = ui.issuerError,
-                    required = true,
-                )
-            }
-
-            when (ui.assetClass) {
-                AssetClass.FIXED_INCOME -> FixedIncomeFields(ui, onEvent)
-                AssetClass.VARIABLE_INCOME -> VariableIncomeFields(ui, onEvent)
-                AssetClass.INVESTMENT_FUND -> FundFields(ui, onEvent)
-            }
-
-            FormCardActions(
-                isVisible = true,
-                onClick = { onEvent(AssetManagementEvents.Save) },
-                enabled = !ui.isSaving
-            )
-        }
-
-        var isVisible by remember { mutableStateOf(true) }
-
-
-        FormSection(
-            title = "POSICIONAMENTO",
-            icon = Icons.Outlined.Home
-        ) {
-
-            FormRow {
-
-                AppDropdownField(
-                    modifier = Modifier.width(250.dp),
-                    label = "Titular",
-                    displayValue = ui.brokerage?.name.orEmpty(),
-                    options = ui.brokerages,
-                    itemLabel = { it.name },
-                    onItemSelect = { brokerage -> onEvent(AssetManagementEvents.BrokerageChanged(brokerage)) },
-                    error = ui.brokerageError,
-                    required = true,
-                )
-
-                AppDropdownField(
-                    modifier = Modifier.weight(1f),
-                    label = BROKERAGE_FIELD_LABEL,
-                    displayValue = ui.brokerage?.name.orEmpty(),
-                    options = ui.brokerages,
-                    itemLabel = { it.name },
-                    onItemSelect = { brokerage -> onEvent(AssetManagementEvents.BrokerageChanged(brokerage)) },
-                    error = ui.brokerageError,
-                    required = true,
-                )
-            }
-
-
-            FormCardActions(
-                isVisible = isVisible,
-                onClick = {}
-            )
-        }
-
-        FormSection(
-            title = "TRANSAÇÕES",
-            icon = Icons.Outlined.SwapVert
-        ) {
-
-            FormRow {
-
-                TransactionFormView(
-                    holdingId = 1,
-                    onComplete = {},
-                )
-            }
-
-            FormCardActions(
-                onClick = {
-                    isVisible = !isVisible
-                }
-            )
-        }
-
-        FormSection(
-            title = "RESUMO",
-            icon = Icons.Outlined.Summarize
-        ) {
-
-            FormRow {
-
-                FormTextField(
-                    modifier = Modifier.weight(1f),
-                    label = "Balanço das Transações",
-                    value = "1.000,00",
-                    onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
-                    errorMessage = ui.fixedYieldError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    readOnly = true,
-                    prefix = { Text("R$ ") }
-                )
-
-                FormTextField(
-                    modifier = Modifier.weight(1f),
-                    label = "Valor Atual (Bruto)",
-                    value = "1.000,00",
-                    onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
-                    errorMessage = ui.fixedYieldError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    readOnly = true,
-                    prefix = { Text("R$ ") }
-                )
-
-                FormTextField(
-                    modifier = Modifier.weight(1f),
-                    label = "Lucro Bruto",
-                    value = "1.000,00",
-                    onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
-                    errorMessage = ui.fixedYieldError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    readOnly = true,
-                    prefix = { Text("R$ ") }
-                )
-            }
-
-            FormRow {
-
-                FormTextField(
-                    modifier = Modifier.weight(1f),
-                    label = "Impostos",
-                    value = "100,00",
-                    onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
-                    errorMessage = ui.fixedYieldError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    readOnly = true,
-                    prefix = { Text("R$ ") }
-                )
-
-                FormTextField(
-                    modifier = Modifier.weight(1f),
-                    label = "Total Líquido",
-                    value = "1.000,00",
-                    onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
-                    errorMessage = ui.fixedYieldError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    readOnly = true,
-                    prefix = { Text("R$ ") }
-                )
-
-                FormTextField(
-                    modifier = Modifier.weight(.6f),
-                    label = "Lucro Líquido",
-                    value = "1.000,00",
-                    onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
-                    errorMessage = ui.fixedYieldError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    readOnly = true,
-                    prefix = { Text("R$ ") }
-                )
-
-                FormTextField(
-                    modifier = Modifier.weight(.35f),
-                    label = " ",
-                    value = "22,5",
-                    onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
-                    errorMessage = ui.fixedYieldError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    readOnly = true,
-                    suffix = { Text("%") }
-                )
-            }
-        }
-    }
-
-    Surface {
-
-        Row(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-
-            Button(
-                onClick = { /* TODO NOT IMPLEMENTED YET */ },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            FormSection(
+                title = "ATIVO",
+                icon = Icons.Outlined.AttachMoney
             ) {
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                FormRow {
+
+                    AppDropdownField(
+                        modifier = Modifier.weight(1f),
+                        label = "Classe do Ativo",
+                        displayValue = ui.assetClass.asLabel(),
+                        options = AssetClass.entries.toList(),
+                        itemLabel = { it.asLabel() },
+                        onItemSelect = { onEvent(AssetManagementEvents.AssetClassChanged(it)) },
+                        enabled = ui.asset == null,
+                        required = true,
+                    )
+
+                    AppDropdownField(
+                        modifier = Modifier.weight(0.9f),
+                        label = "Tipo",
+                        displayValue = ui.type?.asLabel().orEmpty(),
+                        options = assetTypeOptionsForClass(ui.assetClass),
+                        itemLabel = { it.asLabel() },
+                        onItemSelect = { onEvent(AssetManagementEvents.TypeChanged(it)) },
+                        error = ui.typeError,
+                        required = true,
+                    )
+
+                    AppDropdownField(
+                        modifier = Modifier.weight(1f),
+                        label = "Emissor",
+                        displayValue = ui.issuer?.name.orEmpty(),
+                        options = ui.issuers,
+                        itemLabel = { it.name },
+                        onItemSelect = { issuer -> onEvent(AssetManagementEvents.IssuerChanged(issuer)) },
+                        error = ui.issuerError,
+                        required = true,
+                    )
+                }
+
+                when (ui.assetClass) {
+                    AssetClass.FIXED_INCOME -> FixedIncomeFields(ui, onEvent)
+                    AssetClass.VARIABLE_INCOME -> VariableIncomeFields(ui, onEvent)
+                    AssetClass.INVESTMENT_FUND -> FundFields(ui, onEvent)
+                }
+            }
+
+            var isVisible by remember { mutableStateOf(true) }
+
+
+            FormSection(
+                title = "POSICIONAMENTO",
+                icon = Icons.Outlined.Home
+            ) {
+
+                FormRow {
+
+                    FormTextField(
+                        modifier = Modifier.width(250.dp),
+                        label = "Titular",
+                        value = ui.owner?.name.orEmpty(),
+                        onValueChange = {},
+                        errorMessage = null,
+                        readOnly = true,
+                    )
+
+                    AppDropdownField(
+                        modifier = Modifier.weight(1f),
+                        label = BROKERAGE_FIELD_LABEL,
+                        displayValue = ui.brokerage?.name.orEmpty(),
+                        options = ui.brokerages,
+                        itemLabel = { it.name },
+                        onItemSelect = { brokerage -> onEvent(AssetManagementEvents.BrokerageChanged(brokerage)) },
+                        error = ui.brokerageError,
+                        required = true,
+                    )
+                }
+            }
+
+            FormSection(
+                title = "TRANSAÇÕES",
+                icon = Icons.Outlined.SwapVert
+            ) {
+
+                FormRow {
+
+                    TransactionFormView(
+                        holdingId = 1,
+                        onComplete = {},
+                    )
+                }
+
+                FormCardActions(
+                    onClick = {
+                        isVisible = !isVisible
+                    }
+                )
+            }
+
+            FormSection(
+                title = "RESUMO",
+                icon = Icons.Outlined.Summarize
+            ) {
+
+                FormRow {
+
+                    FormTextField(
+                        modifier = Modifier.weight(1f),
+                        label = "Balanço das Transações",
+                        value = "1.000,00",
+                        onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
+                        errorMessage = ui.fixedYieldError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        readOnly = true,
+                        prefix = { Text("R$ ") }
+                    )
+
+                    FormTextField(
+                        modifier = Modifier.weight(1f),
+                        label = "Valor Atual (Bruto)",
+                        value = "1.000,00",
+                        onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
+                        errorMessage = ui.fixedYieldError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        readOnly = true,
+                        prefix = { Text("R$ ") }
+                    )
+
+                    FormTextField(
+                        modifier = Modifier.weight(1f),
+                        label = "Lucro Bruto",
+                        value = "1.000,00",
+                        onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
+                        errorMessage = ui.fixedYieldError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        readOnly = true,
+                        prefix = { Text("R$ ") }
+                    )
+                }
+
+                FormRow {
+
+                    FormTextField(
+                        modifier = Modifier.weight(1f),
+                        label = "Impostos",
+                        value = "100,00",
+                        onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
+                        errorMessage = ui.fixedYieldError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        readOnly = true,
+                        prefix = { Text("R$ ") }
+                    )
+
+                    FormTextField(
+                        modifier = Modifier.weight(1f),
+                        label = "Total Líquido",
+                        value = "1.000,00",
+                        onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
+                        errorMessage = ui.fixedYieldError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        readOnly = true,
+                        prefix = { Text("R$ ") }
+                    )
+
+                    FormTextField(
+                        modifier = Modifier.weight(.6f),
+                        label = "Lucro Líquido",
+                        value = "1.000,00",
+                        onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
+                        errorMessage = ui.fixedYieldError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        readOnly = true,
+                        prefix = { Text("R$ ") }
+                    )
+
+                    FormTextField(
+                        modifier = Modifier.weight(.35f),
+                        label = " ",
+                        value = "22,5",
+                        onValueChange = { onEvent(AssetManagementEvents.FixedYieldChanged(it)) },
+                        errorMessage = ui.fixedYieldError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        readOnly = true,
+                        suffix = { Text("%") }
+                    )
+                }
+            }
+        }
+
+        Surface {
+
+            Row(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+
+                Button(
+                    onClick = { /* TODO NOT IMPLEMENTED YET */ },
+                    enabled = false,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Excluir")
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("Excluir")
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f))
 
-            FilledTonalButton(
-                onClick = {/* TODO NOT IMPLEMENTED YET */ }
-            ) {
-                Text("Concluir")
+                FilledTonalButton(
+                    onClick = { onEvent(AssetManagementEvents.Save) },
+                    enabled = true,
+                ) {
+                    Text("Salvar")
+                }
             }
         }
     }
+
+
 }
 
 @Composable
@@ -532,7 +526,7 @@ private fun FixedIncomeFields(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
-            "Isendo de IR".takeIf { it.isNotBlank() }?.let {
+            "Isento de IR".takeIf { it.isNotBlank() }?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.titleSmall,
@@ -540,14 +534,18 @@ private fun FixedIncomeFields(
                 )
             }
 
-            var selected by remember { mutableStateOf(SegmentedControlChoice("Não", "Não")) }
+            val incomeTaxSelected = if (ui.incomeTaxExempt) {
+                SegmentedControlChoice("Sim", "Sim")
+            } else {
+                SegmentedControlChoice("Não", "Não")
+            }
 
             SegmentedControl(
                 modifier = Modifier.height(55.dp),
-                selected = selected,
+                selected = incomeTaxSelected,
                 options = StableList(listOf(SegmentedControlChoice("Sim", "Sim"), SegmentedControlChoice("Não", "Não"))),
                 onSelect = { choice ->
-                    selected = choice
+                    onEvent(AssetManagementEvents.IncomeTaxExemptChanged(choice.label == "Sim"))
                 },
             )
         }
@@ -572,13 +570,10 @@ private fun VariableIncomeFields(
 
         FormTextField(
             modifier = Modifier.weight(.4f),
-            label = B3_IDENTIFIER_FIELD_LABEL,
-            value = ui.b3Identifier.orEmpty(),
-            onValueChange = { onEvent(AssetManagementEvents.B3IdentifierChanged(it)) },
-            errorMessage = null,
-            leadingIcon = {
-                Icon(imageVector = Icons.Outlined.Info, contentDescription = null)
-            }
+            label = "Ticker",
+            value = ui.variableTicker.orEmpty(),
+            onValueChange = { onEvent(AssetManagementEvents.VariableTickerChanged(it)) },
+            errorMessage = ui.variableTickerError,
         )
     }
 }
@@ -607,6 +602,12 @@ private fun FundFields(
             errorMessage = null,
         )
     }
+}
+
+private fun assetTypeOptionsForClass(assetClass: AssetClass): List<AssetType> = when (assetClass) {
+    AssetClass.FIXED_INCOME -> FixedIncomeAssetType.entries.map { it }
+    AssetClass.VARIABLE_INCOME -> VariableIncomeAssetType.entries.map { it }
+    AssetClass.INVESTMENT_FUND -> InvestmentFundAssetType.entries.map { it }
 }
 
 @Composable

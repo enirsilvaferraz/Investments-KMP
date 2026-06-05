@@ -89,6 +89,58 @@ internal class UpsertAssetUseCaseTest {
     }
 
     @Test
+    fun `GIVEN fixed income with incomeTaxExempt true WHEN execute THEN repository receives exempt flag`() = runTest {
+
+        // GIVEN
+        coEvery { assetRepository.upsert(any()) } returns 42L
+        val asset = FixedIncomeAsset(
+            id = 0L,
+            issuer = issuer,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
+            expirationDate = futureDate,
+            contractedYield = 10.5,
+            liquidity = Liquidity.DAILY,
+            incomeTaxExempt = true,
+        )
+
+        // WHEN
+        useCase(UpsertAssetUseCase.Param(asset)).getOrThrow()
+
+        // THEN
+        val slot = slot<FixedIncomeAsset>()
+        coVerify(exactly = 1) { assetRepository.upsert(capture(slot)) }
+        assertEquals(true, slot.captured.incomeTaxExempt)
+    }
+
+    /**
+     * Default incomeTaxExempt false is passed through to the repository on upsert.
+     */
+    @Test
+    fun `GIVEN fixed income with default incomeTaxExempt WHEN execute THEN repository receives false`() = runTest {
+
+        // GIVEN
+        coEvery { assetRepository.upsert(any()) } returns 42L
+        val asset = FixedIncomeAsset(
+            id = 0L,
+            issuer = issuer,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
+            expirationDate = futureDate,
+            contractedYield = 10.5,
+            liquidity = Liquidity.DAILY,
+        )
+
+        // WHEN
+        useCase(UpsertAssetUseCase.Param(asset)).getOrThrow()
+
+        // THEN
+        val slot = slot<FixedIncomeAsset>()
+        coVerify(exactly = 1) { assetRepository.upsert(capture(slot)) }
+        assertEquals(false, slot.captured.incomeTaxExempt)
+    }
+
+    @Test
     fun `GIVEN issuer id zero WHEN execute THEN ValidateException on issuer`() = runTest {
 
         val asset = FixedIncomeAsset(

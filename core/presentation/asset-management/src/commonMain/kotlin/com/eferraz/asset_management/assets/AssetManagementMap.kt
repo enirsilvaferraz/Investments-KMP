@@ -32,6 +32,7 @@ private fun AssetManagementUiState.buildFixedIncomeAsset(): FixedIncomeAsset {
         liquidity = fixedLiquidity!!,
         observations = observations,
         b3Identifier = b3Identifier?.trim()?.ifBlank { null },
+        incomeTaxExempt = incomeTaxExempt,
     )
 }
 
@@ -78,6 +79,7 @@ internal fun Asset.toUiState(): AssetManagementUiState {
             fixedCdi = currentAsset.cdiRelativeYield?.toString(),
             fixedLiquidity = currentAsset.liquidity,
             b3Identifier = currentAsset.b3Identifier,
+            incomeTaxExempt = currentAsset.incomeTaxExempt,
         )
 
         is VariableIncomeAsset -> AssetManagementUiState(

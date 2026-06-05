@@ -24,15 +24,17 @@ internal sealed class AssetManagementEvents {
     data class FixedYieldChanged(val value: String) : AssetManagementEvents()
     data class FixedCdiChanged(val value: String) : AssetManagementEvents()
     data class FixedLiquidityChanged(val liquidity: Liquidity) : AssetManagementEvents()
+    data class IncomeTaxExemptChanged(val exempt: Boolean) : AssetManagementEvents()
 
 //    data class VariableTypeChanged(val type: VariableIncomeAssetType) : AssetManagementEvents()
     data class VariableTickerChanged(val value: String) : AssetManagementEvents()
     data class VariableCnpjChanged(val value: String) : AssetManagementEvents()
 
     data class FundNameChanged(val value: String) : AssetManagementEvents()
+//    data class FundLiquidityChanged(val liquidity: Liquidity) : AssetManagementEvents()
 //    data class FundTypeChanged(val type: InvestmentFundAssetType) : AssetManagementEvents()
-    data class FundLiquidityDaysChanged(val value: String) : AssetManagementEvents()
-    data class FundExpirationChanged(val raw: String) : AssetManagementEvents()
+//    data class FundLiquidityDaysChanged(val value: String) : AssetManagementEvents()
+//    data class FundExpirationChanged(val raw: String) : AssetManagementEvents()
 
     data object Save : AssetManagementEvents()
 }

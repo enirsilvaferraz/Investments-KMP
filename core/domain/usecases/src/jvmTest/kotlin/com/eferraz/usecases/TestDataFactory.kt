@@ -43,7 +43,17 @@ object TestDataFactory {
         type: FixedIncomeAssetType = FixedIncomeAssetType.CDB,
         expirationDate: LocalDate = LocalDate(2025, Month.JANUARY, 1),
         contractedYield: Double = 10.0,
-    ) = FixedIncomeAsset(id, issuer, indexer, type, expirationDate, contractedYield, liquidity = Liquidity.D_PLUS_DAYS)
+        incomeTaxExempt: Boolean = false,
+    ) = FixedIncomeAsset(
+        id,
+        issuer,
+        indexer,
+        type,
+        expirationDate,
+        contractedYield,
+        liquidity = Liquidity.D_PLUS_DAYS,
+        incomeTaxExempt = incomeTaxExempt,
+    )
 
     fun createInvestmentFundAsset(
         id: Long = 3,

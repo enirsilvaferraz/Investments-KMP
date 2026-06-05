@@ -48,4 +48,7 @@ internal data class FixedIncomeAssetEntity(
     @ColumnInfo(name = "b3_identifier")
     val b3Identifier: String? = null,
 
+    @ColumnInfo(name = "income_tax_exempt", defaultValue = "0")
+    val incomeTaxExempt: Boolean = false,
+
 ) : BaseAssetEntity

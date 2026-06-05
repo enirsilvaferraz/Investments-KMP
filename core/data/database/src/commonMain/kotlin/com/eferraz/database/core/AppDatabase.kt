@@ -58,8 +58,9 @@ import com.eferraz.database.migrations.Migration6To7
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = Migration6To7::class),
+        AutoMigration(from = 7, to = 8),
     ],
-    version = 7
+    version = 8
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(AppDatabaseConstructor::class)

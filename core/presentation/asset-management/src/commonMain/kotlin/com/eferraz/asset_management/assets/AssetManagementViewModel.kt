@@ -37,7 +37,7 @@ internal class AssetManagementViewModel(
 
         is AssetManagementEvents.ScreenEntered -> loadInitialState(event.holdingId)
 
-        is AssetManagementEvents.AssetClassChanged -> state.update { it.copy(assetClass = event.assetClass) }
+        is AssetManagementEvents.AssetClassChanged -> state.update { it.partialResetForAssetClass(event.assetClass) }
         is AssetManagementEvents.TypeChanged -> state.update { it.copy(type = event.type, typeError = null) }
         is AssetManagementEvents.IssuerChanged -> state.update { it.copy(issuer = event.issuer, issuerError = null) }
 
@@ -49,15 +49,17 @@ internal class AssetManagementViewModel(
         is AssetManagementEvents.FixedYieldChanged -> state.update { it.copy(fixedYield = event.value, fixedYieldError = null) }
         is AssetManagementEvents.FixedCdiChanged -> state.update { it.copy(fixedCdi = event.value, fixedCdiError = null) }
         is AssetManagementEvents.FixedLiquidityChanged -> state.update { it.copy(fixedLiquidity = event.liquidity, fixedLiquidityError = null) }
+        is AssetManagementEvents.IncomeTaxExemptChanged -> state.update { it.copy(incomeTaxExempt = event.exempt) }
 
 //        is AssetManagementEvents.VariableTypeChanged -> state.update { it.copy(type = event.type, variableTypeError = null) }
         is AssetManagementEvents.VariableTickerChanged -> state.update { it.copy(variableTicker = event.value, variableTickerError = null) }
         is AssetManagementEvents.VariableCnpjChanged -> state.update { it.copy(variableCnpj = event.value, cnpjError = null) }
 
         is AssetManagementEvents.FundNameChanged -> state.update { it.copy(fundName = event.value, fundNameError = null) }
+//        is AssetManagementEvents.FundLiquidityChanged -> state.update { it.copy(fundLiquidity = event.liquidity, fundLiquidityError = null) }
 //        is AssetManagementEvents.FundTypeChanged -> state.update { it.copy(type = event.type, fundTypeError = null) }
-        is AssetManagementEvents.FundLiquidityDaysChanged -> state.update { it.copy(fundLiquidityDays = event.value, fundLiquidityDaysError = null) }
-        is AssetManagementEvents.FundExpirationChanged -> state.update { it.copy(fundExpiration = dateToDigits(event.raw), fundExpirationError = null) }
+//        is AssetManagementEvents.FundLiquidityDaysChanged -> state.update { it.copy(fundLiquidityDays = event.value, fundLiquidityDaysError = null) }
+//        is AssetManagementEvents.FundExpirationChanged -> state.update { it.copy(fundExpiration = dateToDigits(event.raw), fundExpirationError = null) }
 
         is AssetManagementEvents.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
 

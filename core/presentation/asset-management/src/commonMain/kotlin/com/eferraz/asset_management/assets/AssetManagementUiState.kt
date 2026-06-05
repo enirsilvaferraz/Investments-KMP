@@ -45,6 +45,8 @@ internal data class AssetManagementUiState(
     val fundLiquidityDays: String? = null,
     val fundExpiration: String? = null,
 
+    val incomeTaxExempt: Boolean = false,
+
     val issuerError: String? = null,
     val yieldIndexerError: String? = null,
     val typeError: String? = null,
@@ -90,4 +92,27 @@ internal data class AssetManagementUiState(
                 fixedYieldError != null || fixedCdiError != null || fixedLiquidityError != null || variableTickerError != null || cnpjError != null ||
                 fundNameError != null || fundLiquidityError != null ||
                 fundLiquidityDaysError != null || fundExpirationError != null
+
+    /**
+     * Limpa tipo e campos específicos da classe anterior; mantém emissor, observações e posicionamento.
+     */
+    internal fun partialResetForAssetClass(assetClass: AssetClass): AssetManagementUiState =
+        withClearedFieldErrors().copy(
+            assetClass = assetClass,
+            type = null,
+            incomeTaxExempt = false,
+            yieldIndexer = null,
+            fixedExpiration = null,
+            fixedYield = null,
+            fixedCdi = null,
+            fixedLiquidity = null,
+            b3Identifier = null,
+            variableName = null,
+            variableTicker = null,
+            variableCnpj = null,
+            fundName = null,
+            fundLiquidity = null,
+            fundLiquidityDays = null,
+            fundExpiration = null,
+        )
 }

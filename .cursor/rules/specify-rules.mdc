@@ -3,6 +3,7 @@ alwaysApply: true
 ---
 
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+Plano actual: `specs/020-asset-registration-form/plan.md` — cadastro ATIVO + Posicionamento;
+reuso de UpsertAsset/Holding (001), migração RF `incomeTaxExempt`, save único na barra inferior (sempre habilitado, sem isDirty/snapshot).
+Fora do escopo: Transações, Resumo, Excluir, IncomeTax engine.
 <!-- SPECKIT END -->

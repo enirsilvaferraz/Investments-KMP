@@ -40,6 +40,7 @@ internal fun AssetWithDetails.toDomain(): Asset =
             liquidity = asset.liquidity,
             observations = asset.observations,
             b3Identifier = fixedIncome.b3Identifier,
+            incomeTaxExempt = fixedIncome.incomeTaxExempt,
         )
 
         variableIncome != null -> VariableIncomeAsset(
@@ -115,6 +116,7 @@ internal fun Asset.toEntity(): AssetWithDetails {
                 contractedYield = contractedYield,
                 cdiRelativeYield = cdiRelativeYield,
                 b3Identifier = b3Identifier?.trim()?.ifBlank { null },
+                incomeTaxExempt = incomeTaxExempt,
             )
         )
 
