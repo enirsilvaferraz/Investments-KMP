@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -19,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
@@ -70,7 +68,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 public fun HoldingHistoryRoute(
     onEditHolding: (Long) -> Unit,
-    onTransactionManagerRequest: (Long) -> Unit,
 ) {
 
     val vm = koinViewModel<HistoryViewModel>()
@@ -115,7 +112,6 @@ public fun HoldingHistoryRoute(
         isImporting = state.isImporting,
         onImportClick = onImportClick,
         onEditHolding = onEditHolding,
-        onTransactionManagerRequest = onTransactionManagerRequest,
         monthSummary = state.monthSummary,
     )
 }
@@ -136,7 +132,6 @@ internal fun HoldingHistoryScreen(
     isImporting: Boolean,
     onImportClick: () -> Unit,
     onEditHolding: (Long) -> Unit,
-    onTransactionManagerRequest: (Long) -> Unit,
     monthSummary: MonthSummary,
 ) {
 
@@ -164,14 +159,13 @@ internal fun HoldingHistoryScreen(
             Table(
                 data = dataRows,
                 onValueChange = onValueChange,
-                onSelect = { entry: HoldingHistoryEntry -> onEditHolding(entry.holding.id) },
-                onTransactionManagerRequest = { onTransactionManagerRequest(it.holding.id) }
+                onSelect = { entry: HoldingHistoryEntry -> onEditHolding(entry.holding.id) }
             )
         },
         subMainPane = {
             SegmentedControl(
                 selected = walletFilters.selectedBrokerage?.let { SegmentedControlChoice(it, it.name) },
-                options = StableList(walletFilterOptions.commons.brokerageOptions.map { SegmentedControlChoice(it.id, it.id.name) },),
+                options = StableList(walletFilterOptions.commons.brokerageOptions.map { SegmentedControlChoice(it.id, it.id.name) }),
                 onSelect = { choice ->
                     onWalletFiltersChange(walletFilters.toggleBrokerage(choice.id))
                 },
@@ -267,8 +261,7 @@ private fun Table(
     modifier: Modifier = Modifier,
     data: List<HoldingHistoryRow>,
     onValueChange: (HoldingHistoryRow, Double) -> Unit,
-    onSelect: (HoldingHistoryEntry) -> Unit,
-    onTransactionManagerRequest: (HoldingHistoryEntry) -> Unit,
+    onSelect: (HoldingHistoryEntry) -> Unit
 ) {
 
     val columns = remember(onValueChange, data) {
@@ -348,32 +341,14 @@ private fun Table(
                     alignment = Alignment.Center,
                     comparable = { it.periodTransactionValue },
                     content = {
-                        when {
-                            it.periodTransactionValue == 0.0 -> {
-                                TextButton(
-                                    { onTransactionManagerRequest(it.entry) },
-                                    colors = ButtonDefaults.textButtonColors(contentColor = historyMutedTextColor())
-                                ) {
-                                    Text(text = "Adicionar")
-                                }
+                        Text(
+                            text = it.periodTransactionValue.currencyFormat(),
+                            color = when {
+                                it.periodTransactionValue < 0 -> getWarningColor()
+                                it.periodTransactionValue > 0 -> getInfoColor()
+                                else -> historyMutedTextColor()
                             }
-
-                            else -> {
-                                TextButton(
-                                    { onTransactionManagerRequest(it.entry) },
-//                                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray.copy(alpha = .5f))
-                                ) {
-                                    Text(
-                                        text = it.periodTransactionValue.currencyFormat(),
-                                        color = when {
-                                            it.periodTransactionValue < 0 -> getWarningColor()
-                                            it.periodTransactionValue > 0 -> getInfoColor()
-                                            else -> historyMutedTextColor()
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        )
                     }
                 ),
 

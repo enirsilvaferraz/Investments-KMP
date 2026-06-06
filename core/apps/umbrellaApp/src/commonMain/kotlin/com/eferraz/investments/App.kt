@@ -96,9 +96,6 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
                 HoldingHistoryRoute(
                     onEditHolding = { holdingId ->
                         backStack += AssetManagementRouting(holdingId = holdingId)
-                    },
-                    onTransactionManagerRequest = { holdingId ->
-                        backStack += AssetManagementRouting(holdingId = holdingId)
                     }
                 )
             }
