@@ -444,11 +444,11 @@ public class PortfolioBalancingEngineTest {
         val formatted = formatPortfolioBalancingReport(report)
 
         // THEN
-        val rendLine = report.lines.first { it.componentName == "FII - Renda 70%" }
+        val rendLine = report.lines.first { it.componentName == "FII - Renda%" }
         assertEquals(BalancingGroupId.RV_REITS, rendLine.groupId)
         assertEquals(1_000.0, rendLine.actualValue, 0.01)
         assertTrue(formatted.contains("=== FIIs ==="))
-        assertTrue(formatted.contains("FII - Renda 70%"))
+        assertTrue(formatted.contains("FII - Renda%"))
     }
 
     /**

@@ -128,7 +128,7 @@ public class PortfolioBalancingPartitionTest {
 
         // WHEN / THEN
         PortfolioBalancingCatalog.groups.forEach { group ->
-            val universe = PortfolioBalancingEngine.universeForGroup(group.id, activeEntries)
+            val universe = PortfolioBalancingEngine.universeForGroup(group, activeEntries)
 
             for (entry in universe) {
                 val matchingComponents = group.components.filter { component ->

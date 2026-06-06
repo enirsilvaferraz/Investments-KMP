@@ -45,6 +45,8 @@ public data class BalancingGroup(
     val id: BalancingGroupId,
     val displayName: String,
     val components: List<BalancingComponent>,
+    /** Subconjunto de posições elegíveis para classificação neste grupo. */
+    val universeFilter: (HoldingHistoryEntry) -> Boolean = { true },
 )
 
 public data class PortfolioBalancingReportLine(
@@ -81,4 +83,6 @@ public data class PortfolioBalancingReport(
     val lines: List<PortfolioBalancingReportLine>,
     val groupHoldings: List<PortfolioBalancingGroupHoldings>,
     val hasDynamicWeight: Boolean,
+    /** Ordem de apresentação dos grupos no relatório formatado. */
+    val orderedGroupIds: List<BalancingGroupId>,
 )

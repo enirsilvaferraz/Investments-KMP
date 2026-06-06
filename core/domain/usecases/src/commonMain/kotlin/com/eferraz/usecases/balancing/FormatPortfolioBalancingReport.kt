@@ -9,12 +9,12 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
             groupId = line.groupId,
             groupName = line.groupName,
             name = line.componentName,
-            actual = formatMoney(line.actualValue),
+            actual = BalancingFormatters.formatMoney(line.actualValue),
             actualWeight = line.actualWeightDisplay,
             configuredWeight = line.configuredWeightDisplay,
             normalizedWeight = line.normalizedWeightDisplay,
-            ideal = formatMoney(line.idealValue),
-            deviation = formatMoney(line.deviation),
+            ideal = BalancingFormatters.formatMoney(line.idealValue),
+            deviation = BalancingFormatters.formatMoney(line.deviation),
             actualValue = line.actualValue,
             idealValue = line.idealValue,
             deviationValue = line.deviation,
@@ -29,9 +29,8 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
 
     val builder = StringBuilder()
 
-    for (group in PortfolioBalancingCatalog.groups) {
+    for (groupId in report.orderedGroupIds) {
 
-        val groupId = group.id
         val groupRows = rowsWithTotals.filter { it.groupId == groupId }
         if (groupRows.isEmpty()) continue
 
@@ -69,7 +68,7 @@ private fun formatHoldingsSection(holdings: List<PortfolioBalancingHoldingLine>)
     val nameHeader = "Investimento"
     val valueHeader = "Valor"
     val nameWidth = maxOf(nameHeader.length, holdings.maxOf { it.displayName.length })
-    val valueWidth = maxOf(valueHeader.length, holdings.maxOf { formatMoney(it.value).length })
+    val valueWidth = maxOf(valueHeader.length, holdings.maxOf { BalancingFormatters.formatMoney(it.value).length })
 
     return buildString {
         appendLine("Investimentos:")
@@ -77,7 +76,7 @@ private fun formatHoldingsSection(holdings: List<PortfolioBalancingHoldingLine>)
             appendLine(
                 "  " + listOf(
                     padRight(holding.displayName, nameWidth),
-                    padLeft(formatMoney(holding.value), valueWidth),
+                    padLeft(BalancingFormatters.formatMoney(holding.value), valueWidth),
                 ).joinToString("  "),
             )
         }
@@ -114,12 +113,12 @@ private fun List<FormattedRow>.buildTotalRow(): FormattedRow = FormattedRow(
     groupId = this.first().groupId,
     groupName = this.first().groupName,
     name = "Total",
-    actual = formatMoney(sumOf { it.actualValue }),
-    actualWeight = PortfolioBalancingEngine.formatPercent(sumOf { it.actualWeightPercent }),
+    actual = BalancingFormatters.formatMoney(sumOf { it.actualValue }),
+    actualWeight = BalancingFormatters.formatPercent(sumOf { it.actualWeightPercent }),
     configuredWeight = "100,00%",
-    normalizedWeight = PortfolioBalancingEngine.formatPercent(sumOf { it.normalizedWeightPercent }),
-    ideal = formatMoney(sumOf { it.idealValue }),
-    deviation = formatMoney(sumOf { it.deviationValue }),
+    normalizedWeight = BalancingFormatters.formatPercent(sumOf { it.normalizedWeightPercent }),
+    ideal = BalancingFormatters.formatMoney(sumOf { it.idealValue }),
+    deviation = BalancingFormatters.formatMoney(sumOf { it.deviationValue }),
     actualValue = sumOf { it.actualValue },
     idealValue = sumOf { it.idealValue },
     deviationValue = sumOf { it.deviationValue },
@@ -260,18 +259,4 @@ private fun padRight(text: String, width: Int): String {
 private fun padLeft(text: String, width: Int): String {
     if (text.length >= width) return text
     return " ".repeat(width - text.length) + text
-}
-
-private fun formatMoney(value: Double): String {
-    val sign = if (value < 0) "-" else " "
-    val absolute = kotlin.math.abs(value)
-    val cents = kotlin.math.round(absolute * 100.0).toLong()
-    val whole = cents / 100
-    val fraction = (cents % 100).toString().padStart(2, '0')
-    val wholeFormatted = whole.toString()
-        .reversed()
-        .chunked(3)
-        .joinToString(".")
-        .reversed()
-    return "$sign R$ $wholeFormatted,$fraction"
 }
