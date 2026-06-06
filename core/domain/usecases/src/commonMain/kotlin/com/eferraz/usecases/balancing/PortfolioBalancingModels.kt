@@ -6,7 +6,7 @@ import kotlinx.datetime.YearMonth
 public sealed interface TargetWeight {
     public data class Fixed(val percent: Double) : TargetWeight
     public data object Zero : TargetWeight
-    public data object DynamicPension : TargetWeight
+    public data object Dynamic : TargetWeight
 }
 
 public enum class BalancingComponentId {
@@ -18,6 +18,7 @@ public enum class BalancingComponentId {
     RF_POST_FIXED,
     RF_PRE_FIXED,
     RF_INFLATION_LINKED,
+    RF_OTHER,
     RV_NATIONAL_STOCKS,
     RV_INTERNATIONAL,
     RV_REITS,
@@ -49,14 +50,31 @@ public data class PortfolioBalancingReportLine(
     val groupName: String,
     val componentName: String,
     val actualValue: Double,
-    val targetWeightDisplay: String,
-    val targetWeightPercent: Double?,
+    val configuredWeightDisplay: String,
+    val configuredWeightPercent: Double?,
+    val normalizedWeightDisplay: String,
+    val normalizedWeightPercent: Double,
+    /** Total do grupo × peso configurado (ou normalizado quando há previdência); previdência = actual. */
     val idealValue: Double,
+    /** `idealValue - actualValue`: negativo = retirar valor; positivo = aportar; zero = em meta. */
     val deviation: Double,
+)
+
+public data class PortfolioBalancingHoldingLine(
+    val displayName: String,
+    val value: Double,
+)
+
+public data class PortfolioBalancingGroupHoldings(
+    val groupId: BalancingGroupId,
+    /** Posições classificadas em «Demais investimentos» do grupo. */
+    val holdings: List<PortfolioBalancingHoldingLine>,
 )
 
 public data class PortfolioBalancingReport(
     val referenceDate: YearMonth,
     val totalPortfolioValue: Double,
     val lines: List<PortfolioBalancingReportLine>,
+    val groupHoldings: List<PortfolioBalancingGroupHoldings>,
+    val hasDynamicWeight: Boolean,
 )

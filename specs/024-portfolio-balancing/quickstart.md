@@ -29,26 +29,25 @@ Guia de validação manual e automática. Detalhes de modelo e contratos: [data-
 1. Abrir ecrã de histórico com mês que tenha posições activas.
 2. Tocar no ícone de balanceamento (ao lado de «Importar B3»).
 3. Verificar na consola tabela com:
-   - Cabeçalhos: nome, valor actual, peso alvo, valor ideal, desvio
-   - Três secções (Carteira Total, Renda Fixa, Renda Variável)
-   - 11 linhas de componentes no total
-   - **Sem** coluna de regra de enquadramento
+   - Cabeçalhos: nome, valor actual, **peso configurado**, **peso normalizado**, valor ideal, desvio
+   - Três secções com linha **Total** cada
+   - 11 linhas de componentes + 3 totais
 
 ---
 
-## Cenário 2 — Peso fixo 50% (US1)
+## Cenário 2 — Base balanceável (US1)
 
-**Dado**: carteira total R$ 100.000 com RF actual = R$ 100.000 (simplificado).
+**Dado**: total R$ 1.000, previdência R$ 100, RF actual R$ 900.
 
-**Esperado**: linha «Renda Fixa» (Grupo 1) com valor ideal R$ 50.000, desvio R$ 50.000.
+**Esperado**: ideal RF R$ 450; configurado 50%; normalizado 45%; previdência configurado «dinâmico», normalizado 10%.
 
 ---
 
-## Cenário 3 — Previdência dinâmica (US1)
+## Cenário 3 — Previdência Residual (US1)
 
 **Dado**: previdência com R$ 10.000 num total de R$ 100.000.
 
-**Esperado**: peso alvo «dinâmico (10,00%)», valor ideal = valor actual, desvio = 0.
+**Esperado**: configurado «dinâmico», normalizado 10,00%, ideal = actual, desvio = 0.
 
 ---
 

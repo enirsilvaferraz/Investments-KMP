@@ -128,14 +128,7 @@ public class PortfolioBalancingPartitionTest {
 
         // WHEN / THEN
         PortfolioBalancingCatalog.groups.forEach { group ->
-            val universe = when (group.id) {
-                BalancingGroupId.PORTFOLIO_TOTAL -> activeEntries
-                BalancingGroupId.FIXED_INCOME -> activeEntries.filter { it.holding.asset is FixedIncomeAsset }
-                BalancingGroupId.VARIABLE_INCOME -> activeEntries.filter { entry ->
-                    val asset = entry.holding.asset
-                    asset is VariableIncomeAsset && asset.ticker.uppercase() != PortfolioBalancingCatalog.HASH11
-                }
-            }
+            val universe = PortfolioBalancingEngine.universeForGroup(group.id, activeEntries)
 
             for (entry in universe) {
                 val matchingComponents = group.components.filter { component ->

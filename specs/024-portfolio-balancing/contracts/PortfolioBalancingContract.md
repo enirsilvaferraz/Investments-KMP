@@ -15,14 +15,14 @@ HistoryViewModel
 
 CalculatePortfolioBalancingUseCase (autossuficiente)
   → DateProvider.getCurrentYearMonth()
-  → GetHoldingHistoriesUseCase(ByReferenceDate(period))  // dados já persistidos; sem CreateHistoryUseCase
+  → GetHoldingHistoriesUseCase(ByReferenceDate(period))
   → PortfolioBalancingEngine.calculate(entries, period)
   → PortfolioBalancingReport
 ```
 
-**UI**: um `IconButton` no histórico; **sem** ecrã dedicado (FR-011). ViewModel **não** carrega entradas nem define período.
+**UI**: um `IconButton` no histórico; **sem** ecrã dedicado (FR-011).
 
-**Período**: sempre o **mês corrente** (`DateProvider`) — independente do mês seleccionado no selector do histórico.
+**Período**: sempre o **mês corrente** (`DateProvider`).
 
 ---
 
@@ -40,23 +40,13 @@ public class CalculatePortfolioBalancingUseCase(
 }
 ```
 
-### Orquestração interna (`execute`)
-
-```kotlin
-val period = dateProvider.getCurrentYearMonth()
-val entries = getHoldingHistoriesUseCase(ByReferenceDate(period)).getOrThrow()
-return PortfolioBalancingEngine.calculate(entries, period)
-```
-
 | Regra | Detalhe |
 |-------|---------|
-| Parâmetro | **`Unit`** — sem entradas nem período no `Param` |
-| Período | `DateProvider.getCurrentYearMonth()` (padrão `ExportToCsvUseCase`) |
-| Leitura | **Só** `GetHoldingHistoriesUseCase` — dados já devem existir; **proibido** `CreateHistoryUseCase` |
+| Parâmetro | **`Unit`** |
+| Período | `DateProvider.getCurrentYearMonth()` |
+| Leitura | **Só** `GetHoldingHistoriesUseCase` |
 | Filtros | **Não** invocar `FilterHoldingHistoryUseCase` |
-| Lista vazia | Relatório completo com totais zero (FR-013) — não gera histórico em falta |
-| Posições liquidadas | Excluídas no engine (`património <= 0`) |
-| Erro de fetch | Propaga `Result.failure` ao caller (VM imprime mensagem) |
+| Lista vazia | Relatório completo com totais zero (FR-013) |
 
 ### Saída: `PortfolioBalancingReportLine`
 
@@ -64,11 +54,14 @@ return PortfolioBalancingEngine.calculate(entries, period)
 |----------------------|--------|
 | `componentName` | `BalancingComponent.displayName` |
 | `actualValue` | Soma patrimónios classificados |
-| `targetWeightDisplay` | Fixo `%.2f%%`; dinâmico `dinâmico (%.2f%%)` |
+| `configuredWeightDisplay` | Catálogo: `XX,XX%`, `0,00%` ou `dinâmico` |
+| `normalizedWeightDisplay` | `idealValue / totalPortfolioValue × 100` |
 | `idealValue` | FR-004/004a/004b/004c/005/006 |
 | `deviation` | `actualValue - idealValue` |
 
-**Não expor**: predicado/regra de enquadramento (FR-001, FR-012).
+**Log**: linha **`Total`** por grupo — Σ actual/ideal/desvio; configurado `100,00%`; normalizado = Σ normalizados.
+
+**Não expor**: predicado/regra de enquadramento.
 
 ---
 
@@ -85,54 +78,43 @@ internal object PortfolioBalancingEngine {
 
 | Regra | Detalhe |
 |-------|---------|
-| Visibilidade | `internal` — lógica pura testada directamente (FR-014) |
-| Catálogo | `PortfolioBalancingCatalog` (estático) |
-| Partição | Testes FR-007a no engine/catálogo |
+| Grupo 1 | `balanceableBase = total − actual(previdência)`; fixos sobre base |
+| Pesos | configurado do catálogo; normalizado = `ideal / total` |
 
 ---
 
 ## PortfolioBalancingCatalog
 
-```kotlin
-internal object PortfolioBalancingCatalog {
-    val groups: List<BalancingGroup>
-}
-```
+Pesos G1: RF 50%, RV **49%**, Cripto 1%, Demais 0%, Previdência `Residual`.
 
-| Regra | Detalhe |
-|-------|---------|
-| Extensão | Novo componente = entrada no catálogo; **sem** alterar `Engine` |
-| Tickers | `HASH11`, `IVVB11` como constantes internas |
+---
+
+## PortfolioBalancingCatalogValidator
+
+Valida Σ configured (Fixed+Zero) = 100% ± 0,01% por grupo.
 
 ---
 
 ## formatPortfolioBalancingReport
 
-```kotlin
-internal fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): String
-```
+| Coluna | Formato |
+|--------|---------|
+| Nome | alinhado à esquerda |
+| Valor actual | `R$ %,.2f` |
+| Peso configurado | `XX,XX%` ou `dinâmico` |
+| Peso normalizado | `XX,XX%` |
+| Valor ideal | monetário |
+| Desvio | monetário |
 
-| Coluna | Largura sugerida | Formato |
-|--------|------------------|---------|
-| Nome | 24 | alinhado à esquerda |
-| Valor actual | 14 | `R$ %,.2f` (locale pt-BR) |
-| Peso alvo | 16 | percentagem ou «dinâmico» |
-| Valor ideal | 14 | monetário |
-| Desvio | 14 | monetário; sinal explícito |
-
-Entre grupos: linha em branco + cabeçalho `=== {groupName} ===`.
+Entre grupos: linha em branco + `=== {groupName} ===` + linha **Total**.
 
 ---
 
 ## HistoryViewModel
 
-### Intent
-
 ```kotlin
 data object CalculatePortfolioBalancing : HistoryIntent
 ```
-
-### Handler `calculatePortfolioBalancing()`
 
 ```kotlin
 viewModelScope.launch {
@@ -142,49 +124,13 @@ viewModelScope.launch {
 }
 ```
 
-| Regra | Detalhe |
-|-------|---------|
-| Fetch / período | **Não** no VM — só no UC |
-| Concorrência | Cada toque = novo `launch`; botão **não** desactiva (FR-010) |
-| Erro técnico | Mensagem no log; não falha silenciosa |
-
-### Injeção Koin
-
-Adicionar `CalculatePortfolioBalancingUseCase` ao construtor de `HistoryViewModel`.
-
----
-
-## AssetHistoryScreen
-
-### `Actions` — parâmetros
-
-```kotlin
-onBalancingClick: () -> Unit,
-```
-
-### Layout (ordem)
-
-`MonthYearSelector` → `Close?` → `Sync` → `Import B3` → **`Balance`** → `Export CSV`
-
-```kotlin
-IconButton(onClick = onBalancingClick) {
-    Icon(
-        imageVector = Icons.Default.Balance,
-        contentDescription = "Balanceamento de carteira",
-    )
-}
-```
-
-**Sem** estado de loading no botão de balanceamento.
-
 ---
 
 ## Testes (`:domain:usecases:jvmTest`)
 
 | Ficheiro | Âmbito |
 |----------|--------|
-| `PortfolioBalancingEngineTest` | Cenários FR-014 (motor puro) |
+| `PortfolioBalancingEngineTest` | Base balanceável, pesos, Total no log |
+| `PortfolioBalancingCatalogValidatorTest` | FR-016 |
 | `PortfolioBalancingPartitionTest` | FR-007a |
-| `CalculatePortfolioBalancingUseCaseTest` | Orquestração: mock `DateProvider` + `GetHoldingHistoriesUseCase` |
-
-Nomes em inglês, padrão `GIVEN_WHEN_THEN` (princípio V).
+| `CalculatePortfolioBalancingUseCaseTest` | Orquestração |

@@ -6,7 +6,6 @@ import com.eferraz.entities.assets.InvestmentFundAssetType
 import com.eferraz.entities.assets.VariableIncomeAsset
 import com.eferraz.entities.assets.VariableIncomeAssetType
 import com.eferraz.entities.assets.YieldIndexer
-import com.eferraz.entities.holdings.HoldingHistoryEntry
 
 internal object PortfolioBalancingCatalog {
 
@@ -32,7 +31,7 @@ internal object PortfolioBalancingCatalog {
             BalancingComponent(
                 id = BalancingComponentId.PENSION_FUNDS,
                 displayName = "Fundos de Previdência",
-                targetWeight = TargetWeight.DynamicPension,
+                targetWeight = TargetWeight.Dynamic,
                 matches = { entry ->
                     val asset = entry.holding.asset
                     asset is InvestmentFundAsset && asset.type == InvestmentFundAssetType.PENSION
@@ -47,7 +46,7 @@ internal object PortfolioBalancingCatalog {
             BalancingComponent(
                 id = BalancingComponentId.VARIABLE_INCOME_TOTAL,
                 displayName = "Renda Variável",
-                targetWeight = TargetWeight.Fixed(40.0),
+                targetWeight = TargetWeight.Fixed(49.0),
                 matches = { entry ->
                     val asset = entry.holding.asset
                     asset is VariableIncomeAsset && asset.ticker.uppercase() != HASH11
@@ -96,6 +95,13 @@ internal object PortfolioBalancingCatalog {
                     asset is FixedIncomeAsset && asset.indexer == YieldIndexer.INFLATION_LINKED
                 },
             ),
+            BalancingComponent(
+                id = BalancingComponentId.RF_OTHER,
+                displayName = "Demais investimentos",
+                targetWeight = TargetWeight.Zero,
+                parentId = BalancingComponentId.FIXED_INCOME_TOTAL,
+                matches = { true },
+            ),
         ),
     )
 
@@ -137,7 +143,7 @@ internal object PortfolioBalancingCatalog {
             ),
             BalancingComponent(
                 id = BalancingComponentId.RV_OTHER,
-                displayName = "Outros RV",
+                displayName = "Demais investimentos",
                 targetWeight = TargetWeight.Fixed(10.0),
                 parentId = BalancingComponentId.VARIABLE_INCOME_TOTAL,
                 matches = { true },

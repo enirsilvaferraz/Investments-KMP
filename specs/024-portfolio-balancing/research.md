@@ -17,14 +17,14 @@
 
 ## R2 — Estrutura do catálogo e pesos alvo
 
-**Decision**: Catálogo como `object PortfolioBalancingCatalog` com lista ordenada de `BalancingGroup` → `BalancingComponent` (id estável, nome, `TargetWeight`, predicado de enquadramento). `TargetWeight` como sealed interface: `Fixed(percent)`, `Zero`, `DynamicPension`.
+**Decision**: Catálogo como `object PortfolioBalancingCatalog` com `TargetWeight`: `Fixed(percent)`, `Zero`, `Residual`. Pesos fixos+zero do G1 somam 100% da **base balanceável** (`total − previdência actual`).
 
-**Rationale**: Extensão por adição (OCP): novo componente = nova entrada no catálogo + predicado; motor de cálculo genérico inalterado (SC-004). Peso dinâmico de previdência isolado num variant (FR-005).
+**Rationale**: Previdência calculada primeiro; fixos aplicam-se ao remanescente; duas colunas de peso (configurado vs normalizado = `ideal ÷ total`).
 
 **Alternatives considered**:
 
+- Normalização proporcional só na exibição — rejeitado; preferida mudança do universo de cálculo.
 - YAML/JSON externo — fora de escopo v1.
-- Normalização automática de pesos ≠ 100% — rejeitado (spec: não normalizar).
 
 ---
 
@@ -45,11 +45,12 @@
 
 **Decision**:
 
-- Património: `endOfMonthValue * endOfMonthQuantity` (mesmo que histórico).
-- Grupo 1: `ideal = totalCarteira × (peso ÷ 100)`; excepções: `DynamicPension` → ideal = actual; `Zero` → ideal = 0.
-- Grupos 2–3: `ideal = pesoInterno × idealDoPaiNoGrupo1`; actual = soma real enquadrada.
-- `totalCarteira == 0` → todos ideais (incl. aninhados) = 0 (FR-004c, FR-013).
-- `desvio = actual − ideal` (FR-001).
+- Património: `endOfMonthValue * endOfMonthQuantity`.
+- Grupo 1: `balanceableBase = total − actual(previdência)`; fixos → `ideal = balanceableBase × (peso ÷ 100)`; `Residual` → ideal = actual; `Zero` → 0.
+- Peso normalizado: `ideal / totalCarteira × 100`.
+- Grupos 2–3: `ideal = pesoInterno × idealDoPaiNoGrupo1`.
+- `totalCarteira == 0` → ideais e normalizados = 0.
+- `desvio = actual − ideal`.
 
 **Rationale**: Alinha clarificações da spec (ideal aninhado sobre pai no Grupo 1, não sobre actual da classe).
 
@@ -73,7 +74,7 @@
 
 ## R6 — Apresentação em log (sem ecrã dedicado)
 
-**Decision**: Função pura `formatPortfolioBalancingReport(report): String` em `balancing/`, invocada pelo ViewModel com `println`. Colunas fixas alinhadas: nome, valor actual, peso alvo, valor ideal, desvio; separadores por grupo; formatação monetária `R$` com 2 decimais; peso como `XX,XX%` ou `dinâmico (XX,XX%)` para previdência.
+**Decision**: Função pura `formatPortfolioBalancingReport(report): String`. Colunas: nome, valor actual, **peso configurado**, **peso normalizado**, valor ideal, desvio; **linha `Total`** por grupo.
 
 **Rationale**: FR-010/FR-011/FR-012; padrão existente de `println` no histórico (sync, export, import). Sem Snackbar nem estado `isBalancing` — botão permanece activo (clarificação spec).
 

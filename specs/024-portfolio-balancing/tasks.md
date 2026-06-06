@@ -60,7 +60,7 @@ Feature 024. CalculatePortfolioBalancingUseCase @Factory AppUseCase<Unit, Portfo
 
 ## Phase 3: User Story 1 — Calcular desvios da alocação alvo da Carteira Total (Priority: P1) 🎯 MVP
 
-**Goal**: Grupo 1 (5 componentes) com actual, peso alvo, ideal e desvio; partição sem double-count; previdência dinâmica; peso zero; exclusão de liquidados.
+**Goal**: Grupo 1 (5 componentes) com actual, peso configurado, peso normalizado, ideal e desvio; base balanceável; partição; previdência `Residual`; linha Total por grupo.
 
 **Independent Test**: Fixtures sintéticas → `PortfolioBalancingEngine.calculate` devolve 5 linhas do Grupo 1 coerentes com FR-004a/005/006; soma actual = total carteira.
 

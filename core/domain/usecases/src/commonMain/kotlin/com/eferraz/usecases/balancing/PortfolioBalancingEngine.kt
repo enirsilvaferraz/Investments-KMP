@@ -17,50 +17,92 @@ internal object PortfolioBalancingEngine {
         val lines = mutableListOf<PortfolioBalancingReportLine>()
 
         val group1Actuals = classifyAndSum(activeEntries, PortfolioBalancingCatalog.portfolioTotalGroup)
-        val group1Ideals = computeGroup1Ideals(group1Actuals, totalPortfolioValue)
+        val pensionActual = group1Actuals.getValue(BalancingComponentId.PENSION_FUNDS)
+        val hasDynamicWeight = pensionActual > 0.0
+        val balanceableBase = totalPortfolioValue - pensionActual
 
         PortfolioBalancingCatalog.portfolioTotalGroup.components.forEach { component ->
             val actual = group1Actuals.getValue(component.id)
-            val ideal = group1Ideals.getValue(component.id)
-            lines += toReportLine(
-                group = PortfolioBalancingCatalog.portfolioTotalGroup,
+            lines += toGroup1ReportLine(
                 component = component,
                 actualValue = actual,
-                idealValue = ideal,
                 totalPortfolioValue = totalPortfolioValue,
+                balanceableBase = balanceableBase,
+                hasDynamicWeight = hasDynamicWeight,
             )
         }
 
-        val rfUniverse = activeEntries.filter { it.holding.asset is FixedIncomeAsset }
-        val rfParentIdeal = group1Ideals.getValue(BalancingComponentId.FIXED_INCOME_TOTAL)
+        val rfUniverse = universeForGroup(BalancingGroupId.FIXED_INCOME, activeEntries)
         lines += nestedGroupLines(
             group = PortfolioBalancingCatalog.fixedIncomeGroup,
             universe = rfUniverse,
-            parentIdeal = rfParentIdeal,
             totalPortfolioValue = totalPortfolioValue,
         )
 
-        val rvUniverse = activeEntries.filter { entry ->
-            val asset = entry.holding.asset
-            asset is VariableIncomeAsset && asset.ticker.uppercase() != PortfolioBalancingCatalog.HASH11
-        }
-        val rvParentIdeal = group1Ideals.getValue(BalancingComponentId.VARIABLE_INCOME_TOTAL)
+        val rvUniverse = universeForGroup(BalancingGroupId.VARIABLE_INCOME, activeEntries)
         lines += nestedGroupLines(
             group = PortfolioBalancingCatalog.variableIncomeGroup,
             universe = rvUniverse,
-            parentIdeal = rvParentIdeal,
             totalPortfolioValue = totalPortfolioValue,
         )
+
+        val groupHoldings = PortfolioBalancingCatalog.groups.map { group ->
+            PortfolioBalancingGroupHoldings(
+                groupId = group.id,
+                holdings = otherInvestmentsEntries(group, activeEntries)
+                    .map { entry ->
+                        PortfolioBalancingHoldingLine(
+                            displayName = formatBalancingAssetDisplayName(entry.holding.asset),
+                            value = patrimony(entry),
+                        )
+                    }
+                    .sortedBy { it.displayName },
+            )
+        }
 
         return PortfolioBalancingReport(
             referenceDate = referenceDate,
             totalPortfolioValue = totalPortfolioValue,
             lines = lines,
+            groupHoldings = groupHoldings,
+            hasDynamicWeight = pensionActual > 0.0,
         )
     }
 
     internal fun patrimony(entry: HoldingHistoryEntry): Double =
         entry.endOfMonthValue * entry.endOfMonthQuantity
+
+    internal fun universeForGroup(
+        groupId: BalancingGroupId,
+        activeEntries: List<HoldingHistoryEntry>,
+    ): List<HoldingHistoryEntry> = when (groupId) {
+        BalancingGroupId.PORTFOLIO_TOTAL -> activeEntries
+        BalancingGroupId.FIXED_INCOME -> activeEntries.filter { it.holding.asset is FixedIncomeAsset }
+        BalancingGroupId.VARIABLE_INCOME -> activeEntries.filter { entry ->
+            val asset = entry.holding.asset
+            asset is VariableIncomeAsset && asset.ticker.uppercase() != PortfolioBalancingCatalog.HASH11
+        }
+    }
+
+    internal fun classifyComponent(
+        group: BalancingGroup,
+        entry: HoldingHistoryEntry,
+    ): BalancingComponent = group.components.first { it.matches(entry) }
+
+    internal fun otherComponentId(groupId: BalancingGroupId): BalancingComponentId = when (groupId) {
+        BalancingGroupId.PORTFOLIO_TOTAL -> BalancingComponentId.OTHER_INVESTMENTS
+        BalancingGroupId.FIXED_INCOME -> BalancingComponentId.RF_OTHER
+        BalancingGroupId.VARIABLE_INCOME -> BalancingComponentId.RV_OTHER
+    }
+
+    private fun otherInvestmentsEntries(
+        group: BalancingGroup,
+        activeEntries: List<HoldingHistoryEntry>,
+    ): List<HoldingHistoryEntry> {
+        val otherId = otherComponentId(group.id)
+        return universeForGroup(group.id, activeEntries)
+            .filter { classifyComponent(group, it).id == otherId }
+    }
 
     internal fun classifyAndSum(
         universe: List<HoldingHistoryEntry>,
@@ -68,51 +110,75 @@ internal object PortfolioBalancingEngine {
     ): Map<BalancingComponentId, Double> {
         val sums = group.components.associate { it.id to 0.0 }.toMutableMap()
         for (entry in universe) {
-            val component = group.components.first { it.matches(entry) }
+            val component = classifyComponent(group, entry)
             sums[component.id] = sums.getValue(component.id) + patrimony(entry)
         }
         return sums
     }
 
-    private fun computeGroup1Ideals(
-        actuals: Map<BalancingComponentId, Double>,
+    private fun toGroup1ReportLine(
+        component: BalancingComponent,
+        actualValue: Double,
         totalPortfolioValue: Double,
-    ): Map<BalancingComponentId, Double> {
-        if (totalPortfolioValue == 0.0) {
-            return PortfolioBalancingCatalog.portfolioTotalGroup.components.associate { it.id to 0.0 }
+        balanceableBase: Double,
+        hasDynamicWeight: Boolean,
+    ): PortfolioBalancingReportLine {
+        val (configuredDisplay, configuredPercent) = configuredWeight(component.targetWeight)
+        val normalizedPercent = when {
+            totalPortfolioValue == 0.0 -> 0.0
+            component.targetWeight is TargetWeight.Dynamic ->
+                actualValue / totalPortfolioValue * 100.0
+            component.targetWeight is TargetWeight.Fixed ->
+                balanceableBase * configuredPercent!! / totalPortfolioValue
+            else -> 0.0
         }
-
-        return PortfolioBalancingCatalog.portfolioTotalGroup.components.associate { component ->
-            val ideal = when (val weight = component.targetWeight) {
-                is TargetWeight.Fixed -> totalPortfolioValue * weight.percent / 100.0
-                TargetWeight.Zero -> 0.0
-                TargetWeight.DynamicPension -> actuals.getValue(component.id)
-            }
-            component.id to ideal
+        val idealValue = when {
+            totalPortfolioValue == 0.0 -> 0.0
+            component.targetWeight is TargetWeight.Dynamic -> actualValue
+            component.targetWeight is TargetWeight.Zero -> 0.0
+            hasDynamicWeight -> totalPortfolioValue * normalizedPercent / 100.0
+            else -> totalPortfolioValue * configuredPercent!! / 100.0
         }
+        return toReportLine(
+            group = PortfolioBalancingCatalog.portfolioTotalGroup,
+            component = component,
+            actualValue = actualValue,
+            idealValue = idealValue,
+            configuredDisplay = configuredDisplay,
+            configuredPercent = configuredPercent,
+            normalizedPercent = normalizedPercent,
+        )
     }
 
     private fun nestedGroupLines(
         group: BalancingGroup,
         universe: List<HoldingHistoryEntry>,
-        parentIdeal: Double,
         totalPortfolioValue: Double,
     ): List<PortfolioBalancingReportLine> {
         val actuals = classifyAndSum(universe, group)
+        val groupTotal = actuals.values.sum()
         return group.components.map { component ->
             val actual = actuals.getValue(component.id)
-            val ideal = if (totalPortfolioValue == 0.0) {
-                0.0
+            val (configuredDisplay, configuredPercent) = configuredWeight(component.targetWeight)
+            val ideal = when {
+                totalPortfolioValue == 0.0 -> 0.0
+                component.targetWeight is TargetWeight.Fixed -> groupTotal * component.targetWeight.percent / 100.0
+                component.targetWeight is TargetWeight.Zero -> 0.0
+                else -> error("Residual component is not supported in nested groups")
+            }
+            val normalizedPercent = if (totalPortfolioValue > 0.0) {
+                ideal / totalPortfolioValue * 100.0
             } else {
-                val weight = component.targetWeight as TargetWeight.Fixed
-                parentIdeal * weight.percent / 100.0
+                0.0
             }
             toReportLine(
                 group = group,
                 component = component,
                 actualValue = actual,
                 idealValue = ideal,
-                totalPortfolioValue = totalPortfolioValue,
+                configuredDisplay = configuredDisplay,
+                configuredPercent = configuredPercent,
+                normalizedPercent = normalizedPercent,
             )
         }
     }
@@ -122,42 +188,31 @@ internal object PortfolioBalancingEngine {
         component: BalancingComponent,
         actualValue: Double,
         idealValue: Double,
-        totalPortfolioValue: Double,
+        configuredDisplay: String,
+        configuredPercent: Double?,
+        normalizedPercent: Double,
     ): PortfolioBalancingReportLine {
-        val (display, percent) = targetWeightDisplay(component.targetWeight, actualValue, totalPortfolioValue)
         return PortfolioBalancingReportLine(
             groupId = group.id,
             groupName = group.displayName,
             componentName = component.displayName,
             actualValue = actualValue,
-            targetWeightDisplay = display,
-            targetWeightPercent = percent,
+            configuredWeightDisplay = configuredDisplay,
+            configuredWeightPercent = configuredPercent,
+            normalizedWeightDisplay = formatPercent(normalizedPercent),
+            normalizedWeightPercent = normalizedPercent,
             idealValue = idealValue,
-            deviation = actualValue - idealValue,
+            deviation = idealValue - actualValue,
         )
     }
 
-    private fun targetWeightDisplay(
-        weight: TargetWeight,
-        actualValue: Double,
-        totalPortfolioValue: Double,
-    ): Pair<String, Double?> = when (weight) {
-        is TargetWeight.Fixed -> {
-            val display = formatPercent(weight.percent)
-            display to weight.percent
-        }
+    private fun configuredWeight(weight: TargetWeight): Pair<String, Double?> = when (weight) {
+        is TargetWeight.Fixed -> formatPercent(weight.percent) to weight.percent
         TargetWeight.Zero -> "0,00%" to 0.0
-        TargetWeight.DynamicPension -> {
-            val percent = if (totalPortfolioValue > 0.0) {
-                actualValue / totalPortfolioValue * 100.0
-            } else {
-                0.0
-            }
-            "dinâmico (${formatPercent(percent)})" to percent
-        }
+        TargetWeight.Dynamic -> "dinâmico" to null
     }
 
-    private fun formatPercent(value: Double): String {
+    internal fun formatPercent(value: Double): String {
         val rounded = kotlin.math.round(value * 100.0) / 100.0
         val parts = rounded.toString().split('.')
         val integer = parts[0]
