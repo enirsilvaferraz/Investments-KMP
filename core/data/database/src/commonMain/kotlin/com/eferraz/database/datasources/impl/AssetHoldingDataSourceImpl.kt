@@ -1,8 +1,10 @@
 package com.eferraz.database.datasources.impl
 
 import com.eferraz.database.daos.AssetHoldingDao
+import androidx.room3.Transaction
 import com.eferraz.database.datasources.AssetDataSource
 import com.eferraz.database.datasources.AssetHoldingDataSource
+import com.eferraz.database.datasources.AssetTransactionDataSource
 import com.eferraz.database.datasources.FinancialGoalDataSource
 import com.eferraz.database.entities.holdings.AssetHoldingEntity
 import com.eferraz.database.entities.holdings.AssetHoldingWithDetails
@@ -18,6 +20,7 @@ internal class AssetHoldingDataSourceImpl(
     private val assetHoldingDao: AssetHoldingDao,
     private val assetDataSource: AssetDataSource,
     private val financialGoalDataSource: FinancialGoalDataSource,
+    private val assetTransactionDataSource: AssetTransactionDataSource,
 ) : AssetHoldingDataSource {
 
     override suspend fun getById(holdingId: Long): AssetHolding =
@@ -81,6 +84,22 @@ internal class AssetHoldingDataSourceImpl(
 
     override suspend fun delete(id: Long) {
         assetHoldingDao.deleteById(id)
+    }
+
+    @Transaction
+    override suspend fun saveWithTransactions(assetHolding: AssetHolding) {
+        val holdingId = save(assetHolding)
+        val persisted = assetHolding.copy(id = holdingId)
+        val existingIds = assetTransactionDataSource
+            .getAllByHolding(persisted)
+            .map { it.id }
+            .toSet()
+        val incomingIds = assetHolding.transactions.map { it.id }.toSet()
+        val toDelete = existingIds - incomingIds
+        toDelete.forEach { assetTransactionDataSource.delete(holdingId, it) }
+        assetHolding.transactions.forEach { transaction ->
+            assetTransactionDataSource.save(persisted, transaction)
+        }
     }
 
     private fun AssetHolding.toEntity() =

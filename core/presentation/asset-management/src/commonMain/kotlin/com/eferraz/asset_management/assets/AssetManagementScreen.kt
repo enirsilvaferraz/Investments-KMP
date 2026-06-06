@@ -1,10 +1,5 @@
 package com.eferraz.asset_management.assets
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -40,9 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -55,7 +48,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.eferraz.asset_management.helpers.FormTextField
-import com.eferraz.asset_management.transactions.TransactionFormView
+import com.eferraz.asset_management.transactions.TransactionFormContent
 import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.components.segmented_control.SegmentedControl
 import com.eferraz.design_system.input.date.DateFormat
@@ -180,9 +173,6 @@ private fun AssetFormView(
                 }
             }
 
-            var isVisible by remember { mutableStateOf(true) }
-
-
             FormSection(
                 title = "POSICIONAMENTO",
                 icon = Icons.Outlined.Home
@@ -217,22 +207,31 @@ private fun AssetFormView(
                 icon = Icons.Outlined.SwapVert
             ) {
 
-                FormRow {
-
-                    TransactionFormView(
-                        holdingId = 1,
-                        onComplete = {},
-                    )
-                }
-
-                FormCardActions(
-                    onClick = {
-                        isVisible = !isVisible
-                    }
+                TransactionFormContent(
+                    transactions = ui.transactions,
+                    assetClass = ui.assetClass,
+                    onAdd = { onEvent(AssetManagementEvents.TransactionAdded(ui.assetClass)) },
+                    onRemove = { index -> onEvent(AssetManagementEvents.TransactionRemoved(index)) },
+                    onDateChanged = { index, digits ->
+                        onEvent(AssetManagementEvents.TransactionDateChanged(index, digits))
+                    },
+                    onTypeChanged = { index, type ->
+                        onEvent(AssetManagementEvents.TransactionTypeChanged(index, type))
+                    },
+                    onQuantityChanged = { index, value ->
+                        onEvent(AssetManagementEvents.TransactionQuantityChanged(index, value))
+                    },
+                    onUnitPriceChanged = { index, value ->
+                        onEvent(AssetManagementEvents.TransactionUnitPriceChanged(index, value))
+                    },
+                    onTotalValueChanged = { index, value ->
+                        onEvent(AssetManagementEvents.TransactionTotalValueChanged(index, value))
+                    },
                 )
             }
 
-            FormSection(
+            // TODO Resumo sera adicionado em uma feature futura, manter formulario para testes
+            if (false) FormSection(
                 title = "RESUMO",
                 icon = Icons.Outlined.Summarize
             ) {
@@ -345,9 +344,18 @@ private fun AssetFormView(
 
                 Spacer(modifier = Modifier.weight(1f))
 
+                ui.saveError?.let { error ->
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                }
+
                 FilledTonalButton(
                     onClick = { onEvent(AssetManagementEvents.Save) },
-                    enabled = true,
+                    enabled = !ui.isSaving,
                 ) {
                     Text("Salvar")
                 }
@@ -589,43 +597,6 @@ private fun FundFields(
             onValueChange = { onEvent(AssetManagementEvents.ObservationsChanged(it)) },
             errorMessage = null,
         )
-    }
-}
-
-@Composable
-private fun FormCardActions(
-    modifier: Modifier = Modifier,
-    isVisible: Boolean = true,
-    onClick: () -> Unit,
-    enabled: Boolean = true,
-) {
-
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut()
-    ) {
-
-        Column(
-            modifier = modifier.padding(top = 16.dp)
-        ) {
-
-            HorizontalDivider(modifier = Modifier.padding(top = 0.dp, bottom = 16.dp), color = DividerDefaults.color.copy(alpha = 0.4f))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                verticalAlignment = Alignment.Bottom,
-            ) {
-
-                Button(
-                    onClick = onClick,
-                    enabled = enabled
-                ) {
-                    Text("Salvar")
-                }
-            }
-        }
     }
 }
 

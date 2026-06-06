@@ -7,6 +7,7 @@ import com.eferraz.entities.assets.Issuer
 import com.eferraz.entities.assets.Liquidity
 import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.holdings.Brokerage
+import com.eferraz.entities.transactions.TransactionType
 
 internal sealed class AssetManagementEvents {
 
@@ -37,4 +38,12 @@ internal sealed class AssetManagementEvents {
 //    data class FundExpirationChanged(val raw: String) : AssetManagementEvents()
 
     data object Save : AssetManagementEvents()
+
+    data class TransactionAdded(val assetClass: AssetClass) : AssetManagementEvents()
+    data class TransactionRemoved(val index: Int) : AssetManagementEvents()
+    data class TransactionDateChanged(val index: Int, val digits: String) : AssetManagementEvents()
+    data class TransactionTypeChanged(val index: Int, val type: TransactionType) : AssetManagementEvents()
+    data class TransactionQuantityChanged(val index: Int, val value: String) : AssetManagementEvents()
+    data class TransactionUnitPriceChanged(val index: Int, val value: String) : AssetManagementEvents()
+    data class TransactionTotalValueChanged(val index: Int, val value: String) : AssetManagementEvents()
 }

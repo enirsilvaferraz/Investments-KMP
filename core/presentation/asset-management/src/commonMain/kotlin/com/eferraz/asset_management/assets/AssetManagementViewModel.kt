@@ -4,13 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eferraz.asset_management.helpers.checkErros
 import com.eferraz.design_system.input.date.dateToDigits
+import com.eferraz.entities.assets.AssetClass
 import com.eferraz.entities.holdings.AssetHolding
+import com.eferraz.usecases.SaveAssetWithTransactionsUseCase
 import com.eferraz.usecases.cruds.GetAssetHoldingUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
+import com.eferraz.usecases.cruds.GetCurrentDateUseCase
 import com.eferraz.usecases.cruds.GetIssuersUseCase
 import com.eferraz.usecases.cruds.GetOwnerUseCase
-import com.eferraz.usecases.cruds.UpsertAssetHoldingUseCase
-import com.eferraz.usecases.cruds.UpsertAssetUseCase
 import com.eferraz.usecases.exceptions.ValidateException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,11 +23,11 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 internal class AssetManagementViewModel(
     private val getIssuersUseCase: GetIssuersUseCase,
-    private val upsertAssetUseCase: UpsertAssetUseCase,
     private val getBrokeragesUseCase: GetBrokeragesUseCase,
     private val getAssetHoldingUseCase: GetAssetHoldingUseCase,
-    private val upsertAssetHoldingUseCase: UpsertAssetHoldingUseCase,
     private val getOwnerUseCase: GetOwnerUseCase,
+    private val saveAssetWithTransactionsUseCase: SaveAssetWithTransactionsUseCase,
+    private val getCurrentDateUseCase: GetCurrentDateUseCase,
 ) : ViewModel() {
 
     internal val state: StateFlow<AssetManagementUiState> field = MutableStateFlow(AssetManagementUiState())
@@ -50,20 +51,33 @@ internal class AssetManagementViewModel(
         is AssetManagementEvents.FixedCdiChanged -> state.update { it.copy(fixedCdi = event.value, fixedCdiError = null) }
         is AssetManagementEvents.FixedLiquidityChanged -> state.update { it.copy(fixedLiquidity = event.liquidity, fixedLiquidityError = null) }
         is AssetManagementEvents.IncomeTaxExemptChanged -> state.update {
-            it.copy(incomeTaxExempt = event.exempt, incomeTaxSelected = incomeTaxSelectedFor(event.exempt),)
+            it.copy(incomeTaxExempt = event.exempt, incomeTaxSelected = incomeTaxSelectedFor(event.exempt))
         }
 
-//        is AssetManagementEvents.VariableTypeChanged -> state.update { it.copy(type = event.type, variableTypeError = null) }
         is AssetManagementEvents.VariableTickerChanged -> state.update { it.copy(variableTicker = event.value, variableTickerError = null) }
         is AssetManagementEvents.VariableCnpjChanged -> state.update { it.copy(variableCnpj = event.value, cnpjError = null) }
 
         is AssetManagementEvents.FundNameChanged -> state.update { it.copy(fundName = event.value, fundNameError = null) }
-//        is AssetManagementEvents.FundLiquidityChanged -> state.update { it.copy(fundLiquidity = event.liquidity, fundLiquidityError = null) }
-//        is AssetManagementEvents.FundTypeChanged -> state.update { it.copy(type = event.type, fundTypeError = null) }
-//        is AssetManagementEvents.FundLiquidityDaysChanged -> state.update { it.copy(fundLiquidityDays = event.value, fundLiquidityDaysError = null) }
-//        is AssetManagementEvents.FundExpirationChanged -> state.update { it.copy(fundExpiration = dateToDigits(event.raw), fundExpirationError = null) }
 
         is AssetManagementEvents.BrokerageChanged -> state.update { it.copy(brokerage = event.brokerage, brokerageError = null) }
+
+        is AssetManagementEvents.TransactionAdded -> addTransactionDraft(event.assetClass)
+        is AssetManagementEvents.TransactionRemoved -> removeTransactionDraft(event.index)
+        is AssetManagementEvents.TransactionDateChanged -> updateTransactionDraft(event.index) {
+            it.copy(dateDigits = dateToDigits(event.digits))
+        }
+        is AssetManagementEvents.TransactionTypeChanged -> updateTransactionDraft(event.index) {
+            it.copy(type = event.type)
+        }
+        is AssetManagementEvents.TransactionQuantityChanged -> updateTransactionDraft(event.index) {
+            it.copy(quantity = event.value)
+        }
+        is AssetManagementEvents.TransactionUnitPriceChanged -> updateTransactionDraft(event.index) {
+            it.copy(unitPrice = event.value)
+        }
+        is AssetManagementEvents.TransactionTotalValueChanged -> updateTransactionDraft(event.index) {
+            it.copy(totalValue = event.value)
+        }
 
         AssetManagementEvents.Save -> onSave()
     }
@@ -77,6 +91,11 @@ internal class AssetManagementViewModel(
             val holding = getAssetHoldingUseCase(GetAssetHoldingUseCase.ById(holdingId)).getOrNull()
             existingHolding = holding
 
+            val sortedTransactions = holding?.transactions
+                ?.sortedBy { it.date }
+                ?.map { TransactionDraftUi.fromDomain(it, holding.asset.assetClass) }
+                .orEmpty()
+
             val base = holding?.asset?.toUiState()?.withDerivedFields() ?: AssetManagementUiState()
             state.update {
                 base.copy(
@@ -85,11 +104,10 @@ internal class AssetManagementViewModel(
                     brokerage = holding?.brokerage,
                     owner = holding?.owner,
                     holdingId = holding?.id,
+                    transactions = sortedTransactions,
                 )
             }
         } else {
-            // Novo investimento: não reutilizar holding de uma edição anterior na mesma instância do VM
-            // (evita upsert no mesmo `asset_holding` em vez de inserir linha nova).
             existingHolding = null
             val owner = async { getOwnerUseCase(GetOwnerUseCase.Param).getOrNull() }
             state.update {
@@ -102,42 +120,48 @@ internal class AssetManagementViewModel(
         }
     }
 
+    private fun addTransactionDraft(assetClass: AssetClass) = viewModelScope.launch {
+        val currentDate = getCurrentDateUseCase(Unit).getOrThrow().toString().replace("-", "")
+        val blank = TransactionDraftUi(isNew = true, dateDigits = currentDate, assetClass = assetClass)
+        state.update { it.copy(transactions = it.transactions + blank) }
+    }
+
+    private fun removeTransactionDraft(index: Int) =
+        state.update {
+            it.copy(transactions = it.transactions.filterIndexed { rowIndex, _ -> rowIndex != index })
+        }
+
+    private fun updateTransactionDraft(index: Int, update: (TransactionDraftUi) -> TransactionDraftUi) =
+        state.update { current ->
+            var draft = update(current.transactions[index])
+            if (current.assetClass == AssetClass.VARIABLE_INCOME) {
+                draft = draft.syncVariableIncomeTotal()
+            }
+            current.copy(transactions = current.transactions.toMutableList().apply { this[index] = draft })
+        }
+
     private fun onSave() = viewModelScope.launch {
 
-        if (state.value.isSaving || state.checkErros()) return@launch
-        state.update { it.copy(isSaving = true) }
+        if (state.value.isSaving) return@launch
+        if (state.checkErros()) return@launch
+        if (state.value.transactions.any { it.hasAnyFieldError() }) return@launch
 
-        upsertAssetUseCase(UpsertAssetUseCase.Param(state.value.buildAsset()))
-            .onSuccess { newAsset ->
+        state.update { it.copy(isSaving = true, saveError = null) }
 
-                val brokerage = state.value.brokerage!!
-                val holding = existingHolding?.copy(asset = newAsset, brokerage = brokerage)
-                    ?: AssetHolding(
-                        id = 0L,
-                        asset = newAsset,
-                        owner = state.value.owner!!,
-                        brokerage = brokerage,
-                    )
+        val current = state.value
+        val domainTransactions = current.transactions.mapNotNull { it.toDomainTransaction(current.assetClass) }
+        val holding = current.buildHolding(existingHolding).copy(transactions = domainTransactions)
 
-                upsertAssetHoldingUseCase(UpsertAssetHoldingUseCase.Param(holding))
-                    .onSuccess {
-                        state.update { it.copy(isSaving = false, isCompleted = true, asset = newAsset) }
-                    }
-                    .onFailure { holdingError ->
-                        when (holdingError) {
-                            is ValidateException -> state.update { s ->
-                                s.copy(brokerageError = holdingError.messages["brokerage"], isSaving = false)
-                            }
-                            else -> state.update { it.copy(isSaving = false) }
-                        }
-                    }
+        saveAssetWithTransactionsUseCase(SaveAssetWithTransactionsUseCase.Param(holding))
+            .onSuccess {
+                state.update { it.copy(isSaving = false, isCompleted = true) }
             }
-            .onFailure { assetError ->
-                when (assetError) {
-                    is ValidateException -> assetError.messages.remoteFieldErrorsOn(state.value).let { mapped ->
-                        state.update { mapped.copy(isSaving = false) }
+            .onFailure { error ->
+                when (error) {
+                    is ValidateException -> error.messages.remoteFieldErrorsOn(current).let { mapped ->
+                        state.update { mapped.copy(isSaving = false, saveError = error.message) }
                     }
-                    else -> state.update { it.copy(isSaving = false) }
+                    else -> state.update { it.copy(isSaving = false, saveError = error.message) }
                 }
             }
     }

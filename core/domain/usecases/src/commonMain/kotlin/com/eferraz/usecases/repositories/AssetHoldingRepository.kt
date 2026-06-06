@@ -8,4 +8,5 @@ public interface AssetHoldingRepository : AppCrudRepository<AssetHolding> {
     public suspend fun getAllVariableIncomeAssets(): List<AssetHolding>
     public suspend fun getByAssetClass(assetClass: AssetClass): List<AssetHolding>
     public suspend fun getByGoalId(goalId: Long): List<AssetHolding>
+    public suspend fun upsertWithTransactions(holding: AssetHolding)
 }

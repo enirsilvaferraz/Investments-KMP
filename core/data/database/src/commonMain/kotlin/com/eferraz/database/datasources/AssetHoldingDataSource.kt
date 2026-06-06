@@ -12,4 +12,5 @@ public interface AssetHoldingDataSource {
     public suspend fun getByAssetClass(assetClass: AssetClass): List<AssetHolding>
     public suspend fun getByGoalId(goalId: Long): List<AssetHolding>
     public suspend fun delete(id: Long)
+    public suspend fun saveWithTransactions(assetHolding: AssetHolding)
 }

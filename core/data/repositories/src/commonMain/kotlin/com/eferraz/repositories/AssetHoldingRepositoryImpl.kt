@@ -34,4 +34,7 @@ internal class AssetHoldingRepositoryImpl(
 
     override suspend fun delete(id: Long) =
         dataSource.delete(id)
+
+    override suspend fun upsertWithTransactions(holding: AssetHolding) =
+        dataSource.saveWithTransactions(holding)
 }
