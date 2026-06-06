@@ -77,7 +77,7 @@ internal object PortfolioBalancingCatalog {
                 displayName = "Ações Nacionais",
                 targetWeight = TargetWeight.Fixed(33.33),
                 parentId = BalancingGroupId.VARIABLE_INCOME,
-                matches = BalancingMatchers::isNationalStockExcludingSpecialTickers,
+                matches = BalancingMatchers.isNationalStock(),
             ),
             BalancingComponent(
                 id = BalancingGroupId.RV_INTERNATIONAL,
@@ -170,10 +170,26 @@ internal object PortfolioBalancingCatalog {
         }
     )
 
+    internal val acoesGroup: BalancingGroup = BalancingGroup(
+        id = BalancingGroupId.RV_NATIONAL_STOCKS,
+        displayName = "Ações Nacionais",
+        universeFilter = BalancingMatchers.isNationalStock(),
+        components = BalancingConstants.NATIONAL_STOCK_TICKERS.map { (ticker, weight) ->
+            BalancingComponent(
+                id = ticker,
+                displayName = ticker,
+                targetWeight = TargetWeight.Fixed(weight),
+                parentId = BalancingGroupId.RV_NATIONAL_STOCKS,
+                matches = BalancingMatchers.isNationalStockWithTickerIn(setOf(ticker)),
+            )
+        }
+    )
+
     val groups: List<BalancingGroup> = listOf(
         portfolioTotalGroup,
         fixedIncomeGroup,
         variableIncomeGroup,
+        acoesGroup,
         fundsGroup,
         fundsRendGroup,
         fundsTatGroup,

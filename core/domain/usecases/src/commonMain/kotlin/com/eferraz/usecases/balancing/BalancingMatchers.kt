@@ -38,12 +38,6 @@ internal object BalancingMatchers {
         asset != null && asset.indexer == indexer
     }
 
-    fun isNationalStockExcludingSpecialTickers(entry: HoldingHistoryEntry): Boolean {
-        val asset = entry.holding.asset as? VariableIncomeAsset ?: return false
-        return asset.type == VariableIncomeAssetType.NATIONAL_STOCK &&
-            asset.ticker.uppercase() !in setOf(BalancingConstants.HASH11, BalancingConstants.IVVB11)
-    }
-
     fun isInternationalStock(entry: HoldingHistoryEntry): Boolean {
         val asset = entry.holding.asset as? VariableIncomeAsset ?: return false
         return asset.ticker.uppercase() == BalancingConstants.IVVB11
@@ -53,6 +47,18 @@ internal object BalancingMatchers {
         val asset = entry.holding.asset as? VariableIncomeAsset
         asset != null &&
             asset.type == VariableIncomeAssetType.REAL_ESTATE_FUND &&
+            asset.ticker.uppercase() in tickers
+    }
+
+    fun isNationalStock(): (HoldingHistoryEntry) -> Boolean = { entry ->
+        val asset = entry.holding.asset as? VariableIncomeAsset
+        asset != null && asset.type == VariableIncomeAssetType.NATIONAL_STOCK
+    }
+
+    fun isNationalStockWithTickerIn(tickers: Set<String>): (HoldingHistoryEntry) -> Boolean = { entry ->
+        val asset = entry.holding.asset as? VariableIncomeAsset
+        asset != null &&
+            asset.type == VariableIncomeAssetType.NATIONAL_STOCK &&
             asset.ticker.uppercase() in tickers
     }
 

@@ -10,7 +10,7 @@ internal fun BalancingGroup.withDefaultOtherInvestments(): BalancingGroup {
     return copy(
         components = components + BalancingComponent(
             id = BalancingGroupId.OTHER_INVESTMENTS,
-            displayName = "<<Demais investimentos>>",
+            displayName = "Demais investimentos",
             targetWeight = otherInvestmentsWeight,
             parentId = if (id == BalancingGroupId.PORTFOLIO_TOTAL) null else id,
             matches = BalancingMatchers::always,

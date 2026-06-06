@@ -6,6 +6,20 @@ import kotlin.test.assertEquals
 public class PortfolioBalancingCatalogValidatorTest {
 
     /**
+     * National stock tickers configured in catalog sum to 100%.
+     */
+    @Test
+    public fun `GIVEN national stock tickers constant WHEN sum weights THEN total is 100 percent`() {
+
+        // WHEN
+        val total = BalancingConstants.NATIONAL_STOCK_TICKERS.values.sum()
+
+        // THEN
+        assertEquals(14, BalancingConstants.NATIONAL_STOCK_TICKERS.size)
+        assertEquals(100.0, total, 0.01)
+    }
+
+    /**
      * Every catalog group receives an automatic «Demais investimentos» fallback component.
      */
     @Test

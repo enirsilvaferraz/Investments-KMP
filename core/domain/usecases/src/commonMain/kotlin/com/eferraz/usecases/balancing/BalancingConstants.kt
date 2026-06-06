@@ -37,4 +37,21 @@ internal object BalancingConstants {
         "KNHF11" to 25.0,
         "MCRE11" to 25.0,
     )
+
+    val NATIONAL_STOCK_TICKERS: Map<String, Double> = mapOf(
+        "AXIA6" to 10.0,
+        "BRBI11" to 4.0,
+        "BPAC11" to 8.0,
+        "CSAN3" to 12.0,
+        "DIRR3" to 8.0,
+        "ENEV3" to 4.0,
+        "EQTL3" to 8.0,
+        "EUCA4" to 4.0,
+        "RENT3" to 9.0,
+        "MDNE3" to 4.0,
+        "PETR4" to 4.0,
+        "PSSA3" to 9.0,
+        "PRNR3" to 8.0,
+        "SBFG3" to 8.0,
+    )
 }
