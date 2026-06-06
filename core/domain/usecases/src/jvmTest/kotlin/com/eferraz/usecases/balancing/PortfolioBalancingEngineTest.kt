@@ -466,7 +466,7 @@ public class PortfolioBalancingEngineTest {
         // THEN
         assertEquals(0.0, report.totalPortfolioValue, 0.01)
         assertEquals(4, report.lines.size)
-        assertEquals(4, report.groupHoldings.size)
+        assertEquals(PortfolioBalancingCatalog.groups.size, report.groupHoldings.size)
         assertTrue(report.lines.none { it.componentName == "Demais investimentos" })
         report.lines.forEach { line ->
             assertEquals(0.0, line.actualValue, 0.01)
@@ -482,10 +482,10 @@ public class PortfolioBalancingEngineTest {
     }
 
     /**
-     * Formatted report includes normalized weight column only when pension holdings exist.
+     * Normalized weight column appears only in groups that contain a dynamic-weight component.
      */
     @Test
-    public fun `GIVEN report with pension WHEN format THEN output includes normalized weight column`() {
+    public fun `GIVEN report with pension WHEN format THEN normalized weight column only in portfolio total group`() {
 
         // GIVEN
         val pensionAsset = InvestmentFundAsset(
@@ -514,14 +514,14 @@ public class PortfolioBalancingEngineTest {
         val formatted = formatPortfolioBalancingReport(report)
 
         // THEN
-        assertTrue(formatted.contains("Peso configurado"))
-        assertTrue(formatted.contains("Percentual actual"))
-        assertTrue(formatted.contains("Peso normalizado"))
+        val portfolioSection = formatted.sectionAfter("=== Carteira Total ===")
+        val fixedIncomeSection = formatted.sectionAfter("=== Renda Fixa ===")
+        assertTrue(portfolioSection.contains("Peso normalizado"))
+        assertTrue(!fixedIncomeSection.contains("Peso normalizado"))
         assertTrue(formatted.contains("Total"))
         assertTrue(formatted.contains("100,00%"))
-        assertTrue(formatted.contains("Investimentos:"))
+        assertTrue(!formatted.contains("Investimentos:"))
         assertSeparatorBeforeEachTotalRow(formatted)
-        assertBlankLineBetweenTotalAndHoldings(formatted)
         assertTrue(formatted.startsWith("\n"))
         assertTrue(formatted.endsWith("\n"))
     }
@@ -555,18 +555,40 @@ public class PortfolioBalancingEngineTest {
         assertTrue(formatted.contains("Peso configurado"))
         assertTrue(formatted.contains("Percentual actual"))
         assertTrue(!formatted.contains("Peso normalizado"))
+        assertTrue(!formatted.contains("Investimentos:"))
     }
 
-    private fun assertBlankLineBetweenTotalAndHoldings(formatted: String) {
-        val lines = formatted.lines()
-        lines.forEachIndexed { index, line ->
-            if (line.contains("Total") && line.contains(" | ")) {
-                assertTrue(index + 2 < lines.size, "Expected holdings section after Total")
-                assertEquals("", lines[index + 1])
-                assertTrue(lines[index + 2].startsWith("Investimentos:"))
-            }
-        }
+    /**
+     * Holdings section is rendered only when the group has other investments to list.
+     */
+    @Test
+    public fun `GIVEN other investments in portfolio total WHEN format THEN output includes holdings section`() {
+
+        // GIVEN
+        val fundAsset = InvestmentFundAsset(
+            id = 1,
+            name = "Stock Fund",
+            issuer = issuer,
+            type = InvestmentFundAssetType.STOCK_FUND,
+            liquidity = Liquidity.D_PLUS_DAYS,
+        )
+        val entries = listOf(
+            entry(holdingId = 1, asset = fundAsset, value = 1_000.0, quantity = 5.0),
+        )
+        val report = PortfolioBalancingEngine.calculate(entries, referenceDate)
+
+        // WHEN
+        val formatted = formatPortfolioBalancingReport(report)
+
+        // THEN
+        val portfolioSection = formatted.sectionAfter("=== Carteira Total ===")
+        assertTrue(portfolioSection.contains("Investimentos:"))
+        assertTrue(!portfolioSection.contains("(nenhum)"))
+        assertTrue(portfolioSection.contains("Fundo de Ação"))
     }
+
+    private fun String.sectionAfter(header: String): String =
+        substringAfter(header).substringBefore("\n===")
 
     private fun assertSeparatorBeforeEachTotalRow(formatted: String) {
         val lines = formatted.lines()

@@ -20,11 +20,11 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
             deviationValue = line.deviation,
             actualWeightPercent = line.actualWeightPercent,
             normalizedWeightPercent = line.normalizedWeightPercent,
+            hasDynamicWeight = line.configuredWeightPercent == null && line.actualValue > 0.0,
         )
     }
 
     val rowsWithTotals = componentRows.appendGroupTotalRows()
-    val layout = ColumnLayout.from(rowsWithTotals, showNormalizedWeight = report.hasDynamicWeight)
     val holdingsByGroup = report.groupHoldings.associateBy { it.groupId }
 
     val builder = StringBuilder()
@@ -34,11 +34,18 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
         val groupRows = rowsWithTotals.filter { it.groupId == groupId }
         if (groupRows.isEmpty()) continue
 
+        val showNormalizedWeight = groupRows
+            .filter { it.name != "Total" }
+            .any { it.hasDynamicWeight }
+        val layout = ColumnLayout.from(groupRows, showNormalizedWeight)
+
         if (builder.isNotEmpty()) {
             builder.appendLine()
         }
 
         builder.appendLine("=== ${groupRows.first().groupName} ===")
+        builder.appendLine()
+
         builder.appendLine(layout.headerRow())
         builder.appendLine(layout.separatorRow())
         val dataRows = groupRows.filter { it.name != "Total" }
@@ -48,8 +55,11 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
             builder.appendLine(layout.separatorRow())
             builder.appendLine(layout.formatRow(totalRow))
         }
-        builder.appendLine()
-        builder.appendLine(formatHoldingsSection(holdingsByGroup[groupId]?.holdings.orEmpty()))
+        val holdingsSection = formatHoldingsSection(holdingsByGroup[groupId]?.holdings.orEmpty())
+        if (holdingsSection.isNotEmpty()) {
+            builder.appendLine()
+            builder.append(holdingsSection)
+        }
     }
 
     return buildString {
@@ -62,7 +72,7 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
 private fun formatHoldingsSection(holdings: List<PortfolioBalancingHoldingLine>): String {
 
     if (holdings.isEmpty()) {
-        return "Investimentos: (nenhum)"
+        return ""
     }
 
     val nameHeader = "Investimento"
@@ -88,7 +98,7 @@ private fun List<FormattedRow>.appendGroupTotalRows(): List<FormattedRow> {
     if (isEmpty()) return this
 
     val result = mutableListOf<FormattedRow>()
-    var currentGroupId: BalancingGroupId? = null
+    var currentGroupId: String? = null
     var groupRows = mutableListOf<FormattedRow>()
 
     fun flushGroup() {
@@ -124,10 +134,11 @@ private fun List<FormattedRow>.buildTotalRow(): FormattedRow = FormattedRow(
     deviationValue = sumOf { it.deviationValue },
     actualWeightPercent = sumOf { it.actualWeightPercent },
     normalizedWeightPercent = sumOf { it.normalizedWeightPercent },
+    hasDynamicWeight = false,
 )
 
 private data class FormattedRow(
-    val groupId: BalancingGroupId,
+    val groupId: String,
     val groupName: String,
     val name: String,
     val actual: String,
@@ -141,6 +152,7 @@ private data class FormattedRow(
     val deviationValue: Double,
     val actualWeightPercent: Double,
     val normalizedWeightPercent: Double,
+    val hasDynamicWeight: Boolean,
 )
 
 private data class ColumnLayout(

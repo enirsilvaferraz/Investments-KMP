@@ -23,7 +23,10 @@ public data class BalancingGroup(
     val components: List<BalancingComponent>,
     /** Subconjunto de posições elegíveis para classificação neste grupo. */
     val universeFilter: (HoldingHistoryEntry) -> Boolean = { true },
-)
+    /** Peso do fallback «Demais investimentos» injetado automaticamente no fim do grupo. */
+) {
+    val otherInvestmentsWeight: TargetWeight = TargetWeight.Zero
+}
 
 public data class PortfolioBalancingReportLine(
     val groupId: String,

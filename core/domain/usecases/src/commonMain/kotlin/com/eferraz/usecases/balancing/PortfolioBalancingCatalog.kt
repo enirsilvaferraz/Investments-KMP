@@ -26,20 +26,14 @@ internal object PortfolioBalancingCatalog {
             BalancingComponent(
                 id = BalancingGroupId.FIXED_INCOME,
                 displayName = "Renda Fixa",
-                targetWeight = TargetWeight.Fixed(50.0),
+                targetWeight = TargetWeight.Fixed(60.0),
                 matches = BalancingMatchers::isFixedIncome,
             ),
             BalancingComponent(
                 id = BalancingGroupId.VARIABLE_INCOME,
                 displayName = "Renda Variável",
-                targetWeight = TargetWeight.Fixed(49.0),
+                targetWeight = TargetWeight.Fixed(39.0),
                 matches = BalancingMatchers::isVariableIncomeExcludingCrypto,
-            ),
-            BalancingComponent(
-                id = BalancingGroupId.OTHER_INVESTMENTS,
-                displayName = "Demais investimentos",
-                targetWeight = TargetWeight.Zero,
-                matches = BalancingMatchers::always,
             ),
         ),
     )
@@ -70,13 +64,6 @@ internal object PortfolioBalancingCatalog {
                 parentId = BalancingGroupId.FIXED_INCOME,
                 matches = BalancingMatchers.isFixedIncomeWithIndexer(YieldIndexer.INFLATION_LINKED),
             ),
-            BalancingComponent(
-                id = BalancingGroupId.OTHER_INVESTMENTS,
-                displayName = "Demais investimentos",
-                targetWeight = TargetWeight.Zero,
-                parentId = BalancingGroupId.FIXED_INCOME,
-                matches = BalancingMatchers::always,
-            ),
         ),
     )
 
@@ -88,30 +75,23 @@ internal object PortfolioBalancingCatalog {
             BalancingComponent(
                 id = BalancingGroupId.RV_NATIONAL_STOCKS,
                 displayName = "Ações Nacionais",
-                targetWeight = TargetWeight.Fixed(50.0),
+                targetWeight = TargetWeight.Fixed(33.33),
                 parentId = BalancingGroupId.VARIABLE_INCOME,
                 matches = BalancingMatchers::isNationalStockExcludingSpecialTickers,
             ),
             BalancingComponent(
                 id = BalancingGroupId.RV_INTERNATIONAL,
                 displayName = "Ações Internacionais",
-                targetWeight = TargetWeight.Fixed(10.0),
+                targetWeight = TargetWeight.Fixed(33.33),
                 parentId = BalancingGroupId.VARIABLE_INCOME,
                 matches = BalancingMatchers::isInternationalStock,
             ),
             BalancingComponent(
                 id = BalancingGroupId.RV_REITS,
                 displayName = "FIIs",
-                targetWeight = TargetWeight.Fixed(30.0),
+                targetWeight = TargetWeight.Fixed(33.33),
                 parentId = BalancingGroupId.VARIABLE_INCOME,
                 matches = BalancingMatchers::isRealEstateFund,
-            ),
-            BalancingComponent(
-                id = BalancingGroupId.OTHER_INVESTMENTS,
-                displayName = "Demais investimentos",
-                targetWeight = TargetWeight.Fixed(10.0),
-                parentId = BalancingGroupId.VARIABLE_INCOME,
-                matches = BalancingMatchers::always,
             ),
         ),
     )
@@ -126,67 +106,77 @@ internal object PortfolioBalancingCatalog {
                 displayName = "FII - Renda%",
                 targetWeight = TargetWeight.Fixed(70.0),
                 parentId = BalancingGroupId.RV_REITS,
-                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_REND_TICKERS),
+                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_REND_TICKERS.keys),
             ),
             BalancingComponent(
                 id = BalancingGroupId.FII_TAT,
                 displayName = "FII - Tatica",
                 targetWeight = TargetWeight.Fixed(30.0),
                 parentId = BalancingGroupId.RV_REITS,
-                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_TAT_TICKERS),
+                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_TAT_TICKERS.keys),
             ),
             BalancingComponent(
                 id = BalancingGroupId.FII_FOF,
                 displayName = "FII - FoFs",
                 targetWeight = TargetWeight.Zero,
                 parentId = BalancingGroupId.RV_REITS,
-                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_FOF_TICKERS),
-            ),
-            BalancingComponent(
-                id = BalancingGroupId.OTHER_INVESTMENTS,
-                displayName = "Demais investimentos",
-                targetWeight = TargetWeight.Zero,
-                parentId = BalancingGroupId.RV_REITS,
-                matches = BalancingMatchers::always,
+                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_FOF_TICKERS.keys),
             ),
         ),
     )
 
     internal val fundsFoFGroup: BalancingGroup = BalancingGroup(
         id = BalancingGroupId.FII_FOF,
-        displayName = "FIIs",
-        universeFilter = BalancingMatchers::isRealEstateFund,
-        components = listOf(
+        displayName = "FIIs - FOFs",
+        universeFilter = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_FOF_TICKERS.keys),
+        components = BalancingConstants.FII_FOF_TICKERS.map { (ticker, weight) ->
             BalancingComponent(
-                id = BalancingGroupId.FII_REND,
-                displayName = "FII - Renda%",
-                targetWeight = TargetWeight.Fixed(70.0),
-                parentId = BalancingGroupId.RV_REITS,
-                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_REND_TICKERS),
-            ),
-            BalancingComponent(
-                id = BalancingGroupId.FII_TAT,
-                displayName = "FII - Tatica",
-                targetWeight = TargetWeight.Fixed(30.0),
-                parentId = BalancingGroupId.RV_REITS,
-                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_TAT_TICKERS),
-            ),
-            BalancingComponent(
-                id = BalancingGroupId.FII_FOF,
-                displayName = "FII - FoFs",
-                targetWeight = TargetWeight.Zero,
-                parentId = BalancingGroupId.RV_REITS,
-                matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_FOF_TICKERS),
-            ),
-            BalancingComponent(
-                id = BalancingGroupId.OTHER_INVESTMENTS,
-                displayName = "Demais investimentos",
-                targetWeight = TargetWeight.Zero,
-                parentId = BalancingGroupId.RV_REITS,
-                matches = BalancingMatchers::always,
-            ),
-        ),
+                id = ticker,
+                displayName = ticker,
+                targetWeight = TargetWeight.Fixed(weight),
+                parentId = BalancingGroupId.FII_FOF,
+                matches = BalancingMatchers.isRealEstateFundWithTickerIn(setOf(ticker)),
+            )
+        }
     )
 
-    val groups: List<BalancingGroup> = listOf(portfolioTotalGroup, fixedIncomeGroup, variableIncomeGroup, fundsGroup)
+    internal val fundsTatGroup: BalancingGroup = BalancingGroup(
+        id = BalancingGroupId.FII_TAT,
+        displayName = "FIIs - Tatica",
+        universeFilter = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_TAT_TICKERS.keys),
+        components = BalancingConstants.FII_TAT_TICKERS.map { (ticker, weight) ->
+            BalancingComponent(
+                id = ticker,
+                displayName = ticker,
+                targetWeight = TargetWeight.Fixed(weight),
+                parentId = BalancingGroupId.FII_TAT,
+                matches = BalancingMatchers.isRealEstateFundWithTickerIn(setOf(ticker)),
+            )
+        }
+    )
+
+    internal val fundsRendGroup: BalancingGroup = BalancingGroup(
+        id = BalancingGroupId.FII_REND,
+        displayName = "FIIs - Renda",
+        universeFilter = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_REND_TICKERS.keys),
+        components = BalancingConstants.FII_REND_TICKERS.map { (ticker, weight) ->
+            BalancingComponent(
+                id = ticker,
+                displayName = ticker,
+                targetWeight = TargetWeight.Fixed(weight),
+                parentId = BalancingGroupId.FII_REND,
+                matches = BalancingMatchers.isRealEstateFundWithTickerIn(setOf(ticker)),
+            )
+        }
+    )
+
+    val groups: List<BalancingGroup> = listOf(
+        portfolioTotalGroup,
+        fixedIncomeGroup,
+        variableIncomeGroup,
+        fundsGroup,
+        fundsRendGroup,
+        fundsTatGroup,
+        fundsFoFGroup,
+    ).withDefaultOtherInvestments()
 }

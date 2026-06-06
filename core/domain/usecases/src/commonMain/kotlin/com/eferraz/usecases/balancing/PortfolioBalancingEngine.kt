@@ -10,10 +10,11 @@ internal object PortfolioBalancingEngine {
         referenceDate: YearMonth,
         groups: List<BalancingGroup> = PortfolioBalancingCatalog.groups,
     ): PortfolioBalancingReport {
+        val resolvedGroups = groups.withDefaultOtherInvestments()
         val activeEntries = entries.filter { patrimony(it) > 0.0 }
         val totalPortfolioValue = activeEntries.sumOf { patrimony(it) }
 
-        val portfolioTotalGroup = groups.first { it.id == BalancingGroupId.PORTFOLIO_TOTAL }
+        val portfolioTotalGroup = resolvedGroups.first { it.id == BalancingGroupId.PORTFOLIO_TOTAL }
         val portfolioActuals = classifyAndSum(activeEntries, portfolioTotalGroup)
         val pensionActual = portfolioActuals.getValue(BalancingGroupId.PENSION_FUNDS)
         val hasDynamicWeight = pensionActual > 0.0
@@ -25,7 +26,7 @@ internal object PortfolioBalancingEngine {
             hasDynamicWeight = hasDynamicWeight,
         )
 
-        val lines = groups.flatMap { group ->
+        val lines = resolvedGroups.flatMap { group ->
             buildGroupLines(
                 group = group,
                 activeEntries = activeEntries,
@@ -35,7 +36,7 @@ internal object PortfolioBalancingEngine {
             )
         }
 
-        val groupHoldings = groups.map { group ->
+        val groupHoldings = resolvedGroups.map { group ->
             PortfolioBalancingGroupHoldings(
                 groupId = group.id,
                 holdings = otherInvestmentsEntries(group, activeEntries)
@@ -55,7 +56,7 @@ internal object PortfolioBalancingEngine {
             lines = lines,
             groupHoldings = groupHoldings,
             hasDynamicWeight = hasDynamicWeight,
-            orderedGroupIds = groups.map { it.id },
+            orderedGroupIds = resolvedGroups.map { it.id },
         )
     }
 
@@ -68,8 +69,9 @@ internal object PortfolioBalancingEngine {
     ): List<HoldingHistoryEntry> = activeEntries.filter(group.universeFilter)
 
     internal fun shouldDisplayInReport(component: BalancingComponent, actualValue: Double): Boolean =
-        when (component.targetWeight) {
-            TargetWeight.Zero -> actualValue > 0.0
+        when {
+            component.id == BalancingGroupId.OTHER_INVESTMENTS -> actualValue > 0.0
+            component.targetWeight is TargetWeight.Zero -> actualValue > 0.0
             else -> true
         }
 
@@ -93,7 +95,7 @@ internal object PortfolioBalancingEngine {
     private fun buildGroupLines(
         group: BalancingGroup,
         activeEntries: List<HoldingHistoryEntry>,
-        portfolioActuals: Map<BalancingGroupId, Double>,
+        portfolioActuals: Map<String, Double>,
         totalPortfolioValue: Double,
         portfolioContext: BalancingWeightCalculator.PortfolioTotalContext,
     ): List<PortfolioBalancingReportLine> {
