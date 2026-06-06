@@ -75,9 +75,6 @@ internal class AssetManagementViewModel(
         is AssetManagementEvents.TransactionUnitPriceChanged -> updateTransactionDraft(event.index) {
             it.copy(unitPrice = event.value)
         }
-        is AssetManagementEvents.TransactionTotalValueChanged -> updateTransactionDraft(event.index) {
-            it.copy(totalValue = event.value)
-        }
 
         AssetManagementEvents.Save -> onSave()
     }
@@ -122,7 +119,13 @@ internal class AssetManagementViewModel(
 
     private fun addTransactionDraft(assetClass: AssetClass) = viewModelScope.launch {
         val currentDate = getCurrentDateUseCase(Unit).getOrThrow().toString().replace("-", "")
-        val blank = TransactionDraftUi(isNew = true, dateDigits = currentDate, assetClass = assetClass)
+        val defaultQuantity = if (assetClass == AssetClass.VARIABLE_INCOME) "" else "1"
+        val blank = TransactionDraftUi(
+            isNew = true,
+            dateDigits = currentDate,
+            assetClass = assetClass,
+            quantity = defaultQuantity,
+        )
         state.update { it.copy(transactions = it.transactions + blank) }
     }
 
@@ -133,10 +136,7 @@ internal class AssetManagementViewModel(
 
     private fun updateTransactionDraft(index: Int, update: (TransactionDraftUi) -> TransactionDraftUi) =
         state.update { current ->
-            var draft = update(current.transactions[index])
-            if (current.assetClass == AssetClass.VARIABLE_INCOME) {
-                draft = draft.syncVariableIncomeTotal()
-            }
+            val draft = update(current.transactions[index]).syncTotal()
             current.copy(transactions = current.transactions.toMutableList().apply { this[index] = draft })
         }
 
@@ -144,12 +144,11 @@ internal class AssetManagementViewModel(
 
         if (state.value.isSaving) return@launch
         if (state.checkErros()) return@launch
-        if (state.value.transactions.any { it.hasAnyFieldError() }) return@launch
 
         state.update { it.copy(isSaving = true, saveError = null) }
 
         val current = state.value
-        val domainTransactions = current.transactions.mapNotNull { it.toDomainTransaction(current.assetClass) }
+        val domainTransactions = current.transactions.mapNotNull { it.toDomainTransaction() }
         val holding = current.buildHolding(existingHolding).copy(transactions = domainTransactions)
 
         saveAssetWithTransactionsUseCase(SaveAssetWithTransactionsUseCase.Param(holding))

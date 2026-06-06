@@ -1,7 +1,7 @@
 package com.eferraz.usecases
 
 import com.eferraz.entities.assets.AssetClass
-import com.eferraz.entities.transactions.FixedIncomeTransaction
+import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.TransactionBalance
 import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.usecases.TestDataFactory.createAssetHolding
@@ -33,17 +33,19 @@ class MergeHistoryTransactionsTest {
         // GIVEN
         val referenceDate = YearMonth(2024, Month.APRIL)
         val previousDate = referenceDate.minusMonth()
-        val inMonth = FixedIncomeTransaction(
+        val inMonth = AssetTransaction(
             id = 1L,
             date = LocalDate(2024, 4, 15),
             type = TransactionType.PURCHASE,
-            totalValue = 500.0,
+            quantity = 1.0,
+            unitPrice = 500.0,
         )
-        val outOfMonth = FixedIncomeTransaction(
+        val outOfMonth = AssetTransaction(
             id = 2L,
             date = LocalDate(2024, 3, 1),
             type = TransactionType.PURCHASE,
-            totalValue = 999.0,
+            quantity = 1.0,
+            unitPrice = 999.0,
         )
         val holding = createAssetHolding(
             id = 1L,

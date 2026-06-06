@@ -19,24 +19,17 @@
     <ID>ComposableParamOrder:DataTable.kt:@Composable internal fun &lt;T&gt; DataTable</ID>
     <ID>ComposableParamOrder:EnumDropdown.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun &lt;T&gt; EnumDropdown</ID>
     <ID>ComposableParamOrder:SelectComponent.kt:@Composable @OptIn(ExperimentalMaterial3Api::class) private fun InputSelect</ID>
-    <ID>ComposableParamOrder:TransactionForm.kt:@Composable internal fun TransactionForm</ID>
-    <ID>ComposableParamOrder:TransactionPanel.kt:@Composable internal fun TransactionPanel</ID>
-    <ID>ComposableParamOrder:TransactionTable.kt:@Composable internal fun TransactionTable</ID>
     <ID>ComposableParamOrder:UITable.kt:@Composable internal fun &lt;T&gt; UiTable</ID>
     <ID>CyclomaticComplexMethod:AssetFormViewModel.kt:AssetFormViewModel$fun processIntent</ID>
     <ID>CyclomaticComplexMethod:AutoComplete.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun AutoComplete</ID>
     <ID>CyclomaticComplexMethod:FilterGroup.kt:@Composable internal fun HistoryFilter</ID>
-    <ID>CyclomaticComplexMethod:TransactionForm.kt:@Composable internal fun TransactionForm</ID>
-    <ID>CyclomaticComplexMethod:TransactionViewModel.kt:TransactionViewModel$private fun validateFormData: Map&lt;String, String&gt;</ID>
     <ID>EmptyDefaultConstructor:DateTransformation.kt:DateTransformation</ID>
     <ID>Filename:UiTableResponsive.kt:com.eferraz.presentation.design_system.components.new_table.UiTableResponsive.kt</ID>
     <ID>Indentation:AssetHistoryScreen.kt: </ID>
     <ID>Indentation:AssetsRoute.kt: </ID>
-    <ID>Indentation:TransactionForm.kt: </ID>
     <ID>Indentation:UITable.kt: </ID>
     <ID>LambdaParameterEventTrailing:AssetHistoryScreen.kt:onSelect: (HoldingHistoryEntry) -&gt; Unit</ID>
     <ID>LambdaParameterEventTrailing:SelectComponent.kt:onValueChange: (String) -&gt; Unit</ID>
-    <ID>LambdaParameterEventTrailing:TransactionForm.kt:onSave: () -&gt; Unit</ID>
     <ID>LongMethod:AssetFormScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun AssetFormScreen</ID>
     <ID>LongMethod:AssetHistoryScreen.kt:@OptIn(ExperimentalMaterial3AdaptiveApi::class) @Composable internal fun HoldingHistoryScreen</ID>
     <ID>LongMethod:AssetHistoryScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable private fun Table</ID>
@@ -48,9 +41,6 @@
     <ID>LongMethod:FilterGroup.kt:@Composable internal fun HistoryFilter</ID>
     <ID>LongMethod:InputTextMoney.kt:@Deprecated("Usar o novo input") @Composable internal fun InputTextMoney</ID>
     <ID>LongMethod:TableInputSelect.kt:@Composable @OptIn(ExperimentalMaterial3Api::class) private fun &lt;T&gt; TableInputSelect</ID>
-    <ID>LongMethod:TransactionForm.kt:@Composable internal fun TransactionForm</ID>
-    <ID>LongMethod:TransactionPanel.kt:@Composable internal fun TransactionPanel</ID>
-    <ID>LongMethod:TransactionRow.kt:internal fun AssetTransaction.toTransactionRow: TransactionRow</ID>
     <ID>LongMethod:UITable.kt:@Composable internal fun &lt;T&gt; UiTable</ID>
     <ID>MagicNumber:AppScaffold.kt:0.20f</ID>
     <ID>MagicNumber:AssetsRoute.kt:1900</ID>
@@ -205,8 +195,6 @@
     <ID>MagicNumber:TableInputMoney.kt:3000L</ID>
     <ID>MagicNumber:TableInputSelect.kt:3</ID>
     <ID>MagicNumber:Theme.kt:0.5f</ID>
-    <ID>MagicNumber:TransactionViewModel.kt:TransactionViewModel$10</ID>
-    <ID>MagicNumber:TransactionViewModel.kt:TransactionViewModel$3</ID>
     <ID>MagicNumber:UITable.kt:3</ID>
     <ID>MagicNumber:UITable.kt:4</ID>
     <ID>MatchingDeclarationName:AutoComplete.kt:AutoCompleteState</ID>
@@ -302,20 +290,14 @@
     <ID>ReturnCount:DateTransformation.kt:DateTransformation.&lt;no name provided&gt;$override fun transformedToOriginal: Int</ID>
     <ID>ReturnCount:TableInputDate.kt:DateVisualTransformation.&lt;no name provided&gt;$override fun transformedToOriginal: Int</ID>
     <ID>ReturnCount:TableSorting.kt:internal fun &lt;T&gt; sortData: List&lt;T&gt;</ID>
-    <ID>ReturnCount:TransactionViewModel.kt:TransactionViewModel$private fun parseDate: LocalDate?</ID>
     <ID>StateParam:UiTableLayout.kt:onSelect: State&lt;((T) -&gt; Unit)?&gt;</ID>
     <ID>SwallowedException:AssetsRoute.kt:e: IllegalArgumentException</ID>
-    <ID>SwallowedException:TransactionViewModel.kt:TransactionViewModel$e: Exception</ID>
-    <ID>ThrowsCount:TransactionViewModel.kt:TransactionViewModel$private fun createTransaction: AssetTransaction</ID>
-    <ID>TooGenericExceptionCaught:TransactionViewModel.kt:TransactionViewModel$e: Exception</ID>
     <ID>TooManyFunctions:AssetFormViewModel.kt:AssetFormViewModel : ViewModel</ID>
     <ID>TooManyFunctions:TableColumnBuilders.kt:com.eferraz.presentation.design_system.components.table.TableColumnBuilders.kt</ID>
     <ID>TooManyFunctions:Theme.kt:com.eferraz.presentation.design_system.theme.Theme.kt</ID>
-    <ID>TooManyFunctions:TransactionViewModel.kt:TransactionViewModel : ViewModel</ID>
     <ID>TooManyFunctionsInFile:AssetFormViewModel.kt:AssetFormViewModel : ViewModel</ID>
     <ID>TooManyFunctionsInFile:TableColumnBuilders.kt:com.eferraz.presentation.design_system.components.table.TableColumnBuilders.kt</ID>
     <ID>TooManyFunctionsInFile:Theme.kt:com.eferraz.presentation.design_system.theme.Theme.kt</ID>
-    <ID>TooManyFunctionsInFile:TransactionViewModel.kt:TransactionViewModel : ViewModel</ID>
     <ID>UnusedParameter:AutoComplete.kt:onItemCreated: ((String) -&gt; Unit)? = null</ID>
     <ID>UnusedParameter:GoalsMonitoringScreen.kt:backStack: NavBackStack&lt;NavKey&gt;</ID>
     <ID>UnusedParameter:Panels.kt:modifier: Modifier = Modifier</ID>

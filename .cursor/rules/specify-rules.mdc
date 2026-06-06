@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 
 <!-- SPECKIT START -->
-Plano actual: `specs/022-integrate-transaction-form/plan.md` — card de transações inline na AssetManagementScreen;
-`SaveAssetWithTransactionsUseCase` atômico (Room @Transaction); `TransactionDraftUi` em `assets/AssetManagementUiState.kt`; `TransactionFormContent` stateless; `AssetManagementViewModel` unificado; histórico redireciona para `AssetManagementRouting`.
-Fora do escopo: card Resumo, IncomeTax engine, Excluir.
+Plano actual: `specs/023-unify-asset-transaction/plan.md` — tipo único `AssetTransaction` (qty, unitPrice, totalValue derivado);
+Room v10 (tabela achatada, migração 9→10); remover observações, asset_class e subclasses; formulário inline uniforme na AssetManagementScreen (RF/Fundos qty=1).
+Fora do escopo: card Resumo, IncomeTax, Excluir; legado composeApp/transactions/ já removido.
 <!-- SPECKIT END -->

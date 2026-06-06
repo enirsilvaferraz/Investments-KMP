@@ -27,9 +27,6 @@ import com.eferraz.database.entities.supports.BrokerageEntity
 import com.eferraz.database.entities.supports.IssuerEntity
 import com.eferraz.database.entities.supports.OwnerEntity
 import com.eferraz.database.entities.transaction.AssetTransactionEntity
-import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.transaction.FundsTransactionEntity
-import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.database.migrations.Migration3To4
 import com.eferraz.database.migrations.Migration6To7
 import com.eferraz.database.migrations.Migration8To9
@@ -46,9 +43,6 @@ import com.eferraz.database.migrations.Migration8To9
         AssetHoldingEntity::class,
         HoldingHistoryEntryEntity::class,
         AssetTransactionEntity::class,
-        FixedIncomeTransactionEntity::class,
-        VariableIncomeTransactionEntity::class,
-        FundsTransactionEntity::class,
         FinancialGoalEntity::class,
         GoalInvestmentPlanEntity::class,
     ],
@@ -62,7 +56,7 @@ import com.eferraz.database.migrations.Migration8To9
         AutoMigration(from = 7, to = 8),
         AutoMigration(from = 8, to = 9, spec = Migration8To9::class),
     ],
-    version = 9
+    version = 10
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(AppDatabaseConstructor::class)

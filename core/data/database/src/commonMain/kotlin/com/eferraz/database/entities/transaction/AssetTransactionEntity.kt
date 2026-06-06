@@ -10,10 +10,7 @@ import com.eferraz.entities.transactions.TransactionType
 import kotlinx.datetime.LocalDate
 
 /**
- * Entidade Room para a tabela base asset_transactions.
- * Representa os campos comuns a todas as transações de ativos.
- *
- * @property assetClass Discriminador: 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND'
+ * Entidade Room para a tabela achatada asset_transactions.
  */
 @Entity(
     tableName = "asset_transactions",
@@ -29,7 +26,6 @@ import kotlinx.datetime.LocalDate
         Index(value = ["holdingId"]),
         Index(value = ["transactionDate"]),
         Index(value = ["type"]),
-        Index(value = ["asset_class"]),
         Index(value = ["holdingId", "transactionDate"])
     ]
 )
@@ -48,9 +44,9 @@ internal data class AssetTransactionEntity(
     @ColumnInfo(name = "type")
     val type: TransactionType,
 
-    @ColumnInfo(name = "asset_class")
-    val assetClass: String, // 'FIXED_INCOME', 'VARIABLE_INCOME', 'INVESTMENT_FUND' // TODO Transformar em enum Category
+    @ColumnInfo(name = "quantity", defaultValue = "1")
+    val quantity: Double,
 
-    @ColumnInfo(name = "observations")
-    val observations: String? = null
+    @ColumnInfo(name = "unitPrice", defaultValue = "0")
+    val unitPrice: Double,
 )

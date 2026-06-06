@@ -40,7 +40,11 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verificar aderência aos princípios I–X da constituição (`.specify/memory/constitution.md`).
+
+**Gate de escopo (princípio X)**: o plano cobre apenas o que a spec pede — sem funcionalidades inventadas, refactors paralelos ou abstrações prematuras. Escolher a abordagem com menor superfície de mudança compatível com Clean Architecture.
+
+[Gates específicos da feature — preencher conforme plano]
 
 ## Project Structure
 

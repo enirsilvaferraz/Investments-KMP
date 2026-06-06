@@ -1,22 +1,21 @@
 <!--
   Sync Impact Report
   ==================
-  Versão: 1.1.1 → 1.2.0
-  Tipo de bump: MINOR (novo princípio IX — validação sem build automático)
+  Versão: 1.2.0 → 1.3.0
+  Tipo de bump: MINOR (novo princípio X — simplicidade, legibilidade e escopo focado)
 
   Alterações:
-    - Novo princípio IX: Validação sem Build Automático
-    - Princípio V: esclarecido que escrever testes ≠ executar Gradle
-    - Fluxo de Desenvolvimento: alinhado ao princípio IX
+    - Novo princípio X: Simplicidade, Legibilidade e Escopo Focado
+    - Fluxo de Desenvolvimento: alinhado ao princípio X
+    - Governança: conformidade estendida ao princípio X
 
   Princípios modificados:
-    - V. Testes Obrigatórios em Use Cases (clarificação execução Gradle)
-    - IX. (NOVO) Validação sem Build Automático
+    - X. (NOVO) Simplicidade, Legibilidade e Escopo Focado
 
   Templates verificados:
-    - plan-template.md        ✅ compatível (Constitution Check genérico)
+    - plan-template.md        ✅ atualizado (Constitution Check + gate de escopo)
     - spec-template.md        ✅ compatível
-    - tasks-template.md       ✅ atualizado (nota sobre build sob pedido)
+    - tasks-template.md       ✅ atualizado (nota sobre escopo mínimo)
     - AGENTS.md               ✅ atualizado
 
   TODOs pendentes: nenhum
@@ -111,6 +110,20 @@ Agentes e ferramentas de IA **NÃO DEVEM** executar Gradle (`compileKotlinJvm`, 
 
 **Rationale**: builds KMP são lentos e consomem recursos; o utilizador valida quando necessário. Escrever testes (princípio V) permanece obrigatório — executá-los não.
 
+### X. Simplicidade, Legibilidade e Escopo Focado
+
+Todo desenvolvimento DEVE priorizar **menos código e mais valor**:
+
+- **Simplicidade**: preferir a solução mais direta que atenda à spec; evitar abstrações prematuras, over-engineering e diffs desnecessários.
+- **Manutenabilidade**: código fácil de alterar — responsabilidades claras, dependências mínimas, convenções do projeto.
+- **Legibilidade**: nomes expressivos, fluxo linear; comentários somente onde a intenção não é óbvia.
+- **Escopo fiel à spec**: implementar APENAS o que a spec, plano ou `tasks.md` pedem; NÃO inventar funcionalidades, refactors paralelos ou "melhorias" fora do escopo.
+- **Diff mínimo**: alterar o menor conjunto de ficheiros necessário; reutilizar código existente antes de criar novo.
+
+Em dúvida entre duas abordagens válidas, escolher a que produz menos linhas e menos superfície de mudança, desde que não viole os princípios I–II.
+
+**Rationale**: código extra aumenta custo de manutenção e risco de regressão; valor entregue mede-se pelo que a spec pede, não pelo volume de código escrito.
+
 ## Restrições Técnicas
 
 - **Injeção de dependências**: Koin — módulos Koin por camada.
@@ -120,20 +133,21 @@ Agentes e ferramentas de IA **NÃO DEVEM** executar Gradle (`compileKotlinJvm`, 
 
 ## Fluxo de Desenvolvimento
 
-1. Criar ou alterar código conforme specs e convenções do projeto.
-2. Alterações em `:domain:usecases` → incluir ou atualizar testes unitários (princípio V).
-3. **Não** executar build Gradle para validar funcionamento (princípio IX).
-4. Compilação e testes (`compileKotlinJvm`, `jvmTest`, `assemble`, etc.) apenas quando pedido explicitamente, em CI/revisão, ou quando a tarefa exigir artefacto de build.
-5. Módulo novo → perguntar o nome ao usuário antes de gerar arquivos, caso não informado.
-6. Manter coerência entre código, documentação e regras de IA no mesmo PR.
+1. Ler spec/plano/tasks e delimitar escopo antes de codificar (princípio X).
+2. Criar ou alterar código conforme specs e convenções do projeto — diff mínimo, sem funcionalidades fora do pedido.
+3. Alterações em `:domain:usecases` → incluir ou atualizar testes unitários (princípio V).
+4. **Não** executar build Gradle para validar funcionamento (princípio IX).
+5. Compilação e testes (`compileKotlinJvm`, `jvmTest`, `assemble`, etc.) apenas quando pedido explicitamente, em CI/revisão, ou quando a tarefa exigir artefacto de build.
+6. Módulo novo → perguntar o nome ao usuário antes de gerar arquivos, caso não informado.
+7. Manter coerência entre código, documentação e regras de IA no mesmo PR.
 
 ## Governança
 
 Esta constituição é a referência máxima do projeto. Em conflito com outros documentos, prevalece este.
 
 - **Emendas**: DEVEM ser documentadas com justificativa, versionadas semanticamente e propagadas para templates e regras dependentes.
-- **Conformidade**: toda revisão de código DEVE verificar aderência aos princípios acima.
+- **Conformidade**: toda revisão de código DEVE verificar aderência aos princípios acima, incluindo escopo e simplicidade (princípio X).
 - **Complexidade**: qualquer desvio DEVE ser justificado e registrado.
 - **Guia operacional**: `AGENTS.md` e regras `.mdc` complementam esta constituição.
 
-**Version**: 1.2.0 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-05-29
+**Version**: 1.3.0 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-06-06

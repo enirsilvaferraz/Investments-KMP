@@ -6,25 +6,20 @@ import kotlin.test.assertTrue
 class AssetTransactionContractTest {
 
     /**
-     * Regression SC-005: transactions must not expose a holding back-reference on the sealed interface.
+     * Regression SC-005: transactions must not expose a holding back-reference.
      */
     @Test
-    fun `GIVEN AssetTransaction interface THEN no holding property exists`() {
-        val typesToCheck = listOf(
-            AssetTransaction::class.java,
-            FixedIncomeTransaction::class.java,
-            VariableIncomeTransaction::class.java,
-            FundsTransaction::class.java,
-        )
+    fun `GIVEN AssetTransaction type THEN no holding property exists`() {
 
-        for (type in typesToCheck) {
-            val hasHolding = type.methods.any { method ->
-                method.name == "getHolding" || method.name == "holding"
-            }
-            assertTrue(
-                !hasHolding,
-                "Type ${type.simpleName} must not expose a holding property",
-            )
+        // WHEN
+        val hasHolding = AssetTransaction::class.java.methods.any { method ->
+            method.name == "getHolding" || method.name == "holding"
         }
+
+        // THEN
+        assertTrue(
+            !hasHolding,
+            "AssetTransaction must not expose a holding property",
+        )
     }
 }

@@ -18,28 +18,24 @@ internal class AssetTransactionDataSourceImpl(
         assetTransactionDao.save(transaction.toEntity(holding.id))
 
     override suspend fun find(id: Long, holdingId: Long): AssetTransaction? {
-        val transactionWithDetails = assetTransactionDao.find(id) ?: return null
-        if (transactionWithDetails.transaction.holdingId != holdingId) return null
-        return transactionWithDetails.toDomain()
+        val entity = assetTransactionDao.find(id) ?: return null
+        if (entity.holdingId != holdingId) return null
+        return entity.toDomain()
     }
 
-    override suspend fun getAllByHolding(holding: AssetHolding): List<AssetTransaction> {
-        val transactionsWithDetails = assetTransactionDao.getAllByHoldingId(holding.id)
-        return transactionsWithDetails.map { it.toDomain() }
-    }
+    override suspend fun getAllByHolding(holding: AssetHolding): List<AssetTransaction> =
+        assetTransactionDao.getAllByHoldingId(holding.id).map { it.toDomain() }
 
     override suspend fun getAllByHoldingAndDateRange(
         holding: AssetHolding,
         startDate: LocalDate,
         endDate: LocalDate,
-    ): List<AssetTransaction> {
-        val transactionsWithDetails = assetTransactionDao.getAllByHoldingIdAndDateRange(
+    ): List<AssetTransaction> =
+        assetTransactionDao.getAllByHoldingIdAndDateRange(
             holdingId = holding.id,
             startDate = startDate,
             endDate = endDate
-        )
-        return transactionsWithDetails.map { it.toDomain() }
-    }
+        ).map { it.toDomain() }
 
     override suspend fun getByGoalAndReferenceDate(
         goalId: Long,
@@ -60,7 +56,7 @@ internal class AssetTransactionDataSourceImpl(
 
     override suspend fun delete(holdingId: Long, id: Long) {
         val existing = assetTransactionDao.find(id)
-        if (existing?.transaction?.holdingId == holdingId) {
+        if (existing?.holdingId == holdingId) {
             assetTransactionDao.deleteById(id)
         }
     }

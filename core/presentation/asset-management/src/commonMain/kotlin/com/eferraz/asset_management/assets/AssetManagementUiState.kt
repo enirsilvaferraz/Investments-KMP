@@ -17,10 +17,7 @@ import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Owner
 import com.eferraz.entities.transactions.AssetTransaction
-import com.eferraz.entities.transactions.FixedIncomeTransaction
-import com.eferraz.entities.transactions.FundsTransaction
 import com.eferraz.entities.transactions.TransactionType
-import com.eferraz.entities.transactions.VariableIncomeTransaction
 
 internal fun AssetManagementUiState.buildHolding(existing: AssetHolding? = null): AssetHolding {
     val builtAsset = buildAsset()
@@ -169,20 +166,7 @@ internal data class TransactionDraftUi(
     val quantity: String = "",
     val unitPrice: String = "",
     val totalValue: String = "",
-    val observations: String = "",
 ) {
-
-    val dateError: Boolean
-        get() = localDateFromIsoDateDigits(dateDigits) == null
-
-    val quantityError: Boolean
-        get() = assetClass == AssetClass.VARIABLE_INCOME && quantity.toDoubleOrNull() == null
-
-    val unitPriceError: Boolean
-        get() = assetClass == AssetClass.VARIABLE_INCOME && unitPrice.toDoubleOrNull() == null
-
-    val totalValueError: Boolean
-        get() = assetClass != AssetClass.VARIABLE_INCOME && totalValue.toDoubleOrNull() == null
 
     internal companion object {
 
@@ -192,53 +176,28 @@ internal data class TransactionDraftUi(
                 isNew = false,
                 dateDigits = value.date.toString().replace("-", ""),
                 type = value.type,
-                quantity = if (value is VariableIncomeTransaction) value.quantity.toString() else "",
-                unitPrice = if (value is VariableIncomeTransaction) value.unitPrice.toString() else "",
+                quantity = value.quantity.toString(),
+                unitPrice = value.unitPrice.toString(),
                 totalValue = value.totalValue.toString(),
-                observations = value.observations.orEmpty(),
                 assetClass = assetClass,
             )
     }
 
-    internal fun toDomainTransaction(assetClass: AssetClass): AssetTransaction? {
-
+    internal fun toDomainTransaction(): AssetTransaction? {
         val date = localDateFromIsoDateDigits(dateDigits) ?: return null
-        val draftId = id ?: 0L
-
-        return when (assetClass) {
-
-            AssetClass.VARIABLE_INCOME -> VariableIncomeTransaction(
-                id = draftId,
-                date = date,
-                type = type,
-                quantity = quantity.toDouble(),
-                unitPrice = unitPrice.toDouble(),
-                observations = observations.ifBlank { null },
-            )
-
-            AssetClass.FIXED_INCOME -> FixedIncomeTransaction(
-                id = draftId,
-                date = date,
-                type = type,
-                totalValue = totalValue.toDouble(),
-                observations = observations.ifBlank { null },
-            )
-
-            AssetClass.INVESTMENT_FUND -> FundsTransaction(
-                id = draftId,
-                date = date,
-                type = type,
-                totalValue = totalValue.toDouble(),
-                observations = observations.ifBlank { null },
-            )
-        }
+        val qty = quantity.toDoubleOrNull() ?: return null
+        val price = unitPrice.toDoubleOrNull() ?: return null
+        return AssetTransaction(
+            id = id ?: 0L,
+            date = date,
+            type = type,
+            quantity = qty,
+            unitPrice = price,
+        )
     }
 }
 
-internal fun TransactionDraftUi.hasAnyFieldError(): Boolean =
-    dateError || quantityError || unitPriceError || totalValueError
-
-internal fun TransactionDraftUi.syncVariableIncomeTotal(): TransactionDraftUi {
+internal fun TransactionDraftUi.syncTotal(): TransactionDraftUi {
     val qty = quantity.toDoubleOrNull()
     val price = unitPrice.toDoubleOrNull()
     return if (qty != null && price != null) {

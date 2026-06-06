@@ -45,5 +45,4 @@ internal sealed class AssetManagementEvents {
     data class TransactionTypeChanged(val index: Int, val type: TransactionType) : AssetManagementEvents()
     data class TransactionQuantityChanged(val index: Int, val value: String) : AssetManagementEvents()
     data class TransactionUnitPriceChanged(val index: Int, val value: String) : AssetManagementEvents()
-    data class TransactionTotalValueChanged(val index: Int, val value: String) : AssetManagementEvents()
 }

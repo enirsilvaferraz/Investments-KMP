@@ -2,6 +2,7 @@ package com.eferraz.database.core
 
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.eferraz.database.migrations.Migration9To10
 import com.eferraz.entities.runtime.RuntimeConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -11,6 +12,7 @@ internal interface DataBaseBuilder : KoinComponent {
 
     fun build(): AppDatabase =
         buildPlatform()
+            .addMigrations(Migration9To10)
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()

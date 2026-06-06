@@ -6,13 +6,13 @@ import kotlin.test.assertEquals
 
 class TransactionBalanceTest {
 
-    private fun createVariableIncomeTransaction(
+    private fun createTransaction(
         type: TransactionType,
         quantity: Double,
         unitPrice: Double,
         date: LocalDate = LocalDate(2025, 1, 15),
-    ): VariableIncomeTransaction =
-        VariableIncomeTransaction(
+    ): AssetTransaction =
+        AssetTransaction(
             id = 0L,
             date = date,
             type = type,
@@ -20,28 +20,17 @@ class TransactionBalanceTest {
             unitPrice = unitPrice,
         )
 
-    private fun createFixedIncomeTransaction(
+    private fun createTotalValueTransaction(
         type: TransactionType,
         totalValue: Double,
         date: LocalDate = LocalDate(2025, 1, 10),
-    ): FixedIncomeTransaction =
-        FixedIncomeTransaction(
+    ): AssetTransaction =
+        AssetTransaction(
             id = 0L,
             date = date,
             type = type,
-            totalValue = totalValue,
-        )
-
-    private fun createFundsTransaction(
-        type: TransactionType,
-        totalValue: Double,
-        date: LocalDate = LocalDate(2025, 1, 5),
-    ): FundsTransaction =
-        FundsTransaction(
-            id = 0L,
-            date = date,
-            type = type,
-            totalValue = totalValue,
+            quantity = 1.0,
+            unitPrice = totalValue,
         )
 
     /**
@@ -51,7 +40,7 @@ class TransactionBalanceTest {
     fun `GIVEN empty transaction list WHEN calculate THEN returns zeros`() {
 
         // WHEN
-        val result = TransactionBalance.calculate(emptyList<VariableIncomeTransaction>())
+        val result = TransactionBalance.calculate(emptyList())
 
         // THEN
         assertEquals(0.0, result.contributions, 0.001)
@@ -67,9 +56,9 @@ class TransactionBalanceTest {
 
         // GIVEN
         val transactions = listOf(
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 30.0, 58.0),
+            createTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createTransaction(TransactionType.PURCHASE, 30.0, 58.0),
         )
 
         // WHEN
@@ -89,10 +78,10 @@ class TransactionBalanceTest {
 
         // GIVEN
         val transactions = listOf(
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 56.36),
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 30.0, 58.0),
-            createVariableIncomeTransaction(TransactionType.SALE, 10.0, 60.0),
+            createTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createTransaction(TransactionType.PURCHASE, 50.0, 56.36),
+            createTransaction(TransactionType.PURCHASE, 30.0, 58.0),
+            createTransaction(TransactionType.SALE, 10.0, 60.0),
         )
 
         // WHEN
@@ -105,16 +94,16 @@ class TransactionBalanceTest {
     }
 
     /**
-     * Fixed income purchases only.
+     * Fixed income purchases only (qty=1, unitPrice=total).
      */
     @Test
     fun `GIVEN fixed income purchases WHEN calculate THEN sums contributions`() {
 
         // GIVEN
         val transactions = listOf(
-            createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
-            createFixedIncomeTransaction(TransactionType.PURCHASE, 3000.0),
-            createFixedIncomeTransaction(TransactionType.PURCHASE, 2000.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 5000.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 3000.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 2000.0),
         )
 
         // WHEN
@@ -134,10 +123,10 @@ class TransactionBalanceTest {
 
         // GIVEN
         val transactions = listOf(
-            createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
-            createFixedIncomeTransaction(TransactionType.PURCHASE, 3000.0),
-            createFixedIncomeTransaction(TransactionType.PURCHASE, 2000.0),
-            createFixedIncomeTransaction(TransactionType.SALE, 11500.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 5000.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 3000.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 2000.0),
+            createTotalValueTransaction(TransactionType.SALE, 11500.0),
         )
 
         // WHEN
@@ -150,17 +139,17 @@ class TransactionBalanceTest {
     }
 
     /**
-     * Fund purchases only.
+     * Fund purchases only (qty=1, unitPrice=total).
      */
     @Test
     fun `GIVEN fund purchases WHEN calculate THEN sums contributions`() {
 
         // GIVEN
         val transactions = listOf(
-            createFundsTransaction(TransactionType.PURCHASE, 10000.0),
-            createFundsTransaction(TransactionType.PURCHASE, 5000.0),
-            createFundsTransaction(TransactionType.PURCHASE, 8000.0),
-            createFundsTransaction(TransactionType.PURCHASE, 7000.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 10000.0, LocalDate(2025, 1, 5)),
+            createTotalValueTransaction(TransactionType.PURCHASE, 5000.0, LocalDate(2025, 1, 5)),
+            createTotalValueTransaction(TransactionType.PURCHASE, 8000.0, LocalDate(2025, 1, 5)),
+            createTotalValueTransaction(TransactionType.PURCHASE, 7000.0, LocalDate(2025, 1, 5)),
         )
 
         // WHEN
@@ -180,11 +169,11 @@ class TransactionBalanceTest {
 
         // GIVEN
         val transactions = listOf(
-            createFundsTransaction(TransactionType.PURCHASE, 10000.0),
-            createFundsTransaction(TransactionType.PURCHASE, 5000.0),
-            createFundsTransaction(TransactionType.PURCHASE, 8000.0),
-            createFundsTransaction(TransactionType.PURCHASE, 7000.0),
-            createFundsTransaction(TransactionType.SALE, 12000.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 10000.0, LocalDate(2025, 1, 5)),
+            createTotalValueTransaction(TransactionType.PURCHASE, 5000.0, LocalDate(2025, 1, 5)),
+            createTotalValueTransaction(TransactionType.PURCHASE, 8000.0, LocalDate(2025, 1, 5)),
+            createTotalValueTransaction(TransactionType.PURCHASE, 7000.0, LocalDate(2025, 1, 5)),
+            createTotalValueTransaction(TransactionType.SALE, 12000.0, LocalDate(2025, 1, 5)),
         )
 
         // WHEN
@@ -204,7 +193,7 @@ class TransactionBalanceTest {
 
         // GIVEN
         val transactions = listOf(
-            createVariableIncomeTransaction(TransactionType.SALE, 100.0, 50.0),
+            createTransaction(TransactionType.SALE, 100.0, 50.0),
         )
 
         // WHEN
@@ -217,17 +206,17 @@ class TransactionBalanceTest {
     }
 
     /**
-     * Mixed asset types in one list.
+     * Mixed asset classes in one list (unified model: RV qty×price, RF/Funds qty=1).
      */
     @Test
     fun `GIVEN mixed asset transaction types WHEN calculate THEN aggregates correctly`() {
 
         // GIVEN
         val transactions = listOf(
-            createVariableIncomeTransaction(TransactionType.PURCHASE, 50.0, 20.0),
-            createFixedIncomeTransaction(TransactionType.PURCHASE, 5000.0),
-            createFundsTransaction(TransactionType.PURCHASE, 3000.0),
-            createVariableIncomeTransaction(TransactionType.SALE, 10.0, 25.0),
+            createTransaction(TransactionType.PURCHASE, 50.0, 20.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 5000.0),
+            createTotalValueTransaction(TransactionType.PURCHASE, 3000.0, LocalDate(2025, 1, 5)),
+            createTransaction(TransactionType.SALE, 10.0, 25.0),
         )
 
         // WHEN

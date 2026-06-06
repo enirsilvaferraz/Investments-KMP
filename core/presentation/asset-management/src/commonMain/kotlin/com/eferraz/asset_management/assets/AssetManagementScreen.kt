@@ -224,9 +224,6 @@ private fun AssetFormView(
                     onUnitPriceChanged = { index, value ->
                         onEvent(AssetManagementEvents.TransactionUnitPriceChanged(index, value))
                     },
-                    onTotalValueChanged = { index, value ->
-                        onEvent(AssetManagementEvents.TransactionTotalValueChanged(index, value))
-                    },
                 )
             }
 

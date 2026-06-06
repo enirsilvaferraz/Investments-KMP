@@ -19,7 +19,7 @@ Aplicativo de **carteira de investimentos**: cadastro de ativos, posições por 
 |----------------|------------------------------------------------------------------------------------------------------------|
 | `assets`       | `Asset` (sealed), RF/RV/Fundo, `Issuer`, `Liquidity`, enums, `CNPJ`, `MaturityDate`, `AssetClass`, `YieldIndexer`, `AssetType`  |
 | `holdings`     | `AssetHolding`, `Owner`, `Brokerage`, `HoldingHistoryEntry`, `Appreciation`, `Growth`, `IncomeTax`, `StockQuoteHistory` |
-| `transactions` | `AssetTransaction` (sealed), `TransactionType`, `TransactionBalance`                                       |
+| `transactions` | `AssetTransaction` (data class), `TransactionType`, `TransactionBalance`                                   |
 | `goals`        | `FinancialGoal`, `GoalInvestmentPlan`, `GrowthRate`, `GoalMonthlyData`, `ProjectedGoal`, `GoalProjections` |
 | `value`        | `MandatoryText`                                                                                            |
 | `di`           | `EntityModule` (Koin)                                                                                      |
@@ -49,7 +49,7 @@ Papéis modelados nas entidades `Owner`, `Brokerage` e `Issuer` do diagrama ER (
 - **`expirationDate`:** obrigatória em RF; inexistente em RV; opcional em fundo.
 - **RV:** `liquidity` = `D_PLUS_DAYS`, `liquidityDays` = `2` (fixos, não parâmetros do construtor).
 - **`Liquidity`:** `DAILY`, `AT_MATURITY`, `D_PLUS_DAYS` (com `liquidityDays` onde fizer sentido).
-- **`AssetTransaction`:** sempre `totalValue`; RF/Fundo = valor explícito; RV = `quantity * unitPrice`.
+- **`AssetTransaction`:** tipo único (`data class`) com `quantity` e `unitPrice` persistidos; `totalValue` sempre derivado (`quantity * unitPrice`). RF/Fundos: convenção UI qty=1, preço unitário = valor total.
 - **`TransactionType`:** `PURCHASE` aumenta posição; `SALE` reduz.
 - **`FinancialGoal`:** `targetValue > 0` no `init`.
 - **Datas:** `kotlinx.datetime` (`LocalDate`, `YearMonth`).
@@ -66,7 +66,7 @@ Subtipos e campos distintivos estão no diagrama ER (`Asset`, `FixedIncomeAsset`
 
 ### 6.2 `AssetTransaction`
 
-Regras de valor por subtipo constam em `FixedIncomeTransaction`, `FundsTransaction` e `VariableIncomeTransaction` no diagrama ER (§9).
+Tipo único para todas as classes de ativo. Campos: `id`, `date`, `type`, `quantity`, `unitPrice`; `totalValue` é propriedade derivada. A classe do ativo (`AssetClass`) vem de `AssetHolding.asset`, não da transação.
 
 ### 6.3 Metas e projeções
 
@@ -91,7 +91,7 @@ Regras de valor por subtipo constam em `FixedIncomeTransaction`, `FundsTransacti
 
 ## 7. Posição a partir de transações (visão de domínio)
 
-Quantidade, custo médio e valor investido **não** são campos de `AssetHolding`: derivam das transações e do tipo de ativo (ver §9: `AssetHolding` → `AssetTransaction` → subtipos de `Asset`).
+Quantidade, custo médio e valor investido **não** são campos de `AssetHolding`: derivam das transações e do tipo de ativo (ver §9: `AssetHolding` → `AssetTransaction`; classe via subtipos de `Asset`).
 
 Detalhes algorítmicos ficam nos casos de uso, não neste arquivo.
 
@@ -244,61 +244,28 @@ erDiagram
 
 ### 9.3 Pacote `transactions` (`com.eferraz.entities.transactions`)
 
-Referências: `AssetHolding`, `Asset`, `FixedIncomeAsset`, `VariableIncomeAsset`, `InvestmentFundAsset` (§9.2 e §9.1).
+Referências: `AssetHolding` (§9.2). A classe do ativo (`AssetClass`) é obtida via `AssetHolding.asset`, não armazenada na transação.
 
 ```mermaid
 erDiagram
     AssetHolding {
         String ref "§9.2"
     }
-    Asset {
-        String ref "§9.1"
-    }
-    FixedIncomeAsset {
-        String ref "§9.1"
-    }
-    VariableIncomeAsset {
-        String ref "§9.1"
-    }
-    InvestmentFundAsset {
-        String ref "§9.1"
-    }
     AssetTransaction {
         Long id
         LocalDate date
         String type "enum TransactionType"
-        Double totalValue
-        String observations "opcional"
-    }
-    FixedIncomeTransaction {
-        Long id
-        Double totalValue
-    }
-    VariableIncomeTransaction {
-        Long id
         Double quantity
         Double unitPrice
-        Double totalValue "derivado qty*price"
-    }
-    FundsTransaction {
-        Long id
-        Double totalValue
+        Double totalValue "derivado qty*unitPrice"
     }
     TransactionBalance {
         Double contributions
         Double withdrawals
         Double balance
     }
-    AssetTransaction ||--o| FixedIncomeTransaction : "implements"
-    AssetTransaction ||--o| VariableIncomeTransaction : "implements"
-    AssetTransaction ||--o| FundsTransaction : "implements"
-    FixedIncomeTransaction }o--o{ FixedIncomeAsset : "RF no agregado"
-    VariableIncomeTransaction }o--o{ VariableIncomeAsset : "RV no agregado"
-    FundsTransaction }o--o{ InvestmentFundAsset : "fundo no agregado"
+    AssetHolding ||--o{ AssetTransaction : "transacoes"
     TransactionBalance }o--o{ AssetTransaction : "calculate List"
-    TransactionBalance }o--o{ FixedIncomeTransaction : "when branch"
-    TransactionBalance }o--o{ VariableIncomeTransaction : "when branch"
-    TransactionBalance }o--o{ FundsTransaction : "when branch"
 ```
 
 ### 9.4 Pacote `goals` (`com.eferraz.entities.goals`)

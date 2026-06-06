@@ -8,7 +8,7 @@ import com.eferraz.entities.assets.YieldIndexer
 import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.Owner
-import com.eferraz.entities.transactions.FixedIncomeTransaction
+import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.usecases.cruds.UpsertAssetUseCase
 import com.eferraz.usecases.exceptions.ValidateException
@@ -51,7 +51,7 @@ internal class SaveAssetWithTransactionsUseCaseTest {
 
     private fun sampleHolding(
         asset: FixedIncomeAsset = sampleAsset(),
-        transactions: List<FixedIncomeTransaction> = emptyList(),
+        transactions: List<AssetTransaction> = emptyList(),
     ) = AssetHolding(
         id = 5L,
         asset = asset,
@@ -67,11 +67,12 @@ internal class SaveAssetWithTransactionsUseCaseTest {
     fun `GIVEN valid holding WHEN save THEN upserts asset and holding`() = runTest {
 
         // GIVEN
-        val transaction = FixedIncomeTransaction(
+        val transaction = AssetTransaction(
             id = 10L,
             date = LocalDate(2025, 1, 10),
             type = TransactionType.PURCHASE,
-            totalValue = 1000.0,
+            quantity = 1.0,
+            unitPrice = 1000.0,
         )
         val holding = sampleHolding(transactions = listOf(transaction))
         val savedAsset = sampleAsset(id = 99L)
@@ -132,11 +133,12 @@ internal class SaveAssetWithTransactionsUseCaseTest {
     fun `GIVEN holding with removed transaction ids WHEN save THEN upsertWithTransactions receives final list`() = runTest {
 
         // GIVEN
-        val remaining = FixedIncomeTransaction(
+        val remaining = AssetTransaction(
             id = 10L,
             date = LocalDate(2025, 1, 10),
             type = TransactionType.PURCHASE,
-            totalValue = 1000.0,
+            quantity = 1.0,
+            unitPrice = 1000.0,
         )
         val holding = sampleHolding(transactions = listOf(remaining))
         val savedAsset = sampleAsset(id = 99L)

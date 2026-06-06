@@ -1,6 +1,6 @@
 package com.eferraz.usecases
 
-import com.eferraz.entities.transactions.FixedIncomeTransaction
+import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.usecases.TestDataFactory.createAssetHolding
 import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
@@ -26,11 +26,12 @@ class SaveTransactionUseCaseTest {
 
         // GIVEN
         val holding = createAssetHolding(asset = createFixedIncomeAsset())
-        val transaction = FixedIncomeTransaction(
+        val transaction = AssetTransaction(
             id = 0L,
             date = LocalDate(2025, 1, 10),
             type = TransactionType.PURCHASE,
-            totalValue = 1000.0,
+            quantity = 1.0,
+            unitPrice = 1000.0,
         )
         val repository = mockk<AssetTransactionRepository>()
         coEvery { repository.upsert(holding, transaction) } returns 42L

@@ -1,94 +1,23 @@
 package com.eferraz.database.mappers
 
 import com.eferraz.database.entities.transaction.AssetTransactionEntity
-import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.transaction.FundsTransactionEntity
-import com.eferraz.database.entities.transaction.TransactionWithDetails
-import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import com.eferraz.entities.transactions.AssetTransaction
-import com.eferraz.entities.transactions.FixedIncomeTransaction
-import com.eferraz.entities.transactions.FundsTransaction
-import com.eferraz.entities.transactions.VariableIncomeTransaction
 
-/**
- * Mappers para conversão entre entidades de domínio e entidades de banco de dados de transações.
- */
-
-internal fun AssetTransaction.toEntity(holdingId: Long): TransactionWithDetails {
-
-    val baseEntity = AssetTransactionEntity(
+internal fun AssetTransaction.toEntity(holdingId: Long): AssetTransactionEntity =
+    AssetTransactionEntity(
         id = id,
         holdingId = holdingId,
         transactionDate = date,
         type = type,
-        assetClass = when (this) {
-            is FixedIncomeTransaction -> PersistedAssetClass.FIXED_INCOME
-            is VariableIncomeTransaction -> PersistedAssetClass.VARIABLE_INCOME
-            is FundsTransaction -> PersistedAssetClass.INVESTMENT_FUND
-        },
-        observations = observations
+        quantity = quantity,
+        unitPrice = unitPrice,
     )
 
-    return when (this) {
-
-        is FixedIncomeTransaction -> TransactionWithDetails(
-            transaction = baseEntity,
-            fixedIncome = FixedIncomeTransactionEntity(
-                transactionId = id,
-                totalValue = totalValue
-            )
-        )
-
-        is VariableIncomeTransaction -> TransactionWithDetails(
-            transaction = baseEntity,
-            variableIncome = VariableIncomeTransactionEntity(
-                transactionId = id,
-                quantity = quantity,
-                unitPrice = unitPrice
-            )
-        )
-
-        is FundsTransaction -> TransactionWithDetails(
-            transaction = baseEntity,
-            funds = FundsTransactionEntity(
-                transactionId = id,
-                totalValue = totalValue
-            )
-        )
-    }
-}
-
-internal fun TransactionWithDetails.toDomain(): AssetTransaction {
-
-    val base = transaction
-
-    return when {
-
-        fixedIncome != null -> FixedIncomeTransaction(
-            id = base.id,
-            date = base.transactionDate,
-            type = base.type,
-            totalValue = fixedIncome.totalValue,
-            observations = base.observations
-        )
-
-        variableIncome != null -> VariableIncomeTransaction(
-            id = base.id,
-            date = base.transactionDate,
-            type = base.type,
-            quantity = variableIncome.quantity,
-            unitPrice = variableIncome.unitPrice,
-            observations = base.observations
-        )
-
-        funds != null -> FundsTransaction(
-            id = base.id,
-            date = base.transactionDate,
-            type = base.type,
-            totalValue = funds.totalValue,
-            observations = base.observations
-        )
-
-        else -> throw IllegalStateException("TransactionWithDetails must have at least one specific transaction type")
-    }
-}
+internal fun AssetTransactionEntity.toDomain(): AssetTransaction =
+    AssetTransaction(
+        id = id,
+        date = transactionDate,
+        type = type,
+        quantity = quantity,
+        unitPrice = unitPrice,
+    )

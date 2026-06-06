@@ -1,3 +1,0 @@
-package com.eferraz.database.entities.transaction
-
-internal interface BaseTransactionEntity

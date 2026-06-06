@@ -53,18 +53,7 @@ public data class TransactionBalance private constructor(
             )
         }
 
-        /**
-         * Calcula o valor de uma transação baseado no tipo de ativo.
-         *
-         * - Renda Variável: quantity × unitPrice
-         * - Renda Fixa: totalValue
-         * - Fundos: totalValue
-         */
         private fun calculateTransactionValue(transaction: AssetTransaction): Double =
-            when (transaction) {
-                is VariableIncomeTransaction -> transaction.quantity * transaction.unitPrice
-                is FixedIncomeTransaction -> transaction.totalValue
-                is FundsTransaction -> transaction.totalValue
-            }
+            transaction.totalValue
     }
 }

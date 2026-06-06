@@ -7,7 +7,6 @@ import com.eferraz.database.entities.goals.FinancialGoalEntity
 import com.eferraz.database.entities.supports.BrokerageEntity
 import com.eferraz.database.entities.supports.OwnerEntity
 import com.eferraz.database.entities.transaction.AssetTransactionEntity
-import com.eferraz.database.entities.transaction.TransactionWithDetails
 
 /**
  * Data class intermediária que representa um holding completo com seu asset.
@@ -47,5 +46,5 @@ internal data class AssetHoldingWithDetails(
         parentColumns = ["id"],
         entityColumns = ["holdingId"],
     )
-    val transactions: List<TransactionWithDetails> = emptyList(),
+    val transactions: List<AssetTransactionEntity> = emptyList(),
 )

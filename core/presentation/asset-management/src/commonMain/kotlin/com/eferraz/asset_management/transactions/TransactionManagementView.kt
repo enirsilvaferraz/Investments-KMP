@@ -50,7 +50,6 @@ internal fun TransactionFormContent(
     onTypeChanged: (index: Int, type: TransactionType) -> Unit,
     onQuantityChanged: (index: Int, value: String) -> Unit,
     onUnitPriceChanged: (index: Int, value: String) -> Unit,
-    onTotalValueChanged: (index: Int, value: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isVariableIncome = assetClass == AssetClass.VARIABLE_INCOME
@@ -64,7 +63,7 @@ internal fun TransactionFormContent(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            TransactionHeader(isVariableIncome = isVariableIncome)
+            TransactionHeader()
 
             TransactionTable(
                 transactions = transactions,
@@ -74,7 +73,6 @@ internal fun TransactionFormContent(
                 onTypeChanged = onTypeChanged,
                 onQuantityChanged = onQuantityChanged,
                 onUnitPriceChanged = onUnitPriceChanged,
-                onTotalValueChanged = onTotalValueChanged,
             )
 
             FilledTonalButton(
@@ -88,7 +86,7 @@ internal fun TransactionFormContent(
 }
 
 @Composable
-private fun TransactionHeader(isVariableIncome: Boolean) {
+private fun TransactionHeader() {
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -157,7 +155,6 @@ private fun TransactionTable(
     onTypeChanged: (index: Int, type: TransactionType) -> Unit,
     onQuantityChanged: (index: Int, value: String) -> Unit,
     onUnitPriceChanged: (index: Int, value: String) -> Unit,
-    onTotalValueChanged: (index: Int, value: String) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -172,7 +169,6 @@ private fun TransactionTable(
                 onTypeChanged = onTypeChanged,
                 onQuantityChanged = onQuantityChanged,
                 onUnitPriceChanged = onUnitPriceChanged,
-                onTotalValueChanged = onTotalValueChanged,
             )
         }
     }
@@ -188,7 +184,6 @@ private fun TransactionTableRow(
     onTypeChanged: (index: Int, type: TransactionType) -> Unit,
     onQuantityChanged: (index: Int, value: String) -> Unit,
     onUnitPriceChanged: (index: Int, value: String) -> Unit,
-    onTotalValueChanged: (index: Int, value: String) -> Unit,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -220,7 +215,12 @@ private fun TransactionTableRow(
             value = draft.quantity,
             onValueChange = { onQuantityChanged(index, it) },
             errorMessage = null,
-            readOnly = !isVariableIncome
+            readOnly = !isVariableIncome,
+            keyboardOptions = if (isVariableIncome) {
+                KeyboardOptions(keyboardType = KeyboardType.Number)
+            } else {
+                KeyboardOptions.Default
+            },
         )
 
         FormTextField(
@@ -229,16 +229,15 @@ private fun TransactionTableRow(
             value = draft.unitPrice,
             onValueChange = { onUnitPriceChanged(index, it) },
             errorMessage = null,
-            readOnly = !isVariableIncome
         )
 
         FormTextField(
             modifier = Modifier.weight(1.1f),
             label = "",
             value = draft.totalValue,
-            onValueChange = { onTotalValueChanged(index, it) },
+            onValueChange = {},
             errorMessage = null,
-            readOnly = isVariableIncome,
+            readOnly = true,
         )
 
         FilledIconButton(
@@ -264,13 +263,27 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<List<Tra
                 assetClass = AssetClass.FIXED_INCOME,
                 dateDigits = "20250110",
                 type = TransactionType.PURCHASE,
+                quantity = "1",
+                unitPrice = "5000.00",
                 totalValue = "5000.00",
             ),
             TransactionDraftUi(
                 assetClass = AssetClass.FIXED_INCOME,
                 dateDigits = "20250215",
                 type = TransactionType.PURCHASE,
+                quantity = "1",
+                unitPrice = "3500.00",
                 totalValue = "3500.00",
+            ),
+        ),
+        listOf(
+            TransactionDraftUi(
+                assetClass = AssetClass.INVESTMENT_FUND,
+                dateDigits = "20250301",
+                type = TransactionType.PURCHASE,
+                quantity = "1",
+                unitPrice = "5000.00",
+                totalValue = "5000.00",
             ),
         ),
         listOf(
@@ -308,7 +321,6 @@ private fun TransactionFormContentPreview(
                 onTypeChanged = { _, _ -> },
                 onQuantityChanged = { _, _ -> },
                 onUnitPriceChanged = { _, _ -> },
-                onTotalValueChanged = { _, _ -> },
             )
         }
     }

@@ -12,4 +12,10 @@ kotlin {
     dependencies {
         implementation(projects.domain.entity)
     }
+
+    sourceSets {
+        jvmTest.dependencies {
+            implementation("androidx.room3:room3-testing:3.0.0-alpha05")
+        }
+    }
 }

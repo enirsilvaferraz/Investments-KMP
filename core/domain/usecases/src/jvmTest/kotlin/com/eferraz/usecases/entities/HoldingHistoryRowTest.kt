@@ -14,7 +14,7 @@ import com.eferraz.entities.holdings.AssetHolding
 import com.eferraz.entities.holdings.Brokerage
 import com.eferraz.entities.holdings.HoldingHistoryEntry
 import com.eferraz.entities.holdings.Owner
-import com.eferraz.entities.transactions.FundsTransaction
+import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.TransactionType
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
@@ -201,11 +201,12 @@ internal class HoldingHistoryRowTest {
             type = InvestmentFundAssetType.MULTIMARKET_FUND,
             liquidity = Liquidity.D_PLUS_DAYS,
         )
-        val purchase = FundsTransaction(
+        val purchase = AssetTransaction(
             id = 1,
             date = transactionDate,
             type = TransactionType.PURCHASE,
-            totalValue = 500.0,
+            quantity = 1.0,
+            unitPrice = 500.0,
         )
         val holding = AssetHolding(
             id = 3,

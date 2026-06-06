@@ -3,33 +3,15 @@ package com.eferraz.entities.transactions
 import kotlinx.datetime.LocalDate
 
 /**
- * Contrato base para todas as transações de ativos.
- * Cada categoria de ativo possui suas próprias subclasses com regras específicas.
+ * Transação de ativo unificada para todas as classes (RF, RV, fundos).
+ * O valor total é sempre derivado de [quantity] × [unitPrice].
  */
-public sealed interface AssetTransaction {
-
-    /**
-     * O identificador único da transação.
-     */
-    public val id: Long
-
-    /**
-     * A data da transação.
-     */
-    public val date: LocalDate
-
-    /**
-     * O tipo de transação (compra ou venda).
-     */
-    public val type: TransactionType
-
-    /**
-     * Notas e observações adicionais sobre a transação (opcional).
-     */
-    public val observations: String?
-
-    /**
-     * O valor total da transação.
-     */
-    public val totalValue: Double
+public data class AssetTransaction(
+    public val id: Long,
+    public val date: LocalDate,
+    public val type: TransactionType,
+    public val quantity: Double,
+    public val unitPrice: Double,
+) {
+    public val totalValue: Double get() = quantity * unitPrice
 }

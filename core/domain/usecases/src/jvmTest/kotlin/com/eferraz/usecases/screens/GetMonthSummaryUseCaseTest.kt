@@ -1,6 +1,6 @@
 package com.eferraz.usecases.screens
 
-import com.eferraz.entities.transactions.FixedIncomeTransaction
+import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.TransactionType
 import com.eferraz.usecases.TestDataFactory.createAssetHolding
 import com.eferraz.usecases.TestDataFactory.createFixedIncomeAsset
@@ -33,11 +33,12 @@ internal class GetMonthSummaryUseCaseTest {
         val holdingOne = createAssetHolding(id = 1L, asset = asset)
         val holdingTwo = createAssetHolding(id = 2L, asset = asset)
 
-        val contribution = FixedIncomeTransaction(
+        val contribution = AssetTransaction(
             id = 1L,
             date = LocalDate(2026, Month.MAY, 10),
             type = TransactionType.PURCHASE,
-            totalValue = 500.0,
+            quantity = 1.0,
+            unitPrice = 500.0,
         )
         val holdingOneWithTransactions = holdingOne.copy(transactions = listOf(contribution))
 

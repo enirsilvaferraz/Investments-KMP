@@ -2,17 +2,12 @@ package com.eferraz.database.daos
 
 import androidx.room3.Dao
 import androidx.room3.Query
-import androidx.room3.Transaction
 import androidx.room3.Upsert
 import com.eferraz.database.entities.transaction.AssetTransactionEntity
-import com.eferraz.database.entities.transaction.FixedIncomeTransactionEntity
-import com.eferraz.database.entities.transaction.FundsTransactionEntity
-import com.eferraz.database.entities.transaction.TransactionWithDetails
-import com.eferraz.database.entities.transaction.VariableIncomeTransactionEntity
 import kotlinx.datetime.LocalDate
 
 /**
- * DAO para operações CRUD nas tabelas de transações de ativos.
+ * DAO para operações CRUD na tabela achatada asset_transactions.
  */
 @Dao
 internal interface AssetTransactionDao {
@@ -20,36 +15,15 @@ internal interface AssetTransactionDao {
     @Upsert
     suspend fun save(transaction: AssetTransactionEntity): Long
 
-    @Upsert
-    suspend fun save(transaction: FixedIncomeTransactionEntity): Long
-
-    @Upsert
-    suspend fun save(transaction: VariableIncomeTransactionEntity): Long
-
-    @Upsert
-    suspend fun save(transaction: FundsTransactionEntity): Long
-
-    @Transaction
-    suspend fun save(relationship: TransactionWithDetails): Long {
-        val id = save(relationship.transaction).takeIf { it != -1L } ?: relationship.transaction.id
-        relationship.fixedIncome?.let { save(it.copy(transactionId = id)) }
-        relationship.variableIncome?.let { save(it.copy(transactionId = id)) }
-        relationship.funds?.let { save(it.copy(transactionId = id)) }
-        return id
-    }
-
-    @Transaction
     @Query("SELECT * FROM asset_transactions WHERE id = :id")
-    suspend fun find(id: Long): TransactionWithDetails?
+    suspend fun find(id: Long): AssetTransactionEntity?
 
     @Query("DELETE FROM asset_transactions WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Transaction
     @Query("SELECT * FROM asset_transactions WHERE holdingId = :holdingId ORDER BY transactionDate DESC")
-    suspend fun getAllByHoldingId(holdingId: Long): List<TransactionWithDetails>
+    suspend fun getAllByHoldingId(holdingId: Long): List<AssetTransactionEntity>
 
-    @Transaction
     @Query(
         """
         SELECT * FROM asset_transactions 
@@ -63,9 +37,8 @@ internal interface AssetTransactionDao {
         holdingId: Long,
         startDate: LocalDate,
         endDate: LocalDate,
-    ): List<TransactionWithDetails>
+    ): List<AssetTransactionEntity>
 
-    @Transaction
     @Query(
         """
         SELECT asset_transactions.* 
@@ -81,9 +54,8 @@ internal interface AssetTransactionDao {
         goalId: Long,
         startDate: LocalDate,
         endDate: LocalDate
-    ): List<TransactionWithDetails>
+    ): List<AssetTransactionEntity>
 
-    @Transaction
     @Query(
         """
         SELECT * FROM asset_transactions 
@@ -92,5 +64,5 @@ internal interface AssetTransactionDao {
         ORDER BY transactionDate DESC
     """
     )
-    suspend fun getByDateRange(startDate: LocalDate, endDate: LocalDate): List<TransactionWithDetails>
+    suspend fun getByDateRange(startDate: LocalDate, endDate: LocalDate): List<AssetTransactionEntity>
 }
