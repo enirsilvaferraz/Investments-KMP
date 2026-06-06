@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
@@ -33,8 +34,7 @@ internal class AssetManagementViewModel(
 ) : ViewModel() {
 
     internal val state: StateFlow<AssetManagementUiState> field = MutableStateFlow(AssetManagementUiState())
-
-    internal val dismissAfterSave: SharedFlow<Unit> field = MutableSharedFlow<Unit>(extraBufferCapacity = 0)
+    internal val effects: SharedFlow<AssetManagementEffect> field = MutableSharedFlow<AssetManagementEffect>(extraBufferCapacity = 0)
 
     private var existingHolding: AssetHolding? = null
 
@@ -170,7 +170,7 @@ internal class AssetManagementViewModel(
         saveAssetWithTransactionsUseCase(SaveAssetWithTransactionsUseCase.Param(holding))
             .onSuccess {
                 state.update { it.copy(isSaving = false) }
-                dismissAfterSave.emit(Unit)
+                effects.emit(AssetManagementEffect.Dismiss)
             }
             .onFailure { error ->
                 when (error) {
