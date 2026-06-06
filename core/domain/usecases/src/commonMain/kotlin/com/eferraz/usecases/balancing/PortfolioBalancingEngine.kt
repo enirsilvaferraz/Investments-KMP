@@ -26,6 +26,7 @@ internal object PortfolioBalancingEngine {
             hasDynamicWeight = hasDynamicWeight,
         )
 
+        val idealByComponentId = mutableMapOf<String, Double>()
         val lines = resolvedGroups.flatMap { group ->
             buildGroupLines(
                 group = group,
@@ -33,6 +34,7 @@ internal object PortfolioBalancingEngine {
                 portfolioActuals = portfolioActuals,
                 totalPortfolioValue = totalPortfolioValue,
                 portfolioContext = portfolioContext,
+                idealByComponentId = idealByComponentId,
             )
         }
 
@@ -98,6 +100,7 @@ internal object PortfolioBalancingEngine {
         portfolioActuals: Map<String, Double>,
         totalPortfolioValue: Double,
         portfolioContext: BalancingWeightCalculator.PortfolioTotalContext,
+        idealByComponentId: MutableMap<String, Double>,
     ): List<PortfolioBalancingReportLine> {
         val universe = universeForGroup(group, activeEntries)
         val actuals = if (group.id == BalancingGroupId.PORTFOLIO_TOTAL) {
@@ -114,16 +117,25 @@ internal object PortfolioBalancingEngine {
             return emptyList()
         }
 
+        val parentIdealBase = if (group.id == BalancingGroupId.PORTFOLIO_TOTAL) {
+            null
+        } else {
+            idealByComponentId.getValue(group.id)
+        }
+
         return group.components.mapNotNull { component ->
             val actual = actuals.getValue(component.id)
-            if (!shouldDisplayInReport(component, actual)) return@mapNotNull null
-            toReportLine(
+            val reportLine = toReportLine(
                 group = group,
                 component = component,
                 actualValue = actual,
                 groupTotal = groupTotal,
                 portfolioContext = portfolioContext,
+                parentIdealBase = parentIdealBase,
             )
+            idealByComponentId[component.id] = reportLine.idealValue
+            if (!shouldDisplayInReport(component, actual)) return@mapNotNull null
+            reportLine
         }
     }
 
@@ -142,6 +154,7 @@ internal object PortfolioBalancingEngine {
         actualValue: Double,
         groupTotal: Double,
         portfolioContext: BalancingWeightCalculator.PortfolioTotalContext,
+        parentIdealBase: Double?,
     ): PortfolioBalancingReportLine {
         val configured = BalancingWeightCalculator.configuredWeight(component.targetWeight)
         val computed = if (group.id == BalancingGroupId.PORTFOLIO_TOTAL) {
@@ -155,7 +168,7 @@ internal object PortfolioBalancingEngine {
             BalancingWeightCalculator.computeNestedWeights(
                 targetWeight = component.targetWeight,
                 context = BalancingWeightCalculator.NestedContext(
-                    groupTotal = groupTotal,
+                    parentIdealBase = parentIdealBase!!,
                     totalPortfolioValue = portfolioContext.totalPortfolioValue,
                 ),
             )

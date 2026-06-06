@@ -14,7 +14,7 @@ internal object BalancingWeightCalculator {
     )
 
     internal data class NestedContext(
-        val groupTotal: Double,
+        val parentIdealBase: Double,
         val totalPortfolioValue: Double,
     )
 
@@ -76,7 +76,7 @@ internal object BalancingWeightCalculator {
     ): ComputedWeights {
         val idealValue = when {
             context.totalPortfolioValue == 0.0 -> 0.0
-            targetWeight is TargetWeight.Fixed -> context.groupTotal * targetWeight.percent / 100.0
+            targetWeight is TargetWeight.Fixed -> context.parentIdealBase * targetWeight.percent / 100.0
             targetWeight is TargetWeight.Zero -> 0.0
             else -> error("Dynamic weight is not supported in nested groups")
         }

@@ -32,10 +32,10 @@ internal object BalancingConstants {
     )
 
     val FII_FOF_TICKERS:Map<String, Double> = mapOf(
-        "BTHF11" to 25.0,
+//        "BTHF11" to 25.0,
         "BCIA11" to 25.0,
-        "KNHF11" to 25.0,
-        "MCRE11" to 25.0,
+//        "KNHF11" to 25.0,
+//        "MCRE11" to 25.0,
     )
 
     val NATIONAL_STOCK_TICKERS: Map<String, Double> = mapOf(

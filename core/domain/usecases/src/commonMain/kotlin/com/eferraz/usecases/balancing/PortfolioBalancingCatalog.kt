@@ -26,13 +26,13 @@ internal object PortfolioBalancingCatalog {
             BalancingComponent(
                 id = BalancingGroupId.FIXED_INCOME,
                 displayName = "Renda Fixa",
-                targetWeight = TargetWeight.Fixed(60.0),
+                targetWeight = TargetWeight.Fixed(70.0),
                 matches = BalancingMatchers::isFixedIncome,
             ),
             BalancingComponent(
                 id = BalancingGroupId.VARIABLE_INCOME,
                 displayName = "Renda Variável",
-                targetWeight = TargetWeight.Fixed(39.0),
+                targetWeight = TargetWeight.Fixed(29.0),
                 matches = BalancingMatchers::isVariableIncomeExcludingCrypto,
             ),
         ),
@@ -103,7 +103,7 @@ internal object PortfolioBalancingCatalog {
         components = listOf(
             BalancingComponent(
                 id = BalancingGroupId.FII_REND,
-                displayName = "FII - Renda%",
+                displayName = "FII - Renda",
                 targetWeight = TargetWeight.Fixed(70.0),
                 parentId = BalancingGroupId.RV_REITS,
                 matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_REND_TICKERS.keys),
@@ -187,7 +187,7 @@ internal object PortfolioBalancingCatalog {
 
     val groups: List<BalancingGroup> = listOf(
         portfolioTotalGroup,
-        fixedIncomeGroup,
+//        fixedIncomeGroup,
         variableIncomeGroup,
         acoesGroup,
         fundsGroup,

@@ -29,10 +29,10 @@ public class PortfolioBalancingEngineTest {
     private val brokerage = Brokerage(id = 1, name = "Broker")
 
     /**
-     * All fixed income 100k with no pension → RF ideal is 50% of balanceable base (100k).
+     * All fixed income 100k with no pension → RF ideal is 60% of portfolio (100k).
      */
     @Test
-    public fun `GIVEN portfolio of 100k all fixed income WHEN calculate THEN fixed income ideal is 50k and deviation is minus 50k`() {
+    public fun `GIVEN portfolio of 100k all fixed income WHEN calculate THEN fixed income ideal is 60k and deviation is minus 40k`() {
 
         // GIVEN
         val rfAsset = FixedIncomeAsset(
@@ -54,10 +54,10 @@ public class PortfolioBalancingEngineTest {
         // THEN
         val fixedIncomeLine = report.lines.first { it.componentName == "Renda Fixa" }
         assertEquals(100_000.0, fixedIncomeLine.actualValue, 0.01)
-        assertEquals(50_000.0, fixedIncomeLine.idealValue, 0.01)
-        assertEquals(-50_000.0, fixedIncomeLine.deviation, 0.01)
-        assertEquals(50.0, fixedIncomeLine.configuredWeightPercent!!, 0.01)
-        assertEquals(50.0, fixedIncomeLine.normalizedWeightPercent, 0.01)
+        assertEquals(60_000.0, fixedIncomeLine.idealValue, 0.01)
+        assertEquals(-40_000.0, fixedIncomeLine.deviation, 0.01)
+        assertEquals(60.0, fixedIncomeLine.configuredWeightPercent!!, 0.01)
+        assertEquals(60.0, fixedIncomeLine.normalizedWeightPercent, 0.01)
         assertEquals(100.0, fixedIncomeLine.actualWeightPercent, 0.01)
         assertEquals(100_000.0, report.totalPortfolioValue, 0.01)
         assertTrue(report.lines.none { it.componentName == "Demais investimentos" })
@@ -98,9 +98,9 @@ public class PortfolioBalancingEngineTest {
         // THEN
         val pensionLine = report.lines.first { it.componentName == "Fundos de Previdência" }
         val rfLine = report.lines.first { it.componentName == "Renda Fixa" }
-        assertEquals(450.0, rfLine.idealValue, 0.01)
-        assertEquals(50.0, rfLine.configuredWeightPercent!!, 0.01)
-        assertEquals(45.0, rfLine.normalizedWeightPercent, 0.01)
+        assertEquals(540.0, rfLine.idealValue, 0.01)
+        assertEquals(60.0, rfLine.configuredWeightPercent!!, 0.01)
+        assertEquals(54.0, rfLine.normalizedWeightPercent, 0.01)
         assertEquals("dinâmico", pensionLine.configuredWeightDisplay)
         assertNull(pensionLine.configuredWeightPercent)
         assertEquals(10.0, pensionLine.normalizedWeightPercent, 0.01)
@@ -151,7 +151,7 @@ public class PortfolioBalancingEngineTest {
         assertEquals(10.0, pensionLine.normalizedWeightPercent, 0.01)
 
         val rfLine = report.lines.first { it.componentName == "Renda Fixa" }
-        assertEquals(45_000.0, rfLine.idealValue, 0.01)
+        assertEquals(54_000.0, rfLine.idealValue, 0.01)
     }
 
     /**
@@ -288,10 +288,10 @@ public class PortfolioBalancingEngineTest {
     }
 
     /**
-     * Nested ideal = group actual total × configured internal weight.
+     * Nested ideal = parent component ideal × configured internal weight.
      */
     @Test
-    public fun `GIVEN over allocated RF WHEN calculate THEN nested ideal uses group total times weight`() {
+    public fun `GIVEN mixed RF and RV WHEN calculate THEN nested ideal uses parent ideal times weight`() {
 
         // GIVEN
         val rfAsset = FixedIncomeAsset(
@@ -321,7 +321,7 @@ public class PortfolioBalancingEngineTest {
         // THEN
         val postFixedLine = report.lines.first { it.componentName == "Pós-fixados" }
         assertEquals(80_000.0, postFixedLine.actualValue, 0.01)
-        assertEquals(26_664.0, postFixedLine.idealValue, 1.0)
+        assertEquals(19_998.0, postFixedLine.idealValue, 1.0)
     }
 
     /**
@@ -476,7 +476,7 @@ public class PortfolioBalancingEngineTest {
             assertEquals(0.0, line.actualWeightPercent, 0.01)
         }
         val rfLine = report.lines.first { it.componentName == "Renda Fixa" }
-        assertEquals(50.0, rfLine.configuredWeightPercent!!, 0.01)
+        assertEquals(60.0, rfLine.configuredWeightPercent!!, 0.01)
         val pensionLine = report.lines.first { it.componentName == "Fundos de Previdência" }
         assertEquals("dinâmico", pensionLine.configuredWeightDisplay)
     }
