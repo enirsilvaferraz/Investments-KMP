@@ -15,6 +15,8 @@ import com.eferraz.usecases.entities.HoldingHistoryRow
 import com.eferraz.usecases.holdings.CreateHistoryUseCase
 import com.eferraz.usecases.screens.FilterHoldingHistoryUseCase
 import com.eferraz.usecases.screens.GetMonthSummaryUseCase
+import com.eferraz.usecases.balancing.CalculatePortfolioBalancingUseCase
+import com.eferraz.usecases.balancing.formatPortfolioBalancingReport
 import com.eferraz.usecases.services.ExportToCsvUseCase
 import com.eferraz.usecases.services.ImportB3FileUseCase
 import com.eferraz.usecases.services.SyncVariableIncomeValuesUseCase
@@ -40,6 +42,7 @@ internal class HistoryViewModel(
     private val updateVariableIncomeValues: SyncVariableIncomeValuesUseCase,
     private val exportToCsvUseCase: ExportToCsvUseCase,
     private val importB3FileUseCase: ImportB3FileUseCase,
+    private val calculatePortfolioBalancingUseCase: CalculatePortfolioBalancingUseCase,
 ) : ViewModel() {
 
     val state: StateFlow<HistoryState> field = MutableStateFlow(HistoryState())
@@ -73,6 +76,7 @@ internal class HistoryViewModel(
             is HistoryIntent.WalletFiltersChanged -> walletFiltersChanged(intent.filters)
             is HistoryIntent.ExportFixedIncomeCsv -> exportFixedIncomeCsv()
             is HistoryIntent.ImportB3File -> importB3File()
+            is HistoryIntent.CalculatePortfolioBalancing -> calculatePortfolioBalancing()
         }
     }
 
@@ -135,6 +139,14 @@ internal class HistoryViewModel(
         }
     }
 
+    private fun calculatePortfolioBalancing() {
+        viewModelScope.launch {
+            calculatePortfolioBalancingUseCase(Unit)
+                .onSuccess { println(formatPortfolioBalancingReport(it)) }
+                .onFailure { println("Balanceamento: ${it.message}") }
+        }
+    }
+
     internal fun loadInitialData() {
 
         val period = state.value.period.selected!!
@@ -181,6 +193,7 @@ internal sealed interface HistoryIntent {
     data object Sync : HistoryIntent
     data object ExportFixedIncomeCsv : HistoryIntent
     data object ImportB3File : HistoryIntent
+    data object CalculatePortfolioBalancing : HistoryIntent
     data class UpdateEntryValue(val entry: HoldingHistoryEntry, val value: Double) : HistoryIntent
     data class SelectPeriod(val period: YearMonth) : HistoryIntent
     data class WalletFiltersChanged(val filters: WalletFiltersUiState) : HistoryIntent

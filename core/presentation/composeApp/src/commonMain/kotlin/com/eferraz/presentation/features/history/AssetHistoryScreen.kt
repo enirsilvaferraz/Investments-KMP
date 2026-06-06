@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -97,6 +98,9 @@ public fun HoldingHistoryRoute(
     val onImportClick = remember(vm) {
         { vm.processIntent(HistoryIntent.ImportB3File) }
     }
+    val onBalancingClick = remember(vm) {
+        { vm.processIntent(HistoryIntent.CalculatePortfolioBalancing) }
+    }
 
     HoldingHistoryScreen(
         dataRows = state.tableData,
@@ -111,6 +115,7 @@ public fun HoldingHistoryRoute(
         onExportFixedIncomeClick = onExportFixedIncomeClick,
         isImporting = state.isImporting,
         onImportClick = onImportClick,
+        onBalancingClick = onBalancingClick,
         onEditHolding = onEditHolding,
         monthSummary = state.monthSummary,
     )
@@ -131,6 +136,7 @@ internal fun HoldingHistoryScreen(
     onExportFixedIncomeClick: () -> Unit,
     isImporting: Boolean,
     onImportClick: () -> Unit,
+    onBalancingClick: () -> Unit,
     onEditHolding: (Long) -> Unit,
     monthSummary: MonthSummary,
 ) {
@@ -151,6 +157,7 @@ internal fun HoldingHistoryScreen(
                 onSyncClick = onSyncClick,
                 isImporting = isImporting,
                 onImportClick = onImportClick,
+                onBalancingClick = onBalancingClick,
                 onExportFixedIncomeClick = onExportFixedIncomeClick,
                 onCloseClick = { scope.launch { navigator.navigateBack() } }
             )
@@ -192,6 +199,7 @@ private fun Actions(
     onSyncClick: () -> Unit,
     isImporting: Boolean,
     onImportClick: () -> Unit,
+    onBalancingClick: () -> Unit,
     onExportFixedIncomeClick: () -> Unit,
     onCloseClick: () -> Unit,
 ) {
@@ -239,6 +247,13 @@ private fun Actions(
         Icon(
             imageVector = Icons.Default.FileDownload,
             contentDescription = "Exportar renda fixa em CSV"
+        )
+    }
+
+    IconButton(onClick = onBalancingClick) {
+        Icon(
+            imageVector = Icons.Outlined.AccountBalance,
+            contentDescription = "Balanceamento de carteira",
         )
     }
 }

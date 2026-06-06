@@ -31,7 +31,7 @@
 
 ## Notes
 
-- Validação concluída em 2026-06-06 (iteração 1). Todos os itens passaram.
+- Validação concluída em 2026-06-06 (iteração 2). Todos os itens passaram.
+- Iteração 2 (clarify 2026-06-06): 5 Q&A integrados — fundos não-previdência, ideal aninhado, coluna desvio, botão sem lock, partição de regras.
 - Peso «Outros RV» (10%) inferido para completar 100% do Grupo Renda Variável — documentado em Assumptions.
-- FR-009/FR-010 descrevem entrega mínima pedida pelo utilizador (operação de domínio + log + controlo no histórico) sem referir stack técnica.
 - Pronto para `/speckit.plan`.

@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 
 <!-- SPECKIT START -->
-Plano actual: `specs/023-unify-asset-transaction/plan.md` — tipo único `AssetTransaction` (qty, unitPrice, totalValue derivado);
-Room v10 (tabela achatada, migração 9→10); remover observações, asset_class e subclasses; formulário inline uniforme na AssetManagementScreen (RF/Fundos qty=1).
-Fora do escopo: card Resumo, IncomeTax, Excluir; legado composeApp/transactions/ já removido.
+Plano actual: `specs/024-portfolio-balancing/plan.md` — balanceamento: `CalculatePortfolioBalancingUseCase(Unit)` autossuficiente
+(`DateProvider` + `GetHoldingHistoriesUseCase` only); engine puro + log no histórico (sem ecrã v1).
+Fora do escopo: persistência de pesos, painel visual, recomendações de negociação.
 <!-- SPECKIT END -->
