@@ -15,6 +15,36 @@ internal object PortfolioBalancingCatalog {
     internal const val HASH11: String = "HASH11"
     internal const val IVVB11: String = "IVVB11"
 
+    internal val FII_REND_TICKERS: Set<String> = setOf(
+        "BRCO11",
+        "BTLG11",
+        "HGBS11",
+        "HSML11",
+        "JSRE11",
+        "KNCR11",
+        "KNSC11",
+        "MCCI11",
+        "PVBI11",
+    )
+
+    internal val FII_TAT_TICKERS: Set<String> = setOf(
+        "ALZR11",
+        "CLIN11",
+        "HGCR11",
+        "KNIP11",
+        "KORE11",
+        "PMLL11",
+        "VILG11",
+        "VISC11",
+    )
+
+    internal val FII_FOF_TICKERS: Set<String> = setOf(
+        "BTHF11",
+        "BCIA11",
+        "KNHF11",
+        "MCRE11",
+    )
+
     internal val portfolioTotalGroup: BalancingGroup = BalancingGroup(
         id = BalancingGroupId.PORTFOLIO_TOTAL,
         displayName = "Carteira Total",
@@ -96,7 +126,7 @@ internal object PortfolioBalancingCatalog {
                 },
             ),
             BalancingComponent(
-                id = BalancingComponentId.RF_OTHER,
+                id = BalancingComponentId.OTHER_INVESTMENTS,
                 displayName = "Demais investimentos",
                 targetWeight = TargetWeight.Zero,
                 parentId = BalancingComponentId.FIXED_INCOME_TOTAL,
@@ -142,7 +172,7 @@ internal object PortfolioBalancingCatalog {
                 },
             ),
             BalancingComponent(
-                id = BalancingComponentId.RV_OTHER,
+                id = BalancingComponentId.OTHER_INVESTMENTS,
                 displayName = "Demais investimentos",
                 targetWeight = TargetWeight.Fixed(10.0),
                 parentId = BalancingComponentId.VARIABLE_INCOME_TOTAL,
@@ -151,5 +181,55 @@ internal object PortfolioBalancingCatalog {
         ),
     )
 
-    val groups: List<BalancingGroup> = listOf(portfolioTotalGroup, fixedIncomeGroup, variableIncomeGroup)
+    internal val fundsGroup: BalancingGroup = BalancingGroup(
+        id = BalancingGroupId.RV_REITS,
+        displayName = "FIIs",
+        components = listOf(
+            BalancingComponent(
+                id = BalancingComponentId.FII_REND,
+                displayName = "FII - Renda%",
+                targetWeight = TargetWeight.Fixed(70.0),
+                parentId = BalancingComponentId.RV_REITS,
+                matches = { entry ->
+                    val asset = entry.holding.asset
+                    asset is VariableIncomeAsset &&
+                        asset.type == VariableIncomeAssetType.REAL_ESTATE_FUND &&
+                        asset.ticker.uppercase() in FII_REND_TICKERS
+                },
+            ),
+            BalancingComponent(
+                id = BalancingComponentId.FII_TAT,
+                displayName = "FII - Tatica",
+                targetWeight = TargetWeight.Fixed(30.0),
+                parentId = BalancingComponentId.RV_REITS,
+                matches = { entry ->
+                    val asset = entry.holding.asset
+                    asset is VariableIncomeAsset &&
+                        asset.type == VariableIncomeAssetType.REAL_ESTATE_FUND &&
+                        asset.ticker.uppercase() in FII_TAT_TICKERS
+                },
+            ),
+            BalancingComponent(
+                id = BalancingComponentId.FII_FOF,
+                displayName = "FII - FoFs",
+                targetWeight = TargetWeight.Zero,
+                parentId = BalancingComponentId.RV_REITS,
+                matches = { entry ->
+                    val asset = entry.holding.asset
+                    asset is VariableIncomeAsset &&
+                        asset.type == VariableIncomeAssetType.REAL_ESTATE_FUND &&
+                        asset.ticker.uppercase() in FII_FOF_TICKERS
+                },
+            ),
+            BalancingComponent(
+                id = BalancingComponentId.OTHER_INVESTMENTS,
+                displayName = "Demais investimentos",
+                targetWeight = TargetWeight.Zero,
+                parentId = BalancingComponentId.RV_REITS,
+                matches = { true },
+            ),
+        ),
+    )
+
+    val groups: List<BalancingGroup> = listOf(portfolioTotalGroup, fixedIncomeGroup, variableIncomeGroup, fundsGroup)
 }

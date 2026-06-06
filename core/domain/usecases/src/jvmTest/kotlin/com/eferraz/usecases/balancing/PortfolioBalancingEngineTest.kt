@@ -58,7 +58,9 @@ public class PortfolioBalancingEngineTest {
         assertEquals(-50_000.0, fixedIncomeLine.deviation, 0.01)
         assertEquals(50.0, fixedIncomeLine.configuredWeightPercent!!, 0.01)
         assertEquals(50.0, fixedIncomeLine.normalizedWeightPercent, 0.01)
+        assertEquals(100.0, fixedIncomeLine.actualWeightPercent, 0.01)
         assertEquals(100_000.0, report.totalPortfolioValue, 0.01)
+        assertTrue(report.lines.none { it.componentName == "Demais investimentos" })
         assertTrue(report.groupHoldings.all { it.holdings.isEmpty() })
     }
 
@@ -179,6 +181,7 @@ public class PortfolioBalancingEngineTest {
         assertEquals(0.0, otherLine.idealValue, 0.01)
         assertEquals(-5_000.0, otherLine.deviation, 0.01)
         assertEquals(0.0, otherLine.configuredWeightPercent!!, 0.01)
+        assertEquals(100.0, otherLine.actualWeightPercent, 0.01)
 
         val g1Holdings = report.groupHoldings.first { it.groupId == BalancingGroupId.PORTFOLIO_TOTAL }.holdings
         assertEquals(1, g1Holdings.size)
@@ -257,10 +260,10 @@ public class PortfolioBalancingEngineTest {
     }
 
     /**
-     * Zero RF actual → nested ideals are zero (group total × configured weight).
+     * Zero RF actual → nested RF group omitted; RV lines still calculated.
      */
     @Test
-    public fun `GIVEN zero RF actual and 100k total WHEN calculate THEN nested post fixed ideal is zero`() {
+    public fun `GIVEN zero RF actual and 100k total WHEN calculate THEN fixed income nested group is omitted`() {
 
         // GIVEN
         val stockAsset = VariableIncomeAsset(
@@ -278,10 +281,10 @@ public class PortfolioBalancingEngineTest {
         val report = PortfolioBalancingEngine.calculate(entries, referenceDate)
 
         // THEN
-        val postFixedLine = report.lines.first { it.componentName == "Pós-fixados" }
-        assertEquals(0.0, postFixedLine.actualValue, 0.01)
-        assertEquals(0.0, postFixedLine.idealValue, 0.01)
-        assertEquals(33.33, postFixedLine.configuredWeightPercent!!, 0.01)
+        assertTrue(report.lines.none { it.groupId == BalancingGroupId.FIXED_INCOME })
+        val nationalLine = report.lines.first { it.componentName == "Ações Nacionais" }
+        assertEquals(100_000.0, nationalLine.actualValue, 0.01)
+        assertEquals(100.0, nationalLine.actualWeightPercent, 0.01)
     }
 
     /**
@@ -419,6 +422,36 @@ public class PortfolioBalancingEngineTest {
     }
 
     /**
+     * fundsGroup in catalog.groups produces a FIIs section in the report when holdings match.
+     */
+    @Test
+    public fun `GIVEN FII in REND tickers WHEN calculate THEN funds group line appears in report and log`() {
+
+        // GIVEN
+        val fiiAsset = VariableIncomeAsset(
+            id = 1,
+            name = "KNCR11",
+            issuer = issuer,
+            type = VariableIncomeAssetType.REAL_ESTATE_FUND,
+            ticker = "KNCR11",
+        )
+        val entries = listOf(
+            entry(holdingId = 1, asset = fiiAsset, value = 100.0, quantity = 10.0),
+        )
+
+        // WHEN
+        val report = PortfolioBalancingEngine.calculate(entries, referenceDate)
+        val formatted = formatPortfolioBalancingReport(report)
+
+        // THEN
+        val rendLine = report.lines.first { it.componentName == "FII - Renda 70%" }
+        assertEquals(BalancingGroupId.RV_REITS, rendLine.groupId)
+        assertEquals(1_000.0, rendLine.actualValue, 0.01)
+        assertTrue(formatted.contains("=== FIIs ==="))
+        assertTrue(formatted.contains("FII - Renda 70%"))
+    }
+
+    /**
      * Empty portfolio → all values zero; configured weights remain visible.
      */
     @Test
@@ -432,13 +465,15 @@ public class PortfolioBalancingEngineTest {
 
         // THEN
         assertEquals(0.0, report.totalPortfolioValue, 0.01)
-        assertEquals(13, report.lines.size)
-        assertEquals(3, report.groupHoldings.size)
+        assertEquals(4, report.lines.size)
+        assertEquals(4, report.groupHoldings.size)
+        assertTrue(report.lines.none { it.componentName == "Demais investimentos" })
         report.lines.forEach { line ->
             assertEquals(0.0, line.actualValue, 0.01)
             assertEquals(0.0, line.idealValue, 0.01)
             assertEquals(0.0, line.deviation, 0.01)
             assertEquals(0.0, line.normalizedWeightPercent, 0.01)
+            assertEquals(0.0, line.actualWeightPercent, 0.01)
         }
         val rfLine = report.lines.first { it.componentName == "Renda Fixa" }
         assertEquals(50.0, rfLine.configuredWeightPercent!!, 0.01)
@@ -480,6 +515,7 @@ public class PortfolioBalancingEngineTest {
 
         // THEN
         assertTrue(formatted.contains("Peso configurado"))
+        assertTrue(formatted.contains("Percentual actual"))
         assertTrue(formatted.contains("Peso normalizado"))
         assertTrue(formatted.contains("Total"))
         assertTrue(formatted.contains("100,00%"))
@@ -517,6 +553,7 @@ public class PortfolioBalancingEngineTest {
         // THEN
         assertEquals(false, report.hasDynamicWeight)
         assertTrue(formatted.contains("Peso configurado"))
+        assertTrue(formatted.contains("Percentual actual"))
         assertTrue(!formatted.contains("Peso normalizado"))
     }
 

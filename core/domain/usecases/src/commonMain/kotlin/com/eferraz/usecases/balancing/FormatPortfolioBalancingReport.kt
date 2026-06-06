@@ -10,6 +10,7 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
             groupName = line.groupName,
             name = line.componentName,
             actual = formatMoney(line.actualValue),
+            actualWeight = line.actualWeightDisplay,
             configuredWeight = line.configuredWeightDisplay,
             normalizedWeight = line.normalizedWeightDisplay,
             ideal = formatMoney(line.idealValue),
@@ -17,6 +18,7 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
             actualValue = line.actualValue,
             idealValue = line.idealValue,
             deviationValue = line.deviation,
+            actualWeightPercent = line.actualWeightPercent,
             normalizedWeightPercent = line.normalizedWeightPercent,
         )
     }
@@ -27,8 +29,9 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
 
     val builder = StringBuilder()
 
-    for (groupId in GROUP_RENDER_ORDER) {
+    for (group in PortfolioBalancingCatalog.groups) {
 
+        val groupId = group.id
         val groupRows = rowsWithTotals.filter { it.groupId == groupId }
         if (groupRows.isEmpty()) continue
 
@@ -56,12 +59,6 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
         appendLine()
     }
 }
-
-private val GROUP_RENDER_ORDER: List<BalancingGroupId> = listOf(
-    BalancingGroupId.PORTFOLIO_TOTAL,
-    BalancingGroupId.FIXED_INCOME,
-    BalancingGroupId.VARIABLE_INCOME,
-)
 
 private fun formatHoldingsSection(holdings: List<PortfolioBalancingHoldingLine>): String {
 
@@ -118,6 +115,7 @@ private fun List<FormattedRow>.buildTotalRow(): FormattedRow = FormattedRow(
     groupName = this.first().groupName,
     name = "Total",
     actual = formatMoney(sumOf { it.actualValue }),
+    actualWeight = PortfolioBalancingEngine.formatPercent(sumOf { it.actualWeightPercent }),
     configuredWeight = "100,00%",
     normalizedWeight = PortfolioBalancingEngine.formatPercent(sumOf { it.normalizedWeightPercent }),
     ideal = formatMoney(sumOf { it.idealValue }),
@@ -125,6 +123,7 @@ private fun List<FormattedRow>.buildTotalRow(): FormattedRow = FormattedRow(
     actualValue = sumOf { it.actualValue },
     idealValue = sumOf { it.idealValue },
     deviationValue = sumOf { it.deviationValue },
+    actualWeightPercent = sumOf { it.actualWeightPercent },
     normalizedWeightPercent = sumOf { it.normalizedWeightPercent },
 )
 
@@ -133,6 +132,7 @@ private data class FormattedRow(
     val groupName: String,
     val name: String,
     val actual: String,
+    val actualWeight: String,
     val configuredWeight: String,
     val normalizedWeight: String,
     val ideal: String,
@@ -140,12 +140,14 @@ private data class FormattedRow(
     val actualValue: Double,
     val idealValue: Double,
     val deviationValue: Double,
+    val actualWeightPercent: Double,
     val normalizedWeightPercent: Double,
 )
 
 private data class ColumnLayout(
     val nameWidth: Int,
     val actualWidth: Int,
+    val actualWeightWidth: Int,
     val configuredWidth: Int,
     val normalizedWidth: Int,
     val idealWidth: Int,
@@ -155,6 +157,7 @@ private data class ColumnLayout(
     fun headerRow(): String = formatRow(
         name = "Nome",
         actual = "Valor actual",
+        actualWeight = "Percentual actual",
         configuredWeight = "Peso configurado",
         normalizedWeight = "Peso normalizado",
         ideal = "Valor ideal",
@@ -166,6 +169,7 @@ private data class ColumnLayout(
     fun formatRow(row: FormattedRow): String = formatRow(
         name = row.name,
         actual = row.actual,
+        actualWeight = row.actualWeight,
         configuredWeight = row.configuredWeight,
         normalizedWeight = row.normalizedWeight,
         ideal = row.ideal,
@@ -175,6 +179,7 @@ private data class ColumnLayout(
     private fun columnWidths(): List<Int> = buildList {
         add(nameWidth)
         add(actualWidth)
+        add(actualWeightWidth)
         add(configuredWidth)
         if (showNormalizedWeight) add(normalizedWidth)
         add(idealWidth)
@@ -184,6 +189,7 @@ private data class ColumnLayout(
     private fun formatRow(
         name: String,
         actual: String,
+        actualWeight: String,
         configuredWeight: String,
         normalizedWeight: String,
         ideal: String,
@@ -191,6 +197,7 @@ private data class ColumnLayout(
     ): String = buildList {
         add(padRight(name, nameWidth))
         add(padLeft(actual, actualWidth))
+        add(padLeft(actualWeight, actualWeightWidth))
         add(padLeft(configuredWeight, configuredWidth))
         if (showNormalizedWeight) add(padLeft(normalizedWeight, normalizedWidth))
         add(padLeft(ideal, idealWidth))
@@ -202,6 +209,7 @@ private data class ColumnLayout(
             val headers = HeaderLabels(
                 name = "Nome",
                 actual = "Valor actual",
+                actualWeight = "Percentual actual",
                 configuredWeight = "Peso configurado",
                 normalizedWeight = "Peso normalizado",
                 ideal = "Valor ideal",
@@ -210,6 +218,10 @@ private data class ColumnLayout(
             return ColumnLayout(
                 nameWidth = maxOf(headers.name.length, rows.maxOfOrNull { it.name.length } ?: 0),
                 actualWidth = maxOf(headers.actual.length, rows.maxOfOrNull { it.actual.length } ?: 0),
+                actualWeightWidth = maxOf(
+                    headers.actualWeight.length,
+                    rows.maxOfOrNull { it.actualWeight.length } ?: 0,
+                ),
                 configuredWidth = maxOf(
                     headers.configuredWeight.length,
                     rows.maxOfOrNull { it.configuredWeight.length } ?: 0,
@@ -233,6 +245,7 @@ private data class ColumnLayout(
 private data class HeaderLabels(
     val name: String,
     val actual: String,
+    val actualWeight: String,
     val configuredWeight: String,
     val normalizedWeight: String,
     val ideal: String,

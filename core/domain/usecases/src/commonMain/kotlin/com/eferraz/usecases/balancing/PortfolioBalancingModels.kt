@@ -18,17 +18,19 @@ public enum class BalancingComponentId {
     RF_POST_FIXED,
     RF_PRE_FIXED,
     RF_INFLATION_LINKED,
-    RF_OTHER,
     RV_NATIONAL_STOCKS,
     RV_INTERNATIONAL,
     RV_REITS,
-    RV_OTHER,
+    FII_REND,
+    FII_TAT,
+    FII_FOF,
 }
 
 public enum class BalancingGroupId {
     PORTFOLIO_TOTAL,
     FIXED_INCOME,
     VARIABLE_INCOME,
+    RV_REITS,
 }
 
 public data class BalancingComponent(
@@ -50,6 +52,8 @@ public data class PortfolioBalancingReportLine(
     val groupName: String,
     val componentName: String,
     val actualValue: Double,
+    val actualWeightDisplay: String,
+    val actualWeightPercent: Double,
     val configuredWeightDisplay: String,
     val configuredWeightPercent: Double?,
     val normalizedWeightDisplay: String,
