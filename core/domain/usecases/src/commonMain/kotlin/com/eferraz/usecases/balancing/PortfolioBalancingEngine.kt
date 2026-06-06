@@ -15,7 +15,7 @@ internal object PortfolioBalancingEngine {
 
         val portfolioTotalGroup = groups.first { it.id == BalancingGroupId.PORTFOLIO_TOTAL }
         val portfolioActuals = classifyAndSum(activeEntries, portfolioTotalGroup)
-        val pensionActual = portfolioActuals.getValue(BalancingComponentId.PENSION_FUNDS)
+        val pensionActual = portfolioActuals.getValue(BalancingGroupId.PENSION_FUNDS)
         val hasDynamicWeight = pensionActual > 0.0
         val balanceableBase = totalPortfolioValue - pensionActual
 
@@ -81,7 +81,7 @@ internal object PortfolioBalancingEngine {
     internal fun classifyAndSum(
         universe: List<HoldingHistoryEntry>,
         group: BalancingGroup,
-    ): Map<BalancingComponentId, Double> {
+    ): Map<String, Double> {
         val sums = group.components.associate { it.id to 0.0 }.toMutableMap()
         for (entry in universe) {
             val component = classifyComponent(group, entry)
@@ -93,7 +93,7 @@ internal object PortfolioBalancingEngine {
     private fun buildGroupLines(
         group: BalancingGroup,
         activeEntries: List<HoldingHistoryEntry>,
-        portfolioActuals: Map<BalancingComponentId, Double>,
+        portfolioActuals: Map<BalancingGroupId, Double>,
         totalPortfolioValue: Double,
         portfolioContext: BalancingWeightCalculator.PortfolioTotalContext,
     ): List<PortfolioBalancingReportLine> {
@@ -129,7 +129,7 @@ internal object PortfolioBalancingEngine {
         group: BalancingGroup,
         activeEntries: List<HoldingHistoryEntry>,
     ): List<HoldingHistoryEntry> {
-        val otherId = BalancingComponentId.OTHER_INVESTMENTS
+        val otherId = BalancingGroupId.OTHER_INVESTMENTS
         return universeForGroup(group, activeEntries)
             .filter { classifyComponent(group, it).id == otherId }
     }

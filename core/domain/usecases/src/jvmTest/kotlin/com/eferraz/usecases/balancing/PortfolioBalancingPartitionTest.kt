@@ -176,7 +176,7 @@ public class PortfolioBalancingPartitionTest {
         // THEN
         assertEquals(1, sums.values.count { it > 0.0 })
         assertEquals(1_000.0, sums.values.sum(), 0.01)
-        assertTrue(sums.getValue(BalancingComponentId.VARIABLE_INCOME_TOTAL) > 0.0)
+        assertTrue(sums.getValue(BalancingGroupId.VARIABLE_INCOME) > 0.0)
     }
 
     private fun entry(
