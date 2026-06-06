@@ -48,6 +48,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.eferraz.asset_management.helpers.FormTextField
+import kotlinx.coroutines.flow.first
 import com.eferraz.asset_management.transactions.TransactionFormContent
 import com.eferraz.design_system.components.dropdown.AppDropdownField
 import com.eferraz.design_system.components.segmented_control.SegmentedControl
@@ -93,15 +94,15 @@ public fun AssetManagementScreen(
     onDismiss: () -> Unit,
 ) {
 
-    val vm = koinViewModel<AssetManagementViewModel>()
+    val vm = koinViewModel<AssetManagementViewModel>(
+        key = "asset-management-${holdingId ?: "new"}",
+    )
     val state by vm.state.collectAsState()
 
     LaunchedEffect(holdingId) {
         vm.dispatch(AssetManagementEvents.ScreenEntered(holdingId = holdingId))
-    }
-
-    LaunchedEffect(state.isCompleted) {
-        if (state.isCompleted) onDismiss()
+        vm.dismissAfterSave.first()
+        onDismiss()
     }
 
     AssetFormView(

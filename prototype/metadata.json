@@ -1,6 +1,0 @@
-{
-  "name": "Posicionamento de Carteira",
-  "description": "Dashboard de controle de investimentos e análise de posicionamento de ativos projetado com Material Design 3 Expressive.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

@@ -22,7 +22,8 @@ public abstract class AppUseCase<in P, out R>(
                 function()
             }
             Result.success(pair.second)
-        }.getOrElse {
-            Result.failure(it)
+        }.getOrElse {error ->
+            co.touchlab.kermit.Logger.e(tag = this@AppUseCase::class.simpleName.orEmpty(), throwable = error, messageString = error.message.orEmpty())
+            Result.failure(error)
         }
 }

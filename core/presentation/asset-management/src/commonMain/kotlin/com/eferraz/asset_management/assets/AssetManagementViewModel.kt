@@ -14,7 +14,9 @@ import com.eferraz.usecases.cruds.GetIssuersUseCase
 import com.eferraz.usecases.cruds.GetOwnerUseCase
 import com.eferraz.usecases.exceptions.ValidateException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -32,11 +34,16 @@ internal class AssetManagementViewModel(
 
     internal val state: StateFlow<AssetManagementUiState> field = MutableStateFlow(AssetManagementUiState())
 
+    internal val dismissAfterSave: SharedFlow<Unit> field = MutableSharedFlow<Unit>(extraBufferCapacity = 0)
+
     private var existingHolding: AssetHolding? = null
 
     internal fun dispatch(event: AssetManagementEvents) = when (event) {
 
-        is AssetManagementEvents.ScreenEntered -> loadInitialState(event.holdingId)
+        is AssetManagementEvents.ScreenEntered -> {
+            state.update { it.copy(isSaving = false, saveError = null) }
+            loadInitialState(event.holdingId)
+        }
 
         is AssetManagementEvents.AssetClassChanged -> state.update { it.partialResetForAssetClass(event.assetClass) }
         is AssetManagementEvents.TypeChanged -> state.update { it.copy(type = event.type, typeError = null) }
@@ -46,7 +53,13 @@ internal class AssetManagementViewModel(
         is AssetManagementEvents.B3IdentifierChanged -> state.update { it.copy(b3Identifier = event.value) }
 
         is AssetManagementEvents.YieldIndexerChanged -> state.update { it.copy(yieldIndexer = event.indexer, yieldIndexerError = null) }
-        is AssetManagementEvents.FixedExpirationChanged -> state.update { it.copy(fixedExpiration = dateToDigits(event.raw), fixedExpirationError = null) }
+        is AssetManagementEvents.FixedExpirationChanged -> state.update {
+            it.copy(
+                fixedExpiration = dateToDigits(event.raw),
+                fixedExpirationError = null
+            )
+        }
+
         is AssetManagementEvents.FixedYieldChanged -> state.update { it.copy(fixedYield = event.value, fixedYieldError = null) }
         is AssetManagementEvents.FixedCdiChanged -> state.update { it.copy(fixedCdi = event.value, fixedCdiError = null) }
         is AssetManagementEvents.FixedLiquidityChanged -> state.update { it.copy(fixedLiquidity = event.liquidity, fixedLiquidityError = null) }
@@ -66,12 +79,15 @@ internal class AssetManagementViewModel(
         is AssetManagementEvents.TransactionDateChanged -> updateTransactionDraft(event.index) {
             it.copy(dateDigits = dateToDigits(event.digits))
         }
+
         is AssetManagementEvents.TransactionTypeChanged -> updateTransactionDraft(event.index) {
             it.copy(type = event.type)
         }
+
         is AssetManagementEvents.TransactionQuantityChanged -> updateTransactionDraft(event.index) {
             it.copy(quantity = event.value)
         }
+
         is AssetManagementEvents.TransactionUnitPriceChanged -> updateTransactionDraft(event.index) {
             it.copy(unitPrice = event.value)
         }
@@ -153,13 +169,15 @@ internal class AssetManagementViewModel(
 
         saveAssetWithTransactionsUseCase(SaveAssetWithTransactionsUseCase.Param(holding))
             .onSuccess {
-                state.update { it.copy(isSaving = false, isCompleted = true) }
+                state.update { it.copy(isSaving = false) }
+                dismissAfterSave.emit(Unit)
             }
             .onFailure { error ->
                 when (error) {
                     is ValidateException -> error.messages.remoteFieldErrorsOn(current).let { mapped ->
                         state.update { mapped.copy(isSaving = false, saveError = error.message) }
                     }
+
                     else -> state.update { it.copy(isSaving = false, saveError = error.message) }
                 }
             }

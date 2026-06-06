@@ -29,7 +29,8 @@ internal class AssetHoldingDataSourceImpl(
 
     override suspend fun save(assetHolding: AssetHolding): Long {
         val entity = assetHolding.toEntity()
-        return assetHoldingDao.upsert(entity)
+        val upsertRowId = assetHoldingDao.upsert(entity)
+        return resolveUpsertRowIdInternal(upsertRowId, assetHolding.id)
     }
 
     override suspend fun getByAssetId(assetId: Long): AssetHolding? =
@@ -110,4 +111,9 @@ internal class AssetHoldingDataSourceImpl(
             brokerageId = brokerage.id,
             goalId = goal?.id
         )
+
 }
+
+/** Room [@Upsert][androidx.room3.Upsert] rowid resolver — insert returns rowid, update returns `-1`. */
+internal fun resolveUpsertRowIdInternal(upsertRowId: Long, entityId: Long): Long =
+    if (upsertRowId > 0) upsertRowId else entityId

@@ -50,7 +50,6 @@ internal data class AssetManagementUiState(
     val asset: Asset? = null,
     val issuers: List<Issuer> = emptyList(),
     val isSaving: Boolean = false,
-    val isCompleted: Boolean = false,
     val saveError: String? = null,
 
     val transactions: List<TransactionDraftUi> = emptyList(),

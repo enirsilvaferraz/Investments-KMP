@@ -63,8 +63,7 @@ private fun AppNavigationHost() {
         primaryActionContent = {
             ActionButton(
                 onClick = {
-                    // Push em vez de substituir - diálogos precisam de conteúdo por baixo (overlaidEntries)
-                    backStack += AssetManagementRouting()
+                    pushAssetManagementDialog(backStack)
                 }
             )
         },
@@ -95,7 +94,7 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
             entry<HistoryRouting> {
                 HoldingHistoryRoute(
                     onEditHolding = { holdingId ->
-                        backStack += AssetManagementRouting(holdingId = holdingId)
+                        pushAssetManagementDialog(backStack, holdingId)
                     }
                 )
             }
@@ -117,6 +116,19 @@ private fun appNavDisplay(backStack: NavBackStack<NavKey>): @Composable () -> Un
             }
         }
     )
+}
+
+private fun pushAssetManagementDialog(
+    backStack: NavBackStack<NavKey>,
+    holdingId: Long? = null,
+) {
+    val routing = AssetManagementRouting(holdingId = holdingId)
+    if (backStack.lastOrNull() is AssetManagementRouting) {
+        backStack[backStack.lastIndex] = routing
+    } else {
+        // Push em vez de substituir — diálogos precisam de conteúdo por baixo (overlaidEntries)
+        backStack += routing
+    }
 }
 
 @Composable
