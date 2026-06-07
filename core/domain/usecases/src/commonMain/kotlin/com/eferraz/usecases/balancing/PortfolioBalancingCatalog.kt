@@ -17,9 +17,9 @@ internal object PortfolioBalancingCatalog {
         BalancingGroupId.RF_INFLATION_LINKED to 33.33,
 
         // Renda Variavel
-        BalancingGroupId.RV_NATIONAL_STOCKS to 37.14,
-        BalancingGroupId.RV_INTERNATIONAL to 39.65,
-        BalancingGroupId.RV_REITS to 23.21,
+        BalancingGroupId.RV_NATIONAL_STOCKS to 35.0,
+        BalancingGroupId.RV_INTERNATIONAL to 35.0,
+        BalancingGroupId.RV_REITS to 30.0,
 
         // FII
         BalancingGroupId.FII_REND to 70.0,
