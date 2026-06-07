@@ -10,8 +10,14 @@ internal object BalancingFormatters {
         return "$integer,$fraction%"
     }
 
-    fun formatMoney(value: Double): String {
-        val sign = if (value < 0) "-" else " "
+    fun formatMoney(value: Double): String = formatSignedMoney(value, positiveSign = " ")
+
+    fun formatSignedMoney(value: Double, positiveSign: String = "+"): String {
+        val sign = when {
+            value < 0 -> "-"
+            value > 0 -> positiveSign
+            else -> " "
+        }
         val absolute = kotlin.math.abs(value)
         val cents = kotlin.math.round(absolute * 100.0).toLong()
         val whole = cents / 100

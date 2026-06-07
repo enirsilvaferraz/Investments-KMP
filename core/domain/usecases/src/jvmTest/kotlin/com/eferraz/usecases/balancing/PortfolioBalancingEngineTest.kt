@@ -54,9 +54,10 @@ public class PortfolioBalancingEngineTest {
         // THEN
         val rfLine = lineInSection(report, BalancingGroupId.BALANCEABLE, "Renda Fixa")
         assertEquals(100_000.0, rfLine.actualValue, 0.01)
-        assertEquals(82_500.0, rfLine.idealValue, 0.01)
-        assertEquals(17_500.0, rfLine.deviation, 0.01)
-        assertEquals(82.5, rfLine.configuredWeightPercent!!, 0.01)
+        assertEquals(80_000.0, rfLine.idealValue, 0.01)
+        assertEquals(-20_000.0, rfLine.deviation, 0.01)
+        assertEquals(80.0, rfLine.configuredWeightPercent!!, 0.01)
+        assertEquals(100.0, rfLine.actualWeightPercent, 0.01)
         assertEquals(100_000.0, report.totalPortfolioValue, 0.01)
         assertEquals(100_000.0, report.balanceableBase, 0.01)
     }
@@ -95,8 +96,8 @@ public class PortfolioBalancingEngineTest {
         // THEN
         val pensionLine = lineInSection(report, BalancingGroupId.NON_BALANCEABLE, "Fundos de Previdência")
         val rfLine = lineInSection(report, BalancingGroupId.BALANCEABLE, "Renda Fixa")
-        assertEquals(742.5, rfLine.idealValue, 0.01)
-        assertEquals(82.5, rfLine.configuredWeightPercent!!, 0.01)
+        assertEquals(720.0, rfLine.idealValue, 0.01)
+        assertEquals(80.0, rfLine.configuredWeightPercent!!, 0.01)
         assertEquals("dinâmico", pensionLine.configuredWeightDisplay)
         assertNull(pensionLine.configuredWeightPercent)
         assertEquals(0.0, pensionLine.deviation, 0.01)
@@ -161,7 +162,7 @@ public class PortfolioBalancingEngineTest {
 
         // THEN
         val pensionLine = lineInSection(report, BalancingGroupId.NON_BALANCEABLE, "Fundos de Previdência")
-        val fgtsLine = lineInSection(report, BalancingGroupId.NON_BALANCEABLE, "Fundos do FGTS")
+        val fgtsLine = lineInSection(report, BalancingGroupId.NON_BALANCEABLE, "Fundos do FGTS (Eletrobrás)")
         assertEquals(0.0, pensionLine.deviation, 0.01)
         assertEquals(0.0, fgtsLine.deviation, 0.01)
         assertEquals(pensionLine.actualValue, pensionLine.idealValue, 0.01)
@@ -207,7 +208,7 @@ public class PortfolioBalancingEngineTest {
         assertEquals("dinâmico", pensionLine.configuredWeightDisplay)
 
         val rfLine = lineInSection(report, BalancingGroupId.BALANCEABLE, "Renda Fixa")
-        assertEquals(74_250.0, rfLine.idealValue, 0.01)
+        assertEquals(72_000.0, rfLine.idealValue, 0.01)
     }
 
     /**
@@ -235,7 +236,7 @@ public class PortfolioBalancingEngineTest {
         val otherLine = lineInSection(report, BalancingGroupId.BALANCEABLE, "Demais investimentos")
         assertEquals(5_000.0, otherLine.actualValue, 0.01)
         assertEquals(0.0, otherLine.idealValue, 0.01)
-        assertEquals(5_000.0, otherLine.deviation, 0.01)
+        assertEquals(-5_000.0, otherLine.deviation, 0.01)
         assertEquals(0.0, otherLine.configuredWeightPercent!!, 0.01)
     }
 
@@ -337,7 +338,7 @@ public class PortfolioBalancingEngineTest {
         // THEN
         val postFixedLine = lineInSection(report, BalancingGroupId.FIXED_INCOME, "Pós-fixados")
         assertEquals(80_000.0, postFixedLine.actualValue, 0.01)
-        assertEquals(27_497.25, postFixedLine.idealValue, 1.0)
+        assertEquals(26_664.0, postFixedLine.idealValue, 1.0)
     }
 
     /**
@@ -365,7 +366,7 @@ public class PortfolioBalancingEngineTest {
 
         // THEN
         val rfLine = lineInSection(report, BalancingGroupId.BALANCEABLE, "Renda Fixa")
-        assertEquals(report.balanceableBase * 0.825, rfLine.idealValue, 0.01)
+        assertEquals(report.balanceableBase * 0.80, rfLine.idealValue, 0.01)
     }
 
     /**
@@ -392,7 +393,7 @@ public class PortfolioBalancingEngineTest {
         // THEN
         val cryptoLine = lineInSection(report, BalancingGroupId.BALANCEABLE, "Cripto Ativos")
         assertEquals(10_000.0, cryptoLine.actualValue, 0.01)
-        assertEquals(1.0, cryptoLine.configuredWeightPercent!!, 0.01)
+        assertEquals(1.5, cryptoLine.configuredWeightPercent!!, 0.01)
         val rvLine = lineInSection(report, BalancingGroupId.BALANCEABLE, "Renda Variável")
         assertEquals(0.0, rvLine.actualValue, 0.01)
     }
@@ -512,7 +513,7 @@ public class PortfolioBalancingEngineTest {
             }
         }
         val rfLine = lineInSection(report, BalancingGroupId.BALANCEABLE, "Renda Fixa")
-        assertEquals(82.5, rfLine.configuredWeightPercent!!, 0.01)
+        assertEquals(80.0, rfLine.configuredWeightPercent!!, 0.01)
         val pensionLine = lineInSection(report, BalancingGroupId.NON_BALANCEABLE, "Fundos de Previdência")
         assertEquals("dinâmico", pensionLine.configuredWeightDisplay)
         assertTrue(report.sections.none { section ->
@@ -638,7 +639,6 @@ public class PortfolioBalancingEngineTest {
             BalancingGroupId.RV_REITS,
             BalancingGroupId.FII_REND,
             BalancingGroupId.FII_TAT,
-            BalancingGroupId.FII_FOF,
         )
 
         // WHEN
@@ -678,10 +678,10 @@ public class PortfolioBalancingEngineTest {
     }
 
     /**
-     * Report format uses five columns without normalized weight.
+     * Report format uses six columns without normalized weight.
      */
     @Test
-    public fun `GIVEN report with pension WHEN format THEN output uses five columns without normalized weight`() {
+    public fun `GIVEN report with pension WHEN format THEN output uses six columns without normalized weight`() {
 
         // GIVEN
         val pensionAsset = InvestmentFundAsset(
@@ -710,11 +710,11 @@ public class PortfolioBalancingEngineTest {
         val formatted = formatPortfolioBalancingReport(report)
 
         // THEN
+        assertTrue(formatted.contains("Peso actual"))
         assertTrue(formatted.contains("Peso configurado"))
         assertTrue(formatted.contains("Valor ideal"))
         assertTrue(formatted.contains("Desvio"))
         assertTrue(!formatted.contains("Peso normalizado"))
-        assertTrue(!formatted.contains("Percentual actual"))
         assertTrue(formatted.startsWith("\n"))
         assertTrue(formatted.endsWith("\n"))
     }

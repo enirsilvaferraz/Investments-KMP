@@ -9,17 +9,12 @@ internal object BalancingTreeNodeFactory {
         parentUniverse: (HoldingHistoryEntry) -> Boolean,
         siblings: List<BalancingTreeNode>,
         weight: TargetWeight = TargetWeight.Zero,
-    ): BalancingTreeNode = BalancingTreeNode(
-        id = demaisId(parentId),
+    ): BalancingTreeNode = demaisNode(
+        parentId = parentId,
         displayName = "Demais investimentos",
-        targetWeight = weight,
-        matches = { entry ->
-            BalancingMatchers.isDemaisAmong(
-                entry = entry,
-                inUniverse = parentUniverse,
-                siblingMatchers = siblings.map { it.matches },
-            )
-        },
+        parentUniverse = parentUniverse,
+        siblings = siblings,
+        weight = weight,
     )
 
     fun withDemaisInvestimentos(
@@ -36,5 +31,24 @@ internal object BalancingTreeNodeFactory {
         )
     }
 
-    fun demaisId(parentId: String): String = "$parentId${BalancingGroupId.DEMAIS_SUFFIX}"
+    fun demaisId(parentId: String): String = "${parentId}_${BalancingGroupId.DEMAIS}"
+
+    private fun demaisNode(
+        parentId: String,
+        displayName: String,
+        parentUniverse: (HoldingHistoryEntry) -> Boolean,
+        siblings: List<BalancingTreeNode>,
+        weight: TargetWeight,
+    ): BalancingTreeNode = BalancingTreeNode(
+        id = demaisId(parentId),
+        displayName = displayName,
+        targetWeight = weight,
+        matches = { entry ->
+            BalancingMatchers.isDemaisAmong(
+                entry = entry,
+                inUniverse = parentUniverse,
+                siblingMatchers = siblings.map { it.matches },
+            )
+        },
+    )
 }

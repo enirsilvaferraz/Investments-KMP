@@ -63,6 +63,7 @@ private fun formatHoldingsSection(holdings: List<PortfolioBalancingHoldingLine>)
 private data class ColumnLayout(
     val nameWidth: Int,
     val actualWidth: Int,
+    val actualWeightWidth: Int,
     val configuredWidth: Int,
     val idealWidth: Int,
     val deviationWidth: Int,
@@ -70,6 +71,7 @@ private data class ColumnLayout(
     fun headerRow(): String = formatRow(
         name = "Nome",
         actual = "Valor actual",
+        actualWeight = "Peso actual",
         configured = "Peso configurado",
         ideal = "Valor ideal",
         deviation = "Desvio",
@@ -80,14 +82,16 @@ private data class ColumnLayout(
     fun formatRow(line: PortfolioBalancingReportLine): String = formatRow(
         name = line.displayName,
         actual = BalancingFormatters.formatMoney(line.actualValue),
+        actualWeight = line.actualWeightDisplay,
         configured = line.configuredWeightDisplay,
         ideal = BalancingFormatters.formatMoney(line.idealValue),
-        deviation = BalancingFormatters.formatMoney(line.deviation),
+        deviation = BalancingFormatters.formatSignedMoney(line.deviation),
     )
 
     private fun columnWidths(): List<Int> = listOf(
         nameWidth,
         actualWidth,
+        actualWeightWidth,
         configuredWidth,
         idealWidth,
         deviationWidth,
@@ -96,12 +100,14 @@ private data class ColumnLayout(
     private fun formatRow(
         name: String,
         actual: String,
+        actualWeight: String,
         configured: String,
         ideal: String,
         deviation: String,
     ): String = buildList {
         add(padRight(name, nameWidth))
         add(padLeft(actual, actualWidth))
+        add(padLeft(actualWeight, actualWeightWidth))
         add(padLeft(configured, configuredWidth))
         add(padLeft(ideal, idealWidth))
         add(padLeft(deviation, deviationWidth))
@@ -110,24 +116,35 @@ private data class ColumnLayout(
     companion object {
         fun from(section: PortfolioBalancingReportSection): ColumnLayout {
             val allRows = section.rows + section.totalRow
-            val headers = listOf("Nome", "Valor actual", "Peso configurado", "Valor ideal", "Desvio")
+            val headers = listOf(
+                "Nome",
+                "Valor actual",
+                "Peso actual",
+                "Peso configurado",
+                "Valor ideal",
+                "Desvio",
+            )
             return ColumnLayout(
                 nameWidth = maxOf(headers[0].length, allRows.maxOf { it.displayName.length }),
                 actualWidth = maxOf(
                     headers[1].length,
                     allRows.maxOf { BalancingFormatters.formatMoney(it.actualValue).length },
                 ),
-                configuredWidth = maxOf(
+                actualWeightWidth = maxOf(
                     headers[2].length,
+                    allRows.maxOf { it.actualWeightDisplay.length },
+                ),
+                configuredWidth = maxOf(
+                    headers[3].length,
                     allRows.maxOf { it.configuredWeightDisplay.length },
                 ),
                 idealWidth = maxOf(
-                    headers[3].length,
+                    headers[4].length,
                     allRows.maxOf { BalancingFormatters.formatMoney(it.idealValue).length },
                 ),
                 deviationWidth = maxOf(
-                    headers[4].length,
-                    allRows.maxOf { BalancingFormatters.formatMoney(it.deviation).length },
+                    headers[5].length,
+                    allRows.maxOf { BalancingFormatters.formatSignedMoney(it.deviation).length },
                 ),
             )
         }

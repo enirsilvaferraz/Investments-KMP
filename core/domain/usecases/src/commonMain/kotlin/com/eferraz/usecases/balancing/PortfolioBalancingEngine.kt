@@ -10,6 +10,7 @@ internal object PortfolioBalancingEngine {
         referenceDate: YearMonth,
         root: BalancingTreeNode = PortfolioBalancingCatalog.root,
     ): PortfolioBalancingReport {
+
         val activeEntries = entries.filter { patrimony(it) > 0.0 }
         val index = BalancingUniverseIndex.build(root, activeEntries)
         val state = ComputeState()
@@ -42,12 +43,16 @@ internal object PortfolioBalancingEngine {
         if (node.children.isEmpty()) return
 
         val referenceBase = state.idealByNodeId.getValue(node.id)
-        val rows = node.children.mapNotNull { child ->
+        val childLines = node.children.map { child ->
             val actual = computeActual(child, index)
             state.actualByNodeId[child.id] = actual
             val ideal = BalancingIdealCalculator.computeIdeal(child.targetWeight, actual, referenceBase)
             state.idealByNodeId[child.id] = ideal
-            val line = toReportLine(child, actual, ideal, index)
+            Triple(child, actual, ideal)
+        }
+        val sectionActualTotal = childLines.sumOf { it.second }
+        val rows = childLines.mapNotNull { (child, actual, ideal) ->
+            val line = toReportLine(child, actual, ideal, sectionActualTotal, index)
             if (shouldDisplayInReport(child.id, actual)) line else null
         }
         val totalRow = buildTotalRow(node.id, rows)
@@ -73,17 +78,26 @@ internal object PortfolioBalancingEngine {
         node: BalancingTreeNode,
         actualValue: Double,
         idealValue: Double,
+        sectionActualTotal: Double,
         index: BalancingUniverseIndex,
-    ): PortfolioBalancingReportLine = PortfolioBalancingReportLine(
-        nodeId = node.id,
-        displayName = node.displayName,
-        actualValue = actualValue,
-        configuredWeightDisplay = BalancingIdealCalculator.configuredWeightDisplay(node.targetWeight),
-        configuredWeightPercent = BalancingIdealCalculator.configuredWeightPercent(node.targetWeight),
-        idealValue = idealValue,
-        deviation = actualValue - idealValue,
-        holdings = demaisHoldings(node, actualValue, index),
-    )
+    ): PortfolioBalancingReportLine {
+        val actualWeightPercent = actualWeightPercent(actualValue, sectionActualTotal)
+        return PortfolioBalancingReportLine(
+            nodeId = node.id,
+            displayName = node.displayName,
+            actualValue = actualValue,
+            actualWeightDisplay = BalancingFormatters.formatPercent(actualWeightPercent),
+            actualWeightPercent = actualWeightPercent,
+            configuredWeightDisplay = BalancingIdealCalculator.configuredWeightDisplay(node.targetWeight),
+            configuredWeightPercent = BalancingIdealCalculator.configuredWeightPercent(node.targetWeight),
+            idealValue = idealValue,
+            deviation = idealValue - actualValue,
+            holdings = demaisHoldings(node, actualValue, index),
+        )
+    }
+
+    private fun actualWeightPercent(actualValue: Double, sectionActualTotal: Double): Double =
+        if (sectionActualTotal > 0.0) actualValue / sectionActualTotal * 100.0 else 0.0
 
     private fun demaisHoldings(
         node: BalancingTreeNode,
@@ -113,6 +127,8 @@ internal object PortfolioBalancingEngine {
         nodeId = sectionNodeId,
         displayName = "Total",
         actualValue = rows.sumOf { it.actualValue },
+        actualWeightDisplay = "100,00%",
+        actualWeightPercent = 100.0,
         configuredWeightDisplay = "100,00%",
         configuredWeightPercent = 100.0,
         idealValue = rows.sumOf { it.idealValue },

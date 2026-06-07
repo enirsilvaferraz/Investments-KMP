@@ -17,10 +17,12 @@ public data class PortfolioBalancingReportLine(
     val nodeId: String,
     val displayName: String,
     val actualValue: Double,
+    val actualWeightDisplay: String,
+    val actualWeightPercent: Double,
     val configuredWeightDisplay: String,
     val configuredWeightPercent: Double?,
     val idealValue: Double,
-    /** `actualValue − idealValue`: positive = above target; negative = below; zero = on target. */
+    /** `idealValue − actualValue`: positive = aportar; negative = acima da meta; zero = em meta. */
     val deviation: Double,
     /** Positions classified in this demais row; empty for non-fallback lines. */
     val holdings: List<PortfolioBalancingHoldingLine> = emptyList(),

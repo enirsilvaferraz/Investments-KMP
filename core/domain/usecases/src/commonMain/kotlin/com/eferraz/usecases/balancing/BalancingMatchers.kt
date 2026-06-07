@@ -25,6 +25,11 @@ internal object BalancingMatchers {
         return asset.observations == "Fundo atrelado ao FGTS"
     }
 
+    fun isFGTSAccount(entry: HoldingHistoryEntry): Boolean {
+        val asset = entry.holding.asset as? FixedIncomeAsset ?: return false
+        return asset.observations?.contains("FGTS") ?: false
+    }
+
     fun isFixedIncome(entry: HoldingHistoryEntry): Boolean =
         entry.holding.asset is FixedIncomeAsset
 
@@ -70,7 +75,11 @@ internal object BalancingMatchers {
     fun always(entry: HoldingHistoryEntry): Boolean = true
 
     fun isNonBalanceable(entry: HoldingHistoryEntry): Boolean =
-        NonBalanceableAssetList.matchers.any { matcher -> matcher(entry) }
+        listOf(
+            BalancingMatchers::isPensionFund,
+            BalancingMatchers::isFGTSFund,
+            BalancingMatchers::isFGTSAccount,
+        ).any { matcher -> matcher(entry) }
 
     fun isBalanceable(entry: HoldingHistoryEntry): Boolean = !isNonBalanceable(entry)
 
@@ -81,7 +90,5 @@ internal object BalancingMatchers {
     ): Boolean = inUniverse(entry) && siblingMatchers.none { matcher -> matcher(entry) }
 
     fun isDemaisFallbackNode(nodeId: String): Boolean =
-        nodeId == BalancingGroupId.OTHER_INVESTMENTS ||
-            nodeId == BalancingGroupId.DEMAIS_NON_BALANCEABLE ||
-            nodeId.endsWith(BalancingGroupId.DEMAIS_SUFFIX)
+        nodeId.endsWith("_${BalancingGroupId.DEMAIS}")
 }

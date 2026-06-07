@@ -106,7 +106,7 @@ public class PortfolioBalancingPartitionTest {
 
         // THEN — not in non-balanceable list → balanceable demais
         assertEquals(1, index.byNodeId.getValue(BalancingGroupId.BALANCEABLE).size)
-        assertEquals(1, index.byNodeId.getValue(BalancingGroupId.OTHER_INVESTMENTS).size)
+        assertEquals(1, index.byNodeId.getValue(BalancingTreeNodeFactory.demaisId(BalancingGroupId.BALANCEABLE)).size)
     }
 
     /**
