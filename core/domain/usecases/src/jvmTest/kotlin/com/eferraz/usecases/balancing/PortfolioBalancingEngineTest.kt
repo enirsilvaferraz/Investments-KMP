@@ -483,10 +483,10 @@ public class PortfolioBalancingEngineTest {
         val formatted = formatPortfolioBalancingReport(report)
 
         // THEN
-        val rendLine = lineInSection(report, BalancingGroupId.RV_REITS, "FII - Renda%")
+        val rendLine = lineInSection(report, BalancingGroupId.RV_REITS, "FII - Renda")
         assertEquals(1_000.0, rendLine.actualValue, 0.01)
         assertTrue(formatted.contains("=== FIIs ==="))
-        assertTrue(formatted.contains("FII - Renda%"))
+        assertTrue(formatted.contains("FII - Renda"))
     }
 
     /**

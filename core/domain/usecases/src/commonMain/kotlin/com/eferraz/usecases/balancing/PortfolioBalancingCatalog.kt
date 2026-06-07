@@ -64,7 +64,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.FIXED_INCOME,
             displayName = "Renda Fixa",
-            targetWeight = TargetWeight.Fixed(80.0),
+            targetWeight = TargetWeight.Fixed(79.0),
             matches = BalancingMatchers::isFixedIncome,
             children = listOf(
                 rfPostNode,
@@ -78,7 +78,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.RV_NATIONAL_STOCKS,
             displayName = "Ações Nacionais",
-            targetWeight = TargetWeight.Fixed(33.33),
+            targetWeight = TargetWeight.Fixed(37.14),
             matches = BalancingMatchers.isNationalStock(),
             children = BalancingConstants.NATIONAL_STOCK_TICKERS.map { (ticker, weight) ->
                 BalancingTreeNode(
@@ -94,14 +94,14 @@ internal object PortfolioBalancingCatalog {
     private val internationalNode: BalancingTreeNode = BalancingTreeNode(
         id = BalancingGroupId.RV_INTERNATIONAL,
         displayName = "Ações Internacionais",
-        targetWeight = TargetWeight.Fixed(33.33),
+        targetWeight = TargetWeight.Fixed(39.65),
         matches = BalancingMatchers::isInternationalStock,
     )
 
     private val fiiRendNode: BalancingTreeNode = BalancingTreeNodeFactory.withDemaisInvestimentos(
         node = BalancingTreeNode(
             id = BalancingGroupId.FII_REND,
-            displayName = "FII - Renda%",
+            displayName = "FII - Renda",
             targetWeight = TargetWeight.Fixed(70.0),
             matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_REND_TICKERS.keys),
             children = BalancingConstants.FII_REND_TICKERS.map { (ticker, weight) ->
@@ -136,7 +136,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.RV_REITS,
             displayName = "FIIs",
-            targetWeight = TargetWeight.Fixed(33.33),
+            targetWeight = TargetWeight.Fixed(23.21),
             matches = BalancingMatchers::isRealEstateFund,
             children = listOf(
                 fiiRendNode,
@@ -149,7 +149,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.VARIABLE_INCOME,
             displayName = "Renda Variável",
-            targetWeight = TargetWeight.Fixed(18.5),
+            targetWeight = TargetWeight.Fixed(19.5),
             matches = BalancingMatchers::isVariableIncomeExcludingCrypto,
             children = listOf(
                 nationalStocksNode,
