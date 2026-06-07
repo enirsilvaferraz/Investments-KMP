@@ -4,6 +4,31 @@ import com.eferraz.entities.assets.YieldIndexer
 
 internal object PortfolioBalancingCatalog {
 
+    private val targetWeightPercents: Map<String, Double> = mapOf(
+
+        // Carteira Balanceável
+        BalancingGroupId.CRYPTO to 1.5,
+        BalancingGroupId.FIXED_INCOME to 79.0,
+        BalancingGroupId.VARIABLE_INCOME to 19.5,
+
+        // Renda Fixa
+        BalancingGroupId.RF_POST_FIXED to 33.33,
+        BalancingGroupId.RF_PRE_FIXED to 33.33,
+        BalancingGroupId.RF_INFLATION_LINKED to 33.33,
+
+        // Renda Variavel
+        BalancingGroupId.RV_NATIONAL_STOCKS to 37.14,
+        BalancingGroupId.RV_INTERNATIONAL to 39.65,
+        BalancingGroupId.RV_REITS to 23.21,
+
+        // FII
+        BalancingGroupId.FII_REND to 70.0,
+        BalancingGroupId.FII_TAT to 30.0,
+    )
+
+    private fun fixedWeight(id: String): TargetWeight.Fixed =
+        TargetWeight.Fixed(targetWeightPercents.getValue(id))
+
     private val previdenciaNode: BalancingTreeNode = BalancingTreeNode(
         id = BalancingGroupId.PENSION_FUNDS,
         displayName = "Fundos de Previdência",
@@ -42,21 +67,21 @@ internal object PortfolioBalancingCatalog {
     private val rfPreNode: BalancingTreeNode = BalancingTreeNode(
         id = BalancingGroupId.RF_PRE_FIXED,
         displayName = "Pré-fixado",
-        targetWeight = TargetWeight.Fixed(33.33),
+        targetWeight = fixedWeight(BalancingGroupId.RF_PRE_FIXED),
         matches = BalancingMatchers.isFixedIncomeWithIndexer(YieldIndexer.PRE_FIXED),
     )
 
     private val rfPostNode: BalancingTreeNode = BalancingTreeNode(
         id = BalancingGroupId.RF_POST_FIXED,
         displayName = "Pós-fixados",
-        targetWeight = TargetWeight.Fixed(33.33),
+        targetWeight = fixedWeight(BalancingGroupId.RF_POST_FIXED),
         matches = BalancingMatchers.isFixedIncomeWithIndexer(YieldIndexer.POST_FIXED),
     )
 
     private val rfIpcaNode: BalancingTreeNode = BalancingTreeNode(
         id = BalancingGroupId.RF_INFLATION_LINKED,
         displayName = "Atrelado a inflação",
-        targetWeight = TargetWeight.Fixed(33.33),
+        targetWeight = fixedWeight(BalancingGroupId.RF_INFLATION_LINKED),
         matches = BalancingMatchers.isFixedIncomeWithIndexer(YieldIndexer.INFLATION_LINKED),
     )
 
@@ -64,7 +89,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.FIXED_INCOME,
             displayName = "Renda Fixa",
-            targetWeight = TargetWeight.Fixed(79.0),
+            targetWeight = fixedWeight(BalancingGroupId.FIXED_INCOME),
             matches = BalancingMatchers::isFixedIncome,
             children = listOf(
                 rfPostNode,
@@ -78,7 +103,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.RV_NATIONAL_STOCKS,
             displayName = "Ações Nacionais",
-            targetWeight = TargetWeight.Fixed(37.14),
+            targetWeight = fixedWeight(BalancingGroupId.RV_NATIONAL_STOCKS),
             matches = BalancingMatchers.isNationalStock(),
             children = BalancingConstants.NATIONAL_STOCK_TICKERS.map { (ticker, weight) ->
                 BalancingTreeNode(
@@ -94,7 +119,7 @@ internal object PortfolioBalancingCatalog {
     private val internationalNode: BalancingTreeNode = BalancingTreeNode(
         id = BalancingGroupId.RV_INTERNATIONAL,
         displayName = "Ações Internacionais",
-        targetWeight = TargetWeight.Fixed(39.65),
+        targetWeight = fixedWeight(BalancingGroupId.RV_INTERNATIONAL),
         matches = BalancingMatchers::isInternationalStock,
     )
 
@@ -102,7 +127,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.FII_REND,
             displayName = "FII - Renda",
-            targetWeight = TargetWeight.Fixed(70.0),
+            targetWeight = fixedWeight(BalancingGroupId.FII_REND),
             matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_REND_TICKERS.keys),
             children = BalancingConstants.FII_REND_TICKERS.map { (ticker, weight) ->
                 BalancingTreeNode(
@@ -119,7 +144,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.FII_TAT,
             displayName = "FII - Tatica",
-            targetWeight = TargetWeight.Fixed(30.0),
+            targetWeight = fixedWeight(BalancingGroupId.FII_TAT),
             matches = BalancingMatchers.isRealEstateFundWithTickerIn(BalancingConstants.FII_TAT_TICKERS.keys),
             children = BalancingConstants.FII_TAT_TICKERS.map { (ticker, weight) ->
                 BalancingTreeNode(
@@ -136,7 +161,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.RV_REITS,
             displayName = "FIIs",
-            targetWeight = TargetWeight.Fixed(23.21),
+            targetWeight = fixedWeight(BalancingGroupId.RV_REITS),
             matches = BalancingMatchers::isRealEstateFund,
             children = listOf(
                 fiiRendNode,
@@ -149,7 +174,7 @@ internal object PortfolioBalancingCatalog {
         node = BalancingTreeNode(
             id = BalancingGroupId.VARIABLE_INCOME,
             displayName = "Renda Variável",
-            targetWeight = TargetWeight.Fixed(19.5),
+            targetWeight = fixedWeight(BalancingGroupId.VARIABLE_INCOME),
             matches = BalancingMatchers::isVariableIncomeExcludingCrypto,
             children = listOf(
                 nationalStocksNode,
@@ -162,7 +187,7 @@ internal object PortfolioBalancingCatalog {
     private val cryptoNode: BalancingTreeNode = BalancingTreeNode(
         id = BalancingGroupId.CRYPTO,
         displayName = "Cripto Ativos",
-        targetWeight = TargetWeight.Fixed(1.5),
+        targetWeight = fixedWeight(BalancingGroupId.CRYPTO),
         matches = BalancingMatchers::isCrypto,
     )
 
