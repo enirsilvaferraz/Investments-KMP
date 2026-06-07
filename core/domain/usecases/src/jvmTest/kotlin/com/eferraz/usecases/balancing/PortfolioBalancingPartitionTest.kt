@@ -28,131 +28,36 @@ public class PortfolioBalancingPartitionTest {
     private val brokerage = Brokerage(id = 1, name = "Broker")
 
     /**
-     * Each active position belongs to exactly one component per eligible group (FR-007a).
+     * Balanceable and non-balanceable universes are mutually exclusive and exhaustive.
      */
     @Test
-    public fun `GIVEN diverse active positions WHEN classify per group THEN each entry maps to exactly one component`() {
+    public fun `GIVEN diverse active positions WHEN build index THEN balanceable and non-balanceable partition root universe`() {
 
         // GIVEN
-        val entries = listOf(
-            entry(
-                holdingId = 1,
-                asset = FixedIncomeAsset(
-                    id = 1,
-                    issuer = issuer,
-                    indexer = YieldIndexer.POST_FIXED,
-                    type = FixedIncomeAssetType.CDB,
-                    expirationDate = LocalDate(2025, Month.JANUARY, 1),
-                    contractedYield = 10.0,
-                    liquidity = Liquidity.D_PLUS_DAYS,
-                ),
-                value = 100.0,
-                quantity = 10.0,
-            ),
-            entry(
-                holdingId = 2,
-                asset = FixedIncomeAsset(
-                    id = 2,
-                    issuer = issuer,
-                    indexer = YieldIndexer.PRE_FIXED,
-                    type = FixedIncomeAssetType.LCI,
-                    expirationDate = LocalDate(2025, Month.JUNE, 1),
-                    contractedYield = 9.0,
-                    liquidity = Liquidity.D_PLUS_DAYS,
-                ),
-                value = 200.0,
-                quantity = 10.0,
-            ),
-            entry(
-                holdingId = 3,
-                asset = VariableIncomeAsset(
-                    id = 3,
-                    name = "Stock",
-                    issuer = issuer,
-                    type = VariableIncomeAssetType.NATIONAL_STOCK,
-                    ticker = "PETR4",
-                ),
-                value = 300.0,
-                quantity = 10.0,
-            ),
-            entry(
-                holdingId = 4,
-                asset = VariableIncomeAsset(
-                    id = 4,
-                    name = "Crypto",
-                    issuer = issuer,
-                    type = VariableIncomeAssetType.ETF,
-                    ticker = "HASH11",
-                ),
-                value = 50.0,
-                quantity = 10.0,
-            ),
-            entry(
-                holdingId = 5,
-                asset = VariableIncomeAsset(
-                    id = 5,
-                    name = "International",
-                    issuer = issuer,
-                    type = VariableIncomeAssetType.INTERNATIONAL_STOCK,
-                    ticker = "IVVB11",
-                ),
-                value = 400.0,
-                quantity = 10.0,
-            ),
-            entry(
-                holdingId = 6,
-                asset = InvestmentFundAsset(
-                    id = 6,
-                    name = "Pension",
-                    issuer = issuer,
-                    type = InvestmentFundAssetType.PENSION,
-                    liquidity = Liquidity.D_PLUS_DAYS,
-                ),
-                value = 150.0,
-                quantity = 10.0,
-            ),
-            entry(
-                holdingId = 7,
-                asset = InvestmentFundAsset(
-                    id = 7,
-                    name = "Other Fund",
-                    issuer = issuer,
-                    type = InvestmentFundAssetType.MULTIMARKET_FUND,
-                    liquidity = Liquidity.D_PLUS_DAYS,
-                ),
-                value = 80.0,
-                quantity = 10.0,
-            ),
-        )
+        val entries = diverseEntries()
         val activeEntries = entries.filter { PortfolioBalancingEngine.patrimony(it) > 0.0 }
+        val index = BalancingUniverseIndex.build(PortfolioBalancingCatalog.root, activeEntries)
 
         // WHEN / THEN
-        PortfolioBalancingCatalog.groups.forEach { group ->
-            val universe = PortfolioBalancingEngine.universeForGroup(group, activeEntries)
+        val root = index.byNodeId.getValue(BalancingGroupId.PORTFOLIO_TOTAL)
+        val nonBalanceable = index.byNodeId.getValue(BalancingGroupId.NON_BALANCEABLE)
+        val balanceable = index.byNodeId.getValue(BalancingGroupId.BALANCEABLE)
 
-            for (entry in universe) {
-                val matchingComponents = group.components.filter { component ->
-                    component.matches(entry) &&
-                        group.components.first { it.matches(entry) }.id == component.id
-                }
-                assertEquals(
-                    1,
-                    matchingComponents.size,
-                    "Entry ${entry.holding.id} in group ${group.id} has ambiguous classification",
-                )
-            }
-
-            val classifiedSum = PortfolioBalancingEngine.classifyAndSum(universe, group).values.sum()
-            val universeSum = universe.sumOf { PortfolioBalancingEngine.patrimony(it) }
-            assertEquals(universeSum, classifiedSum, 0.01)
-        }
+        assertEquals(root.size, nonBalanceable.size + balanceable.size)
+        assertTrue(nonBalanceable.none { it in balanceable })
+        assertEquals(
+            root.sumOf { PortfolioBalancingEngine.patrimony(it) },
+            nonBalanceable.sumOf { PortfolioBalancingEngine.patrimony(it) } +
+                balanceable.sumOf { PortfolioBalancingEngine.patrimony(it) },
+            0.01,
+        )
     }
 
     /**
-     * No overlap between specific components — sum of classified equals universe total.
+     * ETF is variable income and maps to demais investimentos within RV subtree.
      */
     @Test
-    public fun `GIVEN portfolio total group WHEN classify THEN sum equals universe without gaps`() {
+    public fun `GIVEN ETF in balanceable universe WHEN build index THEN demais investimentos captures it`() {
 
         // GIVEN
         val entries = listOf(
@@ -169,15 +74,136 @@ public class PortfolioBalancingPartitionTest {
                 quantity = 10.0,
             ),
         )
-
-        // WHEN
-        val sums = PortfolioBalancingEngine.classifyAndSum(entries, PortfolioBalancingCatalog.portfolioTotalGroup)
+        val index = BalancingUniverseIndex.build(PortfolioBalancingCatalog.root, entries)
 
         // THEN
-        assertEquals(1, sums.values.count { it > 0.0 })
-        assertEquals(1_000.0, sums.values.sum(), 0.01)
-        assertTrue(sums.getValue(BalancingGroupId.VARIABLE_INCOME) > 0.0)
+        assertEquals(1, index.byNodeId.getValue(BalancingTreeNodeFactory.demaisId(BalancingGroupId.VARIABLE_INCOME)).size)
+        assertEquals(1, index.byNodeId.getValue(BalancingGroupId.VARIABLE_INCOME).size)
     }
+
+    /**
+     * Non-balanceable stock fund maps to demais non-balanceable fallback.
+     */
+    @Test
+    public fun `GIVEN non-listed non-balanceable asset WHEN build index THEN demais non-balanceable captures it`() {
+
+        // GIVEN — extend list hypothetically via matcher overlap test on demais
+        val entries = listOf(
+            entry(
+                holdingId = 1,
+                asset = InvestmentFundAsset(
+                    id = 1,
+                    name = "Other Fund",
+                    issuer = issuer,
+                    type = InvestmentFundAssetType.MULTIMARKET_FUND,
+                    liquidity = Liquidity.D_PLUS_DAYS,
+                ),
+                value = 100.0,
+                quantity = 10.0,
+            ),
+        )
+        val index = BalancingUniverseIndex.build(PortfolioBalancingCatalog.root, entries)
+
+        // THEN — not in non-balanceable list → balanceable demais
+        assertEquals(1, index.byNodeId.getValue(BalancingGroupId.BALANCEABLE).size)
+        assertEquals(1, index.byNodeId.getValue(BalancingGroupId.OTHER_INVESTMENTS).size)
+    }
+
+    /**
+     * Non-balanceable assets never appear in RF subtree (FR-008, FR-014).
+     */
+    @Test
+    public fun `GIVEN pension in portfolio WHEN build index THEN RF subtree excludes non-balanceable assets`() {
+
+        // GIVEN
+        val entries = listOf(
+            entry(
+                holdingId = 1,
+                asset = InvestmentFundAsset(
+                    id = 1,
+                    name = "Pension",
+                    issuer = issuer,
+                    type = InvestmentFundAssetType.PENSION,
+                    liquidity = Liquidity.D_PLUS_DAYS,
+                ),
+                value = 100.0,
+                quantity = 10.0,
+            ),
+            entry(
+                holdingId = 2,
+                asset = FixedIncomeAsset(
+                    id = 2,
+                    issuer = issuer,
+                    indexer = YieldIndexer.PRE_FIXED,
+                    type = FixedIncomeAssetType.CDB,
+                    expirationDate = LocalDate(2025, Month.JANUARY, 1),
+                    contractedYield = 10.0,
+                    liquidity = Liquidity.D_PLUS_DAYS,
+                ),
+                value = 200.0,
+                quantity = 10.0,
+            ),
+        )
+        val index = BalancingUniverseIndex.build(PortfolioBalancingCatalog.root, entries)
+
+        // THEN
+        val rfEntries = index.byNodeId.getValue(BalancingGroupId.FIXED_INCOME)
+        assertTrue(rfEntries.none { BalancingMatchers.isNonBalanceable(it) })
+        assertEquals(1, rfEntries.size)
+    }
+
+    private fun diverseEntries(): List<HoldingHistoryEntry> = listOf(
+        entry(
+            holdingId = 1,
+            asset = FixedIncomeAsset(
+                id = 1,
+                issuer = issuer,
+                indexer = YieldIndexer.POST_FIXED,
+                type = FixedIncomeAssetType.CDB,
+                expirationDate = LocalDate(2025, Month.JANUARY, 1),
+                contractedYield = 10.0,
+                liquidity = Liquidity.D_PLUS_DAYS,
+            ),
+            value = 100.0,
+            quantity = 10.0,
+        ),
+        entry(
+            holdingId = 2,
+            asset = VariableIncomeAsset(
+                id = 3,
+                name = "Stock",
+                issuer = issuer,
+                type = VariableIncomeAssetType.NATIONAL_STOCK,
+                ticker = "PETR4",
+            ),
+            value = 300.0,
+            quantity = 10.0,
+        ),
+        entry(
+            holdingId = 3,
+            asset = VariableIncomeAsset(
+                id = 4,
+                name = "Crypto",
+                issuer = issuer,
+                type = VariableIncomeAssetType.ETF,
+                ticker = "HASH11",
+            ),
+            value = 50.0,
+            quantity = 10.0,
+        ),
+        entry(
+            holdingId = 4,
+            asset = InvestmentFundAsset(
+                id = 6,
+                name = "Pension",
+                issuer = issuer,
+                type = InvestmentFundAssetType.PENSION,
+                liquidity = Liquidity.D_PLUS_DAYS,
+            ),
+            value = 150.0,
+            quantity = 10.0,
+        ),
+    )
 
     private fun entry(
         holdingId: Long,

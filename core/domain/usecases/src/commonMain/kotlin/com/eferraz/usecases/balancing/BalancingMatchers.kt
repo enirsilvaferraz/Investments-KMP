@@ -68,4 +68,20 @@ internal object BalancingMatchers {
     }
 
     fun always(entry: HoldingHistoryEntry): Boolean = true
+
+    fun isNonBalanceable(entry: HoldingHistoryEntry): Boolean =
+        NonBalanceableAssetList.matchers.any { matcher -> matcher(entry) }
+
+    fun isBalanceable(entry: HoldingHistoryEntry): Boolean = !isNonBalanceable(entry)
+
+    fun isDemaisAmong(
+        entry: HoldingHistoryEntry,
+        inUniverse: (HoldingHistoryEntry) -> Boolean,
+        siblingMatchers: List<(HoldingHistoryEntry) -> Boolean>,
+    ): Boolean = inUniverse(entry) && siblingMatchers.none { matcher -> matcher(entry) }
+
+    fun isDemaisFallbackNode(nodeId: String): Boolean =
+        nodeId == BalancingGroupId.OTHER_INVESTMENTS ||
+            nodeId == BalancingGroupId.DEMAIS_NON_BALANCEABLE ||
+            nodeId.endsWith(BalancingGroupId.DEMAIS_SUFFIX)
 }

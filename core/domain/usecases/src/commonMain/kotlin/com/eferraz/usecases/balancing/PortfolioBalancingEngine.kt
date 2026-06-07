@@ -8,190 +8,114 @@ internal object PortfolioBalancingEngine {
     fun calculate(
         entries: List<HoldingHistoryEntry>,
         referenceDate: YearMonth,
-        groups: List<BalancingGroup> = PortfolioBalancingCatalog.groups,
+        root: BalancingTreeNode = PortfolioBalancingCatalog.root,
     ): PortfolioBalancingReport {
-        val resolvedGroups = groups.withDefaultOtherInvestments()
         val activeEntries = entries.filter { patrimony(it) > 0.0 }
-        val totalPortfolioValue = activeEntries.sumOf { patrimony(it) }
+        val index = BalancingUniverseIndex.build(root, activeEntries)
+        val state = ComputeState()
 
-        val portfolioTotalGroup = resolvedGroups.first { it.id == BalancingGroupId.PORTFOLIO_TOTAL }
-        val portfolioActuals = classifyAndSum(activeEntries, portfolioTotalGroup)
-        val dynamicActuals = portfolioTotalGroup.components
-            .filter { it.targetWeight is TargetWeight.Dynamic }
-            .sumOf { portfolioActuals.getValue(it.id) }
-        val hasDynamicWeight = dynamicActuals > 0.0
-        val balanceableBase = totalPortfolioValue - dynamicActuals
-
-        val portfolioContext = BalancingWeightCalculator.PortfolioTotalContext(
-            totalPortfolioValue = totalPortfolioValue,
-            balanceableBase = balanceableBase,
-            hasDynamicWeight = hasDynamicWeight,
-        )
-
-        val idealByComponentId = mutableMapOf<String, Double>()
-        val lines = resolvedGroups.flatMap { group ->
-            buildGroupLines(
-                group = group,
-                activeEntries = activeEntries,
-                portfolioActuals = portfolioActuals,
-                totalPortfolioValue = totalPortfolioValue,
-                portfolioContext = portfolioContext,
-                idealByComponentId = idealByComponentId,
-            )
-        }
-
-        val groupHoldings = resolvedGroups.map { group ->
-            PortfolioBalancingGroupHoldings(
-                groupId = group.id,
-                holdings = otherInvestmentsEntries(group, activeEntries)
-                    .map { entry ->
-                        PortfolioBalancingHoldingLine(
-                            displayName = formatBalancingAssetDisplayName(entry.holding.asset),
-                            value = patrimony(entry),
-                        )
-                    }
-                    .sortedBy { it.displayName },
-            )
-        }
+        state.idealByNodeId[root.id] = index.totalPortfolioValue
+        computeAndEmitNode(node = root, index = index, state = state)
 
         return PortfolioBalancingReport(
             referenceDate = referenceDate,
-            totalPortfolioValue = totalPortfolioValue,
-            lines = lines,
-            groupHoldings = groupHoldings,
-            hasDynamicWeight = hasDynamicWeight,
-            orderedGroupIds = resolvedGroups.map { it.id },
+            totalPortfolioValue = index.totalPortfolioValue,
+            sections = state.sections,
+            balanceableBase = state.actualByNodeId[BalancingGroupId.BALANCEABLE] ?: 0.0,
         )
     }
 
     internal fun patrimony(entry: HoldingHistoryEntry): Double =
         entry.endOfMonthValue * entry.endOfMonthQuantity
 
-    internal fun universeForGroup(
-        group: BalancingGroup,
-        activeEntries: List<HoldingHistoryEntry>,
-    ): List<HoldingHistoryEntry> = activeEntries.filter(group.universeFilter)
+    private data class ComputeState(
+        val idealByNodeId: MutableMap<String, Double> = mutableMapOf(),
+        val actualByNodeId: MutableMap<String, Double> = mutableMapOf(),
+        val sections: MutableList<PortfolioBalancingReportSection> = mutableListOf(),
+    )
 
-    internal fun shouldDisplayInReport(component: BalancingComponent, actualValue: Double): Boolean =
-        when {
-            component.id == BalancingGroupId.OTHER_INVESTMENTS -> actualValue > 0.0
-            component.targetWeight is TargetWeight.Zero -> actualValue > 0.0
-            else -> true
-        }
+    private fun computeAndEmitNode(
+        node: BalancingTreeNode,
+        index: BalancingUniverseIndex,
+        state: ComputeState,
+    ) {
+        if (node.children.isEmpty()) return
 
-    internal fun classifyComponent(
-        group: BalancingGroup,
-        entry: HoldingHistoryEntry,
-    ): BalancingComponent = group.components.first { it.matches(entry) }
-
-    internal fun classifyAndSum(
-        universe: List<HoldingHistoryEntry>,
-        group: BalancingGroup,
-    ): Map<String, Double> {
-        val sums = group.components.associate { it.id to 0.0 }.toMutableMap()
-        for (entry in universe) {
-            val component = classifyComponent(group, entry)
-            sums[component.id] = sums.getValue(component.id) + patrimony(entry)
+        val referenceBase = state.idealByNodeId.getValue(node.id)
+        val rows = node.children.mapNotNull { child ->
+            val actual = computeActual(child, index)
+            state.actualByNodeId[child.id] = actual
+            val ideal = BalancingIdealCalculator.computeIdeal(child.targetWeight, actual, referenceBase)
+            state.idealByNodeId[child.id] = ideal
+            val line = toReportLine(child, actual, ideal, index)
+            if (shouldDisplayInReport(child.id, actual)) line else null
         }
-        return sums
-    }
-
-    private fun buildGroupLines(
-        group: BalancingGroup,
-        activeEntries: List<HoldingHistoryEntry>,
-        portfolioActuals: Map<String, Double>,
-        totalPortfolioValue: Double,
-        portfolioContext: BalancingWeightCalculator.PortfolioTotalContext,
-        idealByComponentId: MutableMap<String, Double>,
-    ): List<PortfolioBalancingReportLine> {
-        val universe = universeForGroup(group, activeEntries)
-        val actuals = if (group.id == BalancingGroupId.PORTFOLIO_TOTAL) {
-            portfolioActuals
-        } else {
-            classifyAndSum(universe, group)
-        }
-        val groupTotal = if (group.id == BalancingGroupId.PORTFOLIO_TOTAL) {
-            totalPortfolioValue
-        } else {
-            actuals.values.sum()
-        }
-        if (group.id != BalancingGroupId.PORTFOLIO_TOTAL && groupTotal == 0.0) {
-            return emptyList()
-        }
-
-        val parentIdealBase = if (group.id == BalancingGroupId.PORTFOLIO_TOTAL) {
-            null
-        } else {
-            idealByComponentId.getValue(group.id)
-        }
-
-        return group.components.mapNotNull { component ->
-            val actual = actuals.getValue(component.id)
-            val reportLine = toReportLine(
-                group = group,
-                component = component,
-                actualValue = actual,
-                groupTotal = groupTotal,
-                portfolioContext = portfolioContext,
-                parentIdealBase = parentIdealBase,
-            )
-            idealByComponentId[component.id] = reportLine.idealValue
-            if (!shouldDisplayInReport(component, actual)) return@mapNotNull null
-            reportLine
+        val totalRow = buildTotalRow(node.id, rows)
+        state.sections += PortfolioBalancingReportSection(
+            nodeId = node.id,
+            nodeName = node.displayName,
+            rows = rows,
+            totalRow = totalRow,
+        )
+        node.children.forEach { child ->
+            computeAndEmitNode(child, index, state)
         }
     }
 
-    private fun otherInvestmentsEntries(
-        group: BalancingGroup,
-        activeEntries: List<HoldingHistoryEntry>,
-    ): List<HoldingHistoryEntry> {
-        val otherId = BalancingGroupId.OTHER_INVESTMENTS
-        return universeForGroup(group, activeEntries)
-            .filter { classifyComponent(group, it).id == otherId }
-    }
+    private fun computeActual(node: BalancingTreeNode, index: BalancingUniverseIndex): Double =
+        if (node.children.isEmpty()) {
+            index.byNodeId.getValue(node.id).sumOf { patrimony(it) }
+        } else {
+            node.children.sumOf { computeActual(it, index) }
+        }
 
     private fun toReportLine(
-        group: BalancingGroup,
-        component: BalancingComponent,
+        node: BalancingTreeNode,
         actualValue: Double,
-        groupTotal: Double,
-        portfolioContext: BalancingWeightCalculator.PortfolioTotalContext,
-        parentIdealBase: Double?,
-    ): PortfolioBalancingReportLine {
-        val configured = BalancingWeightCalculator.configuredWeight(component.targetWeight)
-        val computed = if (group.id == BalancingGroupId.PORTFOLIO_TOTAL) {
-            BalancingWeightCalculator.computePortfolioTotalWeights(
-                targetWeight = component.targetWeight,
-                actualValue = actualValue,
-                configuredPercent = configured.percent,
-                context = portfolioContext,
-            )
-        } else {
-            BalancingWeightCalculator.computeNestedWeights(
-                targetWeight = component.targetWeight,
-                context = BalancingWeightCalculator.NestedContext(
-                    parentIdealBase = parentIdealBase!!,
-                    totalPortfolioValue = portfolioContext.totalPortfolioValue,
-                ),
-            )
+        idealValue: Double,
+        index: BalancingUniverseIndex,
+    ): PortfolioBalancingReportLine = PortfolioBalancingReportLine(
+        nodeId = node.id,
+        displayName = node.displayName,
+        actualValue = actualValue,
+        configuredWeightDisplay = BalancingIdealCalculator.configuredWeightDisplay(node.targetWeight),
+        configuredWeightPercent = BalancingIdealCalculator.configuredWeightPercent(node.targetWeight),
+        idealValue = idealValue,
+        deviation = actualValue - idealValue,
+        holdings = demaisHoldings(node, actualValue, index),
+    )
+
+    private fun demaisHoldings(
+        node: BalancingTreeNode,
+        actualValue: Double,
+        index: BalancingUniverseIndex,
+    ): List<PortfolioBalancingHoldingLine> {
+        if (!BalancingMatchers.isDemaisFallbackNode(node.id) || actualValue <= 0.0) {
+            return emptyList()
         }
-        val actualWeightPercent = BalancingWeightCalculator.actualWeightPercent(
-            actualValue = actualValue,
-            groupTotal = groupTotal,
-        )
-        return PortfolioBalancingReportLine(
-            groupId = group.id,
-            groupName = group.displayName,
-            componentName = component.displayName,
-            actualValue = actualValue,
-            actualWeightDisplay = BalancingFormatters.formatPercent(actualWeightPercent),
-            actualWeightPercent = actualWeightPercent,
-            configuredWeightDisplay = configured.display,
-            configuredWeightPercent = configured.percent,
-            normalizedWeightDisplay = BalancingFormatters.formatPercent(computed.normalizedPercent),
-            normalizedWeightPercent = computed.normalizedPercent,
-            idealValue = computed.idealValue,
-            deviation = computed.idealValue - actualValue,
-        )
+        return index.byNodeId.getValue(node.id)
+            .map { entry ->
+                PortfolioBalancingHoldingLine(
+                    displayName = formatBalancingAssetDisplayName(entry.holding.asset),
+                    value = patrimony(entry),
+                )
+            }
+            .sortedBy { it.displayName }
     }
+
+    private fun shouldDisplayInReport(nodeId: String, actualValue: Double): Boolean =
+        !BalancingMatchers.isDemaisFallbackNode(nodeId) || actualValue > 0.0
+
+    private fun buildTotalRow(
+        sectionNodeId: String,
+        rows: List<PortfolioBalancingReportLine>,
+    ): PortfolioBalancingReportLine = PortfolioBalancingReportLine(
+        nodeId = sectionNodeId,
+        displayName = "Total",
+        actualValue = rows.sumOf { it.actualValue },
+        configuredWeightDisplay = "100,00%",
+        configuredWeightPercent = 100.0,
+        idealValue = rows.sumOf { it.idealValue },
+        deviation = rows.sumOf { it.deviation },
+    )
 }

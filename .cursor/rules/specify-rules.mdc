@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 
 <!-- SPECKIT START -->
-Plano actual: `specs/024-portfolio-balancing/plan.md` — balanceamento: `CalculatePortfolioBalancingUseCase(Unit)` autossuficiente
-(`DateProvider` + `GetHoldingHistoriesUseCase` only); engine puro + log no histórico (sem ecrã v1).
-Fora do escopo: persistência de pesos, painel visual, recomendações de negociação.
+Plano actual: `specs/025-balanceable-groups/plan.md` — R1 filtragem progressiva (`byNodeId[pai].filter(matches)`);
+regras R1–R7 iguais para todos os nós; log = DFS.
+Fora do escopo: persistência da lista, UI de classificação, ecrã dedicado.
 <!-- SPECKIT END -->

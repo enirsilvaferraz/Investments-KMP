@@ -3,12 +3,16 @@ package com.eferraz.usecases.balancing
 public object BalancingGroupId {
 
     public const val PORTFOLIO_TOTAL: String = "PORTFOLIO_TOTAL"
+    public const val NON_BALANCEABLE: String = "NON_BALANCEABLE"
+    public const val BALANCEABLE: String = "BALANCEABLE"
+    public const val DEMAIS_NON_BALANCEABLE: String = "DEMAIS_NON_BALANCEABLE"
     public const val FIXED_INCOME: String = "FIXED_INCOME"
     public const val VARIABLE_INCOME: String = "VARIABLE_INCOME"
     public const val PENSION_FUNDS: String = "PENSION_FUNDS"
     public const val FGTS_FUNDS: String = "FGTS_FUNDS"
     public const val CRYPTO: String = "CRYPTO"
     public const val OTHER_INVESTMENTS: String = "OTHER_INVESTMENTS"
+    public const val DEMAIS_SUFFIX: String = "_DEMAIS"
     public const val RF_POST_FIXED: String = "RF_POST_FIXED"
     public const val RF_PRE_FIXED: String = "RF_PRE_FIXED"
     public const val RF_INFLATION_LINKED: String = "RF_INFLATION_LINKED"

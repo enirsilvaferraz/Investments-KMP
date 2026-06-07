@@ -2,60 +2,28 @@ package com.eferraz.usecases.balancing
 
 private const val COLUMN_SEPARATOR: String = " | "
 
-public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): String {
+public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): String =
+    formatTreeReport(report)
 
-    val componentRows = report.lines.map { line ->
-        FormattedRow(
-            groupId = line.groupId,
-            groupName = line.groupName,
-            name = line.componentName,
-            actual = BalancingFormatters.formatMoney(line.actualValue),
-            actualWeight = line.actualWeightDisplay,
-            configuredWeight = line.configuredWeightDisplay,
-            normalizedWeight = line.normalizedWeightDisplay,
-            ideal = BalancingFormatters.formatMoney(line.idealValue),
-            deviation = BalancingFormatters.formatMoney(line.deviation),
-            actualValue = line.actualValue,
-            idealValue = line.idealValue,
-            deviationValue = line.deviation,
-            actualWeightPercent = line.actualWeightPercent,
-            normalizedWeightPercent = line.normalizedWeightPercent,
-            hasDynamicWeight = line.configuredWeightPercent == null && line.actualValue > 0.0,
-        )
-    }
-
-    val rowsWithTotals = componentRows.appendGroupTotalRows()
-    val holdingsByGroup = report.groupHoldings.associateBy { it.groupId }
-
+internal fun formatTreeReport(report: PortfolioBalancingReport): String {
     val builder = StringBuilder()
 
-    for (groupId in report.orderedGroupIds) {
-
-        val groupRows = rowsWithTotals.filter { it.groupId == groupId }
-        if (groupRows.isEmpty()) continue
-
-        val showNormalizedWeight = groupRows
-            .filter { it.name != "Total" }
-            .any { it.hasDynamicWeight }
-        val layout = ColumnLayout.from(groupRows, showNormalizedWeight)
-
-        if (builder.isNotEmpty()) {
+    report.sections.forEachIndexed { index, section ->
+        if (index > 0) {
             builder.appendLine()
         }
-
-        builder.appendLine("=== ${groupRows.first().groupName} ===")
+        builder.appendLine("=== ${section.nodeName} ===")
         builder.appendLine()
 
+        val layout = ColumnLayout.from(section)
         builder.appendLine(layout.headerRow())
         builder.appendLine(layout.separatorRow())
-        val dataRows = groupRows.filter { it.name != "Total" }
-        val totalRow = groupRows.firstOrNull { it.name == "Total" }
-        dataRows.forEach { builder.appendLine(layout.formatRow(it)) }
-        if (totalRow != null) {
-            builder.appendLine(layout.separatorRow())
-            builder.appendLine(layout.formatRow(totalRow))
+        section.rows.forEach { row ->
+            builder.appendLine(layout.formatRow(row))
         }
-        val holdingsSection = formatHoldingsSection(holdingsByGroup[groupId]?.holdings.orEmpty())
+        builder.appendLine(layout.separatorRow())
+        builder.appendLine(layout.formatRow(section.totalRow))
+        val holdingsSection = formatHoldingsSection(section.rows.flatMap { it.holdings })
         if (holdingsSection.isNotEmpty()) {
             builder.appendLine()
             builder.append(holdingsSection)
@@ -70,7 +38,6 @@ public fun formatPortfolioBalancingReport(report: PortfolioBalancingReport): Str
 }
 
 private fun formatHoldingsSection(holdings: List<PortfolioBalancingHoldingLine>): String {
-
     if (holdings.isEmpty()) {
         return ""
     }
@@ -93,175 +60,79 @@ private fun formatHoldingsSection(holdings: List<PortfolioBalancingHoldingLine>)
     }
 }
 
-private fun List<FormattedRow>.appendGroupTotalRows(): List<FormattedRow> {
-
-    if (isEmpty()) return this
-
-    val result = mutableListOf<FormattedRow>()
-    var currentGroupId: String? = null
-    var groupRows = mutableListOf<FormattedRow>()
-
-    fun flushGroup() {
-        if (groupRows.isEmpty()) return
-        result += groupRows
-        result += groupRows.buildTotalRow()
-        groupRows = mutableListOf()
-    }
-
-    for (row in this) {
-        if (row.groupId != currentGroupId) {
-            flushGroup()
-            currentGroupId = row.groupId
-        }
-        groupRows += row
-    }
-    flushGroup()
-    return result
-}
-
-private fun List<FormattedRow>.buildTotalRow(): FormattedRow = FormattedRow(
-    groupId = this.first().groupId,
-    groupName = this.first().groupName,
-    name = "Total",
-    actual = BalancingFormatters.formatMoney(sumOf { it.actualValue }),
-    actualWeight = BalancingFormatters.formatPercent(sumOf { it.actualWeightPercent }),
-    configuredWeight = "100,00%",
-    normalizedWeight = BalancingFormatters.formatPercent(sumOf { it.normalizedWeightPercent }),
-    ideal = BalancingFormatters.formatMoney(sumOf { it.idealValue }),
-    deviation = BalancingFormatters.formatMoney(sumOf { it.deviationValue }),
-    actualValue = sumOf { it.actualValue },
-    idealValue = sumOf { it.idealValue },
-    deviationValue = sumOf { it.deviationValue },
-    actualWeightPercent = sumOf { it.actualWeightPercent },
-    normalizedWeightPercent = sumOf { it.normalizedWeightPercent },
-    hasDynamicWeight = false,
-)
-
-private data class FormattedRow(
-    val groupId: String,
-    val groupName: String,
-    val name: String,
-    val actual: String,
-    val actualWeight: String,
-    val configuredWeight: String,
-    val normalizedWeight: String,
-    val ideal: String,
-    val deviation: String,
-    val actualValue: Double,
-    val idealValue: Double,
-    val deviationValue: Double,
-    val actualWeightPercent: Double,
-    val normalizedWeightPercent: Double,
-    val hasDynamicWeight: Boolean,
-)
-
 private data class ColumnLayout(
     val nameWidth: Int,
     val actualWidth: Int,
-    val actualWeightWidth: Int,
     val configuredWidth: Int,
-    val normalizedWidth: Int,
     val idealWidth: Int,
     val deviationWidth: Int,
-    val showNormalizedWeight: Boolean,
 ) {
     fun headerRow(): String = formatRow(
         name = "Nome",
         actual = "Valor actual",
-        actualWeight = "Percentual actual",
-        configuredWeight = "Peso configurado",
-        normalizedWeight = "Peso normalizado",
+        configured = "Peso configurado",
         ideal = "Valor ideal",
         deviation = "Desvio",
     )
 
     fun separatorRow(): String = columnWidths().joinToString("-+-") { "-".repeat(it) }
 
-    fun formatRow(row: FormattedRow): String = formatRow(
-        name = row.name,
-        actual = row.actual,
-        actualWeight = row.actualWeight,
-        configuredWeight = row.configuredWeight,
-        normalizedWeight = row.normalizedWeight,
-        ideal = row.ideal,
-        deviation = row.deviation,
+    fun formatRow(line: PortfolioBalancingReportLine): String = formatRow(
+        name = line.displayName,
+        actual = BalancingFormatters.formatMoney(line.actualValue),
+        configured = line.configuredWeightDisplay,
+        ideal = BalancingFormatters.formatMoney(line.idealValue),
+        deviation = BalancingFormatters.formatMoney(line.deviation),
     )
 
-    private fun columnWidths(): List<Int> = buildList {
-        add(nameWidth)
-        add(actualWidth)
-        add(actualWeightWidth)
-        add(configuredWidth)
-        if (showNormalizedWeight) add(normalizedWidth)
-        add(idealWidth)
-        add(deviationWidth)
-    }
+    private fun columnWidths(): List<Int> = listOf(
+        nameWidth,
+        actualWidth,
+        configuredWidth,
+        idealWidth,
+        deviationWidth,
+    )
 
     private fun formatRow(
         name: String,
         actual: String,
-        actualWeight: String,
-        configuredWeight: String,
-        normalizedWeight: String,
+        configured: String,
         ideal: String,
         deviation: String,
     ): String = buildList {
         add(padRight(name, nameWidth))
         add(padLeft(actual, actualWidth))
-        add(padLeft(actualWeight, actualWeightWidth))
-        add(padLeft(configuredWeight, configuredWidth))
-        if (showNormalizedWeight) add(padLeft(normalizedWeight, normalizedWidth))
+        add(padLeft(configured, configuredWidth))
         add(padLeft(ideal, idealWidth))
         add(padLeft(deviation, deviationWidth))
     }.joinToString(COLUMN_SEPARATOR)
 
     companion object {
-        fun from(rows: List<FormattedRow>, showNormalizedWeight: Boolean): ColumnLayout {
-            val headers = HeaderLabels(
-                name = "Nome",
-                actual = "Valor actual",
-                actualWeight = "Percentual actual",
-                configuredWeight = "Peso configurado",
-                normalizedWeight = "Peso normalizado",
-                ideal = "Valor ideal",
-                deviation = "Desvio",
-            )
+        fun from(section: PortfolioBalancingReportSection): ColumnLayout {
+            val allRows = section.rows + section.totalRow
+            val headers = listOf("Nome", "Valor actual", "Peso configurado", "Valor ideal", "Desvio")
             return ColumnLayout(
-                nameWidth = maxOf(headers.name.length, rows.maxOfOrNull { it.name.length } ?: 0),
-                actualWidth = maxOf(headers.actual.length, rows.maxOfOrNull { it.actual.length } ?: 0),
-                actualWeightWidth = maxOf(
-                    headers.actualWeight.length,
-                    rows.maxOfOrNull { it.actualWeight.length } ?: 0,
+                nameWidth = maxOf(headers[0].length, allRows.maxOf { it.displayName.length }),
+                actualWidth = maxOf(
+                    headers[1].length,
+                    allRows.maxOf { BalancingFormatters.formatMoney(it.actualValue).length },
                 ),
                 configuredWidth = maxOf(
-                    headers.configuredWeight.length,
-                    rows.maxOfOrNull { it.configuredWeight.length } ?: 0,
+                    headers[2].length,
+                    allRows.maxOf { it.configuredWeightDisplay.length },
                 ),
-                normalizedWidth = if (showNormalizedWeight) {
-                    maxOf(
-                        headers.normalizedWeight.length,
-                        rows.maxOfOrNull { it.normalizedWeight.length } ?: 0,
-                    )
-                } else {
-                    0
-                },
-                idealWidth = maxOf(headers.ideal.length, rows.maxOfOrNull { it.ideal.length } ?: 0),
-                deviationWidth = maxOf(headers.deviation.length, rows.maxOfOrNull { it.deviation.length } ?: 0),
-                showNormalizedWeight = showNormalizedWeight,
+                idealWidth = maxOf(
+                    headers[3].length,
+                    allRows.maxOf { BalancingFormatters.formatMoney(it.idealValue).length },
+                ),
+                deviationWidth = maxOf(
+                    headers[4].length,
+                    allRows.maxOf { BalancingFormatters.formatMoney(it.deviation).length },
+                ),
             )
         }
     }
 }
-
-private data class HeaderLabels(
-    val name: String,
-    val actual: String,
-    val actualWeight: String,
-    val configuredWeight: String,
-    val normalizedWeight: String,
-    val ideal: String,
-    val deviation: String,
-)
 
 private fun padRight(text: String, width: Int): String {
     if (text.length >= width) return text

@@ -80,7 +80,8 @@ public class CalculatePortfolioBalancingUseCaseTest {
         val report = result.getOrThrow()
         assertEquals(period, report.referenceDate)
         assertEquals(10_000.0, report.totalPortfolioValue, 0.01)
-        assertEquals(7, report.lines.size)
+        assertTrue(report.sections.isNotEmpty())
+        assertEquals(BalancingGroupId.PORTFOLIO_TOTAL, report.sections.first().nodeId)
     }
 
     /**

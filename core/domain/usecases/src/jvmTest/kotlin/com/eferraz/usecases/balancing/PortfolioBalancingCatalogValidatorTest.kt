@@ -20,26 +20,32 @@ public class PortfolioBalancingCatalogValidatorTest {
     }
 
     /**
-     * Every catalog group receives an automatic «Demais investimentos» fallback component.
+     * Default catalog tree passes recursive validation including balanceable weight sum.
      */
     @Test
-    public fun `GIVEN default catalog WHEN inspect groups THEN each group ends with other investments fallback`() {
-
-        // THEN
-        PortfolioBalancingCatalog.groups.forEach { group ->
-            val other = group.components.last()
-            assertEquals(BalancingGroupId.OTHER_INVESTMENTS, other.id)
-            assertEquals("Demais investimentos", other.displayName)
-        }
-    }
-
-    /**
-     * Default catalog configured weights sum to 100% per group within tolerance.
-     */
-    @Test
-    public fun `GIVEN default catalog WHEN validate THEN all groups pass configured weight sum check`() {
+    public fun `GIVEN default catalog WHEN validate THEN tree passes configured weight sum check`() {
 
         // WHEN / THEN
         PortfolioBalancingCatalogValidator.validate()
+    }
+
+    /**
+     * Balanceable subtree fixed weights sum to 100% (FR-011).
+     */
+    @Test
+    public fun `GIVEN balanceable node WHEN sum fixed and zero child weights THEN total is 100 percent`() {
+
+        // WHEN
+        val balanceable = PortfolioBalancingCatalog.balanceableNode
+        val sum = balanceable.children.sumOf { child ->
+            when (val weight = child.targetWeight) {
+                is TargetWeight.Fixed -> weight.percent
+                TargetWeight.Zero -> 0.0
+                TargetWeight.Dynamic -> 0.0
+            }
+        }
+
+        // THEN
+        assertEquals(100.0, sum, 0.01)
     }
 }
