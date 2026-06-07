@@ -12,12 +12,6 @@ internal object PortfolioBalancingCatalogValidator {
 
     private fun validateGroup(group: BalancingGroup) {
 
-        val dynamicCount = group.components.count { it.targetWeight is TargetWeight.Dynamic }
-
-        require(dynamicCount <= 1) {
-            "Group ${group.id} must have at most one Dynamic component, found $dynamicCount"
-        }
-
         val configuredSum = group.components.sumOf { component ->
             when (val weight = component.targetWeight) {
                 is TargetWeight.Fixed -> weight.percent

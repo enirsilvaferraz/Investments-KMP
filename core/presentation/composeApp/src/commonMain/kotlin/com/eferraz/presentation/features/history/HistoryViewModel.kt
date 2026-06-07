@@ -64,6 +64,8 @@ internal class HistoryViewModel(
             }
 
             processIntent(HistoryIntent.LoadInitialData)
+
+            calculatePortfolioBalancing()
         }
     }
 

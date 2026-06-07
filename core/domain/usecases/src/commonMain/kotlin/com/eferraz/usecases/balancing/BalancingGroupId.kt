@@ -6,6 +6,7 @@ public object BalancingGroupId {
     public const val FIXED_INCOME: String = "FIXED_INCOME"
     public const val VARIABLE_INCOME: String = "VARIABLE_INCOME"
     public const val PENSION_FUNDS: String = "PENSION_FUNDS"
+    public const val FGTS_FUNDS: String = "FGTS_FUNDS"
     public const val CRYPTO: String = "CRYPTO"
     public const val OTHER_INVESTMENTS: String = "OTHER_INVESTMENTS"
     public const val RF_POST_FIXED: String = "RF_POST_FIXED"

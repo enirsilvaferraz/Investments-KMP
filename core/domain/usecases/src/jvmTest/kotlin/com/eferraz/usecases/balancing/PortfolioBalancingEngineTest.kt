@@ -112,6 +112,75 @@ public class PortfolioBalancingEngineTest {
     }
 
     /**
+     * Pension and FGTS are both dynamic → both excluded from balanceable base; normalized weights sum to 100%.
+     */
+    @Test
+    public fun `GIVEN portfolio with pension and FGTS WHEN calculate THEN normalized weights sum to 100 percent`() {
+
+        // GIVEN
+        val pensionAsset = InvestmentFundAsset(
+            id = 1,
+            name = "Pension Fund",
+            issuer = issuer,
+            type = InvestmentFundAssetType.PENSION,
+            liquidity = Liquidity.D_PLUS_DAYS,
+        )
+        val fgtsAsset = InvestmentFundAsset(
+            id = 2,
+            name = "FGTS Fund",
+            issuer = issuer,
+            type = InvestmentFundAssetType.MULTIMARKET_FUND,
+            liquidity = Liquidity.D_PLUS_DAYS,
+            observations = "Fundo atrelado ao FGTS",
+        )
+        val cryptoAsset = VariableIncomeAsset(
+            id = 3,
+            name = BalancingConstants.HASH11,
+            issuer = issuer,
+            type = VariableIncomeAssetType.INTERNATIONAL_STOCK,
+            ticker = BalancingConstants.HASH11,
+        )
+        val rfAsset = FixedIncomeAsset(
+            id = 4,
+            issuer = issuer,
+            indexer = YieldIndexer.PRE_FIXED,
+            type = FixedIncomeAssetType.CDB,
+            expirationDate = LocalDate(2025, Month.JANUARY, 1),
+            contractedYield = 10.0,
+            liquidity = Liquidity.D_PLUS_DAYS,
+        )
+        val rvAsset = VariableIncomeAsset(
+            id = 5,
+            name = "PETR4",
+            issuer = issuer,
+            type = VariableIncomeAssetType.NATIONAL_STOCK,
+            ticker = "PETR4",
+        )
+        val entries = listOf(
+            entry(holdingId = 1, asset = pensionAsset, value = 16_890.0, quantity = 1.0),
+            entry(holdingId = 2, asset = fgtsAsset, value = 1_120.0, quantity = 1.0),
+            entry(holdingId = 3, asset = cryptoAsset, value = 830.0, quantity = 1.0),
+            entry(holdingId = 4, asset = rfAsset, value = 55_000.0, quantity = 1.0),
+            entry(holdingId = 5, asset = rvAsset, value = 26_160.0, quantity = 1.0),
+        )
+
+        // WHEN
+        val report = PortfolioBalancingEngine.calculate(entries, referenceDate)
+
+        // THEN
+        val pensionLine = report.lines.first { it.componentName == "Fundos de Previdência" }
+        val fgtsLine = report.lines.first { it.componentName == "Fundos do FGTS" }
+        assertEquals(16.89, pensionLine.normalizedWeightPercent, 0.01)
+        assertEquals(1.12, fgtsLine.normalizedWeightPercent, 0.01)
+        assertEquals(0.0, pensionLine.deviation, 0.01)
+        assertEquals(0.0, fgtsLine.deviation, 0.01)
+
+        val group1Lines = report.lines.filter { it.groupId == BalancingGroupId.PORTFOLIO_TOTAL }
+        val normalizedSum = group1Lines.sumOf { it.normalizedWeightPercent }
+        assertEquals(100.0, normalizedSum, 0.01)
+    }
+
+    /**
      * Residual pension → ideal equals actual, configured is dynamic, deviation is zero.
      */
     @Test

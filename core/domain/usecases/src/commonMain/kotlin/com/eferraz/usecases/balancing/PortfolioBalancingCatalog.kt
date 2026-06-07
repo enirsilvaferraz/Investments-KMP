@@ -18,22 +18,28 @@ internal object PortfolioBalancingCatalog {
                 matches = BalancingMatchers::isCrypto,
             ),
             BalancingComponent(
+                id = BalancingGroupId.FIXED_INCOME,
+                displayName = "Renda Fixa",
+                targetWeight = TargetWeight.Fixed(82.5),
+                matches = BalancingMatchers::isFixedIncome,
+            ),
+            BalancingComponent(
+                id = BalancingGroupId.VARIABLE_INCOME,
+                displayName = "Renda Variável",
+                targetWeight = TargetWeight.Fixed(16.5),
+                matches = BalancingMatchers::isVariableIncomeExcludingCrypto,
+            ),
+            BalancingComponent(
                 id = BalancingGroupId.PENSION_FUNDS,
                 displayName = "Fundos de Previdência",
                 targetWeight = TargetWeight.Dynamic,
                 matches = BalancingMatchers::isPensionFund,
             ),
             BalancingComponent(
-                id = BalancingGroupId.FIXED_INCOME,
-                displayName = "Renda Fixa",
-                targetWeight = TargetWeight.Fixed(70.0),
-                matches = BalancingMatchers::isFixedIncome,
-            ),
-            BalancingComponent(
-                id = BalancingGroupId.VARIABLE_INCOME,
-                displayName = "Renda Variável",
-                targetWeight = TargetWeight.Fixed(29.0),
-                matches = BalancingMatchers::isVariableIncomeExcludingCrypto,
+                id = BalancingGroupId.FGTS_FUNDS,
+                displayName = "Fundos do FGTS",
+                targetWeight = TargetWeight.Dynamic,
+                matches = BalancingMatchers::isFGTSFund
             ),
         ),
     )

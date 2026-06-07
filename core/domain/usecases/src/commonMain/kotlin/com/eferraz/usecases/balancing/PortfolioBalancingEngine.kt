@@ -16,9 +16,11 @@ internal object PortfolioBalancingEngine {
 
         val portfolioTotalGroup = resolvedGroups.first { it.id == BalancingGroupId.PORTFOLIO_TOTAL }
         val portfolioActuals = classifyAndSum(activeEntries, portfolioTotalGroup)
-        val pensionActual = portfolioActuals.getValue(BalancingGroupId.PENSION_FUNDS)
-        val hasDynamicWeight = pensionActual > 0.0
-        val balanceableBase = totalPortfolioValue - pensionActual
+        val dynamicActuals = portfolioTotalGroup.components
+            .filter { it.targetWeight is TargetWeight.Dynamic }
+            .sumOf { portfolioActuals.getValue(it.id) }
+        val hasDynamicWeight = dynamicActuals > 0.0
+        val balanceableBase = totalPortfolioValue - dynamicActuals
 
         val portfolioContext = BalancingWeightCalculator.PortfolioTotalContext(
             totalPortfolioValue = totalPortfolioValue,

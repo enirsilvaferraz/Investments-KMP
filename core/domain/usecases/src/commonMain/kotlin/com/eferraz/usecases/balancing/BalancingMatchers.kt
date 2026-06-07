@@ -20,6 +20,11 @@ internal object BalancingMatchers {
         return asset.type == InvestmentFundAssetType.PENSION
     }
 
+    fun isFGTSFund(entry: HoldingHistoryEntry): Boolean {
+        val asset = entry.holding.asset as? InvestmentFundAsset ?: return false
+        return asset.observations == "Fundo atrelado ao FGTS"
+    }
+
     fun isFixedIncome(entry: HoldingHistoryEntry): Boolean =
         entry.holding.asset is FixedIncomeAsset
 
