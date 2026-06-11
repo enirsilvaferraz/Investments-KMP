@@ -243,7 +243,6 @@ With multiple developers:
 
 ## Notes
 
-- **Escopo mínimo** (princípio X): cada tarefa implementa apenas o pedido na spec/plano — sem funcionalidades extras, refactors não solicitados ou ficheiros desnecessários.
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable

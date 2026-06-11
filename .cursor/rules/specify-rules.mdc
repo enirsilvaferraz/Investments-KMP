@@ -3,7 +3,6 @@ alwaysApply: true
 ---
 
 <!-- SPECKIT START -->
-Plano actual: `specs/026-sinacor-fee-rateio/plan.md` — cálculo stateless de rateio proporcional de 6 taxas rateáveis (liquidação, emolumentos, transferência, corretagem, ISS, outras) entre ativos de uma nota SINACOR mista; aritmética inteira em centavos com ROUND_HALF_UP (FR-016); ajuste residual no **último ativo** do array (FR-013); validação em 3 etapas: pré-cálculo (FR-006/007/008/009), rateio, fechamento contábil (FR-019); retorno `Map<NoteAsset, Double>` (FR-017); entidades puras em `:domain:entity`, pacote `com.eferraz.entities.brokeragenotes`.
-Entidades: `TradeType`, `ApportionableFees`, `WithheldTaxes`, `FinancialSummary`, `BrokerageNoteMetadata`, `NoteAsset` (com `specification`; `grossValue` fornecido), `BrokerageNote`, `BrokerageNoteValidator`, `NoteFeeAllocation` (typealias).
-Fora do escopo: persistência da nota, UI, parsing de arquivos.
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
 <!-- SPECKIT END -->
