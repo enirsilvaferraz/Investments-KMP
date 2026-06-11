@@ -1,29 +1,269 @@
 {
-  "data": "01/01/2026",
-  "valor": 1004.54,
-  "taxas": {
-    "emolumentos": 1.00,
-    "liquidacao": 3.54,
-    "ir": 0.00
+  "metadados": {
+    "numero_nota": "8779222",
+    "data_pregao": "09/06/2026",
+    "data_liquidacao": "11/06/2026",
+    "corretora": "Nu Investimentos S.A.",
+    "cnpj_corretora": "62.169.875/0001-79",
+    "valor_liquido_nota": -33705.98
+  },
+  "resumo_financeiro": {
+    "volume_total_operado": 48912.22,
+    "total_compras_vista": 41301.77,
+    "total_vendas_vista": 7610.45,
+    "taxas_rateáveis": {
+      "taxa_liquidacao": 10.95,
+      "emolumentos": 2.44,
+      "taxa_transferencia": 1.27,
+      "corretagem": 0.00,
+      "iss": 0.00,
+      "outras": 0.00
+    },
+    "impostos_retidos": {
+      "irrf_operacoes": 0.38,
+      "irrf_day_trade": 0.00
+    }
   },
   "ativos": [
     {
-      "ticker": "AJFI11",
+      "ticker": "AXIA3",
+      "especificacao": "AXIASE ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 53,
+      "valor_unitario": 51.06,
+      "valor_bruto_total": 2706.18
+    },
+    {
+      "ticker": "BRBI11",
+      "especificacao": "BRB111F UNT N2",
+      "movimentacao": "COMPRA",
+      "quantidade": 42,
+      "valor_unitario": 15.13,
+      "valor_bruto_total": 635.46
+    },
+    {
+      "ticker": "BRBI11",
+      "especificacao": "BRBI11F UNT N2",
+      "movimentacao": "COMPRA",
+      "quantidade": 1,
+      "valor_unitario": 15.14,
+      "valor_bruto_total": 15.14
+    },
+    {
+      "ticker": "BRBI11",
+      "especificacao": "BRB111F UNT N2",
+      "movimentacao": "COMPRA",
+      "quantidade": 3,
+      "valor_unitario": 15.15,
+      "valor_bruto_total": 45.45
+    },
+    {
+      "ticker": "DIRR3",
+      "especificacao": "DIRR3F ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 50,
+      "valor_unitario": 12.84,
+      "valor_bruto_total": 642.00
+    },
+    {
+      "ticker": "EUCA4",
+      "especificacao": "EUCA4F PN N1",
+      "movimentacao": "COMPRA",
+      "quantidade": 56,
+      "valor_unitario": 25.15,
+      "valor_bruto_total": 1408.40
+    },
+    {
+      "ticker": "SBFG3",
+      "especificacao": "SBFG3F ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 97,
+      "valor_unitario": 10.59,
+      "valor_bruto_total": 1027.23
+    },
+    {
+      "ticker": "SBFG3",
+      "especificacao": "SBFG3F ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 1,
+      "unitario": 10.60,
+      "valor_bruto_total": 10.60
+    },
+    {
+      "ticker": "RENT3",
+      "especificacao": "RENT3F ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 1,
+      "valor_unitario": 40.82,
+      "valor_bruto_total": 40.82
+    },
+    {
+      "ticker": "RENT3",
+      "especificacao": "RENT3F ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 50,
+      "valor_unitario": 40.85,
+      "valor_bruto_total": 2042.50
+    },
+    {
+      "ticker": "MDNE3",
+      "especificacao": "MDNE3F ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 40,
+      "valor_unitario": 26.97,
+      "valor_bruto_total": 1078.80
+    },
+    {
+      "ticker": "PETR4",
+      "especificacao": "PETR4F PN EJ N2",
+      "movimentacao": "COMPRA",
+      "quantidade": 21,
+      "valor_unitario": 41.12,
+      "valor_bruto_total": 863.52
+    },
+    {
+      "ticker": "PRNR3",
+      "especificacao": "PRNR3F ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 8,
+      "valor_unitario": 18.15,
+      "valor_bruto_total": 145.20
+    },
+    {
+      "ticker": "PRNR3",
+      "especificacao": "PRNR3F ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 18,
+      "valor_unitario": 18.16,
+      "valor_bruto_total": 326.88
+    },
+    {
+      "ticker": "BPAC11",
+      "especificacao": "BPAC11F UNT N2",
+      "movimentacao": "VENDA",
+      "quantidade": 2,
+      "valor_unitario": 50.97,
+      "valor_bruto_total": 101.94
+    },
+    {
+      "ticker": "ENEV3",
+      "especificacao": "ENEV3F ON NM",
+      "movimentacao": "VENDA",
+      "quantidade": 59,
+      "valor_unitario": 24.22,
+      "valor_bruto_total": 1428.98
+    },
+    {
+      "ticker": "EQTL3",
+      "especificacao": "EQTL3F ON NM",
+      "movimentacao": "VENDA",
+      "quantidade": 9,
+      "valor_unitario": 38.73,
+      "valor_bruto_total": 348.57
+    },
+    {
+      "ticker": "EQTL3",
+      "especificacao": "EQTL3F ON NM",
+      "movimentacao": "VENDA",
+      "quantidade": 1,
+      "valor_unitario": 38.74,
+      "valor_bruto_total": 38.74
+    },
+    {
+      "ticker": "PSSA3",
+      "especificacao": "PSSA3F ON NM",
+      "movimentacao": "VENDA",
+      "quantidade": 8,
+      "valor_unitario": 48.48,
+      "valor_bruto_total": 387.84
+    },
+    {
+      "ticker": "AXIA3",
+      "especificacao": "AXIA3 ON NM",
       "movimentacao": "COMPRA",
       "quantidade": 100,
-      "valor_unitario": 10.0
+      "valor_unitario": 51.04,
+      "valor_bruto_total": 5104.00
+    },
+    {
+      "ticker": "BRBI11",
+      "especificacao": "BRB111 UNT N2",
+      "movimentacao": "COMPRA",
+      "quantidade": 200,
+      "valor_unitario": 15.12,
+      "valor_bruto_total": 3024.00
+    },
+    {
+      "ticker": "CSAN3",
+      "especificacao": "CSAN3 ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 2000,
+      "valor_unitario": 3.39,
+      "valor_bruto_total": 6780.00
     },
     {
       "ticker": "BRCO11",
-      "movimentacao": "VENDA",
-      "quantidade": 10,
-      "valor_unitario": 100.00
+      "especificacao": "BRCO11 CI ER",
+      "movimentacao": "COMPRA",
+      "quantidade": 29,
+      "valor_unitario": 113.53,
+      "valor_bruto_total": 3292.37
     },
     {
-      "ticker": "VILG11",
+      "ticker": "BTLG11",
+      "especificacao": "BTLG11 CI",
       "movimentacao": "COMPRA",
-      "quantidade": 1000,
-      "valor_unitario": 1.0
+      "quantidade": 24,
+      "valor_unitario": 102.45,
+      "valor_bruto_total": 2458.80
+    },
+    {
+      "ticker": "HSML11",
+      "especificacao": "HSML11 CI ER",
+      "movimentacao": "COMPRA",
+      "quantidade": 16,
+      "valor_unitario": 88.53,
+      "valor_bruto_total": 1416.48
+    },
+    {
+      "ticker": "HSML11",
+      "especificacao": "HSML11 CI ER",
+      "movimentacao": "COMPRA",
+      "quantidade": 11,
+      "valor_unitario": 88.54,
+      "valor_bruto_total": 973.94
+    },
+    {
+      "ticker": "PRNR3",
+      "especificacao": "PRNR3 ON NM",
+      "movimentacao": "COMPRA",
+      "quantidade": 400,
+      "valor_unitario": 18.16,
+      "valor_bruto_total": 7264.00
+    },
+    {
+      "ticker": "BTHF11",
+      "especificacao": "BTHF11 CI ER",
+      "movimentacao": "VENDA",
+      "quantidade": 217,
+      "valor_unitario": 8.96,
+      "valor_bruto_total": 1944.32
+    },
+    {
+      "ticker": "HGBS11",
+      "especificacao": "HGBS11 CI ER",
+      "movimentacao": "VENDA",
+      "quantidade": 75,
+      "valor_unitario": 19.74,
+      "valor_bruto_total": 1480.50
+    },
+    {
+      "ticker": "KNSC11",
+      "especificacao": "KNSC11 CIER",
+      "movimentacao": "VENDA",
+      "quantidade": 207,
+      "valor_unitario": 9.08,
+      "valor_bruto_total": 1879.56
     }
   ]
 }
