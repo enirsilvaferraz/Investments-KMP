@@ -53,11 +53,11 @@ Após validação bem-sucedida, o sistema distribui proporcionalmente as taxas r
 
 **Why this priority**: É o fluxo central da funcionalidade. Sem esse cálculo, nenhum ativo terá custo médio correto. Diretamente ligado à precisão fiscal e contábil das operações.
 
-**Independent Test**: Pode ser testado com a nota canônica de `docs/nota.json` (29 ativos, `Soma_Taxas` = R$ 14,66) e verificando que cada ativo recebe quota proporcional ao seu `valor_bruto_total` e que o último ativo absorve o resíduo de centavos.
+**Independent Test**: Pode ser testado com a nota canônica de `docs/nota.json` (30 ativos, `Soma_Taxas` = R$ 14,66) e verificando que cada ativo recebe quota proporcional ao seu `valor_bruto_total` e que o último ativo absorve o resíduo de centavos.
 
 **Acceptance Scenarios**:
 
-1. **Given** a nota canônica com `volume_total_operado` = R$ 48.912,22 e `Soma_Taxas` = R$ 14,66 (soma de `taxa_liquidacao` + `emolumentos` + `taxa_transferencia` + `corretagem` + `iss` + `outras`), **When** o rateio é calculado, **Then** para cada ativo exceto o último a taxa proporcional = `(valor_bruto_total / volume_total_operado) × Soma_Taxas` arredondada para 2 casas com meio para cima; o último ativo (KNSC11 VENDA) recebe `Soma_Taxas − soma das taxas dos 28 ativos anteriores`.
+1. **Given** a nota canônica com `volume_total_operado` = R$ 48.912,22 e `Soma_Taxas` = R$ 14,66 (soma de `taxa_liquidacao` + `emolumentos` + `taxa_transferencia` + `corretagem` + `iss` + `outras`), **When** o rateio é calculado, **Then** para cada ativo exceto o último a taxa proporcional = `(valor_bruto_total / volume_total_operado) × Soma_Taxas` arredondada para 2 casas com meio para cima; o último ativo (KNSC11 VENDA, índice 29) recebe `Soma_Taxas − soma das taxas dos 29 ativos anteriores`.
 2. **Given** um ativo com movimentação COMPRA, **When** o valor líquido é calculado, **Then** `valor_liquido = valor_bruto_total + taxa_proporcional` (taxa aumenta o custo).
 3. **Given** um ativo com movimentação VENDA, **When** o valor líquido é calculado, **Then** `valor_liquido = valor_bruto_total − taxa_proporcional` (taxa reduz o recebimento líquido).
 4. **Given** uma nota válida processada com sucesso, **When** o cálculo conclui, **Then** o resultado é um mapa com uma entrada por ativo da lista de entrada, associando cada ativo ao seu valor líquido final.
@@ -90,7 +90,7 @@ O rateio proporcional gera valores com casas decimais infinitas (dízimas). O si
 
 **Acceptance Scenarios**:
 
-1. **Given** 29 ativos com volumes distintos e `Soma_Taxas` = R$ 14,66, **When** o rateio é calculado, **Then** as taxas dos 28 primeiros ativos são arredondadas individualmente (meio para cima) e o 29º ativo recebe o resíduo; a soma total é exatamente R$ 14,66.
+1. **Given** 30 ativos com volumes distintos e `Soma_Taxas` = R$ 14,66, **When** o rateio é calculado, **Then** as taxas dos 29 primeiros ativos são arredondadas individualmente (meio para cima) e o 30º ativo recebe o resíduo; a soma total é exatamente R$ 14,66.
 2. **Given** uma nota com um único ativo, **When** o rateio é calculado, **Then** esse ativo absorve 100% de `Soma_Taxas` via fórmula de resíduo (único elemento = último).
 3. **Given** qualquer nota válida, **When** o rateio é calculado, **Then** a soma das taxas proporcionais individuais é sempre igual a `Soma_Taxas` (diferença = R$ 0,00).
 
@@ -106,6 +106,7 @@ O rateio proporcional gera valores com casas decimais infinitas (dízimas). O si
 - O que acontece quando todas as taxas rateáveis são zero? (Taxa proporcional = 0 para todos; valor líquido = valor bruto.)
 - O que acontece quando `impostos_retidos` contém valores positivos? (Não afetam o rateio; ficam fora de `Soma_Taxas`.)
 - O que acontece quando o mesmo ticker aparece em múltiplas linhas (compras parciais a preços distintos)? (Cada linha é um ativo independente no rateio; não há consolidação por ticker.)
+- O que acontece quando dois ativos são idênticos em **todos** os 6 campos (ticker, especificação, movimentação, quantidade, preço e valor bruto)? (Erro na Etapa 1 — as duas linhas colidiriam como chave no mapa de saída; a nota é rejeitada com `IllegalArgumentException` descritiva.)
 - O que acontece quando o total de taxas é maior que o volume financeiro de um ativo? (Situação válida; em VENDA o valor líquido pode ser menor que zero.)
 - O que acontece quando todos os ativos são VENDA? (`valor_liquido_nota` será negativo; `Σ(compras)=0`, logo `0 − Σ(vendas_líquidas) = valor_liquido_nota`.)
 - O que acontece quando dados brutos são consistentes mas o `valor_liquido_nota` informado não fecha com o rateio? (Erro pós-cálculo 3.2; nenhum resultado entregue.)
@@ -124,33 +125,33 @@ O rateio proporcional gera valores com casas decimais infinitas (dízimas). O si
 
 #### Etapa 1 — Validação pré-cálculo
 
-- **FR-006**: O sistema DEVE validar que `volume_total_operado` é exatamente igual à soma dos `valor_bruto_total` de todos os ativos (regra 1.1).
+- **FR-006**: O sistema DEVE validar que `round(volume_total_operado × 100)` em centavos inteiros (Long) é exatamente igual a `round(Σ valor_bruto_total × 100)` — mesma aritmética de centavos de FR-016 (regra 1.1).
 - **FR-007**: Para cada ativo, o sistema DEVE validar que `round(quantidade × valor_unitario × 100)` em centavos inteiros (Long) é exatamente igual a `round(valor_bruto_total × 100)` — mesma aritmética de centavos de FR-016 (regra 1.2).
 - **FR-008**: O sistema DEVE validar que a soma dos `valor_bruto_total` dos ativos COMPRA é igual a `total_compras_vista` e que a soma dos ativos VENDA é igual a `total_vendas_vista` (regra 1.3).
 - **FR-009**: O sistema DEVE rejeitar valores negativos em `volume_total_operado`, `valor_bruto_total`, `quantidade`, `valor_unitario` e em qualquer campo de `taxas_rateáveis` (regra 1.4).
-- **FR-010**: Se qualquer regra da Etapa 1 falhar, o sistema DEVE interromper o fluxo com exceção de negócio descritiva (dados inválidos) e NÃO iniciar o rateio.
+- **FR-010**: Se qualquer regra da Etapa 1 falhar, o sistema DEVE interromper o fluxo com `IllegalArgumentException` descritiva (dados inválidos de entrada) e NÃO iniciar o rateio. A mensagem DEVE identificar a regra violada, o campo afetado e, onde aplicável, o ticker do ativo.
 
 #### Etapa 2 — Algoritmo de rateio
 
 - **FR-011**: O sistema DEVE calcular `Soma_Taxas` como a soma de todos os valores em `taxas_rateáveis` (excluindo `impostos_retidos`).
-- **FR-012**: Para cada ativo exceto o último, o sistema DEVE calcular `Fator_Rateio = valor_bruto_total / volume_total_operado` e `Taxa_Proporcional = Fator_Rateio × Soma_Taxas`, arredondando para 2 casas decimais com meio para cima.
-- **FR-013**: Para o último ativo do array, o sistema DEVE calcular `Taxa_Proporcional = Soma_Taxas − Total_Taxas_Distribuidas_Anteriores` (tratamento de resíduo de centavos).
+- **FR-012**: Para cada ativo exceto o último, o sistema DEVE calcular a taxa proporcional em centavos inteiros (Long), conforme FR-016: `feeCents[i] = ROUND_HALF_UP(grossValueCents[i] × somaFeesCents / totalVolumeCents)`, onde o arredondamento é realizado inteiramente em inteiros antes de qualquer conversão de volta a Double.
+- **FR-013**: Para o último ativo do array, o sistema DEVE calcular a taxa em centavos inteiros (Long): `feeCents[N-1] = somaFeesCents − Σ feeCents[0..N-2]` — o resíduo é calculado inteiramente em inteiros (Long), garantindo que `Σ feeCents == somaFeesCents` sem drift de arredondamento.
 - **FR-014**: Para ativos COMPRA, o valor líquido DEVE ser `valor_bruto_total + taxa_proporcional`.
 - **FR-015**: Para ativos VENDA, o valor líquido DEVE ser `valor_bruto_total − taxa_proporcional`.
 - **FR-016**: Todos os cálculos monetários (somas, divisões, fatores e arredondamentos) DEVEM utilizar aritmética de alta precisão em centavos inteiros, sem depender de representações de ponto flutuante imprecisas para dinheiro.
-- **FR-017**: O método de cálculo DEVE retornar `Map<NoteAsset, Double>` associando cada instância de ativo da nota ao seu valor líquido final (já com taxas aplicadas); a unicidade da chave é garantida pela igualdade estrutural de `NoteAsset` (todos os campos), preservando linhas do mesmo ticker com preços ou quantidades distintas.
+- **FR-017**: O método de cálculo DEVE retornar `Map<NoteAsset, Double>` associando cada instância de ativo da nota ao seu valor líquido final (já com taxas aplicadas); a unicidade da chave é garantida pela igualdade estrutural de `NoteAsset` (todos os campos), preservando linhas do mesmo ticker com preços ou quantidades distintas. Se dois ativos da lista forem estruturalmente idênticos em todos os 6 campos, o sistema DEVE lançar `IllegalArgumentException` descritiva antes de calcular o rateio — a nota de entrada é considerada inválida, pois duas linhas com a mesma combinação (ticker, especificação, movimentação, quantidade, preço e valor bruto) são indistinguíveis como chave e não podem ser representadas no mapa de saída.
 
 #### Etapa 3 — Validação pós-cálculo
 
-- **FR-018**: O sistema DEVE validar que a soma de todas as `taxa_proporcional` atribuídas é estritamente igual a `Soma_Taxas` (regra 3.1).
-- **FR-019**: O sistema DEVE validar que `Σ(valor_liquido dos ativos COMPRA) − Σ(valor_liquido dos ativos VENDA) = valor_liquido_nota`, preservando o sinal contábil informado em `metadados` (regra 3.2).
-- **FR-020**: Se qualquer regra da Etapa 3 falhar, o sistema DEVE interromper o fluxo com exceção de erro de cálculo descritiva e NÃO retornar o mapa de resultado.
+- **FR-018**: O sistema DEVE validar, em centavos inteiros (Long), que `Σ feeCents[i] == somaFeesCents` — a comparação é feita antes de converter os valores de volta a Double (regra 3.1).
+- **FR-019**: O sistema DEVE validar, em centavos inteiros (Long), que `Σ netValueCents[BUY] − Σ netValueCents[SELL] == round(metadata.netValue × 100)` — a comparação é feita em Long antes de qualquer conversão a Double, preservando o sinal contábil informado em `metadados` (regra 3.2).
+- **FR-020**: Se qualquer regra da Etapa 3 falhar, o sistema DEVE interromper o fluxo com `IllegalStateException` descritiva (invariante matemática violada após cálculo) e NÃO retornar o mapa de resultado. A mensagem DEVE incluir o valor esperado e o valor obtido para diagnóstico. O uso de `IllegalStateException` (e não `IllegalArgumentException`) permite ao chamador distinguir programaticamente entre falha de entrada (Etapa 1) e falha de fechamento (Etapa 3).
 
 #### Comportamento geral
 
-- **FR-021**: O sistema DEVE retornar erro imediato quando a lista de ativos estiver vazia.
-- **FR-022**: O sistema DEVE retornar erro imediato quando `volume_total_operado` for zero após validações.
-- **FR-023**: O pipeline completo (validar → ratear → validar resultado) DEVE ser determinístico: a mesma nota de entrada produz sempre o mesmo mapa de saída.
+- **FR-021**: O sistema DEVE rejeitar, como parte da Etapa 1 (coberto por FR-010), notas com lista de ativos vazia — lança `IllegalArgumentException("assets must not be empty")`. Esta regra é executada antes de qualquer outra verificação da Etapa 1.
+- **FR-022**: O sistema DEVE rejeitar, como parte da Etapa 1 (coberto por FR-010), notas com `volume_total_operado = 0` — lança `IllegalArgumentException` descritiva. Zero não é negativo (não capturado por FR-009), por isso exige verificação explícita: divisão por zero no fator de rateio tornaria o cálculo impossível.
+- **FR-023**: O pipeline completo (validar → ratear → validar resultado) DEVE ser determinístico: a mesma nota de entrada (mesma lista de ativos na mesma ordem) produz sempre o mesmo mapa de saída com a mesma ordem de iteração.
 
 ### Key Entities
 
@@ -184,7 +185,7 @@ O rateio proporcional gera valores com casas decimais infinitas (dízimas). O si
 - **SC-001**: Para qualquer nota válida com N ativos, a soma das taxas proporcionais individuais é idêntica a `Soma_Taxas` (diferença = R$ 0,00) em 100% dos casos.
 - **SC-002**: Para qualquer nota válida, a equação de fechamento `Σ(compras_líquidas) − Σ(vendas_líquidas) = valor_liquido_nota` é satisfeita em 100% dos casos sem arredondamento manual pelo chamador.
 - **SC-003**: Notas com dados brutos inconsistentes (regras 1.1–1.4) produzem erros de negócio descritivos antes de qualquer rateio, em 100% dos casos de violação detectável.
-- **SC-004**: A nota canônica de `docs/nota.json` (29 ativos, `Soma_Taxas` = R$ 14,66, `valor_liquido_nota` = −R$ 33.705,98) é processada com sucesso pelo pipeline completo, produzindo mapa com 29 entradas e passando validações 3.1 e 3.2.
+- **SC-004**: A nota canônica de `docs/nota.json` (30 ativos, `Soma_Taxas` = R$ 14,66, `valor_liquido_nota` = −R$ 33.705,98) é processada com sucesso pelo pipeline completo, produzindo mapa com 30 entradas e passando validações 3.1 e 3.2.
 - **SC-005**: O algoritmo de resíduo no último ativo é determinístico: para a mesma nota e mesma ordem de ativos, sempre produz o mesmo mapa de resultado.
 
 ## Assumptions

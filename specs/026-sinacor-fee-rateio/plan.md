@@ -6,12 +6,12 @@
 
 ## Summary
 
-Implementar o cálculo stateless de rateio proporcional de taxas de corretagem (emolumentos, liquidação, IR) entre os ativos de uma nota SINACOR mista (compra e venda). Aritmética inteira em centavos elimina erros de arredondamento IEEE-754. O ajuste residual de centavos vai ao ativo de maior volume. A validação de equação de fechamento contábil garante rastreabilidade. Sem persistência, sem UI, sem parsing de arquivos — tudo em `:domain:entity` como entidades puras.
+Implementar o cálculo stateless de rateio proporcional de taxas de corretagem (emolumentos, liquidação, transferência, corretagem, ISS, outras) entre os ativos de uma nota SINACOR mista (compra e venda). Aritmética inteira em centavos (ROUND_HALF_UP) elimina erros de arredondamento IEEE-754. O ajuste residual de centavos vai ao **último ativo** da lista. Validação em três etapas (pré-cálculo, rateio, fechamento contábil) garante rastreabilidade. Sem persistência, sem UI, sem parsing de arquivos — tudo em `:domain:entity` como entidades puras.
 
 ## Technical Context
 
 - **Language/Version**: Kotlin Multiplatform (commonMain) — versão do build-logic do projeto
-- **Primary Dependencies**: Nenhuma — cálculo puro sem I/O ou frameworks
+- **Primary Dependencies**: `kotlinx.datetime` (já no módulo `:domain:entity`) — usado em `BrokerageNoteMetadata` para `tradingDate`/`settlementDate` (`LocalDate`); sem dependências adicionais
 - **Storage**: N/A — stateless; a spec exclui persistência explicitamente
 - **Testing**: kotlin.test + JVM target (`jvmTest` em `:domain:entity`)
 - **Target Platform**: KMP commonMain (Android, iOS, Desktop)
@@ -35,7 +35,7 @@ Implementar o cálculo stateless de rateio proporcional de taxas de corretagem (
 | VII. Documentação Sincronizada | ✅ | `DOMAIN.md` atualizado com pacote `brokeragenotes`. |
 | VIII. Idioma | ✅ | Código em inglês; documentação em pt-BR. |
 | IX. Sem Build Automático | ✅ | Nenhum `./gradlew` executado pelo agente. |
-| X. Escopo Mínimo | ✅ | Apenas FR-001 a FR-012 e edge cases da spec; sem persistência, sem UI. |
+| X. Escopo Mínimo | ✅ | Apenas FR-001 a FR-023 e edge cases da spec; sem persistência, sem UI. |
 
 **Gate de escopo (princípio X)**: O plano cobre apenas o que a spec pede. Nenhuma abstração prematura, nenhum refactor paralelo, nenhuma funcionalidade especulativa.
 
@@ -60,18 +60,22 @@ specs/026-sinacor-fee-rateio/
 
 ```text
 core/domain/entity/src/commonMain/kotlin/com/eferraz/entities/brokeragenotes/
-├── TradeType.kt               # enum BUY | SELL
-├── BrokerageNoteFees.kt       # data class (emoluments, settlement, incomeTax); total derived
-├── NoteAsset.kt               # data class (ticker, tradeType, quantity, unitPrice); grossValue derived
-├── BrokerageNote.kt           # data class (date, netValue, fees, assets)
-├── AssetFeeAllocation.kt      # data class output per asset (internal constructor)
-└── NoteFeeAllocation.kt       # data class output + companion object { calculate() }
+├── TradeType.kt                    # enum BUY | SELL
+├── ApportionableFees.kt            # data class: settlement, emoluments, transfer, brokerage, iss, others; total derived
+├── WithheldTaxes.kt                # data class: irrfOperations, irrfDayTrade (informativo, fora do rateio)
+├── FinancialSummary.kt             # data class: totalVolumeTraded, totalBuys, totalSells, apportionableFees, withheldTaxes
+├── BrokerageNoteMetadata.kt        # data class: noteNumber, tradingDate, settlementDate, brokerage, brokerageDocument, netValue
+├── NoteAsset.kt                    # data class: ticker, specification, tradeType, quantity, unitPrice, grossValue (provided)
+├── BrokerageNote.kt                # data class: metadata, financialSummary, assets
+├── BrokerageNoteValidator.kt       # object: Etapa 1 — validação pré-cálculo (IllegalArgumentException)
+└── NoteFeeAllocation.kt            # typealias NoteFeeAllocation = Map<NoteAsset, Double>
+                                    # + fun BrokerageNote.calculateFeeAllocation(): NoteFeeAllocation
 
 core/domain/entity/src/jvmTest/kotlin/com/eferraz/entities/brokeragenotes/
-└── NoteFeeAllocationTest.kt   # Testes: cenários canônicos + edge cases
+└── NoteFeeAllocationTest.kt        # Testes: cenários canônicos + edge cases
 
 core/domain/entity/docs/
-└── DOMAIN.md                  # Atualizado com pacote brokeragenotes e novas entidades
+└── DOMAIN.md                       # Atualizado com pacote brokeragenotes e novas entidades
 ```
 
 ## Complexity Tracking

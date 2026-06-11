@@ -22,7 +22,7 @@ Aplicativo de **carteira de investimentos**: cadastro de ativos, posições por 
 | `transactions` | `AssetTransaction` (data class), `TransactionType`, `TransactionBalance`                                   |
 | `goals`        | `FinancialGoal`, `GoalInvestmentPlan`, `GrowthRate`, `GoalMonthlyData`, `ProjectedGoal`, `GoalProjections` |
 | `value`        | `MandatoryText`                                                                                            |
-| `brokeragenotes` | `TradeType`, `BrokerageNoteFees`, `NoteAsset`, `BrokerageNote`, `AssetFeeAllocation`, `NoteFeeAllocation` |
+| `brokeragenotes` | `TradeType`, `ApportionableFees`, `WithheldTaxes`, `FinancialSummary`, `BrokerageNoteMetadata`, `NoteAsset`, `BrokerageNote`, `BrokerageNoteValidator`, `NoteFeeAllocation` |
 | `di`           | `EntityModule` (Koin)                                                                                      |
 
 ---
@@ -86,19 +86,21 @@ Tipo único para todas as classes de ativo. Campos: `id`, `date`, `type`, `quant
 
 ### 6.5 Notas de corretagem SINACOR (`brokeragenotes`)
 
-Pacote **independente** do modelo de carteira (`AssetTransaction`, `AssetHolding`). Cálculo stateless de rateio proporcional de taxas (emolumentos, liquidação, IR) entre ativos de uma nota mista (compra e venda), sem persistência nem parsing de arquivo.
+Pacote **independente** do modelo de carteira (`AssetTransaction`, `AssetHolding`). Cálculo stateless de rateio proporcional de seis taxas rateáveis (liquidação, emolumentos, transferência, corretagem, ISS, outras) entre ativos de uma nota mista (compra e venda), sem persistência nem parsing de arquivo. Referência: `specs/026-sinacor-fee-rateio/data-model.md` e `contracts/kotlin-api.md`.
 
 - **`TradeType`:** `BUY` | `SELL` — direção da operação na nota (distinto de `TransactionType` em `transactions`).
-- **`BrokerageNoteFees`:** `emoluments`, `settlement`, `incomeTax`; `total` derivado (soma das três taxas).
-- **`NoteAsset`:** `ticker`, `tradeType`, `quantity`, `unitPrice`; `grossValue` derivado (`quantity × unitPrice`). Validação de `quantity > 0` e `unitPrice > 0` em `NoteFeeAllocation.calculate`, não no construtor.
-- **`BrokerageNote`:** `date` (`LocalDate`), `netValue` (sinal contábil SINACOR: positivo = débito do cliente), `fees`, `assets`.
-- **`AssetFeeAllocation`:** resultado por ativo — `ticker`, `grossValue`, `allocatedFee`, `netValue`; construtor `internal`.
-- **`NoteFeeAllocation`:** `allocations: List<AssetFeeAllocation>`; ponto de entrada `NoteFeeAllocation.calculate(note)`:
-  - Aritmética inteira em centavos (`Long`) para rateio e fechamento.
-  - Distribuição proporcional com `floor`; resíduo de centavos no **primeiro** ativo de maior volume.
+- **`ApportionableFees`:** seis taxas rateáveis; `total` derivado (soma das seis).
+- **`WithheldTaxes`:** `irrfOperations`, `irrfDayTrade` — informativo; **não** entra no rateio.
+- **`FinancialSummary`:** `totalVolumeTraded`, `totalBuys`, `totalSells`, `apportionableFees`, `withheldTaxes`.
+- **`BrokerageNoteMetadata`:** cabeçalho (`noteNumber`, datas, corretora, CNPJ, `netValue` com sinal contábil SINACOR).
+- **`NoteAsset`:** `ticker`, `specification`, `tradeType`, `quantity`, `unitPrice`, `grossValue` (informado pela fonte; validado em Etapa 1). Todos os campos participam de `equals`/`hashCode`.
+- **`BrokerageNote`:** `metadata`, `financialSummary`, `assets`.
+- **`BrokerageNoteValidator`:** Etapa 1 — validação pré-cálculo (`internal`; testável em `jvmTest`); falha → `IllegalArgumentException`.
+- **`NoteFeeAllocation`:** `data class` que implementa `Map<NoteAsset, Double>` (valor = `netValue` final por ativo); ponto de entrada `NoteFeeAllocation.calculate(note)` ou atalho `BrokerageNote.calculateFeeAllocation()`:
+  - Pipeline em 3 etapas: validação pré-cálculo, rateio proporcional, fechamento contábil.
+  - Aritmética inteira em centavos (`Long`) com ROUND_HALF_UP; resíduo no **último** ativo da lista.
   - BUY: `netValue = grossValue + allocatedFee`; SELL: `netValue = grossValue − allocatedFee`.
-  - Fechamento contábil: `Σ(BUY.netValue) − Σ(SELL.netValue) == note.netValue` (comparação em centavos); falha → `IllegalStateException`.
-  - Entrada inválida (lista vazia, quantidade/preço ≤ 0, volume zero) → `IllegalArgumentException`.
+  - Fechamento: `Σ(allocatedFee) == Soma_Taxas` e `Σ(BUY.netValue) − Σ(SELL.netValue) == metadata.netValue` (centavos); falha → `IllegalStateException`.
 
 ### 6.6 Enums
 
