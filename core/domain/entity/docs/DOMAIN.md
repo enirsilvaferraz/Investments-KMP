@@ -22,6 +22,7 @@ Aplicativo de **carteira de investimentos**: cadastro de ativos, posições por 
 | `transactions` | `AssetTransaction` (data class), `TransactionType`, `TransactionBalance`                                   |
 | `goals`        | `FinancialGoal`, `GoalInvestmentPlan`, `GrowthRate`, `GoalMonthlyData`, `ProjectedGoal`, `GoalProjections` |
 | `value`        | `MandatoryText`                                                                                            |
+| `brokeragenotes` | `TradeType`, `BrokerageNoteFees`, `NoteAsset`, `BrokerageNote`, `AssetFeeAllocation`, `NoteFeeAllocation` |
 | `di`           | `EntityModule` (Koin)                                                                                      |
 
 ---
@@ -83,9 +84,25 @@ Tipo único para todas as classes de ativo. Campos: `id`, `date`, `type`, `quant
 - **`IncomeTax`:** IR regressivo sobre lucro em reais — `IncomeTax.calculate(profit, purchaseDate, referenceDate)` devolve `taxRate` (percentual legível, ex. 22,5) e `taxValue` (reais, `Double` bruto). Dias investidos = `purchaseDate.daysUntil(referenceDate)`. Tabela: até 180 dias → 22,5%; 181–360 → 20%; 361–720 → 17,5%; acima de 720 → 15%. `taxValue` zero se lucro ≤ 0. Data de compra é sempre parâmetro do chamador (sem derivação de transações nesta entrega).
 - **`StockQuoteHistory`:** cotação diária OHLCV por `ticker` (mercado; não substitui ledger de transações).
 
-### 6.5 Enums
+### 6.5 Notas de corretagem SINACOR (`brokeragenotes`)
 
-`AssetClass`, `YieldIndexer`, `FixedIncomeAssetType` (produto RF), `VariableIncomeAssetType`, `InvestmentFundAssetType` (`AssetType`), `TransactionType`, `Liquidity` — valores no código-fonte (sem duplicar lista longa aqui).
+Pacote **independente** do modelo de carteira (`AssetTransaction`, `AssetHolding`). Cálculo stateless de rateio proporcional de taxas (emolumentos, liquidação, IR) entre ativos de uma nota mista (compra e venda), sem persistência nem parsing de arquivo.
+
+- **`TradeType`:** `BUY` | `SELL` — direção da operação na nota (distinto de `TransactionType` em `transactions`).
+- **`BrokerageNoteFees`:** `emoluments`, `settlement`, `incomeTax`; `total` derivado (soma das três taxas).
+- **`NoteAsset`:** `ticker`, `tradeType`, `quantity`, `unitPrice`; `grossValue` derivado (`quantity × unitPrice`). Validação de `quantity > 0` e `unitPrice > 0` em `NoteFeeAllocation.calculate`, não no construtor.
+- **`BrokerageNote`:** `date` (`LocalDate`), `netValue` (sinal contábil SINACOR: positivo = débito do cliente), `fees`, `assets`.
+- **`AssetFeeAllocation`:** resultado por ativo — `ticker`, `grossValue`, `allocatedFee`, `netValue`; construtor `internal`.
+- **`NoteFeeAllocation`:** `allocations: List<AssetFeeAllocation>`; ponto de entrada `NoteFeeAllocation.calculate(note)`:
+  - Aritmética inteira em centavos (`Long`) para rateio e fechamento.
+  - Distribuição proporcional com `floor`; resíduo de centavos no **primeiro** ativo de maior volume.
+  - BUY: `netValue = grossValue + allocatedFee`; SELL: `netValue = grossValue − allocatedFee`.
+  - Fechamento contábil: `Σ(BUY.netValue) − Σ(SELL.netValue) == note.netValue` (comparação em centavos); falha → `IllegalStateException`.
+  - Entrada inválida (lista vazia, quantidade/preço ≤ 0, volume zero) → `IllegalArgumentException`.
+
+### 6.6 Enums
+
+`AssetClass`, `YieldIndexer`, `FixedIncomeAssetType` (produto RF), `VariableIncomeAssetType`, `InvestmentFundAssetType` (`AssetType`), `TransactionType`, `TradeType`, `Liquidity` — valores no código-fonte (sem duplicar lista longa aqui).
 
 ---
 

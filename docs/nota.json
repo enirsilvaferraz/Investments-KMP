@@ -1,0 +1,29 @@
+{
+  "data": "01/01/2026",
+  "valor": 1004.54,
+  "taxas": {
+    "emolumentos": 1.00,
+    "liquidacao": 3.54,
+    "ir": 0.00
+  },
+  "ativos": [
+    {
+      "ticker": "AJFI11",
+      "movimentacao": "COMPRA",
+      "quantidade": 100,
+      "valor_unitario": 10.0
+    },
+    {
+      "ticker": "BRCO11",
+      "movimentacao": "VENDA",
+      "quantidade": 10,
+      "valor_unitario": 100.00
+    },
+    {
+      "ticker": "VILG11",
+      "movimentacao": "COMPRA",
+      "quantidade": 1000,
+      "valor_unitario": 1.0
+    }
+  ]
+}

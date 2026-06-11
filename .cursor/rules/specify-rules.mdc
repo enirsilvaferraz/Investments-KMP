@@ -3,7 +3,6 @@ alwaysApply: true
 ---
 
 <!-- SPECKIT START -->
-Plano actual: `specs/025-balanceable-groups/plan.md` — R1 filtragem progressiva (`byNodeId[pai].filter(matches)`);
-regras R1–R7 iguais para todos os nós; log = DFS.
-Fora do escopo: persistência da lista, UI de classificação, ecrã dedicado.
+Plano actual: `specs/026-sinacor-fee-rateio/plan.md` — cálculo stateless de rateio proporcional de taxas (emolumentos, liquidação, IR) entre ativos de uma nota SINACOR mista; aritmética inteira em centavos (FR-005); ajuste residual no ativo de maior volume (FR-006); validação de equação de fechamento contábil (FR-009); entidades puras em `:domain:entity`, pacote `com.eferraz.entities.brokeragenotes`.
+Fora do escopo: persistência da nota, UI, parsing de arquivos.
 <!-- SPECKIT END -->
