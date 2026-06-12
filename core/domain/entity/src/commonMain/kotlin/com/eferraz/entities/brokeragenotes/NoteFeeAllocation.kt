@@ -1,16 +1,18 @@
 package com.eferraz.entities.brokeragenotes
 
+import com.eferraz.entities.transactions.AssetTransaction
+import com.eferraz.entities.transactions.TransactionType
 import kotlin.math.round
 
 /**
  * Resultado do rateio de taxas de uma nota de corretagem.
  *
- * Mapeia cada [NoteAsset] ao valor líquido final (`netValue`) já com a taxa proporcional aplicada.
+ * Mapeia cada [AssetTransaction] ao valor líquido final (`netValue`) já com a taxa proporcional aplicada.
  * A ordem de iteração segue a lista de ativos da nota de entrada.
  */
 public data class NoteFeeAllocation private constructor(
-    private val netValuesByAsset: Map<NoteAsset, Double>,
-) : Map<NoteAsset, Double> by netValuesByAsset {
+    private val netValuesByAsset: Map<AssetTransaction, Double>,
+) : Map<AssetTransaction, Double> by netValuesByAsset {
 
     public companion object {
 
@@ -26,15 +28,16 @@ public data class NoteFeeAllocation private constructor(
          */
         public fun calculate(note: BrokerageNote): NoteFeeAllocation {
 
-            // --- Etapa 1: validação dos dados brutos (FR-006 a FR-009, FR-021, FR-022) ---
-            // Garante que volume, subtotais e campos por ativo estão consistentes antes de qualquer conta.
-            BrokerageNoteValidator.validate(note)
-
             // --- Etapa 2: rateio proporcional em centavos inteiros (FR-011 a FR-016) ---
+            val totalVolumeCents = note.totalVolumeTraded.toCents()
+            val somaFeesCents = note.apportionableFees.toCents()
+            val grossValueCents = note.assets.map { it.totalValue.toCents() }
+            val noteNetValue = note.netValue
+
             val feeCents = allocateFeeCents(
-                grossValueCents = note.assets.map { it.grossValue.toCents() },
-                somaFeesCents = note.financialSummary.apportionableFees.total.toCents(),
-                totalVolumeCents = note.financialSummary.totalVolumeTraded.toCents(),
+                grossValueCents = grossValueCents,
+                somaFeesCents = somaFeesCents,
+                totalVolumeCents = totalVolumeCents,
             )
 
             val netValues = computeNetValues(
@@ -45,12 +48,12 @@ public data class NoteFeeAllocation private constructor(
             // --- Etapa 3: validação pós-cálculo (FR-018, FR-019) ---
             validateFeeDistribution(
                 allocatedFees = feeCents,
-                somaFeesCents = note.financialSummary.apportionableFees.total.toCents(),
+                somaFeesCents = somaFeesCents,
             )
 
             validateAccountingClosure(
                 netValues = netValues,
-                noteNetValue = note.metadata.netValue,
+                noteNetValue = noteNetValue,
             )
 
             return NoteFeeAllocation(netValuesByAsset = netValues)
@@ -90,14 +93,14 @@ public data class NoteFeeAllocation private constructor(
          * VENDA: taxa reduz o recebimento → netValue = grossValue − allocatedFee.
          */
         private fun computeNetValues(
-            assets: List<NoteAsset>,
+            assets: List<AssetTransaction>,
             allocatedFees: List<Double>,
-        ): Map<NoteAsset, Double> =
+        ): Map<AssetTransaction, Double> =
             assets.mapIndexed { index, asset ->
                 val allocatedFee = allocatedFees[index]
-                asset to when (asset.tradeType) {
-                    TradeType.BUY -> asset.grossValue + allocatedFee
-                    TradeType.SELL -> asset.grossValue - allocatedFee
+                asset to when (asset.type) {
+                    TransactionType.PURCHASE -> asset.totalValue + allocatedFee
+                    TransactionType.SALE -> asset.totalValue - allocatedFee
                 }
             }.toMap()
 
@@ -123,7 +126,7 @@ public data class NoteFeeAllocation private constructor(
          * (sinal contábil: positivo = débito do cliente, negativo = crédito).
          */
         private fun validateAccountingClosure(
-            netValues: Map<NoteAsset, Double>,
+            netValues: Map<AssetTransaction, Double>,
             noteNetValue: Double,
         ) {
             var buysTotalCents = 0L
@@ -131,15 +134,17 @@ public data class NoteFeeAllocation private constructor(
 
             netValues.forEach { (asset, netValue) ->
                 val netCents = netValue.toCents()
-                when (asset.tradeType) {
-                    TradeType.BUY -> buysTotalCents += netCents
-                    TradeType.SELL -> sellsTotalCents += netCents
+                when (asset.type) {
+                    TransactionType.PURCHASE -> buysTotalCents += netCents
+                    TransactionType.SALE -> sellsTotalCents += netCents
                 }
             }
 
             val noteNetValueCents = noteNetValue.toCents()
-            if (buysTotalCents - sellsTotalCents != noteNetValueCents) {
-                val computedNetValue = (buysTotalCents - sellsTotalCents) / 100.0
+            val calculatedTotal = buysTotalCents - sellsTotalCents
+
+            if (calculatedTotal != noteNetValueCents) {
+                val computedNetValue = calculatedTotal / 100.0
                 throw IllegalStateException(
                     "accounting closure failed: expected $noteNetValue, got $computedNetValue",
                 )
@@ -150,8 +155,3 @@ public data class NoteFeeAllocation private constructor(
     }
 }
 
-/**
- * Atalho de chamada a partir da nota; delega para [NoteFeeAllocation.calculate].
- */
-public fun BrokerageNote.calculateFeeAllocation(): NoteFeeAllocation =
-    NoteFeeAllocation.calculate(this)

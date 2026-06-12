@@ -1,10 +1,13 @@
-package com.eferraz.entities.brokeragenotes
+package com.eferraz.filestore.brokeragenote
 
+import com.eferraz.entities.brokeragenotes.TradeType
+import com.eferraz.filestore.brokeragenote.dto.BrokerageNoteDocument
+import com.eferraz.filestore.brokeragenote.dto.NoteAsset
 import kotlin.math.round
 
 internal object BrokerageNoteValidator {
 
-    internal fun validate(note: BrokerageNote) {
+    internal fun validate(note: BrokerageNoteDocument) {
 
         val summary = note.financialSummary
         val fees = summary.apportionableFees
@@ -22,7 +25,7 @@ internal object BrokerageNoteValidator {
         if (summary.totalSells < 0) throwNegative("totalSells")
 
         note.assets.forEach { asset ->
-            if (asset.quantity <= 0 || asset.unitPrice <= 0) throw IllegalArgumentException("asset ${asset.ticker}: quantity and unitPrice must be > 0",)
+            if (asset.quantity <= 0 || asset.unitPrice <= 0) throw IllegalArgumentException("asset ${asset.ticker}: quantity and unitPrice must be > 0")
             if (asset.grossValue < 0) throwNegative("grossValue")
         }
 
@@ -32,7 +35,7 @@ internal object BrokerageNoteValidator {
         val totalVolumeCents = summary.totalVolumeTraded.toCents()
 
         if (assetsSumCents != totalVolumeCents)
-            throw IllegalArgumentException("volume mismatch: assets sum ${assetsSumCents.toDollars()} ≠ declared ${summary.totalVolumeTraded}",)
+            throw IllegalArgumentException("volume mismatch: assets sum ${assetsSumCents.toDollars()} ≠ declared ${summary.totalVolumeTraded}")
 
         note.assets.forEach { asset ->
             val computedCents = (asset.quantity * asset.unitPrice).toCents()
@@ -41,8 +44,8 @@ internal object BrokerageNoteValidator {
                 throw IllegalArgumentException("asset ${asset.ticker}: quantity×unitPrice ${computedCents.toDollars()} ≠ grossValue ${asset.grossValue}")
         }
 
-        val buysCents = note.assets.filter { it.tradeType == TradeType.BUY }.sumOf { it.grossValue.toCents() }
-        val sellsCents = note.assets.filter { it.tradeType == TradeType.SELL }.sumOf { it.grossValue.toCents() }
+        val buysCents = note.assets.filter { TradeType.fromMovement(it.movement) == TradeType.BUY }.sumOf { it.grossValue.toCents() }
+        val sellsCents = note.assets.filter { TradeType.fromMovement(it.movement) == TradeType.SELL }.sumOf { it.grossValue.toCents() }
         val expectedBuysCents = summary.totalBuys.toCents()
         val expectedSellsCents = summary.totalSells.toCents()
         if (buysCents != expectedBuysCents || sellsCents != expectedSellsCents) {

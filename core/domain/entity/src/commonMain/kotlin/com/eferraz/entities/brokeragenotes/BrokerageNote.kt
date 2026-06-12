@@ -1,10 +1,10 @@
 package com.eferraz.entities.brokeragenotes
 
-/**
- * SINACOR brokerage note with mixed buy and sell operations.
- */
+import com.eferraz.entities.transactions.AssetTransaction
+
 public data class BrokerageNote(
-    public val metadata: BrokerageNoteMetadata,
-    public val financialSummary: FinancialSummary,
-    public val assets: List<NoteAsset>,
+    val totalVolumeTraded: Double,
+    val apportionableFees: Double,
+    val netValue: Double,
+    val assets: List<AssetTransaction>,
 )
