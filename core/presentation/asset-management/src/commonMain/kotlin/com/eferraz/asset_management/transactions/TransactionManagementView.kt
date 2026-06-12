@@ -142,6 +142,15 @@ private fun TransactionHeader() {
             )
         }
 
+        Box(modifier = clip.weight(1.1f), contentAlignment = Alignment.CenterStart) {
+            Text(
+                text = "Valor Líq.",
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
         Spacer(modifier = Modifier.width(48.dp))
     }
 }
@@ -234,7 +243,16 @@ private fun TransactionTableRow(
         FormTextField(
             modifier = Modifier.weight(1.1f),
             label = "",
-            value = draft.totalValue,
+            value = draft.grossValue,
+            onValueChange = {},
+            errorMessage = null,
+            readOnly = true,
+        )
+
+        FormTextField(
+            modifier = Modifier.weight(1.1f),
+            label = "",
+            value = draft.netValue,
             onValueChange = {},
             errorMessage = null,
             readOnly = true,
@@ -265,7 +283,8 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<List<Tra
                 type = TransactionType.PURCHASE,
                 quantity = "1",
                 unitPrice = "5000.00",
-                totalValue = "5000.00",
+                grossValue = "5000.00",
+                netValue = "5000.00",
             ),
             TransactionDraftUi(
                 assetClass = AssetClass.FIXED_INCOME,
@@ -273,7 +292,8 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<List<Tra
                 type = TransactionType.PURCHASE,
                 quantity = "1",
                 unitPrice = "3500.00",
-                totalValue = "3500.00",
+                grossValue = "3500.00",
+                netValue = "3500.00",
             ),
         ),
         listOf(
@@ -283,7 +303,8 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<List<Tra
                 type = TransactionType.PURCHASE,
                 quantity = "1",
                 unitPrice = "5000.00",
-                totalValue = "5000.00",
+                grossValue = "5000.00",
+                netValue = "5000.00",
             ),
         ),
         listOf(
@@ -293,7 +314,8 @@ private class TransactionFormPreviewProvider : PreviewParameterProvider<List<Tra
                 type = TransactionType.PURCHASE,
                 quantity = "100",
                 unitPrice = "28.50",
-                totalValue = "2850.0",
+                grossValue = "2850.0",
+                netValue = "2850.0",
             ),
         ),
         emptyList(),

@@ -54,6 +54,6 @@ public data class TransactionBalance private constructor(
         }
 
         private fun calculateTransactionValue(transaction: AssetTransaction): Double =
-            transaction.totalValue
+            transaction.grossValue
     }
 }

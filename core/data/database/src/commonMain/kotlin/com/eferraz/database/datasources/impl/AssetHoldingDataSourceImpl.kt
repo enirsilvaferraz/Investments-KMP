@@ -87,6 +87,9 @@ internal class AssetHoldingDataSourceImpl(
         assetHoldingDao.deleteById(id)
     }
 
+    override suspend fun getByTicker(ticker: String): AssetHolding? =
+        assetHoldingDao.getByTickerWithDetails(ticker)?.let { mapHoldingWithDetails(it) }
+
     @Transaction
     override suspend fun saveWithTransactions(assetHolding: AssetHolding) {
         val holdingId = save(assetHolding)

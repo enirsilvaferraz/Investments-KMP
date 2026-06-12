@@ -2,6 +2,7 @@ package com.eferraz.entities.brokeragenotes
 
 import com.eferraz.entities.transactions.AssetTransaction
 import com.eferraz.entities.transactions.TransactionType
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -9,10 +10,6 @@ import kotlin.test.assertFailsWith
 class NoteFeeAllocationTest {
 
     private val canonicalV2 = CanonicalNoteFixtures.simplifiedThreeAssetNote()
-
-    private val ajfi11 = canonicalV2.assets[0]
-    private val brco11 = canonicalV2.assets[1]
-    private val vilg11 = canonicalV2.assets[2]
 
     // --- User Story 2 ---
 
@@ -29,10 +26,10 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(1001.51, result.getValue(ajfi11), 0.01)
-        assertEquals(998.49, result.getValue(brco11), 0.01)
-        assertEquals(1001.52, result.getValue(vilg11), 0.01)
-        assertEquals(4.54, totalAllocatedFee(v2, result), 0.01)
+        assertEquals(1.51, feeAt(result, 0), 0.01)
+        assertEquals(1.51, feeAt(result, 1), 0.01)
+        assertEquals(1.52, feeAt(result, 2), 0.01)
+        assertEquals(4.54, totalAllocatedFee(result), 0.01)
     }
 
     /**
@@ -48,9 +45,9 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(30, result.size)
-        assertEquals(14.66, totalAllocatedFee(v2, result), 0.01)
-        assertEquals(v2.netValue, buySellNetDifference(v2, result), 0.01)
+        assertEquals(30, result.assets.size)
+        assertEquals(14.66, totalAllocatedFee(result), 0.01)
+        assertEquals(v2.netValue, buySellNetDifference(result), 0.01)
     }
 
     /**
@@ -66,14 +63,13 @@ class NoteFeeAllocationTest {
                 CanonicalNoteFixtures.asset(0, TransactionType.PURCHASE, 100.0, 10.00),
             ),
         )
-        val asset = v2.assets.single()
 
         // WHEN
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(1, result.size)
-        assertEquals(1004.54, result.getValue(asset), 0.01)
+        assertEquals(1, result.assets.size)
+        assertEquals(4.54, feeAt(result, 0), 0.01)
     }
 
     /**
@@ -89,14 +85,13 @@ class NoteFeeAllocationTest {
                 CanonicalNoteFixtures.asset(0, TransactionType.SALE, 10.0, 100.00),
             ),
         )
-        val asset = v2.assets.single()
 
         // WHEN
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(1, result.size)
-        assertEquals(995.46, result.getValue(asset), 0.01)
+        assertEquals(1, result.assets.size)
+        assertEquals(4.54, feeAt(result, 0), 0.01)
     }
 
     /**
@@ -118,15 +113,15 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(2, result.size)
-        assertEquals(v2.netValue, buySellNetDifference(v2, result), 0.01)
+        assertEquals(2, result.assets.size)
+        assertEquals(v2.netValue, buySellNetDifference(result), 0.01)
     }
 
     /**
-     * Zero fees yield netValue equal to grossValue for every asset.
+     * Zero fees yield zero allocatedFee for every asset.
      */
     @Test
-    fun `GIVEN zero fees WHEN calculate THEN netValue equals grossValue`() {
+    fun `GIVEN zero fees WHEN calculate THEN allocatedFee is zero`() {
 
         // GIVEN
         val v2 = canonicalV2.copy(
@@ -138,16 +133,16 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        v2.assets.forEach { asset ->
-            assertEquals(asset.totalValue, result.getValue(asset), 0.01)
+        result.assets.forEach { noteAsset ->
+            assertEquals(0.0, noteAsset.transaction.allocatedFee, 0.01)
         }
     }
 
     /**
-     * Two transactions with different unit prices produce distinct map keys.
+     * Two transactions with different unit prices produce distinct lines.
      */
     @Test
-    fun `GIVEN two transactions with different unit prices WHEN calculate THEN distinct keys`() {
+    fun `GIVEN two transactions with different unit prices WHEN calculate THEN distinct lines`() {
 
         // GIVEN
         val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
@@ -158,16 +153,44 @@ class NoteFeeAllocationTest {
                 CanonicalNoteFixtures.asset(1, TransactionType.PURCHASE, 10.0, 16.00),
             ),
         )
-        val assetA = v2.assets[0]
-        val assetB = v2.assets[1]
 
         // WHEN
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(2, result.size)
-        assertEquals(true, result.containsKey(assetA))
-        assertEquals(true, result.containsKey(assetB))
+        assertEquals(2, result.assets.size)
+        assertEquals("TICK0", result.assets[0].ticker)
+        assertEquals("TICK1", result.assets[1].ticker)
+    }
+
+    /**
+     * Identical transaction fields on different tickers keep separate fee entries.
+     */
+    @Test
+    fun `GIVEN two tickers with identical transaction WHEN calculate THEN each line keeps its own fee`() {
+
+        // GIVEN
+        val sharedTransaction = AssetTransaction(
+            id = 0L,
+            date = LocalDate(2026, 1, 1),
+            type = TransactionType.PURCHASE,
+            quantity = 100.0,
+            unitPrice = 10.0,
+        )
+        val first = BrokerageNoteAsset(ticker = "AAA11", transaction = sharedTransaction)
+        val second = BrokerageNoteAsset(ticker = "BBB11", transaction = sharedTransaction)
+        val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
+            netValue = -2001.01,
+            apportionableFees = 1.01,
+            assets = listOf(first, second),
+        )
+
+        // WHEN
+        val result = NoteFeeAllocation.calculate(v2)
+
+        // THEN
+        assertEquals(0.51, feeAt(result, 0), 0.01)
+        assertEquals(0.50, feeAt(result, 1), 0.01)
     }
 
     // --- User Story 3 ---
@@ -185,9 +208,9 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(1001.51 + 1001.52, buyTotal(v2, result), 0.01)
-        assertEquals(998.49, sellTotal(v2, result), 0.01)
-        assertEquals(v2.netValue, buySellNetDifference(v2, result), 0.01)
+        assertEquals(1001.51 + 1001.52, buyTotal(result), 0.01)
+        assertEquals(998.49, sellTotal(result), 0.01)
+        assertEquals(v2.netValue, buySellNetDifference(result), 0.01)
     }
 
     /**
@@ -225,8 +248,8 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(0.0, buyTotal(v2, result), 0.01)
-        assertEquals(v2.netValue, buySellNetDifference(v2, result), 0.01)
+        assertEquals(0.0, buyTotal(result), 0.01)
+        assertEquals(v2.netValue, buySellNetDifference(result), 0.01)
     }
 
     // --- User Story 4 ---
@@ -244,10 +267,10 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(1.51, allocatedFee(ajfi11, result.getValue(ajfi11)), 0.01)
-        assertEquals(1.51, allocatedFee(brco11, result.getValue(brco11)), 0.01)
-        assertEquals(1.52, allocatedFee(vilg11, result.getValue(vilg11)), 0.01)
-        assertEquals(4.54, totalAllocatedFee(v2, result), 0.01)
+        assertEquals(1.51, feeAt(result, 0), 0.01)
+        assertEquals(1.51, feeAt(result, 1), 0.01)
+        assertEquals(1.52, feeAt(result, 2), 0.01)
+        assertEquals(4.54, totalAllocatedFee(result), 0.01)
     }
 
     /**
@@ -265,16 +288,14 @@ class NoteFeeAllocationTest {
                 CanonicalNoteFixtures.asset(1, TransactionType.PURCHASE, 100.0, 10.00),
             ),
         )
-        val first = v2.assets[0]
-        val second = v2.assets[1]
 
         // WHEN
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(0.51, allocatedFee(first, result.getValue(first)), 0.01)
-        assertEquals(0.50, allocatedFee(second, result.getValue(second)), 0.01)
-        assertEquals(1.01, totalAllocatedFee(v2, result), 0.01)
+        assertEquals(0.51, feeAt(result, 0), 0.01)
+        assertEquals(0.50, feeAt(result, 1), 0.01)
+        assertEquals(1.01, totalAllocatedFee(result), 0.01)
     }
 
     /**
@@ -289,13 +310,12 @@ class NoteFeeAllocationTest {
                 CanonicalNoteFixtures.asset(0, TransactionType.PURCHASE, 100.0, 10.00),
             ),
         )
-        val asset = v2.assets.single()
 
         // WHEN
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(v2.apportionableFees, allocatedFee(asset, result.getValue(asset)), 0.01)
+        assertEquals(v2.apportionableFees, feeAt(result, 0), 0.01)
     }
 
     /**
@@ -314,8 +334,8 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(0.0, totalAllocatedFee(v2, result), 0.01)
-        assertEquals(v2.netValue, buySellNetDifference(v2, result), 0.01)
+        assertEquals(0.0, totalAllocatedFee(result), 0.01)
+        assertEquals(v2.netValue, buySellNetDifference(result), 0.01)
     }
 
     /**
@@ -338,11 +358,11 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(v2.netValue, buySellNetDifference(v2, result) - v2.withheldTaxes, 0.01)
+        assertEquals(v2.netValue, buySellNetDifference(result) - v2.withheldTaxes, 0.01)
     }
 
     /**
-     * Repeated calls on the same note instance return identical maps and key order.
+     * Repeated calls on the same note instance return identical results.
      */
     @Test
     fun `GIVEN same note instance WHEN calculate twice THEN results are identical`() {
@@ -356,31 +376,24 @@ class NoteFeeAllocationTest {
 
         // THEN
         assertEquals(first, second)
-        assertEquals(first.keys.toList(), second.keys.toList())
     }
 
-    private fun allocatedFee(asset: AssetTransaction, netValue: Double): Double = when (asset.type) {
-        TransactionType.PURCHASE -> netValue - asset.totalValue
-        TransactionType.SALE -> asset.totalValue - netValue
-    }
+    private fun feeAt(result: NoteFeeAllocation, index: Int): Double =
+        result.assets[index].transaction.allocatedFee
 
-    private fun totalAllocatedFee(
-        v2: BrokerageNote,
-        result: NoteFeeAllocation,
-    ): Double = v2.assets.sumOf { asset -> allocatedFee(asset, result.getValue(asset)) }
+    private fun totalAllocatedFee(result: NoteFeeAllocation): Double =
+        result.assets.sumOf { it.transaction.allocatedFee }
 
-    private fun buyTotal(v2: BrokerageNote, result: NoteFeeAllocation): Double =
-        v2.assets
-            .filter { it.type == TransactionType.PURCHASE }
-            .sumOf { result.getValue(it) }
+    private fun buyTotal(result: NoteFeeAllocation): Double =
+        result.assets
+            .filter { it.transaction.type == TransactionType.PURCHASE }
+            .sumOf { it.transaction.netValue }
 
-    private fun sellTotal(v2: BrokerageNote, result: NoteFeeAllocation): Double =
-        v2.assets
-            .filter { it.type == TransactionType.SALE }
-            .sumOf { result.getValue(it) }
+    private fun sellTotal(result: NoteFeeAllocation): Double =
+        result.assets
+            .filter { it.transaction.type == TransactionType.SALE }
+            .sumOf { it.transaction.netValue }
 
-    private fun buySellNetDifference(
-        v2: BrokerageNote,
-        result: NoteFeeAllocation,
-    ): Double = sellTotal(v2, result) - buyTotal(v2, result)
+    private fun buySellNetDifference(result: NoteFeeAllocation): Double =
+        sellTotal(result) - buyTotal(result)
 }

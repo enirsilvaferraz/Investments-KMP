@@ -57,6 +57,20 @@ internal interface AssetHoldingDao {
     suspend fun getAllWithAssetByCategory(assetClass: AssetClass): List<AssetHoldingWithDetails>
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
+    @Query(
+        """
+        SELECT * FROM asset_holdings
+        INNER JOIN assets ON asset_holdings.assetId = assets.id
+        INNER JOIN variable_income_assets ON assets.id = variable_income_assets.assetId
+        WHERE variable_income_assets.ticker = :ticker
+        AND asset_holdings.brokerageId = 2
+        LIMIT 1
+        """
+    )
+    suspend fun getByTickerWithDetails(ticker: String): AssetHoldingWithDetails?
+
+    @Transaction
     @Query("SELECT * FROM asset_holdings WHERE goalId = :goalId")
     suspend fun getAllWithAssetByGoalId(goalId: Long): List<AssetHoldingWithDetails>
 }

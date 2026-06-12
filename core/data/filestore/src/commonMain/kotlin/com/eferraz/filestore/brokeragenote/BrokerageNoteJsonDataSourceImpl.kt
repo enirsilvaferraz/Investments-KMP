@@ -20,19 +20,7 @@ internal class BrokerageNoteJsonDataSourceImpl : BrokerageNoteJsonDataSource {
 
             BrokerageNoteValidator.validate(document)
 
-            BrokerageNoteV2Parser.parse(document).also {
-                println()
-                println(it.apportionableFees)
-                println(it.netValue)
-                println(it.totalVolumeTraded)
-                println(it.assets.size)
-
-                println()
-                it.assets.forEach { asset ->
-                    println(asset)
-                }
-                println()
-            }
+            BrokerageNoteV2Parser.parse(document)
         }
     }
 }

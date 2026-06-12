@@ -2,6 +2,7 @@ package com.eferraz.database.daos
 
 import androidx.room3.Dao
 import androidx.room3.Query
+import androidx.room3.Transaction
 import androidx.room3.Upsert
 import com.eferraz.database.entities.transaction.AssetTransactionEntity
 import kotlinx.datetime.LocalDate
@@ -14,6 +15,11 @@ internal interface AssetTransactionDao {
 
     @Upsert
     suspend fun save(transaction: AssetTransactionEntity): Long
+
+    @Transaction
+    suspend fun saveAll(transactions: List<AssetTransactionEntity>) {
+        transactions.forEach { save(it) }
+    }
 
     @Query("SELECT * FROM asset_transactions WHERE id = :id")
     suspend fun find(id: Long): AssetTransactionEntity?

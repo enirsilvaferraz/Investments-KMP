@@ -20,4 +20,5 @@ public interface AssetTransactionDataSource {
     ): List<AssetTransaction>
     public suspend fun delete(holdingId: Long, id: Long)
     public suspend fun getByReferenceDate(startDate: LocalDate, endDate: LocalDate): List<AssetTransaction>
+    public suspend fun saveAll(entries: List<Pair<AssetHolding, AssetTransaction>>)
 }

@@ -1,22 +1,22 @@
 <!--
   Sync Impact Report
   ==================
-  Versão: 1.2.0 → 1.3.0
-  Tipo de bump: MINOR (novo princípio X — simplicidade, legibilidade e escopo focado)
+  Versão: 1.3.0 → 1.4.0
+  Tipo de bump: MINOR (princípio V expandido — testes obrigatórios para migrações Room)
 
   Alterações:
-    - Novo princípio X: Simplicidade, Legibilidade e Escopo Focado
-    - Fluxo de Desenvolvimento: alinhado ao princípio X
-    - Governança: conformidade estendida ao princípio X
+    - Princípio V: adicionada regra de teste unitário para toda migração Room
+    - Fluxo de Desenvolvimento: passo 3 atualizado para mencionar migrações Room
+    - AGENTS.md: referência ao princípio V atualizada
 
   Princípios modificados:
-    - X. (NOVO) Simplicidade, Legibilidade e Escopo Focado
+    - V. Testes Obrigatórios em Use Cases → Testes Obrigatórios em Use Cases e Migrações Room
 
   Templates verificados:
-    - plan-template.md        ✅ atualizado (Constitution Check + gate de escopo)
+    - plan-template.md        ✅ compatível
     - spec-template.md        ✅ compatível
-    - tasks-template.md       ✅ atualizado (nota sobre escopo mínimo)
-    - AGENTS.md               ✅ atualizado
+    - tasks-template.md       ✅ compatível
+    - AGENTS.md               ✅ atualizado (referência ao princípio V)
 
   TODOs pendentes: nenhum
 -->
@@ -68,7 +68,7 @@ Módulos DEVEM usar plugins `foundation.*` de `build-logic/` — nunca aplicar d
 
 Plugins disponíveis: `foundation.project`, `foundation.library.comp`, `koin`, `room`, `ktor`.
 
-### V. Testes Obrigatórios em Use Cases
+### V. Testes Obrigatórios em Use Cases e Migrações Room
 
 Alterações em `:domain:usecases` DEVEM incluir ou atualizar testes unitários.
 
@@ -76,6 +76,14 @@ Alterações em `:domain:usecases` DEVEM incluir ou atualizar testes unitários.
 - MockK para colaboradores externos.
 - Dados de teste no próprio método; evitar factories centralizadas.
 - **Escrever** testes é obrigatório; **executar** `./gradlew :domain:usecases:jvmTest` só quando o utilizador ou a tarefa pedirem validação (princípio IX).
+
+Toda migração de banco de dados Room (incremento de `version` em `@Database`) DEVE ter um teste unitário de migração correspondente.
+
+- Usar `MigrationTestHelper` (AndroidX Room Testing) para validar a migração da versão N-1 para N.
+- O teste DEVE verificar que o schema resultante é válido e que dados pré-existentes sobrevivem corretamente à migração.
+- Padrão de nome: `migration_N_to_M_migratesCorrectly` (em inglês).
+- Os testes de migração residem no módulo `:data` que declara o `@Database`, em `androidTest/` ou no target de testes instrumentados equivalente.
+- **Escrever** o teste é obrigatório junto à implementação da migração; **executar** só quando pedido (princípio IX).
 
 ### VI. API Explícita
 
@@ -135,7 +143,7 @@ Em dúvida entre duas abordagens válidas, escolher a que produz menos linhas e 
 
 1. Ler spec/plano/tasks e delimitar escopo antes de codificar (princípio X).
 2. Criar ou alterar código conforme specs e convenções do projeto — diff mínimo, sem funcionalidades fora do pedido.
-3. Alterações em `:domain:usecases` → incluir ou atualizar testes unitários (princípio V).
+3. Alterações em `:domain:usecases` → incluir ou atualizar testes unitários (princípio V); migrações Room → incluir teste de migração com `MigrationTestHelper` (princípio V).
 4. **Não** executar build Gradle para validar funcionamento (princípio IX).
 5. Compilação e testes (`compileKotlinJvm`, `jvmTest`, `assemble`, etc.) apenas quando pedido explicitamente, em CI/revisão, ou quando a tarefa exigir artefacto de build.
 6. Módulo novo → perguntar o nome ao usuário antes de gerar arquivos, caso não informado.
@@ -150,4 +158,4 @@ Esta constituição é a referência máxima do projeto. Em conflito com outros 
 - **Complexidade**: qualquer desvio DEVE ser justificado e registrado.
 - **Guia operacional**: `AGENTS.md` e regras `.mdc` complementam esta constituição.
 
-**Version**: 1.3.0 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-06-06
+**Version**: 1.4.0 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-06-12

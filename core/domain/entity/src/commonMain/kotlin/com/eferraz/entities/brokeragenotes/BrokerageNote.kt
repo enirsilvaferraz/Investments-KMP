@@ -1,7 +1,5 @@
 package com.eferraz.entities.brokeragenotes
 
-import com.eferraz.entities.transactions.AssetTransaction
-
 public data class BrokerageNote(
     val totalVolumeTraded: Double,
     val apportionableFees: Double,
@@ -18,5 +16,5 @@ public data class BrokerageNote(
      * positivo = crédito ao cliente (investidor recebe).
      */
     val netValue: Double,
-    val assets: List<AssetTransaction>,
+    val assets: List<BrokerageNoteAsset>,
 )

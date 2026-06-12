@@ -7,7 +7,7 @@ import com.eferraz.presentation.features.walletfilters.WalletFiltersCatalog
 import com.eferraz.presentation.features.walletfilters.WalletFiltersUiState
 import com.eferraz.presentation.features.walletfilters.revertToHistoryDefaults
 import com.eferraz.usecases.GetDataPeriodUseCase
-import com.eferraz.usecases.LoadBrokerageNoteUseCase
+import com.eferraz.usecases.ImportBrokerageNoteUseCase
 import com.eferraz.usecases.UpdateFixedIncomeAndFundsHistoryValueUseCase
 import com.eferraz.usecases.cruds.GetBrokeragesUseCase
 import com.eferraz.usecases.cruds.GetCurrentYearMonthUseCase
@@ -44,7 +44,7 @@ internal class HistoryViewModel(
     private val exportToCsvUseCase: ExportToCsvUseCase,
     private val importB3FileUseCase: ImportB3FileUseCase,
     private val calculatePortfolioBalancingUseCase: CalculatePortfolioBalancingUseCase,
-    private val brokerageNoteUseCase: LoadBrokerageNoteUseCase
+    private val brokerageNoteUseCase: ImportBrokerageNoteUseCase
 ) : ViewModel() {
 
     val state: StateFlow<HistoryState> field = MutableStateFlow(HistoryState())

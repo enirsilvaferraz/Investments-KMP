@@ -4,7 +4,7 @@ Seguir as orientações de @../.specify/memory/constitution.md
 
 ## Validação (princípio IX)
 
-**Não** executar `./gradlew` (compile, test, run) para validar funcionamento após alterações de código — só quando o utilizador pedir, a tarefa exigir artefacto de build, ou em CI/revisão. Escrever testes em `:domain:usecases` continua obrigatório (princípio V).
+**Não** executar `./gradlew` (compile, test, run) para validar funcionamento após alterações de código — só quando o utilizador pedir, a tarefa exigir artefacto de build, ou em CI/revisão. Escrever testes em `:domain:usecases` continua obrigatório (princípio V). Toda migração Room (incremento de `version` em `@Database`) DEVE ter teste unitário com `MigrationTestHelper` (princípio V).
 
 ## Simplicidade e escopo (princípio X)
 
@@ -31,8 +31,8 @@ Priorizar **menos código e mais valor**: simplicidade, manutenabilidade e legib
 ## Posição e transações (`:domain:entity`, features `017-holding-transactions`, `023-unify-asset-transaction`)
 
 - **Grafo de leitura**: `HoldingHistoryEntry` → `AssetHolding` → `transactions` (lista completa, ordenada por data).
-- **Transação**: `AssetTransaction` **tipo único** (`data class` com `quantity`, `unitPrice`, `totalValue` derivado); **sem** propriedade `holding`; **sem** subtipos (`FixedIncomeTransaction`, etc. removidos); escrita via `SaveTransactionUseCase.Param(holding, transaction)`.
-- **Persistência**: Room v10 — tabela achatada `asset_transactions` (sem tabelas satélite, sem `observations`/`asset_class`); classe do ativo via `AssetHolding.asset`.
+- **Transação**: `AssetTransaction` **tipo único** (`data class` com `quantity`, `unitPrice`, `allocatedFee`, `grossValue`/`netValue` derivados); **sem** propriedade `holding`; **sem** subtipos (`FixedIncomeTransaction`, etc. removidos); escrita via `SaveTransactionUseCase.Param(holding, transaction)`; importação em lote via `ImportBrokerageNoteUseCase`.
+- **Persistência**: Room v11 — tabela achatada `asset_transactions` (coluna `allocatedFee`, default `0`); classe do ativo via `AssetHolding.asset`.
 - **UI**: formulário inline em `:features:asset-management` (`TransactionManagementView`); legado `composeApp/features/transactions/` removido.
 - **Leitura**: não usar `GetTransactionsByHoldingUseCase`; transações via `@Relation` Room em `AssetHoldingWithDetails` → `HoldingMappers.toDomain`.
 - Planos: `specs/017-holding-transactions/plan.md`, `specs/023-unify-asset-transaction/plan.md`.

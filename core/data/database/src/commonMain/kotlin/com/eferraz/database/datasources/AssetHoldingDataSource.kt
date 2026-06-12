@@ -13,4 +13,5 @@ public interface AssetHoldingDataSource {
     public suspend fun getByGoalId(goalId: Long): List<AssetHolding>
     public suspend fun delete(id: Long)
     public suspend fun saveWithTransactions(assetHolding: AssetHolding)
+    public suspend fun getByTicker(ticker: String): AssetHolding?
 }

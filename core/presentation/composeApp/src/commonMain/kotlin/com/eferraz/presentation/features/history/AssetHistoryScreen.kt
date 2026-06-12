@@ -475,8 +475,8 @@ private fun Transactions(transactions: List<AssetTransaction>) {
                         UiTableDataColumn(
                             text = "Valor",
                             width = TableColumnWidth.Flex(1f),
-                            comparable = { it.totalValue },
-                            content = { Text(it.totalValue.currencyFormat()) }
+                            comparable = { it.grossValue },
+                            content = { Text(it.grossValue.currencyFormat()) }
                         )
                     )
                 ),

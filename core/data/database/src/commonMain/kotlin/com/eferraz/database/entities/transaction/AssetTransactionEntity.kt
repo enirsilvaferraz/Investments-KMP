@@ -49,4 +49,7 @@ internal data class AssetTransactionEntity(
 
     @ColumnInfo(name = "unitPrice", defaultValue = "0")
     val unitPrice: Double,
+
+    @ColumnInfo(name = "allocatedFee", defaultValue = "0")
+    val allocatedFee: Double = 0.0,
 )

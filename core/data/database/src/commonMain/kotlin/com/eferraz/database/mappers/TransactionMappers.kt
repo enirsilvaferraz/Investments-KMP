@@ -11,6 +11,7 @@ internal fun AssetTransaction.toEntity(holdingId: Long): AssetTransactionEntity 
         type = type,
         quantity = quantity,
         unitPrice = unitPrice,
+        allocatedFee = allocatedFee,
     )
 
 internal fun AssetTransactionEntity.toDomain(): AssetTransaction =
@@ -20,4 +21,5 @@ internal fun AssetTransactionEntity.toDomain(): AssetTransaction =
         type = type,
         quantity = quantity,
         unitPrice = unitPrice,
+        allocatedFee = allocatedFee,
     )

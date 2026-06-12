@@ -60,4 +60,10 @@ internal class AssetTransactionDataSourceImpl(
             assetTransactionDao.deleteById(id)
         }
     }
+
+    override suspend fun saveAll(entries: List<Pair<AssetHolding, AssetTransaction>>) {
+        assetTransactionDao.saveAll(
+            entries.map { (holding, transaction) -> transaction.toEntity(holding.id) },
+        )
+    }
 }

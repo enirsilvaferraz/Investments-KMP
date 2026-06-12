@@ -164,7 +164,9 @@ internal data class TransactionDraftUi(
     val type: TransactionType = TransactionType.PURCHASE,
     val quantity: String = "",
     val unitPrice: String = "",
-    val totalValue: String = "",
+    val grossValue: String = "",
+    val allocatedFee: String = "0.0",
+    val netValue: String = "",
 ) {
 
     internal companion object {
@@ -177,7 +179,9 @@ internal data class TransactionDraftUi(
                 type = value.type,
                 quantity = value.quantity.toString(),
                 unitPrice = value.unitPrice.toString(),
-                totalValue = value.totalValue.toString(),
+                grossValue = value.grossValue.toString(),
+                allocatedFee = value.allocatedFee.toString(),
+                netValue = value.netValue.toString(),
                 assetClass = assetClass,
             )
     }
@@ -186,12 +190,14 @@ internal data class TransactionDraftUi(
         val date = localDateFromIsoDateDigits(dateDigits) ?: return null
         val qty = quantity.toDoubleOrNull() ?: return null
         val price = unitPrice.toDoubleOrNull() ?: return null
+        val fee = allocatedFee.toDoubleOrNull() ?: 0.0
         return AssetTransaction(
             id = id ?: 0L,
             date = date,
             type = type,
             quantity = qty,
             unitPrice = price,
+            allocatedFee = fee,
         )
     }
 }
@@ -199,8 +205,14 @@ internal data class TransactionDraftUi(
 internal fun TransactionDraftUi.syncTotal(): TransactionDraftUi {
     val qty = quantity.toDoubleOrNull()
     val price = unitPrice.toDoubleOrNull()
+    val fee = allocatedFee.toDoubleOrNull() ?: 0.0
     return if (qty != null && price != null) {
-        copy(totalValue = (qty * price).toString())
+        val gross = qty * price
+        val net = when (type) {
+            TransactionType.PURCHASE -> gross + fee
+            TransactionType.SALE -> gross - fee
+        }
+        copy(grossValue = gross.toString(), netValue = net.toString())
     } else {
         this
     }

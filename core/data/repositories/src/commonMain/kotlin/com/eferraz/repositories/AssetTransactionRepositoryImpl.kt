@@ -20,4 +20,7 @@ internal class AssetTransactionRepositoryImpl(
     override suspend fun delete(holding: AssetHolding, id: Long) {
         dataSource.delete(holding.id, id)
     }
+
+    override suspend fun saveAll(entries: List<Pair<AssetHolding, AssetTransaction>>) =
+        dataSource.saveAll(entries)
 }

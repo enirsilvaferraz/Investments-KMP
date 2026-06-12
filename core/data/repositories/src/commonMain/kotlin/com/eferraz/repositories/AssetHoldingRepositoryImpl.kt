@@ -37,4 +37,7 @@ internal class AssetHoldingRepositoryImpl(
 
     override suspend fun upsertWithTransactions(holding: AssetHolding) =
         dataSource.saveWithTransactions(holding)
+
+    override suspend fun getByTicker(ticker: String): AssetHolding? =
+        dataSource.getByTicker(ticker)
 }

@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDate
 
 /**
  * Transação de ativo unificada para todas as classes (RF, RV, fundos).
- * O valor total é sempre derivado de [quantity] × [unitPrice].
+ * [grossValue] é derivado de [quantity] × [unitPrice]; [netValue] inclui [allocatedFee].
  */
 public data class AssetTransaction(
     public val id: Long,
@@ -12,6 +12,12 @@ public data class AssetTransaction(
     public val type: TransactionType,
     public val quantity: Double,
     public val unitPrice: Double,
+    public val allocatedFee: Double = 0.0,
 ) {
-    public val totalValue: Double get() = quantity * unitPrice
+    public val grossValue: Double get() = quantity * unitPrice
+
+    public val netValue: Double get() = when (type) {
+        TransactionType.PURCHASE -> grossValue + allocatedFee
+        TransactionType.SALE -> grossValue - allocatedFee
+    }
 }

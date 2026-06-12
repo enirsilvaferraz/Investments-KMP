@@ -22,7 +22,7 @@ Aplicativo de **carteira de investimentos**: cadastro de ativos, posições por 
 | `transactions` | `AssetTransaction` (data class), `TransactionType`, `TransactionBalance`                                   |
 | `goals`        | `FinancialGoal`, `GoalInvestmentPlan`, `GrowthRate`, `GoalMonthlyData`, `ProjectedGoal`, `GoalProjections` |
 | `value`        | `MandatoryText`                                                                                            |
-| `brokeragenotes` | `TradeType`, `ApportionableFees`, `WithheldTaxes`, `FinancialSummary`, `BrokerageNoteMetadata`, `NoteAsset`, `BrokerageNote`, `BrokerageNoteValidator`, `NoteFeeAllocation` |
+| `brokeragenotes` | `TradeType`, `ApportionableFees`, `WithheldTaxes`, `FinancialSummary`, `BrokerageNoteMetadata`, `NoteAsset`, `BrokerageNoteAsset`, `BrokerageNote`, `BrokerageNoteValidator`, `NoteFeeAllocation` |
 | `di`           | `EntityModule` (Koin)                                                                                      |
 
 ---
@@ -50,7 +50,7 @@ Papéis modelados nas entidades `Owner`, `Brokerage` e `Issuer` do diagrama ER (
 - **`expirationDate`:** obrigatória em RF; inexistente em RV; opcional em fundo.
 - **RV:** `liquidity` = `D_PLUS_DAYS`, `liquidityDays` = `2` (fixos, não parâmetros do construtor).
 - **`Liquidity`:** `DAILY`, `AT_MATURITY`, `D_PLUS_DAYS` (com `liquidityDays` onde fizer sentido).
-- **`AssetTransaction`:** tipo único (`data class`) com `quantity` e `unitPrice` persistidos; `totalValue` sempre derivado (`quantity * unitPrice`). RF/Fundos: convenção UI qty=1, preço unitário = valor total.
+- **`AssetTransaction`:** tipo único (`data class`) com `quantity`, `unitPrice` e `allocatedFee` persistidos; `grossValue` derivado (`quantity * unitPrice`); `netValue` derivado (`grossValue ± allocatedFee` conforme `TransactionType`). RF/Fundos: convenção UI qty=1, preço unitário = valor total.
 - **`TransactionType`:** `PURCHASE` aumenta posição; `SALE` reduz.
 - **`FinancialGoal`:** `targetValue > 0` no `init`.
 - **Datas:** `kotlinx.datetime` (`LocalDate`, `YearMonth`).
@@ -67,7 +67,7 @@ Subtipos e campos distintivos estão no diagrama ER (`Asset`, `FixedIncomeAsset`
 
 ### 6.2 `AssetTransaction`
 
-Tipo único para todas as classes de ativo. Campos: `id`, `date`, `type`, `quantity`, `unitPrice`; `totalValue` é propriedade derivada. A classe do ativo (`AssetClass`) vem de `AssetHolding.asset`, não da transação.
+Tipo único para todas as classes de ativo. Campos: `id`, `date`, `type`, `quantity`, `unitPrice`, `allocatedFee` (default `0.0`); `grossValue` e `netValue` são propriedades derivadas. A classe do ativo (`AssetClass`) vem de `AssetHolding.asset`, não da transação.
 
 ### 6.3 Metas e projeções
 
@@ -94,7 +94,8 @@ Pacote **independente** do modelo de carteira (`AssetTransaction`, `AssetHolding
 - **`FinancialSummary`:** `totalVolumeTraded`, `totalBuys`, `totalSells`, `apportionableFees`, `withheldTaxes`.
 - **`BrokerageNoteMetadata`:** cabeçalho (`noteNumber`, datas, corretora, CNPJ, `netValue` com sinal da nota: negativo = débito, positivo = crédito).
 - **`NoteAsset`:** `ticker`, `specification`, `tradeType`, `quantity`, `unitPrice`, `grossValue` (informado pela fonte; validado em Etapa 1). Todos os campos participam de `equals`/`hashCode`.
-- **`BrokerageNote`:** `metadata`, `financialSummary`, `assets`.
+- **`BrokerageNoteAsset`:** `ticker` + `transaction: AssetTransaction` — par usado no contexto de importação de nota (ticker não polui `AssetTransaction` genérica).
+- **`BrokerageNote`:** `totalVolumeTraded`, `apportionableFees`, `withheldTaxes`, `netValue`, `assets: List<BrokerageNoteAsset>`.
 - **`BrokerageNoteValidator`:** Etapa 1 — validação pré-cálculo (`internal`; testável em `jvmTest`); falha → `IllegalArgumentException`.
 - **`NoteFeeAllocation`:** `data class` que implementa `Map<NoteAsset, Double>` (valor = `netValue` final por ativo); ponto de entrada `NoteFeeAllocation.calculate(note)` ou atalho `BrokerageNote.calculateFeeAllocation()`:
   - Pipeline em 3 etapas: validação pré-cálculo, rateio proporcional, fechamento contábil.
@@ -276,7 +277,9 @@ erDiagram
         String type "enum TransactionType"
         Double quantity
         Double unitPrice
-        Double totalValue "derivado qty*unitPrice"
+        Double allocatedFee "default 0"
+        Double grossValue "derivado qty*unitPrice"
+        Double netValue "derivado grossValue +/- allocatedFee"
     }
     TransactionBalance {
         Double contributions
