@@ -61,7 +61,7 @@ class NoteFeeAllocationTest {
 
         // GIVEN
         val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
-            netValue = 1004.54,
+            netValue = -1004.54,
             assets = listOf(
                 CanonicalNoteFixtures.asset(0, TransactionType.PURCHASE, 100.0, 10.00),
             ),
@@ -84,7 +84,7 @@ class NoteFeeAllocationTest {
 
         // GIVEN
         val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
-            netValue = -995.46,
+            netValue = 995.46,
             assets = listOf(
                 CanonicalNoteFixtures.asset(0, TransactionType.SALE, 10.0, 100.00),
             ),
@@ -100,14 +100,14 @@ class NoteFeeAllocationTest {
     }
 
     /**
-     * Note with all SELL assets satisfies closure with negative netValue.
+     * Note with all SELL assets satisfies closure with positive netValue.
      */
     @Test
     fun `GIVEN note with all SELL assets WHEN calculate THEN closure holds`() {
 
         // GIVEN
         val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
-            netValue = -1995.46,
+            netValue = 1995.46,
             assets = listOf(
                 CanonicalNoteFixtures.asset(0, TransactionType.SALE, 10.0, 100.00),
                 CanonicalNoteFixtures.asset(1, TransactionType.SALE, 10.0, 100.00),
@@ -130,7 +130,7 @@ class NoteFeeAllocationTest {
 
         // GIVEN
         val v2 = canonicalV2.copy(
-            netValue = 1000.00,
+            netValue = -1000.00,
             apportionableFees = 0.0,
         )
 
@@ -151,7 +151,7 @@ class NoteFeeAllocationTest {
 
         // GIVEN
         val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
-            netValue = 310.00,
+            netValue = -310.00,
             apportionableFees = 0.0,
             assets = listOf(
                 CanonicalNoteFixtures.asset(0, TransactionType.PURCHASE, 10.0, 15.00),
@@ -207,14 +207,14 @@ class NoteFeeAllocationTest {
     }
 
     /**
-     * All-SELL note satisfies closure with negative metadata.netValue.
+     * All-SELL note satisfies closure with positive metadata.netValue.
      */
     @Test
     fun `GIVEN all SELL note WHEN calculate THEN closure equation holds`() {
 
         // GIVEN
         val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
-            netValue = -1995.46,
+            netValue = 1995.46,
             assets = listOf(
                 CanonicalNoteFixtures.asset(0, TransactionType.SALE, 10.0, 100.00),
                 CanonicalNoteFixtures.asset(1, TransactionType.SALE, 10.0, 100.00),
@@ -258,7 +258,7 @@ class NoteFeeAllocationTest {
 
         // GIVEN
         val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
-            netValue = 2001.01,
+            netValue = -2001.01,
             apportionableFees = 1.01,
             assets = listOf(
                 CanonicalNoteFixtures.asset(0, TransactionType.PURCHASE, 100.0, 10.00),
@@ -306,7 +306,7 @@ class NoteFeeAllocationTest {
 
         // GIVEN
         val v2 = canonicalV2.copy(
-            netValue = 1000.00,
+            netValue = -1000.00,
             apportionableFees = 0.0,
         )
 
@@ -316,6 +316,29 @@ class NoteFeeAllocationTest {
         // THEN
         assertEquals(0.0, totalAllocatedFee(v2, result), 0.01)
         assertEquals(v2.netValue, buySellNetDifference(v2, result), 0.01)
+    }
+
+    /**
+     * Credit note with withheld taxes subtracts IRRF from trade balance in closure.
+     */
+    @Test
+    fun `GIVEN credit note with withheld taxes WHEN calculate THEN closure subtracts irrf`() {
+
+        // GIVEN
+        val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
+            netValue = 95.0,
+            apportionableFees = 0.0,
+            withheldTaxes = 5.0,
+            assets = listOf(
+                CanonicalNoteFixtures.asset(0, TransactionType.SALE, 10.0, 10.00),
+            ),
+        )
+
+        // WHEN
+        val result = NoteFeeAllocation.calculate(v2)
+
+        // THEN
+        assertEquals(v2.netValue, buySellNetDifference(v2, result) - v2.withheldTaxes, 0.01)
     }
 
     /**
@@ -359,5 +382,5 @@ class NoteFeeAllocationTest {
     private fun buySellNetDifference(
         v2: BrokerageNote,
         result: NoteFeeAllocation,
-    ): Double = buyTotal(v2, result) - sellTotal(v2, result)
+    ): Double = sellTotal(v2, result) - buyTotal(v2, result)
 }

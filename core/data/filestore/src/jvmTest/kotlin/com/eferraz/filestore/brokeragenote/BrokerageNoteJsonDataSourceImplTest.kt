@@ -25,6 +25,7 @@ class BrokerageNoteJsonDataSourceImplTest {
         assertEquals(56402.04, note.totalVolumeTraded, 0.01)
         assertEquals(12294.92, note.netValue, 0.01)
         assertEquals(17.85, note.apportionableFees, 0.01)
+        assertEquals(1.71, note.withheldTaxes, 0.01)
         assertEquals(47, note.assets.size)
     }
 }

@@ -11,6 +11,9 @@ internal object BrokerageNoteV2Parser {
     internal fun parse(note: BrokerageNoteDocument): BrokerageNote = BrokerageNote(
         totalVolumeTraded = note.financialSummary.totalVolumeTraded,
         apportionableFees = note.financialSummary.apportionableFees.total,
+        withheldTaxes = note.financialSummary.withheldTaxes.run {
+            irrfOperations + irrfDayTrade
+        },
         netValue = note.metadata.netValue,
         assets = note.assets.mapIndexed { index, asset ->
             AssetTransaction(

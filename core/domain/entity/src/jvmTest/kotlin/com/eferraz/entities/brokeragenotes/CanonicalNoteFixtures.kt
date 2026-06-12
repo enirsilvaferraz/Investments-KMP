@@ -10,13 +10,15 @@ internal object CanonicalNoteFixtures {
     private val fullCanonicalDate = LocalDate(2026, 6, 9)
 
     internal fun simplifiedThreeAssetNote(
-        netValue: Double = 1004.54,
+        netValue: Double = -1004.54,
         apportionableFees: Double = 4.54,
+        withheldTaxes: Double = 0.0,
         assets: List<AssetTransaction> = simplifiedDefaultAssets(),
         totalVolumeTraded: Double = assets.sumOf { it.totalValue },
     ): BrokerageNote = BrokerageNote(
         totalVolumeTraded = totalVolumeTraded,
         apportionableFees = apportionableFees,
+        withheldTaxes = withheldTaxes,
         netValue = netValue,
         assets = assets,
     )
@@ -24,7 +26,8 @@ internal object CanonicalNoteFixtures {
     internal fun fullCanonicalNote(): BrokerageNote = BrokerageNote(
         totalVolumeTraded = 48912.22,
         apportionableFees = 14.66,
-        netValue = 33705.98,
+        withheldTaxes = 0.0,
+        netValue = -33705.98,
         assets = fullCanonicalAssets(),
     )
 

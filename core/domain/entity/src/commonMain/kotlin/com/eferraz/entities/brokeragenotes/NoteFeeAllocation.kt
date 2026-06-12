@@ -54,6 +54,7 @@ public data class NoteFeeAllocation private constructor(
             validateAccountingClosure(
                 netValues = netValues,
                 noteNetValue = noteNetValue,
+                withheldTaxes = note.withheldTaxes,
             )
 
             return NoteFeeAllocation(netValuesByAsset = netValues)
@@ -122,12 +123,16 @@ public data class NoteFeeAllocation private constructor(
         /**
          * Regra 3.2 (FR-019): fechamento contábil da nota em centavos inteiros.
          *
-         * Σ(valor líquido COMPRA) − Σ(valor líquido VENDA) deve igualar [noteNetValue]
-         * (sinal contábil: positivo = débito do cliente, negativo = crédito).
+         * Saldo de operações: Σ(valor líquido VENDA) − Σ(valor líquido COMPRA).
+         * Em notas com crédito ao cliente (saldo positivo), [withheldTaxes] reduz o valor
+         * líquido final — alinhado a `valor_liquido_nota` da corretora.
+         *
+         * Sinal da nota: negativo = débito do cliente; positivo = crédito.
          */
         private fun validateAccountingClosure(
             netValues: Map<AssetTransaction, Double>,
             noteNetValue: Double,
+            withheldTaxes: Double,
         ) {
             var buysTotalCents = 0L
             var sellsTotalCents = 0L
@@ -141,10 +146,12 @@ public data class NoteFeeAllocation private constructor(
             }
 
             val noteNetValueCents = noteNetValue.toCents()
-            val calculatedTotal = buysTotalCents - sellsTotalCents
+            val tradeBalanceCents = sellsTotalCents - buysTotalCents
+            val calculatedTotalCents = tradeBalanceCents - withheldTaxes.toCents()
 
-            if (calculatedTotal != noteNetValueCents) {
-                val computedNetValue = calculatedTotal / 100.0
+
+            if (calculatedTotalCents != noteNetValueCents) {
+                val computedNetValue = calculatedTotalCents / 100.0
                 throw IllegalStateException(
                     "accounting closure failed: expected $noteNetValue, got $computedNetValue",
                 )

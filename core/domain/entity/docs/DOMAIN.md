@@ -92,7 +92,7 @@ Pacote **independente** do modelo de carteira (`AssetTransaction`, `AssetHolding
 - **`ApportionableFees`:** seis taxas rateáveis; `total` derivado (soma das seis).
 - **`WithheldTaxes`:** `irrfOperations`, `irrfDayTrade` — informativo; **não** entra no rateio.
 - **`FinancialSummary`:** `totalVolumeTraded`, `totalBuys`, `totalSells`, `apportionableFees`, `withheldTaxes`.
-- **`BrokerageNoteMetadata`:** cabeçalho (`noteNumber`, datas, corretora, CNPJ, `netValue` com sinal contábil SINACOR).
+- **`BrokerageNoteMetadata`:** cabeçalho (`noteNumber`, datas, corretora, CNPJ, `netValue` com sinal da nota: negativo = débito, positivo = crédito).
 - **`NoteAsset`:** `ticker`, `specification`, `tradeType`, `quantity`, `unitPrice`, `grossValue` (informado pela fonte; validado em Etapa 1). Todos os campos participam de `equals`/`hashCode`.
 - **`BrokerageNote`:** `metadata`, `financialSummary`, `assets`.
 - **`BrokerageNoteValidator`:** Etapa 1 — validação pré-cálculo (`internal`; testável em `jvmTest`); falha → `IllegalArgumentException`.
@@ -100,7 +100,7 @@ Pacote **independente** do modelo de carteira (`AssetTransaction`, `AssetHolding
   - Pipeline em 3 etapas: validação pré-cálculo, rateio proporcional, fechamento contábil.
   - Aritmética inteira em centavos (`Long`) com ROUND_HALF_UP; resíduo no **último** ativo da lista.
   - BUY: `netValue = grossValue + allocatedFee`; SELL: `netValue = grossValue − allocatedFee`.
-  - Fechamento: `Σ(allocatedFee) == Soma_Taxas` e `Σ(BUY.netValue) − Σ(SELL.netValue) == metadata.netValue` (centavos); falha → `IllegalStateException`.
+  - Fechamento: `Σ(allocatedFee) == Soma_Taxas` e `Σ(SELL.netValue) − Σ(BUY.netValue) − withheldTaxes` (quando crédito) `== metadata.netValue` (centavos); falha → `IllegalStateException`.
 
 ### 6.6 Enums
 
