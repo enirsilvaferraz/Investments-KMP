@@ -99,7 +99,7 @@ Pacote **independente** do modelo de carteira (`AssetTransaction`, `AssetHolding
 - **`BrokerageNoteValidator`:** Etapa 1 — validação pré-cálculo (`internal`; testável em `jvmTest`); falha → `IllegalArgumentException`.
 - **`NoteFeeAllocation`:** `data class` que implementa `Map<NoteAsset, Double>` (valor = `netValue` final por ativo); ponto de entrada `NoteFeeAllocation.calculate(note)` ou atalho `BrokerageNote.calculateFeeAllocation()`:
   - Pipeline em 3 etapas: validação pré-cálculo, rateio proporcional, fechamento contábil.
-  - Aritmética inteira em centavos (`Long`) com ROUND_HALF_UP; resíduo no **último** ativo da lista.
+  - Aritmética inteira em centavos (`Long`) com ROUND_HALF_UP; resíduo no ativo de **maior volume** (empate → primeiro da lista).
   - BUY: `netValue = grossValue + allocatedFee`; SELL: `netValue = grossValue − allocatedFee`.
   - Fechamento: `Σ(allocatedFee) == Soma_Taxas` e `Σ(SELL.netValue) − Σ(BUY.netValue) − withheldTaxes` (quando crédito) `== metadata.netValue` (centavos); falha → `IllegalStateException`.
 

@@ -14,7 +14,7 @@ class NoteFeeAllocationTest {
     // --- User Story 2 ---
 
     /**
-     * Canonical 3-asset note distributes fees with last asset absorbing rounding residue.
+     * Canonical 3-asset note distributes fees with highest-volume asset absorbing rounding residue.
      */
     @Test
     fun `GIVEN canonical 3-asset note WHEN calculate THEN distributes fees proportionally`() {
@@ -26,9 +26,9 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(1.51, feeAt(result, 0), 0.01)
+        assertEquals(1.52, feeAt(result, 0), 0.01)
         assertEquals(1.51, feeAt(result, 1), 0.01)
-        assertEquals(1.52, feeAt(result, 2), 0.01)
+        assertEquals(1.51, feeAt(result, 2), 0.01)
         assertEquals(4.54, totalAllocatedFee(result), 0.01)
     }
 
@@ -189,8 +189,8 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(0.51, feeAt(result, 0), 0.01)
-        assertEquals(0.50, feeAt(result, 1), 0.01)
+        assertEquals(0.50, feeAt(result, 0), 0.01)
+        assertEquals(0.51, feeAt(result, 1), 0.01)
     }
 
     // --- User Story 3 ---
@@ -255,10 +255,10 @@ class NoteFeeAllocationTest {
     // --- User Story 4 ---
 
     /**
-     * Three equal-volume assets: last asset receives rounding residue.
+     * Three equal-volume assets: first asset (tie-break) receives rounding residue.
      */
     @Test
-    fun `GIVEN three equal-volume assets WHEN calculate THEN last asset absorbs residue`() {
+    fun `GIVEN three equal-volume assets WHEN calculate THEN highest-volume asset absorbs residue`() {
 
         // GIVEN
         val v2 = canonicalV2
@@ -267,17 +267,17 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(1.51, feeAt(result, 0), 0.01)
+        assertEquals(1.52, feeAt(result, 0), 0.01)
         assertEquals(1.51, feeAt(result, 1), 0.01)
-        assertEquals(1.52, feeAt(result, 2), 0.01)
+        assertEquals(1.51, feeAt(result, 2), 0.01)
         assertEquals(4.54, totalAllocatedFee(result), 0.01)
     }
 
     /**
-     * Two equal-volume assets: second (last) asset receives rounding residue.
+     * Two equal-volume assets: first asset (tie-break) receives rounding residue.
      */
     @Test
-    fun `GIVEN two equal-volume assets WHEN calculate THEN last asset absorbs residue`() {
+    fun `GIVEN two equal-volume assets WHEN calculate THEN highest-volume asset absorbs residue`() {
 
         // GIVEN
         val v2 = CanonicalNoteFixtures.simplifiedThreeAssetNote(
@@ -293,8 +293,8 @@ class NoteFeeAllocationTest {
         val result = NoteFeeAllocation.calculate(v2)
 
         // THEN
-        assertEquals(0.51, feeAt(result, 0), 0.01)
-        assertEquals(0.50, feeAt(result, 1), 0.01)
+        assertEquals(0.50, feeAt(result, 0), 0.01)
+        assertEquals(0.51, feeAt(result, 1), 0.01)
         assertEquals(1.01, totalAllocatedFee(result), 0.01)
     }
 

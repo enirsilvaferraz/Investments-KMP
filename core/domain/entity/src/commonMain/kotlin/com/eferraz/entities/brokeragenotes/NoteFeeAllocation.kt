@@ -30,24 +30,17 @@ public data class NoteFeeAllocation private constructor(
             // --- Etapa 2: rateio proporcional em centavos inteiros (FR-011 a FR-016) ---
             val totalVolumeCents = note.totalVolumeTraded.toCents()
             val somaFeesCents = note.apportionableFees.toCents()
-            val grossValueCents = note.assets.map { it.transaction.grossValue.toCents() }
             val noteNetValue = note.netValue
 
-            val allocatedFees = allocateFeeCents(
-                grossValueCents = grossValueCents,
+            val assetsWithFees = allocateFees(
+                assets = note.assets,
                 somaFeesCents = somaFeesCents,
                 totalVolumeCents = totalVolumeCents,
             )
 
-            val assetsWithFees = note.assets.mapIndexed { index, noteAsset ->
-                noteAsset.copy(
-                    transaction = noteAsset.transaction.copy(allocatedFee = allocatedFees[index]),
-                )
-            }
-
             // --- Etapa 3: validação pós-cálculo (FR-018, FR-019) ---
             validateFeeDistribution(
-                allocatedFees = allocatedFees,
+                allocatedFees = assetsWithFees.map { it.transaction.allocatedFee },
                 somaFeesCents = somaFeesCents,
             )
 
@@ -63,28 +56,32 @@ public data class NoteFeeAllocation private constructor(
         /**
          * Distribui [somaFeesCents] proporcionalmente ao volume bruto de cada ativo.
          *
-         * Os N−1 primeiros ativos recebem quota com ROUND_HALF_UP; o último absorve o resíduo
-         * para que a soma das taxas alocadas feche exatamente em centavos (FR-013).
+         * Todos exceto o de maior volume recebem quota com ROUND_HALF_UP; o de maior volume absorve
+         * o resíduo para que a soma das taxas alocadas feche exatamente em centavos (FR-013).
+         * Em empate de volume, prevalece o primeiro na lista.
          */
-        private fun allocateFeeCents(
-            grossValueCents: List<Long>,
+        private fun allocateFees(
+            assets: List<BrokerageNoteAsset>,
             somaFeesCents: Long,
             totalVolumeCents: Long,
-        ): List<Double> {
-
+        ): List<BrokerageNoteAsset> {
+            val grossValueCents = assets.map { it.transaction.grossValue.toCents() }
             val feeCents = LongArray(grossValueCents.size)
-            val lastIndex = grossValueCents.lastIndex
+            val residueIndex = grossValueCents.indices.maxBy { grossValueCents[it] }
 
-            for (index in 0 until lastIndex) {
+            for (index in grossValueCents.indices) {
+                if (index == residueIndex) continue
                 // Quota proporcional: volumeDoAtivo × Soma_Taxas ÷ volumeTotal.
                 // A divisão inteira com "+ volumeTotal/2" implementa ROUND_HALF_UP em centavos (FR-012).
                 feeCents[index] = (grossValueCents[index] * somaFeesCents + totalVolumeCents / 2) / totalVolumeCents
             }
 
-            // O último ativo recebe o que faltar para Σ taxas == Soma_Taxas (FR-013).
-            feeCents[lastIndex] = somaFeesCents - feeCents.copyOfRange(0, lastIndex).sum()
+            // O ativo de maior volume recebe o que faltar para Σ taxas == Soma_Taxas (FR-013).
+            feeCents[residueIndex] = somaFeesCents - feeCents.sum()
 
-            return feeCents.map { it / 100.0 }
+            return assets.mapIndexed { index, asset ->
+                asset.copy(transaction = asset.transaction.copy(allocatedFee = feeCents[index] / 100.0))
+            }
         }
 
         /**
