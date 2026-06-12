@@ -17,7 +17,7 @@ internal object BrokerageNoteV2Parser {
         netValue = note.metadata.netValue,
         assets = note.assets.mapIndexed { index, asset ->
             AssetTransaction(
-                id = index.toLong(),
+                id = 0,
                 date = note.metadata.tradingDate,
                 type = when (TradeType.fromMovement(asset.movement)) {
                     TradeType.BUY -> TransactionType.PURCHASE
